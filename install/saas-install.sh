@@ -188,6 +188,7 @@ saas_deploy(){
         echo "Please Download SAAS first" && exit
     fi
     cd ../saas/
+    pip3 install requests==2.25.1
     python3 deploy.py --domain $DOMAIN_NAME --username admin --password admin --file_name rbac-${DOMAIN_NAME}-${SAAS_VERSION}.tar.gz
     python3 deploy.py --domain $DOMAIN_NAME --username admin --password admin --file_name workbench-${DOMAIN_NAME}-${SAAS_VERSION}.tar.gz
     python3 deploy.py --domain $DOMAIN_NAME --username admin --password admin --file_name cmdb-${DOMAIN_NAME}-${SAAS_VERSION}.tar.gz
