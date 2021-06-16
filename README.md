@@ -135,6 +135,8 @@ cd /opt/opsany-paas/install/
 ./paas-install.sh 
 ```
 
+> 如果遇到安装失败，请执行uninstall.sh进行卸载之后，重新执行paas-install.sh
+
 5. 访问域名测试，默认用户名admin 密码admin
 
   http://192.168.56.11/
