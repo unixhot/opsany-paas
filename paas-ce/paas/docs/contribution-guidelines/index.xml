@@ -1,0 +1,17 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>OpsAny技术运营平台 – Contribution Guidelines</title>
+    <link>/docs/contribution-guidelines/</link>
+    <description>Recent content in Contribution Guidelines on OpsAny技术运营平台</description>
+    <generator>Hugo -- gohugo.io</generator>
+    
+	  <atom:link href="/docs/contribution-guidelines/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+      
+        
+      
+    
+    
+  </channel>
+</rss>

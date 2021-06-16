@@ -1,0 +1,73 @@
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <link rel="icon" type="image/x-icon" href="{{STATIC_URL}}favicon.ico">
+        <link href="{{STATIC_URL}}css/bk.{{CSS_SUFFIX}}" rel="stylesheet" type="text/css" />
+        <link href="{{STATIC_URL}}assets/bk-icon-2.0/iconfont.css" rel="stylesheet" type="text/css" />
+        <link href="{{STATIC_URL}}css/login.{{CSS_SUFFIX}}?v={{STATIC_VERSION}}" rel="stylesheet" type="text/css" />
+        <title>{% trans '登录 | OpsAny' %}</title>
+    </head>
+    <body>
+        <div class="page-content">
+            <div class="header" style="">
+                <div class="logo" style="">
+                    <img style="" src="{{STATIC_URL}}img/logo/bk_login.png" height="30" width="220" alt="" />
+                </div> 
+            </div>
+            <div style='margin-top: 9%;display: flex;flex-direction: column;margin-left: 16%;' >
+                <img width="450px" height="85px" src="{{STATIC_URL}}icon/home_top_word.png" alt="">
+            </div>
+            <div class="left-img" style='margin-left: 15.8%;margin-top:2%;'>
+                <img height="305" width="535" src="{{STATIC_URL}}icon/home_page_picture.png" alt="">
+            </div>
+            <div class="login-from" style="margin-top: 5%;">
+                <div class="logo-title">
+                    <!-- <img src="{{STATIC_URL}}img/logo/bk_login.png" height="32" width="311" alt=""> -->
+                    欢迎登录
+                </div>
+                <div class="from-detail" style="margin-top: -3%;">
+                    <form action="{{ app_path }}" method="post" id="login-form" onsubmit="return refresh_token()">{% csrf_token %}
+                        <div class="is-danger-tip">
+                            {% if form.errors or form.non_field_errors %}
+                                <i class="bk-icon icon-exclamation-circle-shape"></i><span>{% trans '账户或者密码错误，请重新输入' %}</span>
+                            {% endif %}
+                        </div>
+                        <div class="form-login">
+                            <div class="user group-control" style="margin-bottom: 10%;width: 270px;">
+                                <i class="bk-icon icon-user"></i>
+                                <input id="user" type="text" name="username" placeholder="{% trans '请输入用户名' %}" >
+                            </div>
+                            <div class="pwd group-control" style="width: 270px;">
+                                <i class="bk-icon icon-password"></i>
+                                <input class="password" id="password" type="password" name="password" value="" placeholder="{% trans '请输入用户密码' %}">
+                            </div>
+                            <div>
+                                <input type="hidden" name="next" value="{{ next }}" />
+                                <input type="hidden" name="app_id" value="{{app_id }}">
+                            </div>
+                            <div class="btn-content clearfix" style="">
+                                <button class="login-btn" style="width: 270px;">{% trans '登录' %}</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+    <footer class="footer">
+		<p>
+            <a href="#" target="_blank" hotrep="hp.footer.feedback" class="link">Copyright © 2012-2020 OpsAny. All Rights Reserved.</a>
+		</p>
+		<!-- <p>Copyright © 2012-2020 womaiyun. All Rights Reserved.</p> -->
+	</footer>
+        </div>
+        <div class="error-message-content is-chrome">
+            <span>{% trans '您的浏览器非Chrome，建议您使用最新版本的Chrome浏览，以保证最好的体验效果' %}</span><i class="bk-icon icon-close-circle-shape" id="close-chrome"></i>
+        </div>
+    </body>
+    <!-- js 国际化 -->
+    <script type="text/javascript" src="{{SITE_URL}}jsi18n/i18n/"></script>
+    <script src="{{STATIC_URL}}assets/jquery-1.10.2.min.js"></script>
+    <script src="{{STATIC_URL}}js/login.{{JS_SUFFIX}}?v={{STATIC_VERSION}}"></script>
+
+</html>

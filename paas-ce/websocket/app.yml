@@ -1,0 +1,87 @@
+app_code: control
+app_name: 管控平台
+secret_key: 9f9f7d93-990a-4719-a7aa-ea219e647d33
+author: OpsAny
+category: OpsAny
+!!python/unicode 'date': '2020-03-20 20:20:55'
+desktop:
+  height: 720
+  is_max: true
+  width: 1300
+introduction: OpsAny管控平台
+is_use_celery: True
+!!python/unicode 'language': python
+libraries:
+- name: uWSGI
+  version: 2.0.19.1
+- name: amqp
+  version: 1.4.9
+- name: anyjson
+  version: 0.3.3
+- name: billiard
+  version: 3.3.0.23
+- name: celery
+  version: 3.1.25
+- name: certifi
+  version: 2019.11.28
+- name: chardet
+  version: 3.0.4
+- name: Django
+  version: 2.2.6
+- name: django-celery
+  version: 3.2.1
+- name: httplib2
+  version: 0.9.1
+- name: idna
+  version: 2.8
+- name: kombu
+  version: 3.0.37
+- name: Mako
+  version: 1.0.6
+- name: MarkupSafe
+  version: 1.1
+- name: mysqlclient
+  version: 1.4.4
+- name: python-json-logger
+  version: 0.1.7
+- name: pytz
+  version: 2019.3
+- name: requests
+  version: 2.25.0
+- name: six
+  version: 1.11.0
+- name: sqlparse
+  version: 0.3.0
+- name: urllib3
+  version: 1.26.2
+- name: bcrypt
+  version: 3.2.0
+- name: cryptography
+  version: 3.3.1
+- name: whitenoise
+  version: 3.3.0
+- name: django-cors-headers
+  version: 3.2.1
+- name: django-redis
+  version: 4.11.0
+- name: paramiko
+  version: 2.7.2
+- name: channels
+  version: 2.1.4
+- name: channels-redis
+  version: 2.3.1
+- name: daphne
+  version: 2.2.1
+- name: Pillow
+  version: 4.3.0
+- name: python-magic
+  version: 0.4.3
+- name: xlrd
+  version: 1.2.0
+- name: PyYAML
+  version: 5.3.1
+- name: django-extensions
+  version: 3.1.1
+- name: pycryptodomex
+  version: 3.9.8
+version: 1.1.4

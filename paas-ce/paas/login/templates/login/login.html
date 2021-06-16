@@ -1,0 +1,129 @@
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <link rel="icon" type="image/x-icon" href="{{STATIC_URL}}favicon.ico">
+        <link href="{{STATIC_URL}}css/bk.{{CSS_SUFFIX}}" rel="stylesheet" type="text/css" />
+        <link href="{{STATIC_URL}}assets/bk-icon-2.0/iconfont.css" rel="stylesheet" type="text/css" />
+        <link href="{{STATIC_URL}}css/login.{{CSS_SUFFIX}}?v={{STATIC_VERSION}}" rel="stylesheet" type="text/css" />
+        <title>{% trans '登录 | OpsAny' %}</title>
+    </head>
+    <body>
+        <div class="page-content">
+            <div class="header" style="box-shadow: 0px 0px 6px 0px rgba(12, 34, 65, 0.2)">
+                <div class="logo" style="">
+                    <img style="" src="{{STATIC_URL}}img/logo/bk_login.png" alt="" />
+                </div> 
+              <div style="margin: 0 30px 0 0" >
+                   <a href="/docs/" target="_blank" style="color:#666"  class="container_header_right_child">帮助中心</a>
+              <span class="drop_down" style="color: #666; margin-left: 10px">
+                <span class="show_name">简体中文</span>
+                <svg t="1622808046517" class="icon" style="margin-left: 5px"  viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2424" width="8" height="8"><path d="M0.006 284.4l56.597-56.598L512 683.2l455.396-455.397 56.598 56.597L512 796.395z" p-id="2425"></path></svg>
+                <ul class="drop_down_list">
+                    <li><a>简体中文</a></li>
+                </ul>
+            </span>
+               </div>
+            </div>
+            <div style='margin-top: 9%;display: flex;flex-direction: column;margin-left: 20%;' >
+                <img width="540px" src="{{STATIC_URL}}icon/home_top_word.png" alt="">
+            </div>
+            <div class="left-img" style='margin-left: 20%;margin-top:2%;'>
+                <img height="410" width="540" src="{{STATIC_URL}}icon/home_page_picture.png" alt="">
+            </div>
+            <div class="login-from" style="margin-top: 5%; box-shadow: 0px 2px 30px 0px rgba(12, 34, 65, 0.2)">
+                <div class="logo-title">
+                    <!-- <img src="{{STATIC_URL}}img/logo/bk_login.png" height="32" width="311" alt=""> -->
+                    欢迎登录
+                </div>
+                <p class="logo-title1">OpsAny智能运维管理平台</p>
+                <div class="from-detail" style="margin-top: 0; height: auto; padding-bottom: 16%">
+                    <form action="{{ app_path }}" method="post" id="login-form" onsubmit="return refresh_token()">{% csrf_token %}
+                        <div class="is-danger-tip">
+                          {% if data %}
+                                <i class="bk-icon icon-exclamation-circle-shape"></i><span>{% trans '请先完成验证码验证' %}</span>
+                          {% elif form.errors or form.non_field_errors %}
+                                <i class="bk-icon icon-exclamation-circle-shape"></i><span>{% trans '账户或者密码错误，请重新输入' %}</span>
+                          {% endif %}
+                        </div>
+                        <div class="form-login" style="padding: 40px 55px 0 56px">
+                            <div class="user group-control" style="margin-bottom: 10%;width: 270px;">
+                                <i style="color: #0BA360" class="bk-icon icon-user"></i>
+                                <input id="user" type="text" name="username"  placeholder="{% trans '请输入用户名' %}" >
+                            </div>
+                            <div class="pwd group-control" style="width: 270px;">
+                                <i style="color: #0BA360" class="bk-icon icon-lock"></i>
+                                <input class="password" id="password" type="password" name="password" value=""  placeholder="{% trans '请输入用户密码' %}">
+                            </div>
+                             <div style="margin-top: 10%">
+                                <div id="captcha">
+                                <p id="wait" class="show">正在加载验证码......</p>
+                                </div>
+                             </div>
+                            <div>
+                                <input type="hidden" name="next" value="{{ next }}" />
+                                <input type="hidden" name="app_id" value="{{app_id }}">
+                            </div>
+                            <div class="btn-content clearfix" style=";padding-top: 25px">
+                                <button class="login-btn" style="width: 270px;border-radius: 22px">{% trans '立即登录' %}</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+    <footer class="footer">
+		<p>
+            <a href="#" target="_blank" hotrep="hp.footer.feedback" class="link">Copyright © 2012-2020 OpsAny. All Rights Reserved.</a>
+		</p>
+		<!-- <p>Copyright © 2012-2020 womaiyun. All Rights Reserved.</p> -->
+	</footer>
+        </div>
+        <div class="error-message-content is-chrome">
+            <span>{% trans '您的浏览器非Chrome，建议您使用最新版本的Chrome浏览，以保证最好的体验效果' %}</span><i class="bk-icon icon-close-circle-shape" id="close-chrome"></i>
+        </div>
+    </body>
+    <!-- js 国际化 -->
+    <script type="text/javascript" src="{{SITE_URL}}jsi18n/i18n/"></script>
+    <script src="{{STATIC_URL}}assets/jquery-1.10.2.min.js"></script>
+    <script src="{{STATIC_URL}}assets/gt.js"></script>
+    <script src="{{STATIC_URL}}js/login.{{JS_SUFFIX}}?v={{STATIC_VERSION}}"></script>
+<script>
+    var handler = function (captchaObj) {
+        $("#submit").click(function (e) {
+            var result = captchaObj.getValidate();
+            if (!result) {
+                $("#notice").show();
+                setTimeout(function () {
+                    $("#notice").hide();
+                }, 2000);
+                e.preventDefault();
+            }
+        });
+        // 将验证码加到id为captcha的元素里，同时会有三个input的值用于表单提交
+        captchaObj.appendTo("#captcha");
+        captchaObj.onReady(function () {
+            $("#wait").hide();
+        });
+    };
+    $.ajax({
+        url: "api/login-register/?t=" + (new Date()).getTime(), // 加随机数防止缓存
+        type: "get",
+        dataType: "json",
+        success: function (data) {
+            console.log(data);
+            // 调用 initGeetest 初始化参数
+            // 参数1：配置参数
+            // 参数2：回调，回调的第一个参数验证码对象，之后可以使用它调用相应的接口
+            initGeetest({
+                gt: data.data.gt,
+                challenge: data.data.challenge,
+                new_captcha: data.data.new_captcha, // 用于宕机时表示是新验证码的宕机
+                offline: !data.data.success, // 表示用户后台检测极验服务器是否宕机，一般不需要关注
+                product: "float", // 产品形式，包括：float，popup
+                width: "100%"
+            }, handler);
+        }
+    });
+</script>
+</html>

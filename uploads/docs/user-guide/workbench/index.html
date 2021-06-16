@@ -1,0 +1,1038 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <meta name="author" content="OpsAny">
+      
+      
+        <link rel="canonical" href="https://docs.opsany.com/user-guide/workbench/">
+      
+      <link rel="icon" href="../../assets/favicon.ico">
+      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-7.1.6">
+    
+    
+      
+        <title>工作台 - OpsAny 文档中心</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.875de78c.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.f1a3b89f.min.css">
+        
+          
+          
+          <meta name="theme-color" content="#4cae4f">
+        
+      
+    
+    
+    
+      
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <style>:root{--md-text-font-family:"Roboto";--md-code-font-family:"Roboto Mono"}</style>
+      
+    
+    
+    
+    
+      
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="">
+  
+    
+    <script>function __prefix(e){return new URL("../..",location).pathname+"."+e}function __get(e,t=localStorage){return JSON.parse(t.getItem(__prefix(e)))}</script>
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#_1" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="https://www.opsany.com/" title="OpsAny 文档中心" class="md-header__button md-logo" aria-label="OpsAny 文档中心" data-md-component="logo">
+      
+  <img src="../../assets/logo.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            OpsAny 文档中心
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              工作台
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <div class="md-header__option">
+        <div class="md-select">
+          
+          <button class="md-header__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12.87 15.07l-2.54-2.51.03-.03A17.52 17.52 0 0014.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04M18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12m-2.62 7l1.62-4.33L19.12 17h-3.24z"/></svg>
+          </button>
+          <div class="md-select__inner">
+            <ul class="md-select__list">
+              
+                <li class="md-select__item">
+                  <a href="https://docs.opsany.com/" hreflang="zh" class="md-select__link">
+                    简体中文
+                  </a>
+                </li>
+                
+            </ul>
+          </div>
+        </div>
+      </div>
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" data-md-state="active" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-tabs__inner md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        主页
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../getting-started/getting_started/" class="md-tabs__link">
+        快速入门
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+    
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="./" class="md-tabs__link md-tabs__link--active">
+        用户手册
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../ops-guide/install/" class="md-tabs__link">
+        运维手册
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="https://www.opsany.com/" title="OpsAny 文档中心" class="md-nav__button md-logo" aria-label="OpsAny 文档中心" data-md-component="logo">
+      
+  <img src="../../assets/logo.png" alt="logo">
+
+    </a>
+    OpsAny 文档中心
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_1" data-md-state="indeterminate" type="checkbox" id="__nav_1" checked>
+      
+      <label class="md-nav__link" for="__nav_1">
+        主页
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="主页" data-md-level="1">
+        <label class="md-nav__title" for="__nav_1">
+          <span class="md-nav__icon md-icon"></span>
+          主页
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        产品简介
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_2" data-md-state="indeterminate" type="checkbox" id="__nav_2" checked>
+      
+      <label class="md-nav__link" for="__nav_2">
+        快速入门
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="快速入门" data-md-level="1">
+        <label class="md-nav__title" for="__nav_2">
+          <span class="md-nav__icon md-icon"></span>
+          快速入门
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/getting_started/" class="md-nav__link">
+        新手向导
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3" type="checkbox" id="__nav_3" checked>
+      
+      <label class="md-nav__link" for="__nav_3">
+        用户手册
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="用户手册" data-md-level="1">
+        <label class="md-nav__title" for="__nav_3">
+          <span class="md-nav__icon md-icon"></span>
+          用户手册
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          工作台
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        工作台
+      </a>
+      
+        
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    运维中心
+  </a>
+  
+    <nav class="md-nav" aria-label="运维中心">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    工单管理
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    个人设置
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    密钥管理
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    消息中心
+  </a>
+  
+    <nav class="md-nav" aria-label="消息中心">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    消息管理
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_8" class="md-nav__link">
+    订阅设置
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_9" class="md-nav__link">
+    平台设置
+  </a>
+  
+    <nav class="md-nav" aria-label="平台设置">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_10" class="md-nav__link">
+    用户反馈
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_11" class="md-nav__link">
+    导航管理
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_12" class="md-nav__link">
+    工单目录
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_13" class="md-nav__link">
+    工单流程
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cmdb/" class="md-nav__link">
+        资源平台
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../control/" class="md-nav__link">
+        管控平台
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../job/" class="md-nav__link">
+        作业平台
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../monitor/" class="md-nav__link">
+        监控平台
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cmp/" class="md-nav__link">
+        云管平台
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../devops/" class="md-nav__link">
+        应用平台
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../rbac/" class="md-nav__link">
+        统一权限
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4" data-md-state="indeterminate" type="checkbox" id="__nav_4" checked>
+      
+      <label class="md-nav__link" for="__nav_4">
+        运维手册
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="运维手册" data-md-level="1">
+        <label class="md-nav__title" for="__nav_4">
+          <span class="md-nav__icon md-icon"></span>
+          运维手册
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ops-guide/install/" class="md-nav__link">
+        平台安装
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ops-guide/help/" class="md-nav__link">
+        常见问题
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    运维中心
+  </a>
+  
+    <nav class="md-nav" aria-label="运维中心">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    工单管理
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    个人设置
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    密钥管理
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    消息中心
+  </a>
+  
+    <nav class="md-nav" aria-label="消息中心">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    消息管理
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_8" class="md-nav__link">
+    订阅设置
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_9" class="md-nav__link">
+    平台设置
+  </a>
+  
+    <nav class="md-nav" aria-label="平台设置">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_10" class="md-nav__link">
+    用户反馈
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_11" class="md-nav__link">
+    导航管理
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_12" class="md-nav__link">
+    工单目录
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_13" class="md-nav__link">
+    工单流程
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                
+                <h1 id="_1">工作台<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h1>
+<hr />
+<p>工作台是OpsAny的入口操作平台，提供用户所需要的常用管理工具和个人设置，比如工单管理和密钥管理系统，同时能够为运维工程师提供一套便捷操作，比如包含主要平台的数据展示界面，用户可以通过界面了解相关业务环境的综合情况。</p>
+<p><img alt="WorkBench" src="../static/workbench/workbench_overview_page.png" /></p>
+<p>在顶部的平台导航中，可以看到OpsAny的所有平台的入口，用户可以快速的链接到对应的平台进行运维管理。</p>
+<hr />
+<h2 id="_2">运维中心<a class="headerlink" href="#_2" title="Permanent link">&para;</a></h2>
+<p>运维中心提供企业日常管理相关的功能模块，其中包括工单管理，密钥管理，用户信息管理，方便用户对平台的个性化配置。</p>
+<h3 id="_3">工单管理<a class="headerlink" href="#_3" title="Permanent link">&para;</a></h3>
+<p>工单管理能够帮助企业规范内部的管理流程，提高内部人员的沟通效率和管理效率。在使用工单管理之前，需要管理员根据企业的实际情况，进行工单流程和工单的定义之后，将工单发布后，用户即可在工单管理中提交工单。</p>
+<p><img alt="WorkBench" src="../static/workbench/submit_repair_order.png" /></p>
+<p>点击提交工单，进入工单的提单流程。</p>
+<p><img alt="WorkBench" src="../static/workbench/submit_work_order_step_1.png" /></p>
+<p>第一步：选择所属工单，在左侧导航栏处找到所需目录，右侧会展示目录相关的工单数据。
+点击提单。</p>
+<p><img alt="WorkBench" src="../static/workbench/submit_work_order_step_2.png" /></p>
+<p>第二步：输入提单的具体内容，提单内容处根据不同的工单流程会展示不同的提单内容。关注工单，可以跟踪此工单的进度更新情况，及时发布消息通知提单者。</p>
+<p><img alt="WorkBench" src="../static/workbench/work_order_submission_completed.png" /></p>
+<p>工单提交完成，会在我提交的目录下面展示已经提交的工单。点击查看详情，可以查看具体的详情信息，如果此工单支持撤单，提单人可以在工单未进行处理之前进行撤单操作。</p>
+<p><strong>点击查看详情按钮</strong></p>
+<p><img alt="WorkBench" src="../static/workbench/Check_work_order_details.png" /></p>
+<p>点击操作日志的每条记录，可以展示当前记录的具体执行详情。</p>
+<p><img alt="WorkBench" src="../static/workbench/work_order_detail_operation_log.png" /></p>
+<p><strong>处理工单</strong></p>
+<p>在我的待办中可以查看需要处理的工单。</p>
+<p><img alt="WorkBench" src="../static/workbench/todo_repair_order.png" /></p>
+<p>点击处理按钮，进入处理工单界面。</p>
+<p><img alt="WorkBench" src="../static/workbench/handle_repair_order.png" /></p>
+<p>工单处理人可以在当前步骤处填写需要的字段内容进行处理，处理后当前工单会在我的已办列表中。</p>
+<p><strong>工单流程全部处理完成</strong></p>
+<p><img alt="WorkBench" src="../static/workbench/work_order_processing_completed.png" /></p>
+<p>工单处理完成，查看详情信息会展示工单的整个处理流程。</p>
+<p><img alt="WorkBench" src="../static/workbench/review_all_work_orders.png" /></p>
+<p>用户可以点击我的已办和所有工单，查看经处理的工单和所有的与用户相关工单。</p>
+<h3 id="_4">个人设置<a class="headerlink" href="#_4" title="Permanent link">&para;</a></h3>
+<p>个人设置包含用户的平台个人信息设置和密码修改功能，用户的个人信息主要应用于手机短信的发送和邮箱信息的发送，信息的来源包含监控平台告警信息，工单处理的进度消息等等。</p>
+<p><img alt="WorkBench" src="../static/workbench/personal_settings.png" /></p>
+<h3 id="_5">密钥管理<a class="headerlink" href="#_5" title="Permanent link">&para;</a></h3>
+<p>密钥主要是用于用户管理云主机、物理机和虚拟机时使用，可以将私钥上传至平台，将公钥保存至相应的系统中。</p>
+<p><strong>使用场景</strong></p>
+<p>管控平台在主机管理界面添加主机时，验证方式选择密钥，会出现密钥选择框。</p>
+<p>密钥主要由两种使用方法
+第一种是利用系统自动生成密钥，然后可以进行密钥的下载和查看。
+第二种是上传本地密钥，由系统来管理使用。</p>
+<p><img alt="WorkBench" src="../static/workbench/key_management.png" /></p>
+<hr />
+<h2 id="_6">消息中心<a class="headerlink" href="#_6" title="Permanent link">&para;</a></h2>
+<p>消息中心包含了OpsAny内所有平台的消息管理，平台会内置常用的消息类型，以及消息模板，比如脚本作业执行完毕，会发送一条消息，通过所涉及的用户。消息中心同时也可以方便用户之间协同办公，规范化工作环境。</p>
+<h3 id="_7">消息管理<a class="headerlink" href="#_7" title="Permanent link">&para;</a></h3>
+<p>消息管理主要用于用户对平台消息的管理，帮助用户能够更及时的掌握平台的执行状态，同时支持根据不同的平台查看和管理消息，用户可以通过点击消息名称和详情查看具体消息内容。</p>
+<p><img alt="WorkBench" src="../static/workbench/message_management.png" /></p>
+<h3 id="_8">订阅设置<a class="headerlink" href="#_8" title="Permanent link">&para;</a></h3>
+<p>消息接收方式有三种主要形式：站内消息、手机短信、电子邮箱。可以通过打开或者关闭开关来控制消息是否发送。
+手机号码和电子邮箱使用个人设置中用户所填写的号码信息。</p>
+<p><img alt="WorkBench" src="../static/workbench/news_subscription.png" /></p>
+<p>支持用户全部关闭某一项消息开关，同时用户也可根据使用场景来自定义消息发送。</p>
+<hr />
+<h2 id="_9">平台设置<a class="headerlink" href="#_9" title="Permanent link">&para;</a></h2>
+<h3 id="_10">用户反馈<a class="headerlink" href="#_10" title="Permanent link">&para;</a></h3>
+<p>用户反馈主要作用是方便使用者更好的给平台管理者提供有效的使用反馈信息，能够更快捷的优化和改进平台系统。平台管理员可以通过解决与未解决标识每一个反馈的处理结果。</p>
+<p><img alt="WorkBench" src="../static/workbench/user_feedback.png" /></p>
+<p>用户可以根据不同的平台、不同的意见类型填写反馈信息，方便平台管理者更有效的优化平台。</p>
+<h3 id="_11">导航管理<a class="headerlink" href="#_11" title="Permanent link">&para;</a></h3>
+<p>导航管理主要功能是方便用户能够快速进入各个平台，支持用户自定义配置，同时也可以加入第三方服务的URL，便捷用户在平台内进入相关组件的界面。</p>
+<p><img alt="WorkBench" src="../static/workbench/navigation_management_homepage.png" /></p>
+<p><strong>导航展示位置</strong></p>
+<p>在顶部菜单中平台导航中查看。</p>
+<p><img alt="WorkBench" src="../static/workbench/navigation_display_position.png" /></p>
+<p><strong>新建导航功能</strong></p>
+<p><img alt="WorkBench" src="../static/workbench/new_navigation.png" /></p>
+<p>导航图标：用户可以自定义上传导航图标。<br>
+所属分组：根据页面展示分组选择相应分组。<br>
+导航名称：用户可以自定义导航名称。<br>
+导航链接：用户可以填写自定义URL，这里需要写全路径（例：https://www.opsany.com）</p>
+<h3 id="_12">工单目录<a class="headerlink" href="#_12" title="Permanent link">&para;</a></h3>
+<p>工单目录主要作用是对工单的进行分组整合，方便用户可以更高效的管理。</p>
+<p><strong>新建工单目录</strong></p>
+<p><img alt="WorkBench" src="../static/workbench/catalogue_new_construction_order.png" /></p>
+<p><strong>创建工单</strong></p>
+<p><img alt="WorkBench" src="../static/workbench/create_work_order.png" /></p>
+<p>点击右上角新增工单按钮，进入设置工单页面。<br></p>
+<p>工单名称：用户可以根据工单的使用场景自定义工单的名称。<br>
+关联流程版本：用户可以根据工单的审批流程或者操作流程选择工单流程。<br>
+工单类型：系统内置了四种常用的类型，请求管理，变更管理，事件管理，问题管理。<br>
+可见范围：用户选择当前工单哪些用户可以使用。<br>
+所在目录：用户可以选择工单放置哪个工单目录下面。<br>
+负责人：用户可以选择当前工单的负责人。</p>
+<p><strong>注意：</strong> 工单如果在被使用状态情况下不能进行删除操作。</p>
+<h3 id="_13">工单流程<a class="headerlink" href="#_13" title="Permanent link">&para;</a></h3>
+<p><strong>公共字段</strong> <br>
+系统内置了部分常用的字段，内置字段可以编辑但是不可以删除。拥有权限的用户，可以根据管理需要自行新增公共字段。</p>
+<p><img alt="WorkBench" src="../static/workbench/public_fields.png" /></p>
+<p>点击新增字段按钮，用户便可以增加公共字段。</p>
+<p><img alt="WorkBench" src="../static/workbench/new_public_field.png" /></p>
+<p>字段类型：系统内置了单行文本、多行文本、数字、下拉菜单、单选框、多选框、日期、时间、链接、附件、富文本。<br>
+校验方式：选择对当前字段的校验方式。<br>
+工单角色：主要是指承接不同服务的角色。例如审批账号开通的负责人，开通账号远程准入的实施人员。根据实际生产环境来进行角色和人员的增删改日常管理。</p>
+<p><img alt="WorkBench" src="../static/workbench/new_role.png" /></p>
+<p>点击新建角色按钮可以进行角色的新增操作。</p>
+<p><strong>公共表单</strong> <br>
+从公共字段中选择适用的字段组成不同的字段表达，应用到流程设计中。当新建流程时，选定了某个公共表单，可以直接引用模型中的字段作为流程节点中的字段，并可根据表单的更新保持更新。</p>
+<p><img alt="WorkBench" src="../static/workbench/common_forms.png" /></p>
+<p>点击新建表单。</p>
+<p><img alt="WorkBench" src="../static/workbench/new_form.png" /></p>
+<p>公共字段：可以选择公共字段中已有的字段进行添加。<br>
+新增字段：如果公共字段中没有需要的字段，可以点击新增字段，直接添加公共字段进行使用。</p>
+<p><strong>流程设计</strong> <br>
+各种流程模型的配置管理入口，系统的流程模型库。通过流程引擎进行服务流程的节点设置及日常维护。流程设计列表可以视为流程模板库。包括流程的新建，编辑，删除，部署。</p>
+<p><img alt="WorkBench" src="../static/workbench/process_design.png" /></p>
+<p>新增：新建流程的入口。<br>
+状态：草稿，已启用。<br>
+部署：流程设计完成后需要部署才可以正式应用至服务。部署完成后，在“流程版本”中会新增一条对应的版本记录。<br>
+删除：删除流程模板。模板库中的流程删除，并不会影响到在线已经使用中的流程实例和单据。</p>
+<p>流程设计第一步</p>
+<p><img alt="WorkBench" src="../static/workbench/process_design_step_1.png" /></p>
+<p>流程名称：输入该流程的名字。<br>
+公共表单：列表来自“公共表单”中配置的表单。选择合适的公共表单，可以引用相应的公共字段。<br>
+负责人：该流程的负责人信息。<br>
+描述：对该流程的说明描述。</p>
+<p>流程设计第二步</p>
+<p>目前节点类型分为：普通节点，审批节点。<br>
+普通节点：该节点为人工手动进行处理反馈。<br>
+审批节点：审批动作节点。内置审批内容和审批方式。</p>
+<p><img alt="WorkBench" src="../static/workbench/process_design_step_2.png" /></p>
+<p>点击左侧节点处加号，可以增加节点，会在当前节点下方紧接着增加一个节点。<br>
+新增字段：点击“新增字段”按钮进行其他字段的自定义配置。<br>
+选择表单字段：根据上一步选择的公共表单，可以快速选择公共字段。<br>
+字段预览：展示当前节点的表单样式。<br>
+点击右下角确定，是对当前节点的输入信息进行保存，以免误操作。<br>
+点击左下角下一步保存当前所有的操作内容，进入下一步操作。</p>
+<p>流程设计第三步</p>
+<p><img alt="WorkBench" src="../static/workbench/process_design_step_3.png" /></p>
+<p>是否支持撤单：当工单流程已经有处理人已经处理，当前工单就不支持撤单，反之可以进行撤单操作，撤单后当前工单就不会保存。<br>
+是否立即部署流程：部署过后流程会生产新的流程版本。<br>
+部署流程版本名称：用户可以自定义流程版本的名称。</p>
+<p><strong>流程版本</strong> <br>
+流程设计部署完成之后会生成流程版本。</p>
+<p><img alt="WorkBench" src="../static/workbench/process_version.png" /></p>
+<p>点击预览，可以对当前流程进行字段预览。</p>
+<p><img alt="WorkBench" src="../static/workbench/process_version_preview.png" /></p>
+<hr />
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+        
+          <a href="#" class="md-top md-icon" title="Back to top" data-md-component="top" data-md-state="hidden">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"/></svg>
+          </a>
+        
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <nav class="md-footer__inner md-grid" aria-label="Footer">
+      
+        <a href="../../getting-started/getting_started/" class="md-footer__link md-footer__link--prev" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                上一页
+              </span>
+              新手向导
+            </div>
+          </div>
+        </a>
+      
+      
+        <a href="../cmdb/" class="md-footer__link md-footer__link--next" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                下一页
+              </span>
+              资源平台
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+          <div class="md-footer-copyright__highlight">
+            Copyright &copy; 2016 - 2021 OpsAny
+          </div>
+        
+        
+      </div>
+      
+  <div class="md-footer-social">
+    
+      
+      
+      <a href="https://github.com/unixhot/" target="_blank" rel="noopener" title="OpsAny on Github" class="md-footer-social__link">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+      </a>
+    
+  </div>
+
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    <script id="__config" type="application/json">{"base": "../..", "features": ["search.highlight", "search.suggest", "navigation.sections", "navigation.tabs", "navigation.expand", "navigation.top"], "translations": {"clipboard.copy": "\u590d\u5236", "clipboard.copied": "\u5df2\u590d\u5236", "search.config.lang": "ja", "search.config.pipeline": "trimmer, stemmer", "search.config.separator": "[\\uff0c\\u3002]+", "search.placeholder": "\u641c\u7d22", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}, "search": "../../assets/javascripts/workers/search.d351de03.min.js", "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.34eae1b6.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,84 @@
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/x-icon" href="../../static/favicon.ico" />
+    <link href="../../static/bk.{{CSS_SUFFIX}}" rel="stylesheet" type="text/css" />
+    <link href="../../static/assets/bk-icon-2.0/iconfont.css" rel="stylesheet" type="text/css" />
+    <link href="../../static/css/login.min.css" rel="stylesheet" type="text/css" />
+    <title>{% trans '登录|技术运营中台' %}</title>
+</head>
+
+<body>
+    <div class="page-content">
+        <div class="header">
+            <div class="logo">
+                <img src="../../static/img/logo/bk_login.png" height="30" width="220" alt="" />
+            </div> 
+        </div>
+        <div class="left-img">
+            <img height="400" width="500" src="../../static/img/logo/bgimg.png" alt="">
+        </div>
+        <div class="login-from">
+            <div class="logo-title">
+                <!-- <img src="../../static/img/logo/bk_login.png" height="40" width="311" alt="" /> -->
+                欢迎登陆
+            </div>
+            <div class="from-detail">
+                <form action="{{ app_path }}" method="post" id="login-form" onsubmit="return refresh_token()">
+                    {% csrf_token %}
+                    <div class="is-danger-tip">
+                        {% if form.errors or form.non_field_errors %}
+                        <i class="bk-icon icon-exclamation-circle-shape"></i><span>{% trans '账户或者密码错误，请重新输入' %}</span>
+                        {% endif %}
+                    </div>
+                    <div class="form-login">
+                        <div class="user group-control">
+                            <i class="bk-icon icon-user"></i>
+                            <input id="user" type="text" name="username" placeholder="{% trans '请输入用户名' %}" />
+                        </div>
+                        <div class="pwd group-control">
+                            <i class="bk-icon icon-password"></i>
+                            <input class="password" id="password" type="password" name="password" value=""
+                                placeholder="{% trans '请输入用户密码' %}" />
+                        </div>
+                        <div>
+                            <input type="hidden" name="next" value="{{ next }}" />
+                            <input type="hidden" name="app_id" value="{{app_id }}" />
+                        </div>
+                        <div class="btn-content clearfix">
+                            <button class="login-btn">{% trans '登录' %}</button>
+                            <!-- <span class="protocol-btn">{% trans '查看用户协议' %}</span> -->
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <footer class="footer">
+            <p>
+                <a href="http://www.womaiyun.com/" target="_blank" hotrep="hp.footer.feedback" class="link">官网</a>
+                |
+                <!-- <a href="${SITE_URL}" target="_blank" hotrep="hp.footer.feedback" class="link">工作台</a> -->
+                <a href="#" target="_blank" hotrep="hp.footer.feedback" class="link">womaiyun Inc. All Rights Reserved</a>
+
+            </p>
+            <!-- <p>Copyright © 2012-2020 womaiyun. All Rights Reserved.</p> -->
+        </footer>
+    </div>
+    <!-- 查看用户协议 -->
+    {% include "login/agreement.part" %}
+    <!-- 浏览器验证 -->
+    <div class="error-message-content is-chrome">
+        <span>{% trans
+        '您的浏览器非Chrome，建议您使用最新版本的Chrome浏览，以保证最好的体验效果'
+        %}</span><i class="bk-icon icon-close-circle-shape" id="close-chrome"></i>
+    </div>
+</body>
+<!-- js 国际化 -->
+<script type="text/javascript" src="{{SITE_URL}}jsi18n/i18n/"></script>
+<script src="../../static/assets/jquery-1.10.2.min.js"></script>
+<script src="../../static/js/login.{{JS_SUFFIX}}?v={{STATIC_VERSION}}"></script>
+
+</html>
