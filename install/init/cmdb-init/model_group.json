@@ -7,4 +7,3 @@
 { "_id" : { "$oid" : "5e5dca11c67c39b406648c26" }, "updated_at" : { "$date" : "2020-03-03T11:08:01.132+0800" }, "created_at" : { "$date" : "2020-03-03T11:08:01.133+0800" }, "code" : "WEB", "name" : "WEB服务器", "model_type" : "zc" }
 { "_id" : { "$oid" : "5e5dd848c67c39b406648c64" }, "updated_at" : { "$date" : "2021-05-24T14:53:28.808+0800" }, "created_at" : { "$date" : "2020-03-03T12:08:40.619+0800" }, "code" : "BUSINESS", "name" : "应用信息", "model_type" : "yw" }
 { "_id" : { "$oid" : "5e5dd868c67c39b406648c65" }, "updated_at" : { "$date" : "2020-03-03T12:09:12.413+0800" }, "created_at" : { "$date" : "2020-03-03T12:09:12.413+0800" }, "code" : "ORGANIZATION", "name" : "组织信息", "model_type" : "zz" }
-{ "_id" : { "$oid" : "60c1e49f4241e44fe4e97497" }, "updated_at" : { "$date" : "2021-06-11T02:08:31.000+0800" }, "created_at" : { "$date" : "2021-06-11T02:08:31.000+0800" }, "code" : "test", "name" : " 测试", "model_type" : "zc" }

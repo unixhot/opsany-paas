@@ -2,26 +2,26 @@
 #******************************************
 # Author:       Jason Zhao
 # Email:        zhaoshundong@opsany.com
-# Organization: https://www.opsany.com/
+# Organization: OpsAny https://www.opsany.com/
 # Description:  OpsAny PaaS Install Script
 #******************************************
 
-#Data/Time
+# Get Data/Time
 CTIME=$(date "+%Y-%m-%d-%H-%M")
 
-#Shell ENV
+# Shell Envionment Variables
 CDIR=$(pwd)
 SHELL_NAME="paas-install.sh"
 SHELL_LOG="${CDIR}/${SHELL_NAME}.log"
 
-# Record Shell log
+# Shell Log Record
 shell_log(){
     LOG_INFO=$1
     echo "----------------$CTIME ${SHELL_NAME} : ${LOG_INFO}----------------"
     echo "$CTIME ${SHELL_NAME} : ${LOG_INFO}" >> ${SHELL_LOG}
 }
 
-#Install Check
+# Install Inspection
 if [ ! -f ./install.config ];then
       echo "Please Copy install.config and Change: cp install.config.example install.config"
       exit
@@ -29,7 +29,7 @@ else
     source ./install.config
 fi
 
-#OS Type And repo
+# OS Type And repo
 if [ -f /etc/redhat-release ];then
     OS_TYPE="CENTOS"
     CENTOS6=$(cat /proc/version | grep 'el6\.')
@@ -51,7 +51,7 @@ else
     shell_log "This OS is not supported!" && exit
 fi
 
-# create self-signed server certificate:
+# Create Self-signed Server Certificate
 ssl_make(){
     # create dir for ssl
     if [ ! -d ./conf/nginx-conf.d/ssl ];then
@@ -88,13 +88,13 @@ install_check(){
   fi
 }
 
-# Install Init
+# Install Initialize
 opsany_init(){
     shell_log "Start: Install Init"
     mkdir -p ${INSTALL_PATH}/{uploads/guacamole,uploads/workbench/icon,conf,esb,logs,saas/apps,saas/saasapp,salt-volume/certs,salt-volume/srv/pillar,salt-volume/srv/salt,salt-volume/etc,paasagent-volume,redis-volume,mongodb-volume,mysql-volume}
     cd $CDIR
     /bin/cp -r ../install/conf ${INSTALL_PATH}/
-    /bin/cp -r ../uploads/docs ${INSTALL_PATH}/uploads/
+    /bin/cp -r ../uploads/* ${INSTALL_PATH}/uploads/
     /bin/cp -r ../paas-ce/saas/saas-logo/* ${INSTALL_PATH}/uploads/workbench/icon/
     ## init for esb
     /bin/cp -r ../paas-ce/paas/esb/components/generic/apis/ ${INSTALL_PATH}/esb/
@@ -107,7 +107,7 @@ opsany_init(){
 # PaaS Share Service Start
 paas_install(){
     # RabbitMQ
-    shell_log "======启动RabbitMQ====="
+    shell_log "======Start RabbitMQ====="
     docker run -d --restart=always --name opsany-rabbitmq \
     -e RABBITMQ_DEFAULT_USER="$RABBITMQ_DEFAULT_USER" \
     -e RABBITMQ_DEFAULT_PASS="$RABBITMQ_DEFAULT_PASS" \
@@ -115,14 +115,14 @@ paas_install(){
     ${PAAS_DOCKER_REG}/rabbitmq:3.8.9-management-alpine
     
     # Redis
-    shell_log "======启动Redis======"
+    shell_log "======Start Redis======"
     docker run -d --restart=always --name opsany-redis \
     -p 6379:6379 -v ${INSTALL_PATH}/redis-volume:/data \
     -v ${INSTALL_PATH}/conf/redis.conf:/data/redis.conf \
     ${PAAS_DOCKER_REG}/redis:6.0.9-alpine redis-server /data/redis.conf
     
     # MySQL
-    shell_log "======启动MySQL======"
+    shell_log "======Start MySQL======"
     docker run -d --restart=always --name opsany-mysql \
     -e MYSQL_ROOT_PASSWORD="$MYSQL_ROOT_PASSWORD" \
     -p 3306:3306 -v ${INSTALL_PATH}/mysql-volume:/var/lib/mysql \
@@ -131,7 +131,7 @@ paas_install(){
     ${PAAS_DOCKER_REG}/mysql:5.6.50 --character-set-server=utf8 --collation-server=utf8_general_ci
     
     # MongoDB
-    shell_log "======启动MongoDB======"
+    shell_log "======Start MongoDB======"
     docker run -d --restart=always --name opsany-mongodb \
     -e MONGO_INITDB_ROOT_USERNAME="$MONGO_INITDB_ROOT_USERNAME" \
     -e MONGO_INITDB_ROOT_PASSWORD="$MONGO_INITDB_ROOT_PASSWORD" \
@@ -139,16 +139,16 @@ paas_install(){
     ${PAAS_DOCKER_REG}/mongo:4.4.1-bionic
     
     # Guacd
-    shell_log "======启动Guacd======"
+    shell_log "======Start Guacd======"
     docker run -d --restart=always --name opsany-guacd \
     -p 4822:4822 \
     -v ${INSTALL_PATH}/uploads/guacamole:/srv/guacamole \
     ${PAAS_DOCKER_REG}/guacd:1.2.0
 }
 
-# MySQL init
+# MySQL Initialize
 mysql_init(){
-    shell_log "======进行MySQL数据初始化======"
+    shell_log "======MySQL Initialize======"
     sleep 10
     cd ${CDIR}/../install/
     export MYSQL_PWD=${MYSQL_ROOT_PASSWORD}
@@ -157,9 +157,9 @@ mysql_init(){
     mysql -h "${LOCAL_IP}" -u root  opsany_paas < init/opsany-paas.sql
 }
 
-# ESB init
+# ESB Initialize
 esb_init(){
-    shell_log "======进行ESB初始化======"
+    shell_log "======ESB Initialize======"
     sed -i "s/dev.opsany.cn/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/cmdb/toolkit/configs.py
     sed -i "s#/t/cmdb#/o/cmdb#g" ${INSTALL_PATH}/esb/apis/cmdb/toolkit/tools.py
     sed -i "s/dev.opsany.cn/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/control/toolkit/configs.py
@@ -178,9 +178,9 @@ esb_init(){
     sed -i "s#/t/devops#/o/devops#g" ${INSTALL_PATH}/esb/apis/devops/toolkit/tools.py
 }
 
-# Config
+# PaaS Configuration
 paas_config(){
-    shell_log "======进行PAAS配置修改======"
+    shell_log "======PAAS Configuration======"
     # PaaS Config
     sed -i "s/PAAS_LOGIN_IP/${PAAS_LOGIN_IP}/g" ${INSTALL_PATH}/conf/settings_production.py.paas
     sed -i "s/PAAS_APPENGINE_IP/${PAAS_APPENGINE_IP}/g" ${INSTALL_PATH}/conf/settings_production.py.paas
@@ -221,27 +221,28 @@ paas_config(){
     sed -i "s/LOCAL_IP/${LOCAL_IP}/g" ${INSTALL_PATH}/conf/nginx-conf.d/nginx_paas.conf
 
     # Heartbeat
-    sed -i "s/dev_server/${LOCAL_IP}/g" ${INSTALL_PATH}/conf/heartbeat.yml
+    sed -i "s/ES_SERVER_IP/${ES_SERVER_IP}/g" ${INSTALL_PATH}/conf/heartbeat.yml
+    sed -i "s/ES_PASSWORD/${ES_PASSWORD}/g" ${INSTALL_PATH}/conf/heartbeat.yml
 }
 
 # PaaS Service Start
 paas_start(){
     #paas
-    shell_log "======启动paas服务======"
+    shell_log "======Start paas Service======"
     docker run -d --restart=always --name opsany-paas-paas \
     -p 8001:8001 -v ${INSTALL_PATH}/logs:/opt/opsany/logs \
     -v ${INSTALL_PATH}/conf/settings_production.py.paas:/opt/opsany/paas/paas/conf/settings_production.py \
     ${PAAS_DOCKER_REG}/opsany-paas-paas:${PAAS_VERSION}
     
     #login
-    shell_log "======启动login服务======"
+    shell_log "======Start login Service======"
     docker run -d --restart=always --name opsany-paas-login \
     -p 8003:8003 -v ${INSTALL_PATH}/logs:/opt/opsany/logs \
     -v ${INSTALL_PATH}/conf/settings_production.py.login:/opt/opsany/paas/login/conf/settings_production.py \
     ${PAAS_DOCKER_REG}/opsany-paas-login:${PAAS_VERSION}
     
     #esb
-    shell_log "======启动esb服务======"
+    shell_log "======Start esb Service======"
     docker run -d --restart=always --name opsany-paas-esb \
     -p 8002:8002 -v ${INSTALL_PATH}/logs:/opt/opsany/logs \
     -v ${INSTALL_PATH}/esb/apis:/opt/opsany/paas/esb/components/generic/apis \
@@ -249,23 +250,23 @@ paas_start(){
     ${PAAS_DOCKER_REG}/opsany-paas-esb:${PAAS_VERSION}
     
     #appengine
-    shell_log "======启动appengine服务======"
+    shell_log "======Start appengine Service======"
     docker run -d --restart=always --name opsany-paas-appengine \
     -p 8000:8000 -v ${INSTALL_PATH}/logs:/opt/opsany/logs \
     -v ${INSTALL_PATH}/conf/settings_production.py.appengine:/opt/opsany/paas/appengine/controller/settings.py \
     ${PAAS_DOCKER_REG}/opsany-paas-appengine:${PAAS_VERSION}
     
     #websocket
-    shell_log "======启动websocket服务======"
+    shell_log "======Start websocket Service======"
     docker run -d --restart=always --name opsany-paas-websocket \
-    -p 8004:8004 -v /opt/opsany/logs:/opt/opsany/logs \
+    -p 8004:8004 -v ${INSTALL_PATH}/logs:/opt/opsany/logs \
     -v ${INSTALL_PATH}/uploads:/opt/opsany/uploads \
     -v ${INSTALL_PATH}/conf/settings_production.py.websocket:/opt/opsany/websocket/config/prod.py \
     -v ${INSTALL_PATH}/conf/settings_production.py.websocket.init:/opt/opsany/websocket/config/__init__.py \
     ${PAAS_DOCKER_REG}/opsany-paas-websocket:${PAAS_VERSION}
     
     #openresty
-    shell_log "======启动openresty服务======"
+    shell_log "======Start openresty Service======"
     docker run -d --restart=always --name opsany-openresty \
     -p 80:80 -p 443:443 -v ${INSTALL_PATH}/logs:/opt/opsany/logs \
     -v ${INSTALL_PATH}/conf/nginx-conf.d:/etc/nginx/conf.d \
@@ -275,8 +276,9 @@ paas_start(){
 
 }
 
+# Start PaasAgent
 paas_agent_start(){
-    shell_log "======注册paas-agent服务======"
+    shell_log "======Register paas-agent Service======"
     sleep 10
     BK_PAAS_PRIVATE_ADDR=${LOCAL_IP}
     BK_PAASAGENT_SERVER_PORT=4245
@@ -290,16 +292,16 @@ paas_agent_start(){
     sid=$(jq -r .sid <<<"$resp" 2>/dev/null)
     
     if [[ -z "$token" || -z "$sid" ]]; then
-        shell_log "调用接口获取sid和token失败，返回信息为：$resp"
+        shell_log "Register Faild：$resp"
     else
-        shell_log "注册成功"
+        shell_log "Register Succeed"
     fi
     
     sed -i "s/BK_PAASAGENT_SID/$sid/g" ${INSTALL_PATH}/conf/paas_agent_config.yaml
     sed -i "s/BK_PAASAGENT_TOKEN/$token/g" ${INSTALL_PATH}/conf/paas_agent_config.yaml
     sed -i "s/LOCAL_IP/${LOCAL_IP}/g" ${INSTALL_PATH}/conf/paas_agent_config.yaml
     
-    shell_log "======启动paas-agent服务======"
+    shell_log "======Start paas-agent Service======"
     docker run -d --restart=always --name opsany-paas-paasagent \
     -p 4245:4245 -p 8085:8085 \
     -v ${INSTALL_PATH}/logs:/opt/opsany/logs/ \
@@ -310,30 +312,32 @@ paas_agent_start(){
     -v ${INSTALL_PATH}/saas/saasapp:/opt/opsany/paas-agent/saasapp \
     -v ${INSTALL_PATH}/salt-volume/srv/:/srv/ \
     -v ${INSTALL_PATH}/salt-volume/etc/salt/:/etc/salt/ \
+    -v ${INSTALL_PATH}/salt-volume/cache/:/var/cache/salt/ \
     ${PAAS_DOCKER_REG}/opsany-paas-paasagent:${PAAS_VERSION}
     
     sleep 10
     
-    # 校验healthz
+    # PaasAgent healthz
     code=$(curl -s -o /dev/null -w "%{http_code}" http://$BIND_ADDR:$BK_PAASAGENT_SERVER_PORT/healthz )
     if [[ $code != 200 ]]; then
-        echo "paasagent($MODE)启动失败，健康检查接口(http://$BIND_ADDR:$BK_PAASAGENT_SERVER_PORT/healthz)报错" >&2
+        echo "paasagent($MODE)Start Faild，Check (http://$BIND_ADDR:$BK_PAASAGENT_SERVER_PORT/healthz) Error" >&2
         exit 1
     fi
     
-    # 激活
-    shell_log "======激活paas-agent======"
+    # Activate PaasAgent
+    shell_log "====== Activate paas-agent======"
     resp=$(curl -k -s "https://$BK_PAAS_PRIVATE_ADDR/v1/agent/init/?agent_ip=$BIND_ADDR")
     if [[ $(jq -r .agent_ip <<<"$resp" ) = "$BIND_ADDR" ]]; then
-        shell_log "激活paasagent($MODE): $BIND_ADDR:$BK_PAASAGENT_SERVER_PORT 成功"
+        shell_log "Activate PaaSAgent($MODE): $BIND_ADDR:$BK_PAASAGENT_SERVER_PORT Succeed"
     else
-        echo "激活paasagent($MODE): $BIND_ADDR:$BK_PAASAGENT_SERVER_PORT 失败 [$resp]" >&2
+        echo "Activate PaaSAgent($MODE): $BIND_ADDR:$BK_PAASAGENT_SERVER_PORT Faild [$resp]" >&2
         exit 2
     fi
 }
 
+# Active RabbitMQ
 rabbitmq_active(){
-    shell_log "======激活RabbitMQ======"
+    shell_log "======Activate RabbitMQ======"
     curl -k --connect-timeout 10 \
             -H 'Content-Type:application/x-www-form-urlencoded' \
             -X POST \
@@ -343,7 +347,7 @@ rabbitmq_active(){
     shell_log "======The end is the beginning.======"
     }
 
-
+# Main
 main(){
     install_check
     ssl_make
@@ -353,7 +357,6 @@ main(){
     mysql_init
     esb_init
     paas_config
-    sleep 10 
     paas_start
     paas_agent_start
     rabbitmq_active

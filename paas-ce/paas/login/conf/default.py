@@ -98,6 +98,8 @@ TEMPLATES = [
 # https://docs.djangoproject.com/en/1.8/howto/static-files/
 SITE_URL = '/login/'
 
+IMG_URL = '/uploads/login/'
+
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = (

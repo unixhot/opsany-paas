@@ -135,8 +135,6 @@ cd /opt/opsany-paas/install/
 ./paas-install.sh 
 ```
 
-> 如果遇到安装失败，请执行uninstall.sh进行卸载之后，重新执行paas-install.sh
-
 5. 访问域名测试，默认用户名admin 密码admin
 
   http://192.168.56.11/
@@ -144,4 +142,10 @@ cd /opt/opsany-paas/install/
 6. 验证PAAS部署
 
 - 访问平台：查看【开发中心】-【服务器信息】 查看状态
+- 访问平台：查看【开发中心】-【第三方服务】 查看状态
+
+
+## 免费下载OpsAny社区版本
+
+> OpsAny社区版本v1.1.4正式发布
 

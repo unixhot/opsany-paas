@@ -247,7 +247,7 @@ class Account(AccountSingleton):
             geetest_validate = data.pop("geetest_validate", None)
             if data.has_key("next") and data.has_key("app_id"):
                 if not geetest_challenge or not geetest_seccode or not geetest_validate:
-                    return render(request, "login/login.html", {"data": 1, "app_id": app_id, "next": next})
+                    return render(request, "login/login.html", {"data": 1, "app_id": app_id, "next": next, "IMG_URL": settings.IMG_URL, "SITE_URL": settings.SITE_URL})
             form = authentication_form(request, data=request.POST)
             if form.is_valid():
                 return self.login_success_response(request, form, redirect_to, app_id)

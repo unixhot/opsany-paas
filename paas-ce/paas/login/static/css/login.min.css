@@ -136,7 +136,7 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 .page-content {
   width: 100%;
-  background: url(../img/bg_image.jpg) center no-repeat;
+  // background: url(..img/bg_image.jpg) center no-repeat;
   margin: 0 auto;
   background-size: 100% 100%;
 }

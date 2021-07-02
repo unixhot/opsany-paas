@@ -37,7 +37,7 @@ class LoginView(LoginExemptMixin, View):
         #print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
         if settings.LOGIN_TYPE != 'custom_login':
             #print("1~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-            return account.login(request)
+            return account.login(request, extra_context={"IMG_URL": settings.IMG_URL})
         # 调用自定义login view
         #print("2~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
         custom_login_view = import_string(settings.CUSTOM_LOGIN_VIEW)

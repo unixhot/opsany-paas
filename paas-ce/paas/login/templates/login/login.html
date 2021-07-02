@@ -10,10 +10,10 @@
         <title>{% trans '登录 | OpsAny' %}</title>
     </head>
     <body>
-        <div class="page-content">
+        <div class="page-content" style="background: url({{ IMG_URL }}img/bg_image.png) center no-repeat;">
             <div class="header" style="box-shadow: 0px 0px 6px 0px rgba(12, 34, 65, 0.2)">
                 <div class="logo" style="">
-                    <img style="" src="{{STATIC_URL}}img/logo/bk_login.png" alt="" />
+                    <img style="" src="{{ IMG_URL }}img/bk_login.png" alt="" />
                 </div> 
               <div style="margin: 0 30px 0 0" >
                    <a href="/docs/" target="_blank" style="color:#666"  class="container_header_right_child">帮助中心</a>
@@ -27,17 +27,17 @@
                </div>
             </div>
             <div style='margin-top: 9%;display: flex;flex-direction: column;margin-left: 20%;' >
-                <img width="540px" src="{{STATIC_URL}}icon/home_top_word.png" alt="">
+                <img width="540px" src="{{ IMG_URL }}img/home_top_word.png" alt="">
             </div>
             <div class="left-img" style='margin-left: 20%;margin-top:2%;'>
-                <img height="410" width="540" src="{{STATIC_URL}}icon/home_page_picture.png" alt="">
+                <img height="410" width="540" src="{{ IMG_URL }}img/home_page_picture.png" alt="">
             </div>
             <div class="login-from" style="margin-top: 5%; box-shadow: 0px 2px 30px 0px rgba(12, 34, 65, 0.2)">
                 <div class="logo-title">
                     <!-- <img src="{{STATIC_URL}}img/logo/bk_login.png" height="32" width="311" alt=""> -->
                     欢迎登录
                 </div>
-                <p class="logo-title1">OpsAny智能运维管理平台</p>
+                <p class="logo-title1"></p>
                 <div class="from-detail" style="margin-top: 0; height: auto; padding-bottom: 16%">
                     <form action="{{ app_path }}" method="post" id="login-form" onsubmit="return refresh_token()">{% csrf_token %}
                         <div class="is-danger-tip">
