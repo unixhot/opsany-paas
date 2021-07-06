@@ -48,7 +48,7 @@ paas-ce
   ```
   curl -o /etc/yum.repos.d/epel.repo http://mirrors.aliyun.com/repo/epel-7.repo
   curl -o /etc/yum.repos.d/docker-ce.repo https://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
-  yum install -y git wget docker-ce mariadb jq python3
+  yum install -y git wget docker-ce mariadb jq python3 python3-pip
   systemctl enable --now docker
   ```
 
@@ -74,7 +74,7 @@ paas-ce
   ```
   dnf config-manager --add-repo=http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
   dnf -y install docker-ce --nobest
-  dnf -y install mariadb jq
+  dnf -y install mariadb jq git
   systemctl enable --now docker
   ```
 

@@ -12,8 +12,18 @@ DOMAIN_NAME="192.168.56.11"
 EPEL6="http://mirrors.aliyun.com/repo/epel-6.repo"
 EPEL7="http://mirrors.aliyun.com/repo/epel-7.repo"
 
-# PAAS Service
-PAAS_DOCKER_REG="opsany"
+# For Docker Hub
+#PAAS_DOCKER_REG="opsany"
+
+#For Aliyun
+PAAS_DOCKER_REG="registry.cn-beijing.aliyuncs.com/opsany"
+#PAAS_DOCKER_REG="registry-vpc.cn-beijing.aliyuncs.com/opsany"
+
+#For Qcloud
+
+#For HuaweiCloud
+
+#PAAS
 PAAS_PAAS_IP="${LOCAL_IP}"
 PAAS_LOGIN_IP="${LOCAL_IP}"
 PAAS_APPENGINE_IP="${LOCAL_IP}"
