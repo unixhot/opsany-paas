@@ -14,8 +14,13 @@ CDIR=$(pwd)
 SHELL_NAME="saas-install.sh"
 SHELL_LOG="${SHELL_NAME}.log"
 
-# Import Config 
-source ./install.config
+# Install Inspection
+if [ ! -f ./install.config ];then
+      echo "Please Change Directory to /opt/opsany-paas/install"
+      exit
+else
+    source ./install.config
+fi
 
 # Shell Log Record
 shell_log(){
@@ -33,7 +38,7 @@ paas_check(){
 
 # Start SaltStack 
 saltstack_install(){
-    shell_log "======启动SaltStack======"
+    shell_log "======Start SaltStack======"
     docker run --restart=always --name opsany-saltstack --detach \
         --publish 4505:4505 --publish 4506:4506 --publish 8005:8005 \
         -v ${INSTALL_PATH}/logs:${INSTALL_PATH}/logs \
@@ -50,7 +55,7 @@ saltstack_install(){
 
 # Start Zabbix
 zabbix_install(){
-    shell_log "=====Zabbix======"
+    shell_log "=====Start Zabbix======"
     docker run --restart=always --name opsany-zabbix-server -t \
       -e DB_SERVER_HOST="${MYSQL_SERVER_IP}" \
       -e MYSQL_DATABASE="${ZABBIX_DB_NAME}" \
@@ -80,7 +85,7 @@ zabbix_install(){
 # Start Grafana
 grafana_install(){
     # Grafana
-    shell_log "=====启动Grafana======"
+    shell_log "=====Start Grafana======"
     docker run -d --restart=always --name opsany-grafana \
     -v ${INSTALL_PATH}/conf/grafana/grafana.ini:/etc/grafana/grafana.ini \
     -v ${INSTALL_PATH}/conf/grafana/grafana.key:/etc/grafana/grafana.key \
@@ -92,7 +97,7 @@ grafana_install(){
 # Start Elasticsearch
 es_install(){
     #Elasticsearch
-    shell_log "====启动Elasticsearch"
+    shell_log "====Start Elasticsearch"
     docker run -d --restart=always --name opsany-elasticsearch \
     -e "discovery.type=single-node" \
     -e "ELASTIC_PASSWORD=${ES_PASSWORD}" \
@@ -104,7 +109,7 @@ es_install(){
     ${PAAS_DOCKER_REG}/elasticsearch:7.12.0
     
     #heartbeat
-    shell_log "====启动Heartbeat===="
+    shell_log "====Start Heartbeat===="
     docker run -d --restart=always --name opsany-heartbeat \
     -v ${INSTALL_PATH}/conf/heartbeat.yml:/etc/heartbeat/heartbeat.yml \
     -v ${INSTALL_PATH}/uploads/monitor/heartbeat-monitors.d:/etc/heartbeat/monitors.d \
@@ -115,7 +120,7 @@ es_install(){
 
 # SaaS DB Initialize
 saas_db_init(){
-    shell_log "======进行MySQL初始化======"
+    shell_log "======MySQL Initialize======"
     #esb
     mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" opsany_paas < ./init/esb-init/esb_api_doc.sql
     mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" opsany_paas < ./init/esb-init/esb_channel.sql
@@ -165,7 +170,7 @@ saas_db_init(){
 
 # MonogDB Initialize
 mongodb_init(){
-    shell_log "======进行MongoDB初始化======"
+    shell_log "======MongoDB Initialize======"
     mongo --host $MONGO_SERVER_IP -u $MONGO_INITDB_ROOT_USERNAME -p$MONGO_INITDB_ROOT_PASSWORD <<END
     use cmdb;
     db.createUser({user: "$MONGO_CMDB_USERNAME",pwd: "$MONGO_CMDB_PASSWORD",roles: [ { role: "readWrite", db: "cmdb" } ]});
@@ -181,20 +186,21 @@ mongodb_init(){
     db.createUser( {user: "$MONGO_MONITOR_USERNAME",pwd: "$MONGO_MONITOR_PASSWORD",roles: [ { role: "readWrite", db: "monitor" } ]});
     exit;
 END
-    shell_log "======MongoDB初始化完毕======"
+    shell_log "======MongoDB Initialize End======"
     
-    shell_log "======初始化CMDB模型数据======"
+    shell_log "======CMDB Initialize======"
     mongoimport --host $MONGO_SERVER_IP -u cmdb -pOpsAny@2020 --db cmdb --drop --collection field_group < ./init/cmdb-init/field_group.json
     mongoimport --host $MONGO_SERVER_IP -u cmdb -pOpsAny@2020 --db cmdb --drop --collection icon_model < ./init/cmdb-init/icon_model.json
     mongoimport --host $MONGO_SERVER_IP -u cmdb -pOpsAny@2020 --db cmdb --drop --collection link_relationship_model < ./init/cmdb-init/link_relationship_model.json
     mongoimport --host $MONGO_SERVER_IP -u cmdb -pOpsAny@2020 --db cmdb --drop --collection model_field < ./init/cmdb-init/model_field.json
     mongoimport --host $MONGO_SERVER_IP -u cmdb -pOpsAny@2020 --db cmdb --drop --collection model_group < ./init/cmdb-init/model_group.json
     mongoimport --host $MONGO_SERVER_IP -u cmdb -pOpsAny@2020 --db cmdb --drop --collection model_info < ./init/cmdb-init/model_info.json
-    shell_log "======数据初始化完毕，可以开始部署SAAS应用。======"
+    shell_log "======Initialize End======"
 }
 
 # SaaS Reconfigure
 saas_reconfigure(){
+    shell_log "======SaaS Deploy======"
     cd $CDIR
     cd ../../opsany-saas/
     pip3 install requests==2.25.1 grafana-api==1.0.3 -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
