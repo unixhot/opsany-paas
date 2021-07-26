@@ -94,19 +94,28 @@ paas-ce
 
 - 【Ubuntu】 安装Docker和MySQL、MongoDB客户端
 
-  ```
-  # step 1: 安装必要的一些系统工具
-  sudo apt-get update
-  sudo apt-get -y install apt-transport-https ca-certificates curl software-properties-common
-  # step 2: 安装GPG证书
-  curl -fsSL https://mirrors.aliyun.com/docker-ce/linux/ubuntu/gpg | sudo apt-key add -
-  # Step 3: 写入软件源信息
-  sudo add-apt-repository "deb [arch=amd64] https://mirrors.aliyun.com/docker-ce/linux/ubuntu $(lsb_release -cs) stable"
-  # Step 4: 更新并安装Docker-CE
-  sudo apt-get -y update
-  sudo apt-get -y install docker-ce jq wget mysql-client mongodb-clients git
-  systemctl enable --now docker
-  ```
+    安装Docker和MySQL客户端
+
+    ```
+    # step 1: 安装必要的一些系统工具
+    sudo apt-get update
+    sudo apt-get -y install apt-transport-https ca-certificates curl software-properties-common
+    # step 2: 安装GPG证书
+    curl -fsSL https://mirrors.aliyun.com/docker-ce/linux/ubuntu/gpg | sudo apt-key add -
+    # Step 3: 写入软件源信息
+    sudo add-apt-repository "deb [arch=amd64] https://mirrors.aliyun.com/docker-ce/linux/ubuntu $(lsb_release -cs) stable"
+    # Step 4: 更新并安装Docker-CE
+    sudo apt-get -y update
+    sudo apt-get -y install docker-ce jq wget mysql-client git
+    systemctl enable --now docker
+    ```
+     
+    安装MongoDB客户端
+     ```
+     sudo wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | sudo apt-key add -
+     sudo add-apt-repository 'deb [arch=amd64] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/4.4 multiverse'
+     sudo apt install -y mongodb-org-shell mongodb-clients
+     ```
 
 2. 克隆代码
 
@@ -147,5 +156,7 @@ cd /opt/opsany-paas/install/
 
 ## 免费下载OpsAny社区版本
 
-> OpsAny社区版本v1.1.4正式发布
+> OpsAny社区版本v1.1.7正式发布 
+
+[免费下载](https://opsany.com/#/download)
 

@@ -10,7 +10,7 @@
         <title>{% trans '登录 | OpsAny' %}</title>
     </head>
     <body>
-        <div class="page-content" style="background: url({{ IMG_URL }}img/bg_image.png) center no-repeat;">
+        <div class="page-content" style="background: url({{ IMG_URL }}img/bg_image.png) center no-repeat; background-size: 100% 100%;">
             <div class="header" style="box-shadow: 0px 0px 6px 0px rgba(12, 34, 65, 0.2)">
                 <div class="logo" style="">
                     <img style="" src="{{ IMG_URL }}img/bk_login.png" alt="" />
@@ -41,12 +41,13 @@
                 <div class="from-detail" style="margin-top: 0; height: auto; padding-bottom: 16%">
                     <form action="{{ app_path }}" method="post" id="login-form" onsubmit="return refresh_token()">{% csrf_token %}
                         <div class="is-danger-tip">
-                          {% if data %}
-                                <i class="bk-icon icon-exclamation-circle-shape"></i><span>{% trans '请先完成验证码验证' %}</span>
+                         {% if data %}
+                             <i class="bk-icon icon-exclamation-circle-shape"></i><span>{% trans '请先完成验证码验证' %}</span>
                           {% elif form.errors or form.non_field_errors %}
                                 <i class="bk-icon icon-exclamation-circle-shape"></i><span>{% trans '账户或者密码错误，请重新输入' %}</span>
                           {% endif %}
                         </div>
+
                         <div class="form-login" style="padding: 40px 55px 0 56px">
                             <div class="user group-control" style="margin-bottom: 10%;width: 270px;">
                                 <i style="color: #0BA360" class="bk-icon icon-user"></i>

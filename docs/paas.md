@@ -2,8 +2,8 @@
 
 ## 系统要求
 
-- 数据库: MySQL、MongoDB、Redis
-- 消息队列：RabbitMQ
+- 数据库: MySQL、MongoDB、Redis、Elasticsearch
+- 消息队列：RabbitMQ、Redis
 - Python版本: python2.7 (务必使用python2.7, 推荐2.7.15)
 
 ## 部署说明
@@ -17,14 +17,15 @@
 
 #### 1. 预分配端口号
 
-预先分配每个服务的端口号, 假设部署机器IP为`127.0.0.1`
+预先分配每个服务的端口号, 假设部署机器IP为`192.168.0.101`
 
-- appengine: 127.0.0.1:8000
-- paas: 127.0.0.1:8001
-- esb: 127.0.0.1:8002
-- login: 127.0.0.1:8003
+- appengine: 192.168.0.101:8000 Python2
+- paas: 192.168.0.101:8001 Python2
+- esb: 192.168.0.101:8002 Python2
+- login: 192.168.0.101:8003 Python2
+- websocket: 192.168.0.101:8004 Python3
 
-服务间是相互依赖的, 所以部署配置文件中需要将预先分配的服务地址填写到对应变量中
+服务间是相互依赖的, 所以部署配置文件中需要将预先分配的服务地址填写到对应变量中。
 
 ## 环境准备
 
@@ -38,7 +39,11 @@ CentOS Linux release 7.9.2009 (Core)
 ### 2.安装依赖软件包
 ```
 [root@paas-node-1 ~]# yum install -y git mariadb mariadb-server nginx supervisor \
- python-pip pycrypto gcc glibc python-devel mongodb mongodb-server
+ python-pip pycrypto gcc glibc python-devel rabbitmq-server python3 redis
+```
+
+```
+[root@opsany-paas ~]# mkdir -p /opt/opsany/{logs,uploads}
 ```
 
 ### 3.初始化MySQL数据库
@@ -57,6 +62,8 @@ MariaDB [(none)]> grant all on opsany_paas.* to opsany@localhost identified by '
 ```
 
 ### 4.初始化MongoDB数据库
+
+配置MongoDB
 ```
 cat > /etc/yum.repos.d/mongodb.repo <<"EOF"
 [mongodb-org]
@@ -66,7 +73,9 @@ baseurl=http://mirrors.cloud.tencent.com/mongodb/yum/el$releasever/
 gpgcheck=0
 enabled=1
 EOF
-
+```
+安装MongoDB
+```
 [root@paas-node-1 ~]# yum install -y mongodb-org-shell mongodb-org-tools mongodb-org mongodb-org-server
 [root@paas-node-1 ~]# systemctl enable mongod && systemctl start mongod
 [root@linux-node1 ~]# netstat -ntlp | grep 27017
@@ -164,9 +173,9 @@ BK_COOKIE_DOMAIN = '192.168.0.101'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'dev_paas',
+        'NAME': 'opsany_paas',
         'USER': 'paas',
-        'PASSWORD': 'dev_paas',
+        'PASSWORD': '123456.coM',
         'HOST': '127.0.0.1',
         'PORT': '3306',
     }
@@ -210,10 +219,10 @@ BK_COOKIE_DOMAIN = '192.168.0.101'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'dev_paas',
-        'USER': 'paas',
-        'PASSWORD': 'dev_paas',
-        'HOST': 'localhost',
+        'NAME': 'opsany_paas',
+        'USER': 'opsany',
+        'PASSWORD': '123456.coM',
+        'HOST': '127.0.0.1',
         'PORT': '3306',
     }
 }
@@ -252,10 +261,10 @@ DATABASES = {
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'open_paas',
-        'USER': 'paas',
-        'PASSWORD': 'open_paas',
-        'HOST': 'localhost',
+        'NAME': 'opsany_paas',
+        'USER': 'opsany',
+        'PASSWORD': '123456.coM',
+        'HOST': '127.0.0.1',
         'PORT': '3306',
     }
 }
@@ -315,7 +324,7 @@ DATABASES = {
 ## 生成环境使用supervisor进行启动
 
 ```
-[root@ops ~]# cd /opt/dev-paas/paas-ce/paas/examples/supervisord.d/
+[root@opsany-paas ~]# cd /opt/opsany-paas/paas-ce/paas/examples/supervisord.d/
 [root@ops supervisord.d]# cp *.ini /etc/supervisord.d/
 [root@ops ~]# mkdir /opt/dev-paas/paas-runtime/logs
 [root@ops ~]# systemctl start supervisord

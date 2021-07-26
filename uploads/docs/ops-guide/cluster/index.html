@@ -11,14 +11,14 @@
         <meta name="author" content="OpsAny">
       
       
-        <link rel="canonical" href="https://docs.opsany.com/user-guide/event/">
+        <link rel="canonical" href="https://docs.opsany.com/ops-guide/cluster/">
       
       <link rel="icon" href="../../assets/favicon.ico">
       <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-7.1.6">
     
     
       
-        <title>事件中心 - OpsAny官方文档</title>
+        <title>集群部署 - OpsAny官方文档</title>
       
     
     
@@ -66,6 +66,11 @@
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
       
+        
+        <a href="#opsany" class="md-skip">
+          跳转至
+        </a>
+      
     </div>
     <div data-md-component="announce">
       
@@ -91,7 +96,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              事件中心
+              集群部署
             
           </span>
         </div>
@@ -204,7 +209,7 @@
   
   
     <li class="md-tabs__item">
-      <a href="../workbench/" class="md-tabs__link">
+      <a href="../../user-guide/workbench/" class="md-tabs__link">
         用户手册
       </a>
     </li>
@@ -214,13 +219,15 @@
         
   
   
+    
+  
 
 
   
   
   
     <li class="md-tabs__item">
-      <a href="../../ops-guide/install/" class="md-tabs__link">
+      <a href="../install/" class="md-tabs__link md-tabs__link--active">
         运维手册
       </a>
     </li>
@@ -438,7 +445,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../workbench/" class="md-nav__link">
+      <a href="../../user-guide/workbench/" class="md-nav__link">
         工作台
       </a>
     </li>
@@ -450,7 +457,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../cmdb/" class="md-nav__link">
+      <a href="../../user-guide/cmdb/" class="md-nav__link">
         资源平台
       </a>
     </li>
@@ -462,7 +469,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../control/" class="md-nav__link">
+      <a href="../../user-guide/control/" class="md-nav__link">
         管控平台
       </a>
     </li>
@@ -474,7 +481,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../job/" class="md-nav__link">
+      <a href="../../user-guide/job/" class="md-nav__link">
         作业平台
       </a>
     </li>
@@ -486,7 +493,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../monitor/" class="md-nav__link">
+      <a href="../../user-guide/monitor/" class="md-nav__link">
         监控平台
       </a>
     </li>
@@ -498,7 +505,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../cmp/" class="md-nav__link">
+      <a href="../../user-guide/cmp/" class="md-nav__link">
         云管平台
       </a>
     </li>
@@ -510,7 +517,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../devops/" class="md-nav__link">
+      <a href="../../user-guide/devops/" class="md-nav__link">
         应用平台
       </a>
     </li>
@@ -522,7 +529,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../rbac/" class="md-nav__link">
+      <a href="../../user-guide/rbac/" class="md-nav__link">
         统一权限
       </a>
     </li>
@@ -541,12 +548,14 @@
 
   
   
+    
+  
   
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
       
-        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4" data-md-state="indeterminate" type="checkbox" id="__nav_4" checked>
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_4" type="checkbox" id="__nav_4" checked>
       
       <label class="md-nav__link" for="__nav_4">
         运维手册
@@ -564,7 +573,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ops-guide/install/" class="md-nav__link">
+      <a href="../install/" class="md-nav__link">
         快速部署
       </a>
     </li>
@@ -574,11 +583,74 @@
             
   
   
+    
   
-    <li class="md-nav__item">
-      <a href="../../ops-guide/cluster/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          集群部署
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         集群部署
       </a>
+      
+        
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#opsany" class="md-nav__link">
+    OpsAny社区版高可用集群部署
+  </a>
+  
+    <nav class="md-nav" aria-label="OpsAny社区版高可用集群部署">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    部署多个节点
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#keepalived" class="md-nav__link">
+    部署Keepalived
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#openresty" class="md-nav__link">
+    配置OpenResty
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -588,7 +660,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ops-guide/ops/" class="md-nav__link">
+      <a href="../ops/" class="md-nav__link">
         日常维护
       </a>
     </li>
@@ -600,7 +672,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../ops-guide/help/" class="md-nav__link">
+      <a href="../help/" class="md-nav__link">
         常见问题
       </a>
     </li>
@@ -704,15 +776,382 @@
               </div>
             
             
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#opsany" class="md-nav__link">
+    OpsAny社区版高可用集群部署
+  </a>
+  
+    <nav class="md-nav" aria-label="OpsAny社区版高可用集群部署">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    部署多个节点
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#keepalived" class="md-nav__link">
+    部署Keepalived
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#openresty" class="md-nav__link">
+    配置OpenResty
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
           
           <div class="md-content" data-md-component="content">
             <article class="md-content__inner md-typeset">
               
                 
                 
-                  <h1>事件中心</h1>
+                  <h1>集群部署</h1>
                 
-                <p># 事件中心</p>
+                <h2 id="opsany">OpsAny社区版高可用集群部署<a class="headerlink" href="#opsany" title="Permanent link">&para;</a></h2>
+<hr />
+<p>推荐使用Openresty+keepalived实现负载均衡和高可用架构，默认OpsAny社区版已经使用了Openresty而且也是使用了负载均衡的配置模式，即便只有一台主机，现在你需要部署Keepalived并且
+修改Openresty的配置并重启opsany-openresty即可。</p>
+<h3 id="_1">部署多个节点<a class="headerlink" href="#_1" title="Permanent link">&para;</a></h3>
+<p>使用脚本增加部署一个节点，注意MySQL、Redis、MongoDB、RabbitMQ均使用先部署的节点，请自行创建MySQL主从、Redis集群或者主从、MongoDB机器和RabbitMQ集群。</p>
+<blockquote>
+<p>这个是主要的工作量，服务的部署反而是最简单的。</p>
+</blockquote>
+<h3 id="keepalived">部署Keepalived<a class="headerlink" href="#keepalived" title="Permanent link">&para;</a></h3>
+<p>1.在所有集群节点上都部署Keepalived</p>
+<blockquote>
+<p>推荐3台主机做集群，最少2台主机，保证高可用。</p>
+</blockquote>
+<div class="highlight"><pre><span></span><code>[root@linux-node1 ~]# yum install -y keepalived
+[root@linux-node2 ~]# yum install -y keepalived
+</code></pre></div>
+<p>2.配置Keepavlied</p>
+<blockquote>
+<p>推荐试用不抢占模式，所有Keepalived都设置为BACKUP状态，通过priority进行选举。</p>
+</blockquote>
+<p><strong><em>linux-node1配置：</em></strong></p>
+<div class="highlight"><pre><span></span><code>[root@linux-node1 ~]# vim /etc/keepalived/keepalived.conf
+! Configuration File for keepalived
+global_defs {
+   notification_email {
+     k8s@example.com
+   }
+   notification_email_from keepalived@example.com
+   smtp_server 127.0.0.1
+   smtp_connect_timeout 30
+   router_id opsany-ha
+}
+
+vrrp_script haproxy_health_check {
+    script &quot;/etc/keepalived/opsany_health_check.sh&quot;
+    interval 3
+    weight -2
+    fall 10
+    rise 2
+}
+
+vrrp_instance opsany_ha {
+    state BACKUP
+    nopreempt
+    interface eth0
+    virtual_router_id 36
+    priority 150
+    advert_int 1
+    authentication {
+        auth_type PASS
+        auth_pass 57459267
+    }
+    virtual_ipaddress {
+       192.168.56.20
+    }
+    track_script {
+        haproxy_health_check
+    }
+}
+</code></pre></div>
+<p><strong><em>linux-node2配置：</em></strong></p>
+<div class="highlight"><pre><span></span><code>[root@linux-node1 ~]# vim /etc/keepalived/keepalived.conf
+! Configuration File for keepalived
+global_defs {
+   notification_email {
+     k8s@example.com
+   }
+   notification_email_from keepalived@example.com
+   smtp_server 127.0.0.1
+   smtp_connect_timeout 30
+   router_id opsany-ha
+}
+
+vrrp_script haproxy_health_check {
+    script &quot;/etc/keepalived/opsany_health_check.sh&quot;
+    interval 3
+    weight -2
+    fall 10
+    rise 2
+}
+
+vrrp_instance opsany_ha {
+    state BACKUP
+    nopreempt
+    interface eth0
+    virtual_router_id 36
+    priority 150
+    advert_int 1
+    authentication {
+        auth_type PASS
+        auth_pass 57459267
+    }
+    virtual_ipaddress {
+       192.168.56.20
+    }
+    track_script {
+        haproxy_health_check
+    }
+}
+</code></pre></div>
+<p>3.启动并测试</p>
+<div class="highlight"><pre><span></span><code>#linux-node1
+[root@linux-node1 ~]# systemctl enable --now keepalived
+[root@linux-node1 ~]# ip ad li
+
+#linux-node2
+[root@linux-node2 ~]# systemctl enable --now keepalived
+[root@linux-node2 ~]# ip ad li
+</code></pre></div>
+<h3 id="openresty">配置OpenResty<a class="headerlink" href="#openresty" title="Permanent link">&para;</a></h3>
+<p>OpsAny默认试用Openresty配置文件是挂载到容器中的，修改完毕配置文件之后，重启容器即可。</p>
+<div class="highlight"><pre><span></span><code>[root@linux-node1 ~]# vim /opt/opsany/conf/nginx-conf.d/nginx_paas.conf
+# upstream - web
+upstream OPEN_PAAS {
+    server 192.168.56.11:8001 max_fails=1  fail_timeout=30s;
+}
+upstream OPEN_PAAS_APPENGINE {
+    server 192.168.56.11:8000 max_fails=1  fail_timeout=30s;
+}
+upstream OPEN_PAAS_ESB {
+    server 192.168.56.11:8002 max_fails=1  fail_timeout=30s;
+}
+upstream OPEN_PAAS_LOGIN {
+    server 192.168.56.11:8003 max_fails=1  fail_timeout=30s;
+}
+upstream CONTROL_WS {
+    server 192.168.56.11:8004 max_fails=1  fail_timeout=30s;
+}
+upstream MONITOR_ZABBIX {
+    server 192.168.56.11:8006 max_fails=1  fail_timeout=30s;
+}
+upstream DASHBOARD_GRAFANA {
+    server 192.168.56.11:8007 max_fails=1  fail_timeout=30s;
+}
+
+# upstream - paasagent
+upstream PAAS_AGENT_TEST {
+    server 192.168.56.11:8084 max_fails=1  fail_timeout=30s;
+}
+upstream PAAS_AGENT_PROD {
+    server 192.168.56.11:8085 max_fails=1  fail_timeout=30s;
+}
+# proxy_next_upstream  http_502 http_504 error timeout invalid_header;
+
+server {
+    listen 80;
+    server_name 192.168.56.11;
+    location ~ ^/uploads/(.*) {
+        autoindex off;
+        root /opt/opsany/;
+    }
+    location ~/ {
+        rewrite ^(.*)$ https://$host$1 permanent;
+    }
+}
+
+server {
+     listen       443 ssl;
+     server_name  192.168.56.11;
+     access_log /opt/opsany/logs/paas_nginx_access.log;
+     error_log /opt/opsany/logs/paas_nginx_error.log;
+     ssl_certificate /etc/nginx/conf.d/ssl/192.168.56.11.pem;
+     ssl_certificate_key /etc/nginx/conf.d/ssl/192.168.56.11.key;
+     ssl_session_timeout 5m;
+     ssl_ciphers ECDHE-RSA-AES128-GCM-SHA256:ECDHE:ECDH:AES:HIGH:!NULL:!aNULL:!MD5:!ADH:!RC4;
+     ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+     ssl_prefer_server_ciphers on;
+    # gzip config
+    gzip on;
+    gzip_min_length 1k;
+    gzip_comp_level 9;
+    gzip_types text/plain application/javascript application/x-javascript text/css application/xml text/javascript application/x-httpd-php image/jpeg image/gif image/png;
+    gzip_vary on;
+    gzip_disable &quot;MSIE [1-6]\.&quot;;
+    client_max_body_size    512m;
+
+    # ============================ paas ============================
+    # Zabbix
+    location /zabbix/ {
+        proxy_pass http://MONITOR_ZABBIX;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection &quot;upgrade&quot;;
+        proxy_redirect off;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Host $server_name;
+    }
+
+    # Grafana
+    location /grafana/ {
+        proxy_pass https://DASHBOARD_GRAFANA;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection &quot;upgrade&quot;;
+        proxy_redirect off;
+        proxy_set_header Host $host;
+        proxy_set_header X-WEBAUTH-USER admin;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Host $server_name;
+    }
+
+    # CONTROL WebSocket
+     location /ws/control/ {
+        proxy_pass http://CONTROL_WS;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection &quot;upgrade&quot;;
+        proxy_redirect off;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Host $server_name;
+    }
+    # PAAS_SERVICE HOST/PORT
+    location / {
+        proxy_pass http://OPEN_PAAS;
+        proxy_pass_header Server;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Scheme $scheme;
+        proxy_set_header Host $http_host;
+        proxy_redirect off;
+        proxy_read_timeout 600;
+    }
+
+    # uploads
+    location ~ ^/uploads/(.*) {
+        autoindex off;
+        root /opt/opsany/;
+    }
+
+    # docs
+    location ~ ^/docs/ {
+        index index.html;
+        root /opt/opsany/uploads/;
+    }
+
+    # ============================ appengine ============================
+    # ENGINE_SERVICE HOST/PORT
+    location ~ ^/v1 {
+        proxy_pass http://OPEN_PAAS_APPENGINE;
+        proxy_pass_header Server;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header Host $http_host;
+        proxy_set_header X-Scheme $scheme;
+        proxy_read_timeout 600;
+    }
+
+    # ============================ esb ============================
+    # ESB_SERVICE HOST/PORT
+    location ~ ^/api/(.*) {
+        proxy_pass http://OPEN_PAAS_ESB/$1$is_args$args;
+        proxy_pass_header Server;
+        proxy_set_header X-Request-Uri $request_uri;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Scheme $scheme;
+        proxy_set_header Host $http_host;
+        proxy_redirect off;
+        proxy_read_timeout 600;
+    }
+
+
+    # ============================ login ============================
+    # LOGIN_SERVICE HOST/PORT
+    location ~ ^/login/(.*) {
+        proxy_pass http://OPEN_PAAS_LOGIN/$1$is_args$args;
+        proxy_pass_header Server;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Scheme $scheme;
+        proxy_set_header Host $http_host;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_redirect off;
+        proxy_read_timeout 600;
+    }
+
+
+    # ============================ paas_agent ============================
+    # for apps test
+    location ~ ^/t/ {
+        proxy_pass http://PAAS_AGENT_TEST;
+        proxy_pass_header Server;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Scheme $scheme;
+        proxy_set_header Host $http_host;
+        proxy_redirect off;
+        proxy_read_timeout 600;
+    }
+
+    # for apps prod
+    location ~ ^/o/ {
+        proxy_pass http://PAAS_AGENT_PROD;
+        proxy_pass_header Server;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Scheme $scheme;
+        proxy_set_header Host $http_host;
+        proxy_redirect off;
+        proxy_read_timeout 600;
+    }
+
+}
+</code></pre></div>
+<hr />
                 
               
               
@@ -732,6 +1171,39 @@
       
         
 <footer class="md-footer">
+  
+    <nav class="md-footer__inner md-grid" aria-label="Footer">
+      
+        <a href="../install/" class="md-footer__link md-footer__link--prev" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                上一页
+              </span>
+              快速部署
+            </div>
+          </div>
+        </a>
+      
+      
+        <a href="../ops/" class="md-footer__link md-footer__link--next" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                下一页
+              </span>
+              日常维护
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
   
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
