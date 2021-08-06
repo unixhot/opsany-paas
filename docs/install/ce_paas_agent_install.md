@@ -76,9 +76,9 @@ $ chmod +x build/virtualenv/build  build/virtualenv/saas/buildsaas
 
 注意: `build` 和 `buildsaas` 中的 `VIRTUALENVWRAPPER_PYTHON` 变量需要设置正确的 python 路径，默认`/usr/bin/python`, 如果上一步`which python`的返回结果不是`/usr/bin/python`, 需要修改为对应正确的路径；如果用到了python3，`PYTHON3_PATH`也需要设置成正确的路径，默认`/opt/py36`
 
-#### 3. 蓝鲸智云开发者中心注册服务器
+#### 3. 开发者中心注册服务器
 
-开发者中心部署成功后, 访问`PAAS_DOMAIN`配置的域名，在**蓝鲸智云开发者中心->服务器信息**页面中，点击`添加服务器信息`按钮, 添加一台测试和正式app服务器。后台会自动生成服务器对应的`服务器ID(sid)`和`Token(stoken)`字段
+开发者中心部署成功后, 访问`PAAS_DOMAIN`配置的域名，在**开发者中心->服务器信息**页面中，点击`添加服务器信息`按钮, 添加一台测试和正式app服务器。后台会自动生成服务器对应的`服务器ID(sid)`和`Token(stoken)`字段
 
 注意: 开发者中心所在的服务器需要保证网络与app服务器互通
 
@@ -110,8 +110,8 @@ $ $AGENT_ROOT/paas_agent/bin/paas_agent &
 ```
 PaaSAgent启动后，日志记录在了`paas_agent_config.yaml`配置的`AGENT_LOG_PATH`文件中，如`/data/paas/logs/paas_agent/agent.log`，用户可通过日志内容查看服务状态
 
-#### 6. 蓝鲸智云开发者中心激活服务器
-PaaSAgent服务启动成功后，在**蓝鲸智云开发者中心->服务器信息**页面中，找到服务器**操作**栏中的激活按钮，激活服务器
+#### 6. 开发者中心激活服务器
+PaaSAgent服务启动成功后，在**开发者中心->服务器信息**页面中，找到服务器**操作**栏中的激活按钮，激活服务器
 
 #### 7. 部署nginx反向代理
 

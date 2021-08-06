@@ -12,23 +12,23 @@ from django.utils.translation import ugettext as _
 SYSTEMS = [
     {
         'name': 'BK_LOGIN',
-        'label': _(u'蓝鲸统一登录'),
+        'label': _(u'统一登录'),
     },
     {
         'name': 'CC',
-        'label': _(u'蓝鲸配置平台'),
+        'label': _(u'配置平台'),
     },
     {
         'name': 'GSE',
-        'label': _(u'蓝鲸管控平台'),
+        'label': _(u'管控平台'),
     },
     {
         'name': 'JOB',
-        'label': _(u'蓝鲸作业平台'),
+        'label': _(u'作业平台'),
     },
     {
         'name': 'CMSI',
-        'label': _(u'蓝鲸消息管理'),
+        'label': _(u'消息管理'),
     },
     {
         'name': 'SOPS',

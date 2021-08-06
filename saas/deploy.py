@@ -62,9 +62,9 @@ class Deploy(object):
     # 获取上传文件
     def get_upload_file(self, file_name_list):
         if file_name_list:
-            file_list = [os.path.join(os.path.dirname(os.path.abspath(__file__)), file_name) for file_name in file_name_list if os.path.isfile(os.path.join(os.path.dirname(os.path.abspath(__file__)), file_name)) and file_name.endswith("tar.gz") and self.paas_domain in file_name and len(file_name.split("-")) == 3]
+            file_list = [os.path.join(os.path.dirname(os.path.abspath(__file__)), file_name) for file_name in file_name_list if os.path.isfile(os.path.join(os.path.dirname(os.path.abspath(__file__)), file_name)) and file_name.endswith("tar.gz") and len(file_name.split("-")) == 3]
         else:
-            file_list = [os.path.join(os.path.dirname(os.path.abspath(__file__)), file) for file in os.listdir(os.path.dirname(os.path.abspath(__file__))) if file.endswith("tar.gz") and self.paas_domain in file and len(file.split("-")) == 3]
+            file_list = [os.path.join(os.path.dirname(os.path.abspath(__file__)), file) for file in os.listdir(os.path.dirname(os.path.abspath(__file__))) if file.endswith("tar.gz") and len(file.split("-")) == 3]
         if not file_list:
             print("未发现有效文件")
             sys.exit(1)

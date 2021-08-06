@@ -22,7 +22,7 @@ define({ "api": [
             "type": "string",
             "optional": false,
             "field": "app_secret",
-            "description": "<p>应用TOKEN，可以通过 蓝鲸智云开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
+            "description": "<p>应用TOKEN，可以通过 开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
           },
           {
             "group": "Parameter",
@@ -90,7 +90,7 @@ define({ "api": [
             "type": "string",
             "optional": false,
             "field": "app_secret",
-            "description": "<p>应用TOKEN，可以通过 蓝鲸智云开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
+            "description": "<p>应用TOKEN，可以通过 开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
           },
           {
             "group": "Parameter",
@@ -178,7 +178,7 @@ define({ "api": [
             "type": "string",
             "optional": false,
             "field": "app_secret",
-            "description": "<p>应用TOKEN，可以通过 蓝鲸智云开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
+            "description": "<p>应用TOKEN，可以通过 开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
           },
           {
             "group": "Parameter",
@@ -266,7 +266,7 @@ define({ "api": [
             "type": "string",
             "optional": false,
             "field": "app_secret",
-            "description": "<p>应用TOKEN，可以通过 蓝鲸智云开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
+            "description": "<p>应用TOKEN，可以通过 开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
           },
           {
             "group": "Parameter",
@@ -347,7 +347,7 @@ define({ "api": [
             "type": "string",
             "optional": false,
             "field": "app_secret",
-            "description": "<p>应用TOKEN，可以通过 蓝鲸智云开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
+            "description": "<p>应用TOKEN，可以通过 开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
           },
           {
             "group": "Parameter",
@@ -415,7 +415,7 @@ define({ "api": [
             "type": "string",
             "optional": false,
             "field": "app_secret",
-            "description": "<p>应用TOKEN，可以通过 蓝鲸智云开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
+            "description": "<p>应用TOKEN，可以通过 开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
           },
           {
             "group": "Parameter",
@@ -539,7 +539,7 @@ define({ "api": [
             "type": "string",
             "optional": false,
             "field": "app_secret",
-            "description": "<p>应用TOKEN，可以通过 蓝鲸智云开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
+            "description": "<p>应用TOKEN，可以通过 开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
           },
           {
             "group": "Parameter",
@@ -649,7 +649,7 @@ define({ "api": [
             "type": "string",
             "optional": false,
             "field": "app_secret",
-            "description": "<p>应用TOKEN，可以通过 蓝鲸智云开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
+            "description": "<p>应用TOKEN，可以通过 开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
           },
           {
             "group": "Parameter",
@@ -749,7 +749,7 @@ define({ "api": [
             "type": "string",
             "optional": false,
             "field": "app_secret",
-            "description": "<p>应用TOKEN，可以通过 蓝鲸智云开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
+            "description": "<p>应用TOKEN，可以通过 开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
           },
           {
             "group": "Parameter",
@@ -898,7 +898,7 @@ define({ "api": [
             "type": "string",
             "optional": false,
             "field": "app_secret",
-            "description": "<p>应用TOKEN，可以通过 蓝鲸智云开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
+            "description": "<p>应用TOKEN，可以通过 开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
           },
           {
             "group": "Parameter",
@@ -987,7 +987,7 @@ define({ "api": [
             "type": "string",
             "optional": false,
             "field": "app_secret",
-            "description": "<p>应用TOKEN，可以通过 蓝鲸智云开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
+            "description": "<p>应用TOKEN，可以通过 开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
           },
           {
             "group": "Parameter",
@@ -1055,7 +1055,7 @@ define({ "api": [
             "type": "string",
             "optional": false,
             "field": "app_secret",
-            "description": "<p>应用TOKEN，可以通过 蓝鲸智云开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
+            "description": "<p>应用TOKEN，可以通过 开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
           },
           {
             "group": "Parameter",
@@ -1130,7 +1130,7 @@ define({ "api": [
             "type": "string",
             "optional": false,
             "field": "app_secret",
-            "description": "<p>应用TOKEN，可以通过 蓝鲸智云开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
+            "description": "<p>应用TOKEN，可以通过 开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
           },
           {
             "group": "Parameter",
@@ -1205,7 +1205,7 @@ define({ "api": [
             "type": "string",
             "optional": false,
             "field": "app_secret",
-            "description": "<p>应用TOKEN，可以通过 蓝鲸智云开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
+            "description": "<p>应用TOKEN，可以通过 开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
           },
           {
             "group": "Parameter",
@@ -1273,7 +1273,7 @@ define({ "api": [
             "type": "string",
             "optional": false,
             "field": "app_secret",
-            "description": "<p>应用TOKEN，可以通过 蓝鲸智云开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
+            "description": "<p>应用TOKEN，可以通过 开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
           },
           {
             "group": "Parameter",
@@ -1380,7 +1380,7 @@ define({ "api": [
             "type": "string",
             "optional": false,
             "field": "app_secret",
-            "description": "<p>应用TOKEN，可以通过 蓝鲸智云开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
+            "description": "<p>应用TOKEN，可以通过 开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
           },
           {
             "group": "Parameter",
@@ -1487,7 +1487,7 @@ define({ "api": [
             "type": "string",
             "optional": false,
             "field": "app_secret",
-            "description": "<p>应用TOKEN，可以通过 蓝鲸智云开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
+            "description": "<p>应用TOKEN，可以通过 开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
           },
           {
             "group": "Parameter",
@@ -1604,7 +1604,7 @@ define({ "api": [
             "type": "string",
             "optional": false,
             "field": "app_secret",
-            "description": "<p>应用TOKEN，可以通过 蓝鲸智云开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
+            "description": "<p>应用TOKEN，可以通过 开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
           },
           {
             "group": "Parameter",
@@ -1707,7 +1707,7 @@ define({ "api": [
             "type": "string",
             "optional": false,
             "field": "app_secret",
-            "description": "<p>应用TOKEN，可以通过 蓝鲸智云开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
+            "description": "<p>应用TOKEN，可以通过 开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
           },
           {
             "group": "Parameter",
@@ -1784,7 +1784,7 @@ define({ "api": [
             "type": "string",
             "optional": false,
             "field": "app_secret",
-            "description": "<p>应用TOKEN，可以通过 蓝鲸智云开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
+            "description": "<p>应用TOKEN，可以通过 开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
           },
           {
             "group": "Parameter",
@@ -1861,7 +1861,7 @@ define({ "api": [
             "type": "string",
             "optional": false,
             "field": "app_secret",
-            "description": "<p>应用TOKEN，可以通过 蓝鲸智云开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
+            "description": "<p>应用TOKEN，可以通过 开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
           },
           {
             "group": "Parameter",
@@ -1960,7 +1960,7 @@ define({ "api": [
             "type": "string",
             "optional": false,
             "field": "app_secret",
-            "description": "<p>应用TOKEN，可以通过 蓝鲸智云开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
+            "description": "<p>应用TOKEN，可以通过 开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
           },
           {
             "group": "Parameter",
@@ -2028,7 +2028,7 @@ define({ "api": [
             "type": "string",
             "optional": false,
             "field": "app_secret",
-            "description": "<p>应用TOKEN，可以通过 蓝鲸智云开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
+            "description": "<p>应用TOKEN，可以通过 开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
           },
           {
             "group": "Parameter",
@@ -2096,7 +2096,7 @@ define({ "api": [
             "type": "string",
             "optional": false,
             "field": "app_secret",
-            "description": "<p>应用TOKEN，可以通过 蓝鲸智云开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
+            "description": "<p>应用TOKEN，可以通过 开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
           },
           {
             "group": "Parameter",
@@ -2157,7 +2157,7 @@ define({ "api": [
             "type": "string",
             "optional": false,
             "field": "app_secret",
-            "description": "<p>应用TOKEN，可以通过 蓝鲸智云开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
+            "description": "<p>应用TOKEN，可以通过 开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
           },
           {
             "group": "Parameter",
@@ -2239,7 +2239,7 @@ define({ "api": [
             "type": "string",
             "optional": false,
             "field": "app_secret",
-            "description": "<p>应用TOKEN，可以通过 蓝鲸智云开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
+            "description": "<p>应用TOKEN，可以通过 开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
           },
           {
             "group": "Parameter",
@@ -2307,7 +2307,7 @@ define({ "api": [
             "type": "string",
             "optional": false,
             "field": "app_secret",
-            "description": "<p>应用TOKEN，可以通过 蓝鲸智云开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
+            "description": "<p>应用TOKEN，可以通过 开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
           },
           {
             "group": "Parameter",
@@ -2382,7 +2382,7 @@ define({ "api": [
             "type": "string",
             "optional": false,
             "field": "app_secret",
-            "description": "<p>应用TOKEN，可以通过 蓝鲸智云开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
+            "description": "<p>应用TOKEN，可以通过 开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
           },
           {
             "group": "Parameter",
@@ -2457,7 +2457,7 @@ define({ "api": [
             "type": "string",
             "optional": false,
             "field": "app_secret",
-            "description": "<p>应用TOKEN，可以通过 蓝鲸智云开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
+            "description": "<p>应用TOKEN，可以通过 开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
           },
           {
             "group": "Parameter",
@@ -2553,7 +2553,7 @@ define({ "api": [
             "type": "string",
             "optional": false,
             "field": "app_secret",
-            "description": "<p>应用TOKEN，可以通过 蓝鲸智云开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
+            "description": "<p>应用TOKEN，可以通过 开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
           },
           {
             "group": "Parameter",
@@ -2635,7 +2635,7 @@ define({ "api": [
             "type": "string",
             "optional": false,
             "field": "app_secret",
-            "description": "<p>应用TOKEN，可以通过 蓝鲸智云开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
+            "description": "<p>应用TOKEN，可以通过 开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
           },
           {
             "group": "Parameter",
@@ -2710,7 +2710,7 @@ define({ "api": [
             "type": "string",
             "optional": false,
             "field": "app_secret",
-            "description": "<p>应用TOKEN，可以通过 蓝鲸智云开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
+            "description": "<p>应用TOKEN，可以通过 开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
           },
           {
             "group": "Parameter",
@@ -2778,7 +2778,7 @@ define({ "api": [
             "type": "string",
             "optional": false,
             "field": "app_secret",
-            "description": "<p>应用TOKEN，可以通过 蓝鲸智云开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
+            "description": "<p>应用TOKEN，可以通过 开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
           },
           {
             "group": "Parameter",
@@ -2867,7 +2867,7 @@ define({ "api": [
             "type": "string",
             "optional": false,
             "field": "app_secret",
-            "description": "<p>应用TOKEN，可以通过 蓝鲸智云开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
+            "description": "<p>应用TOKEN，可以通过 开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
           },
           {
             "group": "Parameter",
@@ -2928,7 +2928,7 @@ define({ "api": [
             "type": "string",
             "optional": false,
             "field": "app_secret",
-            "description": "<p>应用TOKEN，可以通过 蓝鲸智云开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
+            "description": "<p>应用TOKEN，可以通过 开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
           },
           {
             "group": "Parameter",
@@ -2996,7 +2996,7 @@ define({ "api": [
             "type": "string",
             "optional": false,
             "field": "app_secret",
-            "description": "<p>应用TOKEN，可以通过 蓝鲸智云开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
+            "description": "<p>应用TOKEN，可以通过 开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
           },
           {
             "group": "Parameter",
@@ -3071,7 +3071,7 @@ define({ "api": [
             "type": "string",
             "optional": false,
             "field": "app_secret",
-            "description": "<p>应用TOKEN，可以通过 蓝鲸智云开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
+            "description": "<p>应用TOKEN，可以通过 开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
           },
           {
             "group": "Parameter",
@@ -3146,7 +3146,7 @@ define({ "api": [
             "type": "string",
             "optional": false,
             "field": "app_secret",
-            "description": "<p>应用TOKEN，可以通过 蓝鲸智云开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
+            "description": "<p>应用TOKEN，可以通过 开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
           },
           {
             "group": "Parameter",
@@ -3207,7 +3207,7 @@ define({ "api": [
             "type": "string",
             "optional": false,
             "field": "app_secret",
-            "description": "<p>应用TOKEN，可以通过 蓝鲸智云开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
+            "description": "<p>应用TOKEN，可以通过 开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
           },
           {
             "group": "Parameter",
@@ -3289,7 +3289,7 @@ define({ "api": [
             "type": "string",
             "optional": false,
             "field": "app_secret",
-            "description": "<p>应用TOKEN，可以通过 蓝鲸智云开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
+            "description": "<p>应用TOKEN，可以通过 开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
           },
           {
             "group": "Parameter",
@@ -3357,7 +3357,7 @@ define({ "api": [
             "type": "string",
             "optional": false,
             "field": "app_secret",
-            "description": "<p>应用TOKEN，可以通过 蓝鲸智云开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
+            "description": "<p>应用TOKEN，可以通过 开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
           },
           {
             "group": "Parameter",
@@ -3471,7 +3471,7 @@ define({ "api": [
             "type": "string",
             "optional": false,
             "field": "app_secret",
-            "description": "<p>应用TOKEN，可以通过 蓝鲸智云开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
+            "description": "<p>应用TOKEN，可以通过 开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
           },
           {
             "group": "Parameter",
@@ -3560,7 +3560,7 @@ define({ "api": [
             "type": "string",
             "optional": false,
             "field": "app_secret",
-            "description": "<p>应用TOKEN，可以通过 蓝鲸智云开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
+            "description": "<p>应用TOKEN，可以通过 开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
           },
           {
             "group": "Parameter",
@@ -3658,7 +3658,7 @@ define({ "api": [
             "type": "string",
             "optional": false,
             "field": "app_secret",
-            "description": "<p>应用TOKEN，可以通过 蓝鲸智云开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
+            "description": "<p>应用TOKEN，可以通过 开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
           },
           {
             "group": "Parameter",
@@ -3747,7 +3747,7 @@ define({ "api": [
             "type": "string",
             "optional": false,
             "field": "app_secret",
-            "description": "<p>应用TOKEN，可以通过 蓝鲸智云开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
+            "description": "<p>应用TOKEN，可以通过 开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
           },
           {
             "group": "Parameter",
@@ -3836,7 +3836,7 @@ define({ "api": [
             "type": "string",
             "optional": false,
             "field": "app_secret",
-            "description": "<p>应用TOKEN，可以通过 蓝鲸智云开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
+            "description": "<p>应用TOKEN，可以通过 开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
           },
           {
             "group": "Parameter",
@@ -3925,7 +3925,7 @@ define({ "api": [
             "type": "string",
             "optional": false,
             "field": "app_secret",
-            "description": "<p>应用TOKEN，可以通过 蓝鲸智云开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
+            "description": "<p>应用TOKEN，可以通过 开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
           },
           {
             "group": "Parameter",
@@ -4028,7 +4028,7 @@ define({ "api": [
             "type": "string",
             "optional": false,
             "field": "app_secret",
-            "description": "<p>应用TOKEN，可以通过 蓝鲸智云开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
+            "description": "<p>应用TOKEN，可以通过 开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
           },
           {
             "group": "Parameter",
@@ -4184,7 +4184,7 @@ define({ "api": [
             "type": "string",
             "optional": false,
             "field": "app_secret",
-            "description": "<p>应用TOKEN，可以通过 蓝鲸智云开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
+            "description": "<p>应用TOKEN，可以通过 开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
           },
           {
             "group": "Parameter",
@@ -4298,7 +4298,7 @@ define({ "api": [
             "type": "string",
             "optional": false,
             "field": "app_secret",
-            "description": "<p>应用TOKEN，可以通过 蓝鲸智云开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
+            "description": "<p>应用TOKEN，可以通过 开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
           },
           {
             "group": "Parameter",
@@ -4396,7 +4396,7 @@ define({ "api": [
             "type": "string",
             "optional": false,
             "field": "app_secret",
-            "description": "<p>应用TOKEN，可以通过 蓝鲸智云开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
+            "description": "<p>应用TOKEN，可以通过 开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
           },
           {
             "group": "Parameter",
@@ -4520,7 +4520,7 @@ define({ "api": [
             "type": "string",
             "optional": false,
             "field": "app_secret",
-            "description": "<p>应用TOKEN，可以通过 蓝鲸智云开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
+            "description": "<p>应用TOKEN，可以通过 开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
           },
           {
             "group": "Parameter",
@@ -4632,7 +4632,7 @@ define({ "api": [
             "type": "string",
             "optional": false,
             "field": "app_secret",
-            "description": "<p>应用TOKEN，可以通过 蓝鲸智云开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
+            "description": "<p>应用TOKEN，可以通过 开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
           },
           {
             "group": "Parameter",
@@ -4721,7 +4721,7 @@ define({ "api": [
             "type": "string",
             "optional": false,
             "field": "app_secret",
-            "description": "<p>应用TOKEN，可以通过 蓝鲸智云开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
+            "description": "<p>应用TOKEN，可以通过 开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
           },
           {
             "group": "Parameter",
@@ -4840,7 +4840,7 @@ define({ "api": [
             "type": "string",
             "optional": false,
             "field": "app_secret",
-            "description": "<p>应用TOKEN，可以通过 蓝鲸智云开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
+            "description": "<p>应用TOKEN，可以通过 开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
           },
           {
             "group": "Parameter",
@@ -4922,7 +4922,7 @@ define({ "api": [
             "type": "string",
             "optional": false,
             "field": "app_secret",
-            "description": "<p>应用TOKEN，可以通过 蓝鲸智云开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
+            "description": "<p>应用TOKEN，可以通过 开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
           },
           {
             "group": "Parameter",
@@ -5085,7 +5085,7 @@ define({ "api": [
             "type": "string",
             "optional": false,
             "field": "app_secret",
-            "description": "<p>应用TOKEN，可以通过 蓝鲸智云开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
+            "description": "<p>应用TOKEN，可以通过 开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
           },
           {
             "group": "Parameter",
@@ -5167,7 +5167,7 @@ define({ "api": [
             "type": "string",
             "optional": false,
             "field": "app_secret",
-            "description": "<p>应用TOKEN，可以通过 蓝鲸智云开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
+            "description": "<p>应用TOKEN，可以通过 开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
           },
           {
             "group": "Parameter",
@@ -5300,7 +5300,7 @@ define({ "api": [
             "type": "string",
             "optional": false,
             "field": "app_secret",
-            "description": "<p>应用TOKEN，可以通过 蓝鲸智云开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
+            "description": "<p>应用TOKEN，可以通过 开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
           },
           {
             "group": "Parameter",
@@ -5449,7 +5449,7 @@ define({ "api": [
             "type": "string",
             "optional": false,
             "field": "app_secret",
-            "description": "<p>应用TOKEN，可以通过 蓝鲸智云开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
+            "description": "<p>应用TOKEN，可以通过 开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
           },
           {
             "group": "Parameter",
@@ -5581,7 +5581,7 @@ define({ "api": [
             "type": "string",
             "optional": false,
             "field": "app_secret",
-            "description": "<p>应用TOKEN，可以通过 蓝鲸智云开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
+            "description": "<p>应用TOKEN，可以通过 开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
           },
           {
             "group": "Parameter",
@@ -5712,7 +5712,7 @@ define({ "api": [
             "type": "string",
             "optional": false,
             "field": "app_secret",
-            "description": "<p>应用TOKEN，可以通过 蓝鲸智云开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
+            "description": "<p>应用TOKEN，可以通过 开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
           },
           {
             "group": "Parameter",
@@ -5829,7 +5829,7 @@ define({ "api": [
             "type": "string",
             "optional": false,
             "field": "app_secret",
-            "description": "<p>应用TOKEN，可以通过 蓝鲸智云开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
+            "description": "<p>应用TOKEN，可以通过 开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
           },
           {
             "group": "Parameter",
@@ -5904,7 +5904,7 @@ define({ "api": [
             "type": "string",
             "optional": false,
             "field": "app_secret",
-            "description": "<p>应用TOKEN，可以通过 蓝鲸智云开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
+            "description": "<p>应用TOKEN，可以通过 开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
           },
           {
             "group": "Parameter",
@@ -6013,7 +6013,7 @@ define({ "api": [
             "type": "string",
             "optional": false,
             "field": "app_secret",
-            "description": "<p>应用TOKEN，可以通过 蓝鲸智云开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
+            "description": "<p>应用TOKEN，可以通过 开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
           },
           {
             "group": "Parameter",
@@ -6122,7 +6122,7 @@ define({ "api": [
             "type": "string",
             "optional": false,
             "field": "app_secret",
-            "description": "<p>应用TOKEN，可以通过 蓝鲸智云开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
+            "description": "<p>应用TOKEN，可以通过 开发者中心 -&gt; 点击应用ID -&gt; 基本信息 获取</p>"
           },
           {
             "group": "Parameter",

@@ -214,7 +214,6 @@ paas_config(){
     sed -i "s/MYSQL_SERVER_IP/${MYSQL_SERVER_IP}/g" ${INSTALL_PATH}/conf/settings_production.py.websocket
     sed -i "s/MYSQL_OPSANY_PASSWORD/${MYSQL_OPSANY_PASSWORD}/g" ${INSTALL_PATH}/conf/settings_production.py.websocket
     sed -i "s/dev.opsany.cn/${PAAS_PAAS_IP}/g" ${INSTALL_PATH}/conf/settings_production.py.websocket.init
-    sed -i "s/9f9f7d93-990a-4719-a7aa-ea219e647d33/${CONTROL_SECRET_KEY}/g" ${INSTALL_PATH}/conf/settings_production.py.websocket.init
     
     # OpenResty
     sed -i "s/DOMAIN_NAME/${DOMAIN_NAME}/g" ${INSTALL_PATH}/conf/nginx-conf.d/nginx_paas.conf

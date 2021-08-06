@@ -16,7 +16,7 @@ RUN_VER = 'open'
 # SaaS应用ID
 APP_CODE = 'control'
 # SaaS安全密钥，注意请勿泄露该密钥
-SECRET_KEY = '9f9f7d93-990a-4719-a7aa-ea219e647d33'
+SECRET_KEY = '099f6e6f-9ad8-43d7-b487-7f655519598d'
 # 运维平台URL
 
 BK_URL = "https://dev.opsany.cn"

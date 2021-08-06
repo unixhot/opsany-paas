@@ -20,7 +20,7 @@ SYS_APP_INFO = {
         'code': 'bk_cc',
         'name': "配置平台",
         'link': '%s://%s' % (settings.HTTP_SCHEMA, settings.HOST_CC),
-        'introduction': "蓝鲸配置平台是一款面向应用的CMDB，在ITIL体系里，CMDB是构建其它流程的基石，而在蓝鲸智云体系里，配置平台就扮演着基石的角色，为应用提供了各种运维场景的配置数据服务。",
+        'introduction': "配置平台是一款面向应用的CMDB，在ITIL体系里，CMDB是构建其它流程的基石，而在蓝鲸智云体系里，配置平台就扮演着基石的角色，为应用提供了各种运维场景的配置数据服务。",
         'logo': '%sapplogo/bk_cc.png' % settings.MEDIA_URL,
         'is_online': True
     },

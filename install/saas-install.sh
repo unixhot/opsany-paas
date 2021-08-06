@@ -14,7 +14,19 @@ CDIR=$(pwd)
 SHELL_NAME="saas-install.sh"
 SHELL_LOG="${SHELL_NAME}.log"
 
+#Configuration file write to DB
+pip3 install requests==2.25.1 grafana-api==1.0.3 mysql-connector==2.2.9 SQLAlchemy==1.4.22 -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
+cd $CDIR 
+set > set.tmp
+source install.config && set > install.tmp
+cat set.tmp install.tmp | sort | uniq -u > install.env
+while read line;do export $line;done < install.env
+cd ../saas/
+python3 add_env.py
+cd $CDIR && rm -f install.env install.tmp set.tmp
+
 # Install Inspection
+cd ${CDIR}
 if [ ! -f ./install.config ];then
       echo "Please Change Directory to /opt/opsany-paas/install"
       exit
@@ -30,8 +42,7 @@ shell_log(){
 }
 
 # Check Install requirement
-paas_check(){
-    # check paas
+saas_init(){
     mkdir -p ${INSTALL_PATH}/{zabbix-volume/alertscripts,zabbix-volume/externalscripts,zabbix-volume/snmptraps,grafana-volume/plugins}
     mkdir -p ${INSTALL_PATH}/uploads/monitor/heartbeat-monitors.d
 }
@@ -173,28 +184,28 @@ mongodb_init(){
     shell_log "======MongoDB Initialize======"
     mongo --host $MONGO_SERVER_IP -u $MONGO_INITDB_ROOT_USERNAME -p$MONGO_INITDB_ROOT_PASSWORD <<END
     use cmdb;
-    db.createUser({user: "$MONGO_CMDB_USERNAME",pwd: "$MONGO_CMDB_PASSWORD",roles: [ { role: "readWrite", db: "cmdb" } ]});
+    db.createUser({user: "cmdb",pwd: "$MONGO_CMDB_PASSWORD",roles: [ { role: "readWrite", db: "cmdb" } ]});
     use job;
-    db.createUser( {user: "$MONGO_JOB_USERNAME",pwd: "$MONGO_JOB_PASSWORD",roles: [ { role: "readWrite", db: "job" } ]});
+    db.createUser( {user: "job",pwd: "$MONGO_JOB_PASSWORD",roles: [ { role: "readWrite", db: "job" } ]});
     use cmp;
-    db.createUser( {user: "$MONGO_CMP_USERNAME",pwd: "$MONGO_CMP_PASSWORD",roles: [ { role: "readWrite", db: "cmp" } ]});
+    db.createUser( {user: "cmp",pwd: "$MONGO_CMP_PASSWORD",roles: [ { role: "readWrite", db: "cmp" } ]});
     use workbench;
-    db.createUser( {user: "$MONGO_WORKBENCH_USERNAME",pwd: "$MONGO_WORKBENCH_PASSWORD",roles: [ { role: "readWrite", db: "workbench" } ]});
+    db.createUser( {user: "workbench",pwd: "$MONGO_WORKBENCH_PASSWORD",roles: [ { role: "readWrite", db: "workbench" } ]});
     use devops;
-    db.createUser( {user: "$MONGO_DEVOPS_USERNAME",pwd: "$MONGO_DEVOPS_PASSWORD",roles: [ { role: "readWrite", db: "devops" } ]});
+    db.createUser( {user: "devops",pwd: "$MONGO_DEVOPS_PASSWORD",roles: [ { role: "readWrite", db: "devops" } ]});
     use monitor;
-    db.createUser( {user: "$MONGO_MONITOR_USERNAME",pwd: "$MONGO_MONITOR_PASSWORD",roles: [ { role: "readWrite", db: "monitor" } ]});
+    db.createUser( {user: "monitor",pwd: "$MONGO_MONITOR_PASSWORD",roles: [ { role: "readWrite", db: "monitor" } ]});
     exit;
 END
     shell_log "======MongoDB Initialize End======"
     
     shell_log "======CMDB Initialize======"
-    mongoimport --host $MONGO_SERVER_IP -u cmdb -pOpsAny@2020 --db cmdb --drop --collection field_group < ./init/cmdb-init/field_group.json
-    mongoimport --host $MONGO_SERVER_IP -u cmdb -pOpsAny@2020 --db cmdb --drop --collection icon_model < ./init/cmdb-init/icon_model.json
-    mongoimport --host $MONGO_SERVER_IP -u cmdb -pOpsAny@2020 --db cmdb --drop --collection link_relationship_model < ./init/cmdb-init/link_relationship_model.json
-    mongoimport --host $MONGO_SERVER_IP -u cmdb -pOpsAny@2020 --db cmdb --drop --collection model_field < ./init/cmdb-init/model_field.json
-    mongoimport --host $MONGO_SERVER_IP -u cmdb -pOpsAny@2020 --db cmdb --drop --collection model_group < ./init/cmdb-init/model_group.json
-    mongoimport --host $MONGO_SERVER_IP -u cmdb -pOpsAny@2020 --db cmdb --drop --collection model_info < ./init/cmdb-init/model_info.json
+    mongoimport --host $MONGO_SERVER_IP -u cmdb -p${MONGO_CMDB_PASSWORD} --db cmdb --drop --collection field_group < ./init/cmdb-init/field_group.json
+    mongoimport --host $MONGO_SERVER_IP -u cmdb -p${MONGO_CMDB_PASSWORD} --db cmdb --drop --collection icon_model < ./init/cmdb-init/icon_model.json
+    mongoimport --host $MONGO_SERVER_IP -u cmdb -p${MONGO_CMDB_PASSWORD} --db cmdb --drop --collection link_relationship_model < ./init/cmdb-init/link_relationship_model.json
+    mongoimport --host $MONGO_SERVER_IP -u cmdb -p${MONGO_CMDB_PASSWORD} --db cmdb --drop --collection model_field < ./init/cmdb-init/model_field.json
+    mongoimport --host $MONGO_SERVER_IP -u cmdb -p${MONGO_CMDB_PASSWORD} --db cmdb --drop --collection model_group < ./init/cmdb-init/model_group.json
+    mongoimport --host $MONGO_SERVER_IP -u cmdb -p${MONGO_CMDB_PASSWORD} --db cmdb --drop --collection model_info < ./init/cmdb-init/model_info.json
     shell_log "======Initialize End======"
 }
 
@@ -203,72 +214,7 @@ saas_reconfigure(){
     shell_log "======SaaS Deploy======"
     cd $CDIR
     cd ../../opsany-saas/
-    pip3 install requests==2.25.1 grafana-api==1.0.3 -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
-    
-    #rbac
-    tar zxf rbac-www.opsany.com-*.tar.gz
-    sed -i "s/www.opsany.com/${DOMAIN_NAME}/g" ./rbac/src/config/__init__.py
-    sed -i "s/192.168.56.11/${MYSQL_SERVER_IP}/g" ./rbac/src/config/prod.py
-    sed -i "s/OpsAny@2020/${MYSQL_OPSANY_RBAC_PASSWORD}/g" ./rbac/src/config/prod.py
-    tar czf rbac-${DOMAIN_NAME}-${SAAS_VERSION}.tar.gz rbac && mv rbac-${DOMAIN_NAME}-${SAAS_VERSION}.tar.gz ../opsany-paas/saas/
-    rm -rf rbac
-    
-    #workbench
-    tar zxf workbench-www.opsany.com-*.tar.gz
-    sed -i "s/www.opsany.com/${DOMAIN_NAME}/g" ./workbench/src/config/__init__.py
-    sed -i "s/192.168.56.11/${MYSQL_SERVER_IP}/g" ./workbench/src/config/prod.py
-    sed -i "s/OpsAny@2020/${MYSQL_OPSANY_RBAC_PASSWORD}/g" ./workbench/src/config/prod.py
-    tar czf workbench-${DOMAIN_NAME}-${SAAS_VERSION}.tar.gz workbench && mv workbench-${DOMAIN_NAME}-${SAAS_VERSION}.tar.gz ../opsany-paas/saas/
-    rm -rf workbench
-    
-    #cmdb
-    tar zxf cmdb-www.opsany.com-*.tar.gz
-    sed -i "s/www.opsany.com/${DOMAIN_NAME}/g" ./cmdb/src/config/__init__.py
-    sed -i "s/192.168.56.11/${MYSQL_SERVER_IP}/g" ./cmdb/src/config/prod.py
-    sed -i "s/OpsAny@2020/${MYSQL_OPSANY_RBAC_PASSWORD}/g" ./cmdb/src/config/prod.py
-    tar czf cmdb-${DOMAIN_NAME}-${SAAS_VERSION}.tar.gz cmdb && mv cmdb-${DOMAIN_NAME}-${SAAS_VERSION}.tar.gz ../opsany-paas/saas/
-    rm -rf cmdb
-    
-    #control
-    tar zxf control-www.opsany.com-*.tar.gz
-    sed -i "s/www.opsany.com/${DOMAIN_NAME}/g" ./control/src/config/__init__.py
-    sed -i "s/192.168.56.11/${MYSQL_SERVER_IP}/g" ./control/src/config/prod.py
-    sed -i "s/OpsAny@2020/${MYSQL_OPSANY_RBAC_PASSWORD}/g" ./control/src/config/prod.py
-    tar czf control-${DOMAIN_NAME}-${SAAS_VERSION}.tar.gz control && mv control-${DOMAIN_NAME}-${SAAS_VERSION}.tar.gz ../opsany-paas/saas/
-    rm -rf control
-    
-    #job
-    tar zxf job-www.opsany.com-*.tar.gz
-    sed -i "s/www.opsany.com/${DOMAIN_NAME}/g" ./job/src/config/__init__.py
-    sed -i "s/192.168.56.11/${MYSQL_SERVER_IP}/g" ./job/src/config/prod.py
-    sed -i "s/OpsAny@2020/${MYSQL_OPSANY_RBAC_PASSWORD}/g" ./job/src/config/prod.py
-    tar czf job-${DOMAIN_NAME}-${SAAS_VERSION}.tar.gz job && mv job-${DOMAIN_NAME}-${SAAS_VERSION}.tar.gz ../opsany-paas/saas/
-    rm -rf job
-    
-    #monitor
-    tar zxf monitor-www.opsany.com-*.tar.gz
-    sed -i "s/www.opsany.com/${DOMAIN_NAME}/g" ./monitor/src/config/__init__.py
-    sed -i "s/192.168.56.11/${MYSQL_SERVER_IP}/g" ./monitor/src/config/prod.py
-    sed -i "s/OpsAny@2020/${MYSQL_OPSANY_RBAC_PASSWORD}/g" ./monitor/src/config/prod.py
-    tar czf monitor-${DOMAIN_NAME}-${SAAS_VERSION}.tar.gz monitor && mv monitor-${DOMAIN_NAME}-${SAAS_VERSION}.tar.gz ../opsany-paas/saas/
-    rm -rf monitor
-    
-    #cmp
-    tar zxf cmp-www.opsany.com-*.tar.gz
-    sed -i "s/www.opsany.com/${DOMAIN_NAME}/g" ./cmp/src/config/__init__.py
-    sed -i "s/192.168.56.11/${MYSQL_SERVER_IP}/g" ./cmp/src/config/prod.py
-    sed -i "s/OpsAny@2020/${MYSQL_OPSANY_RBAC_PASSWORD}/g" ./cmp/src/config/prod.py
-    tar czf cmp-${DOMAIN_NAME}-${SAAS_VERSION}.tar.gz cmp && mv cmp-${DOMAIN_NAME}-${SAAS_VERSION}.tar.gz ../opsany-paas/saas/
-    rm -rf cmp
-    
-    #devops
-    tar zxf devops-www.opsany.com-*.tar.gz
-    sed -i "s/www.opsany.com/${DOMAIN_NAME}/g" ./devops/src/config/__init__.py
-    sed -i "s/192.168.56.11/${MYSQL_SERVER_IP}/g" ./devops/src/config/prod.py
-    sed -i "s/OpsAny@2020/${MYSQL_OPSANY_RBAC_PASSWORD}/g" ./devops/src/config/prod.py
-    tar czf devops-${DOMAIN_NAME}-${SAAS_VERSION}.tar.gz devops && mv devops-${DOMAIN_NAME}-${SAAS_VERSION}.tar.gz ../opsany-paas/saas/
-    rm -rf devops
-    
+    /bin/cp *.tar.gz ../opsany-paas/saas/
 }
 
 # SaaS Deploy
@@ -278,20 +224,20 @@ saas_deploy(){
     if [ $? -ne 0 ];then
         echo "Please Download SAAS first" && exit
     fi
-    python3 deploy.py --domain $DOMAIN_NAME --username admin --password admin --file_name rbac-${DOMAIN_NAME}-*.tar.gz
-    python3 deploy.py --domain $DOMAIN_NAME --username admin --password admin --file_name workbench-${DOMAIN_NAME}-*.tar.gz
-    python3 deploy.py --domain $DOMAIN_NAME --username admin --password admin --file_name cmdb-${DOMAIN_NAME}-*.tar.gz
-    python3 deploy.py --domain $DOMAIN_NAME --username admin --password admin --file_name control-${DOMAIN_NAME}-*.tar.gz
-    python3 deploy.py --domain $DOMAIN_NAME --username admin --password admin --file_name job-${DOMAIN_NAME}-*.tar.gz
-    python3 deploy.py --domain $DOMAIN_NAME --username admin --password admin --file_name monitor-${DOMAIN_NAME}-*.tar.gz
-    python3 deploy.py --domain $DOMAIN_NAME --username admin --password admin --file_name cmp-${DOMAIN_NAME}-*.tar.gz
-    #python3 deploy.py --domain $DOMAIN_NAME --username admin --password admin --file_name devops-${DOMAIN_NAME}-*.tar.gz
+    python3 deploy.py --domain $DOMAIN_NAME --username admin --password admin --file_name rbac-opsany-*.tar.gz
+    python3 deploy.py --domain $DOMAIN_NAME --username admin --password admin --file_name workbench-opsany-*.tar.gz
+    python3 deploy.py --domain $DOMAIN_NAME --username admin --password admin --file_name cmdb-opsany-*.tar.gz
+    python3 deploy.py --domain $DOMAIN_NAME --username admin --password admin --file_name control-opsany-*.tar.gz
+    python3 deploy.py --domain $DOMAIN_NAME --username admin --password admin --file_name job-opsany-*.tar.gz
+    python3 deploy.py --domain $DOMAIN_NAME --username admin --password admin --file_name monitor-opsany-*.tar.gz
+    python3 deploy.py --domain $DOMAIN_NAME --username admin --password admin --file_name cmp-opsany-*.tar.gz
+    #python3 deploy.py --domain $DOMAIN_NAME --username admin --password admin --file_name devops-opsany-*.tar.gz
     python3 init_script.py --domain $DOMAIN_NAME --private_ip $LOCAL_IP
 }
 
 # Main
 main(){
-    paas_check
+    saas_init
     saas_db_init
     mongodb_init
     saltstack_install

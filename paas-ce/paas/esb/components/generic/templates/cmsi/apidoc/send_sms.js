@@ -5,7 +5,7 @@
 @apiVersion 1.0.0
 @apiDescription 发送短信
 @apiParam {string} app_code 应用ID
-@apiParam {string} app_secret 应用TOKEN，可以通过 蓝鲸智云开发者中心 -> 点击应用ID -> 基本信息 获取
+@apiParam {string} app_secret 应用TOKEN，可以通过 开发者中心 -> 点击应用ID -> 基本信息 获取
 @apiParam {string} [bk_token] 当前用户登录态，bk_token与username必须一个有效，bk_token可以通过Cookie获取
 @apiParam {string} [username] 当前用户用户名，白名单中app可使用
 
