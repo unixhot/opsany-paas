@@ -112,6 +112,7 @@ paas_install(){
     -e RABBITMQ_DEFAULT_USER="$RABBITMQ_DEFAULT_USER" \
     -e RABBITMQ_DEFAULT_PASS="$RABBITMQ_DEFAULT_PASS" \
     -p 15672:15672 -p 5672:5672 \
+    -v /etc/localtime:/etc/localtime:ro \
     ${PAAS_DOCKER_REG}/rabbitmq:3.8.9-management-alpine
     
     # Redis
@@ -119,6 +120,7 @@ paas_install(){
     docker run -d --restart=always --name opsany-redis \
     -p 6379:6379 -v ${INSTALL_PATH}/redis-volume:/data \
     -v ${INSTALL_PATH}/conf/redis.conf:/data/redis.conf \
+    -v /etc/localtime:/etc/localtime:ro \
     ${PAAS_DOCKER_REG}/redis:6.0.9-alpine redis-server /data/redis.conf
     
     # MySQL
@@ -128,6 +130,7 @@ paas_install(){
     -p 3306:3306 -v ${INSTALL_PATH}/mysql-volume:/var/lib/mysql \
     -v ${INSTALL_PATH}/conf/mysqld.cnf:/etc/mysql/mysql.conf.d/mysqld.cnf \
     -v ${INSTALL_PATH}/logs:/var/log/mysql \
+    -v /etc/localtime:/etc/localtime:ro \
     ${PAAS_DOCKER_REG}/mysql:5.6.50 --character-set-server=utf8 --collation-server=utf8_general_ci
     
     # MongoDB
@@ -136,6 +139,7 @@ paas_install(){
     -e MONGO_INITDB_ROOT_USERNAME="$MONGO_INITDB_ROOT_USERNAME" \
     -e MONGO_INITDB_ROOT_PASSWORD="$MONGO_INITDB_ROOT_PASSWORD" \
     -p 27017:27017 -v ${INSTALL_PATH}/mongodb-volume:/data/db \
+    -v /etc/localtime:/etc/localtime:ro \
     ${PAAS_DOCKER_REG}/mongo:4.4.1-bionic
     
     # Guacd
@@ -143,6 +147,7 @@ paas_install(){
     docker run -d --restart=always --name opsany-guacd \
     -p 4822:4822 \
     -v ${INSTALL_PATH}/uploads/guacamole:/srv/guacamole \
+    -v /etc/localtime:/etc/localtime:ro \
     ${PAAS_DOCKER_REG}/guacd:1.2.0
 }
 
@@ -231,6 +236,7 @@ paas_start(){
     docker run -d --restart=always --name opsany-paas-paas \
     -p 8001:8001 -v ${INSTALL_PATH}/logs:/opt/opsany/logs \
     -v ${INSTALL_PATH}/conf/settings_production.py.paas:/opt/opsany/paas/paas/conf/settings_production.py \
+    -v /etc/localtime:/etc/localtime:ro \
     ${PAAS_DOCKER_REG}/opsany-paas-paas:${PAAS_VERSION}
     
     #login
@@ -238,6 +244,7 @@ paas_start(){
     docker run -d --restart=always --name opsany-paas-login \
     -p 8003:8003 -v ${INSTALL_PATH}/logs:/opt/opsany/logs \
     -v ${INSTALL_PATH}/conf/settings_production.py.login:/opt/opsany/paas/login/conf/settings_production.py \
+    -v /etc/localtime:/etc/localtime:ro \
     ${PAAS_DOCKER_REG}/opsany-paas-login:${PAAS_VERSION}
     
     #esb
@@ -246,6 +253,7 @@ paas_start(){
     -p 8002:8002 -v ${INSTALL_PATH}/logs:/opt/opsany/logs \
     -v ${INSTALL_PATH}/esb/apis:/opt/opsany/paas/esb/components/generic/apis \
     -v ${INSTALL_PATH}/conf/settings_production.py.esb:/opt/opsany/paas/esb/configs/default.py \
+    -v /etc/localtime:/etc/localtime:ro \
     ${PAAS_DOCKER_REG}/opsany-paas-esb:${PAAS_VERSION}
     
     #appengine
@@ -253,6 +261,7 @@ paas_start(){
     docker run -d --restart=always --name opsany-paas-appengine \
     -p 8000:8000 -v ${INSTALL_PATH}/logs:/opt/opsany/logs \
     -v ${INSTALL_PATH}/conf/settings_production.py.appengine:/opt/opsany/paas/appengine/controller/settings.py \
+    -v /etc/localtime:/etc/localtime:ro \
     ${PAAS_DOCKER_REG}/opsany-paas-appengine:${PAAS_VERSION}
     
     #websocket
@@ -262,6 +271,7 @@ paas_start(){
     -v ${INSTALL_PATH}/uploads:/opt/opsany/uploads \
     -v ${INSTALL_PATH}/conf/settings_production.py.websocket:/opt/opsany/websocket/config/prod.py \
     -v ${INSTALL_PATH}/conf/settings_production.py.websocket.init:/opt/opsany/websocket/config/__init__.py \
+    -v /etc/localtime:/etc/localtime:ro \
     ${PAAS_DOCKER_REG}/opsany-paas-websocket:${PAAS_VERSION}
     
     #openresty
@@ -271,6 +281,7 @@ paas_start(){
     -v ${INSTALL_PATH}/conf/nginx-conf.d:/etc/nginx/conf.d \
     -v ${INSTALL_PATH}/conf/nginx.conf:/etc/nginx/nginx.conf \
     -v ${INSTALL_PATH}/uploads:/opt/opsany/uploads \
+    -v /etc/localtime:/etc/localtime:ro \
     ${PAAS_DOCKER_REG}/openresty:1.17.8.2-alpine
 
 }
@@ -312,6 +323,7 @@ paas_agent_start(){
     -v ${INSTALL_PATH}/salt-volume/srv/:/srv/ \
     -v ${INSTALL_PATH}/salt-volume/etc/salt/:/etc/salt/ \
     -v ${INSTALL_PATH}/salt-volume/cache/:/var/cache/salt/ \
+    -v /etc/localtime:/etc/localtime:ro \
     ${PAAS_DOCKER_REG}/opsany-paas-paasagent:${PAAS_VERSION}
     
     sleep 10

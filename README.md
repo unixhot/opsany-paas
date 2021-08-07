@@ -48,8 +48,10 @@ paas-ce
   ```
   curl -o /etc/yum.repos.d/epel.repo http://mirrors.aliyun.com/repo/epel-7.repo
   curl -o /etc/yum.repos.d/docker-ce.repo https://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
-  yum install -y git wget docker-ce mariadb jq python3 python3-pip
+  yum install -y git wget docker-ce mariadb jq python3 python3-pip ntpdate
   systemctl enable --now docker
+  ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+  ntpdate time1.aliyun.com
   ```
 
   安装MongoDB客户端
@@ -74,8 +76,10 @@ paas-ce
   ```
   dnf config-manager --add-repo=http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
   dnf -y install docker-ce --nobest
-  dnf -y install mariadb jq git
+  dnf -y install mariadb jq git ntpdate
   systemctl enable --now docker
+  ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+  ntpdate time1.aliyun.com
   ```
 
   MongoDB客户端
@@ -106,8 +110,10 @@ paas-ce
     sudo add-apt-repository "deb [arch=amd64] https://mirrors.aliyun.com/docker-ce/linux/ubuntu $(lsb_release -cs) stable"
     # Step 4: 更新并安装Docker-CE
     sudo apt-get -y update
-    sudo apt-get -y install docker-ce jq wget mysql-client git
+    sudo apt-get -y install docker-ce jq wget mysql-client git ntpdate
     systemctl enable --now docker
+    ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+    ntpdate time1.aliyun.com
     ```
      
     安装MongoDB客户端

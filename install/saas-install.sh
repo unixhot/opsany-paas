@@ -58,6 +58,7 @@ saltstack_install(){
         -v ${INSTALL_PATH}/salt-volume/etc/salt/:/etc/salt/ \
         -v ${INSTALL_PATH}/salt-volume/etc/salt/master.d:/etc/salt/master.d \
         -v ${INSTALL_PATH}/salt-volume/cache/:/var/cache/salt/ \
+        -v /etc/localtime:/etc/localtime:ro \
         ${PAAS_DOCKER_REG}/opsany-saltstack:${PAAS_VERSION}
     sleep 20
     
@@ -78,6 +79,7 @@ zabbix_install(){
       -v ${INSTALL_PATH}/zabbix-volume/alertscripts:/usr/lib/zabbix/alertscripts \
       -v ${INSTALL_PATH}/zabbix-volume/externalscripts:/usr/lib/zabbix/externalscripts \
       -v ${INSTALL_PATH}/zabbix-volume/snmptraps:/var/lib/zabbix/snmptraps \
+      -v /etc/localtime:/etc/localtime:ro \
       -d ${PAAS_DOCKER_REG}/zabbix-server-mysql:alpine-5.0-latest
 
     sleep 20
@@ -89,6 +91,7 @@ zabbix_install(){
       -e MYSQL_USER="${ZABBIX_DB_USER}" \
       -e MYSQL_PASSWORD="${ZABBIX_DB_PASSWORD}" \
       -e MYSQL_ROOT_PASSWORD="${MYSQL_ROOT_PASSWORD}" \
+      -v /etc/localtime:/etc/localtime:ro \
       -p 8006:8080 \
       -d ${PAAS_DOCKER_REG}/zabbix-web-nginx-mysql:alpine-5.0-latest
 }
@@ -101,6 +104,7 @@ grafana_install(){
     -v ${INSTALL_PATH}/conf/grafana/grafana.ini:/etc/grafana/grafana.ini \
     -v ${INSTALL_PATH}/conf/grafana/grafana.key:/etc/grafana/grafana.key \
     -v ${INSTALL_PATH}/conf/grafana/grafana.pem:/etc/grafana/grafana.pem \
+    -v /etc/localtime:/etc/localtime:ro \
     -p 8007:3000 \
     ${PAAS_DOCKER_REG}/opsany-grafana:7.3.5
 }
@@ -116,6 +120,7 @@ es_install(){
     -e "xpack.security.enabled=true" \
     -e "bootstrap.memory_lock=true" \
     -e "ES_JAVA_OPTS=-Xms512m -Xmx512m" \
+    -v /etc/localtime:/etc/localtime:ro \
     -p 9200:9200 -p 9300:9300 \
     ${PAAS_DOCKER_REG}/elasticsearch:7.12.0
     
@@ -125,6 +130,7 @@ es_install(){
     -v ${INSTALL_PATH}/conf/heartbeat.yml:/etc/heartbeat/heartbeat.yml \
     -v ${INSTALL_PATH}/uploads/monitor/heartbeat-monitors.d:/etc/heartbeat/monitors.d \
     -v ${INSTALL_PATH}/logs:/var/log/heartbeat \
+    -v /etc/localtime:/etc/localtime:ro \
     ${PAAS_DOCKER_REG}/opsany-heartbeat:7.13.2
     
 }
