@@ -17,13 +17,10 @@ SHELL_LOG="${SHELL_NAME}.log"
 #Configuration file write to DB
 pip3 install requests==2.25.1 grafana-api==1.0.3 mysql-connector==2.2.9 SQLAlchemy==1.4.22 -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
 cd $CDIR 
-set > set.tmp
-source install.config && set > install.tmp
-cat set.tmp install.tmp | sort | uniq -u > install.env
-while read line;do export $line;done < install.env
+grep '^[a-Z]' install.config > install.env
+source ./install.env && rm -f install.env
 cd ../saas/
 python3 add_env.py
-cd $CDIR && rm -f install.env install.tmp set.tmp
 
 # Install Inspection
 cd ${CDIR}
@@ -31,7 +28,8 @@ if [ ! -f ./install.config ];then
       echo "Please Change Directory to /opt/opsany-paas/install"
       exit
 else
-    source ./install.config
+    grep '^[a-Z]' install.config > install.env
+    source ./install.env && rm -f install.env
 fi
 
 # Shell Log Record

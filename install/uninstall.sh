@@ -1,5 +1,7 @@
 #!/bin/bash
-source ./install.config
+grep '^[a-Z]' install.config > install.env
+source ./install.env
+rm -f install.env
 docker stop $(docker ps -qa)
 docker rm -f $(docker ps -qa)
 docker volume rm $(docker volume ls -q)

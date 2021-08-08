@@ -26,7 +26,8 @@ if [ ! -f ./install.config ];then
       echo "Please Copy install.config and Change: cp install.config.example install.config"
       exit
 else
-    source ./install.config
+    grep '^[a-Z]' install.config > install.env
+    source ./install.env && rm -f install.env
 fi
 
 # OS Type And repo
