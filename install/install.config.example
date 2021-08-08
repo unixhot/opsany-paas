@@ -1,14 +1,14 @@
+# config file for opsany -- https://www.opsany.com/
+# =================================================
+
+[defaults]
 # Install Path
 INSTALL_PATH="/opt/opsany"
-
-# PAAS VERSION
-PAAS_VERSION="v3.2.6"
 
 # Network
 LOCAL_IP="192.168.56.11"
 DOMAIN_NAME="192.168.56.11"
 
-EPEL6="http://mirrors.aliyun.com/repo/epel-6.repo"
 EPEL7="http://mirrors.aliyun.com/repo/epel-7.repo"
 
 # For Docker Hub
@@ -18,29 +18,48 @@ EPEL7="http://mirrors.aliyun.com/repo/epel-7.repo"
 PAAS_DOCKER_REG="registry.cn-beijing.aliyuncs.com/opsany"
 #PAAS_DOCKER_REG="registry-vpc.cn-beijing.aliyuncs.com/opsany"
 
-#For Qcloud
+[opsany_paas]
+# PAAS VERSION
+PAAS_VERSION="v3.2.6"
+# PAAS Config
+PAAS_PAAS_IP="192.168.56.11"
+PAAS_LOGIN_IP="192.168.56.11"
+PAAS_APPENGINE_IP="192.168.56.11"
+PAAS_ESB_IP="192.168.56.11"
 
-#For HuaweiCloud
+[opsany_saas]
+# SaaS need to add env
+UPLOAD_PATH="/opt/opsany/"
+FILE_ROOT="/srv/salt/"
+PILLAR_ROOT="/srv/pillar/"
+ROSTER_FILE_URL="/etc/salt/roster"
+SALT_SSH_FILE_URL="/etc/salt/pki/master/ssh"
 
-#PAAS
-PAAS_PAAS_IP="${LOCAL_IP}"
-PAAS_LOGIN_IP="${LOCAL_IP}"
-PAAS_APPENGINE_IP="${LOCAL_IP}"
-PAAS_ESB_IP="${LOCAL_IP}"
-
+[rabbitmq]
 # RabbitMQ
-RABBIT_SERVER_IP="${LOCAL_IP}"
+RABBIT_SERVER_IP="192.168.56.11"
 RABBITMQ_DEFAULT_USER="opsany"
 RABBITMQ_DEFAULT_PASS="OpsAny@2020"
 
+[mysql]
 # MySQL
-MYSQL_SERVER_IP="${LOCAL_IP}"
+MYSQL_SERVER_IP="192.168.56.11"
 MYSQL_ROOT_PASSWORD="OpsAny@2020"
 MYSQL_OPSANY_PASSWORD="OpsAny@2020"
 MYSQL_PORT="3306"
+# SAAS MySQL Password
+MYSQL_OPSANY_RBAC_PASSWORD="OpsAny@2020"
+MYSQL_OPSANY_WORKBENCH_PASSWORD="OpsAny@2020"
+MYSQL_OPSANY_CMDB_PASSWORD="OpsAny@2020"
+MYSQL_OPSANY_CONTROL_PASSWORD="OpsAny@2020"
+MYSQL_OPSANY_JOB_PASSWORD="OpsAny@2020"
+MYSQL_OPSANY_MONITOR_PASSWORD="OpsAny@2020"
+MYSQL_OPSANY_CMP_PASSWORD="OpsAny@2020"
+MYSQL_OPSANY_DEVOPS_PASSWORD="OpsAny@2020"
 
+[mongodb]
 # SAAS MongoDB Password
-MONGO_SERVER_IP="${LOCAL_IP}"
+MONGO_SERVER_IP="192.168.56.11"
 MONGO_PORT="27017"
 MONGO_INITDB_ROOT_USERNAME="root"
 MONGO_INITDB_ROOT_PASSWORD="OpsAny@2020"
@@ -52,38 +71,25 @@ MONGO_MONITOR_PASSWORD="OpsAny@2020"
 MONGO_DEVOPS_PASSWORD="OpsAny@2020"
 MONGO_CONTROL_PASSWORD="OpsAny@2020"
 
-
+[redis]
 # Redis Password
-REDIS_SERVER_IP="${LOCAL_IP}"
+REDIS_SERVER_IP="192.168.56.11"
 REDIS_SERVER_PASSWORD="OpsAny2020"
 REDIS_PORT="6379"
 
-# SAAS MySQL Password
-MYSQL_OPSANY_RBAC_PASSWORD="OpsAny@2020"
-MYSQL_OPSANY_WORKBENCH_PASSWORD="OpsAny@2020"
-MYSQL_OPSANY_CMDB_PASSWORD="OpsAny@2020"
-MYSQL_OPSANY_CONTROL_PASSWORD="OpsAny@2020"
-MYSQL_OPSANY_JOB_PASSWORD="OpsAny@2020"
-MYSQL_OPSANY_MONITOR_PASSWORD="OpsAny@2020"
-MYSQL_OPSANY_CMP_PASSWORD="OpsAny@2020"
-MYSQL_OPSANY_DEVOPS_PASSWORD="OpsAny@2020"
 
+[websocket]
 # Websocket
-WEBSOCKET_GUACD_HOST="${LOCAL_IP}"
+WEBSOCKET_GUACD_HOST="192.168.56.11"
 
+[zabbix]
 # Zabbix
 ZABBIX_DB_NAME="zabbix"
 ZABBIX_DB_USER="opsany"
 ZABBIX_DB_PASSWORD="OpsAny@2020"
 
+[elasticsearch]
 # ElasticSearch
-ES_SERVER_IP="${LOCAL_IP}"
+ES_SERVER_IP="192.168.56.11"
 ES_PASSWORD="OpsAny@2020"
 ELASTIC_PORT="9200"
-
-# SaaS need to add env
-UPLOAD_PATH="/opt/opsany/"
-FILE_ROOT="/srv/salt/"
-PILLAR_ROOT="/srv/pillar/"
-ROSTER_FILE_URL="/etc/salt/roster"
-SALT_SSH_FILE_URL="/etc/salt/pki/master/ssh"
