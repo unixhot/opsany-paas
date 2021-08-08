@@ -150,6 +150,68 @@ class ZabbixApi:
                 return None
         return None
 
+    def _get_hostinterface_by_hostids(self, hostid):
+        session = requests.session()
+        session.headers.update({
+            'Content-Type': 'application/json-rpc',
+            'User-Agent': 'python/pyzabbix',
+            'Cache-Control': 'no-cache'
+        })
+        if self.session:
+            body = {
+                "jsonrpc": "2.0",
+                "method": "hostinterface.get",
+                "params": {
+                    # "output": ["interfaceid", "hostid"],
+                    "hostids": hostid
+                },
+                "auth": self.session,
+                "id": 1
+            }
+            a = session.post(self.url, data=json.dumps(body), verify=False)
+            if a.json().get("result"):
+                return a.json().get("result")[0]
+            else:
+                return None
+        return None
+
+    def update_base_host_info(self, host_id, ip):
+        session = requests.session()
+        session.headers.update({
+            'Content-Type': 'application/json-rpc',
+            'User-Agent': 'python/pyzabbix',
+            'Cache-Control': 'no-cache'
+        })
+        if self.session:
+            interface_dict = self._get_hostinterface_by_hostids(host_id) or dict()
+            interfaceid = interface_dict.get("interfaceid", "")
+            body = {
+                "jsonrpc": "2.0",
+                "method": "host.update",
+                "params": {
+                    "hostid": host_id,
+                    "interfaces": [
+                        {
+                            "interfaceid": interfaceid,
+                            "type": 1,
+                            "main": 1,
+                            "useip": 1,
+                            "ip": ip,
+                            "dns": "",
+                            "port": "10050",
+                        }
+                    ]
+                },
+                "auth": self.session,
+                "id": 1
+            }
+            res = session.post(self.url, data=json.dumps(body), verify=False)
+            print("update_host_info", res, res.json())
+            if res.json().get("result"):
+                return res.json().get("result")["hostids"][0]
+            else:
+                return None
+
 
 class BkApi:
     def __init__(self, bk_token, paas_domain):
@@ -453,6 +515,9 @@ class Run:
             else:
                 status = False
                 return status, "用户名密码验证失败"
+            update_host_res = zabbix_obj.update_base_host_info(10084, self.private_ip)
+            if not update_host_res:
+                print("更新主机失败")
             # 修改admin用户密码
             admin_user_id = zabbix_obj.get_admin_user_id()
             update_password_status = zabbix_obj.update_user_password(admin_user_id, "OpsAny@2020")
