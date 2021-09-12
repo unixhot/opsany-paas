@@ -42,7 +42,7 @@
                   <input type="checkbox" id="is_use_celery_beat" disabled/>
                   <S>启用周期性任务</S></label>
                 <br>
-                <font color='red'> 未注册激活第三方服务: Rabbitmq. 无法启用celery和周期性任务.</font><a href="${SITE_URL}engine/external_server/"> [蓝鲸智云-开发者中心-第三方服务] </a>
+                <font color='red'> 未注册激活第三方服务: Rabbitmq. 无法启用celery和周期性任务.</font><a href="${SITE_URL}engine/external_server/"> [开发者中心-第三方服务] </a>
               </div>
               % endif
         </div>

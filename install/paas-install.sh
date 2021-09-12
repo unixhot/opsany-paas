@@ -26,7 +26,7 @@ if [ ! -f ./install.config ];then
       echo "Please Copy install.config and Change: cp install.config.example install.config"
       exit
 else
-    grep '^[a-Z]' install.config > install.env
+    grep '^[A-Z]' install.config > install.env
     source ./install.env && rm -f install.env
 fi
 
@@ -102,6 +102,7 @@ opsany_init(){
     ## init for saltstack 
     /bin/cp -a ${CDIR}/../install/conf/salt ${INSTALL_PATH}/salt-volume/etc/
     /bin/cp -a ${CDIR}/../install/conf/salt/certs/* ${INSTALL_PATH}/salt-volume/certs/
+    /bin/cp saas-restart.sh /opt/opsany/
     shell_log "End: Install Init"
 }
 
@@ -182,6 +183,8 @@ esb_init(){
     sed -i "s#/t/cmp#/o/cmp#g" ${INSTALL_PATH}/esb/apis/cmp/toolkit/tools.py
     sed -i "s/dev.opsany.cn/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/devops/toolkit/configs.py
     sed -i "s#/t/devops#/o/devops#g" ${INSTALL_PATH}/esb/apis/devops/toolkit/tools.py
+    sed -i "s/dev.opsany.cn/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/bastion/toolkit/configs.py
+    sed -i "s#/t/bastion#/o/bastion#g" ${INSTALL_PATH}/esb/apis/bastion/toolkit/tools.py
 }
 
 # PaaS Configuration

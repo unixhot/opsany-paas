@@ -14,10 +14,16 @@ CDIR=$(pwd)
 SHELL_NAME="saas-install.sh"
 SHELL_LOG="${SHELL_NAME}.log"
 
-#Configuration file write to DB
+# Check SAAS Package
+if [ ! -d ../../opsany-saas ];then
+    echo "======Download the SAAS package first======"
+    exit;
+fi
+
+# Configuration file write to DB
 pip3 install requests==2.25.1 grafana-api==1.0.3 mysql-connector==2.2.9 SQLAlchemy==1.4.22 -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
 cd $CDIR 
-grep '^[a-Z]' install.config > install.env
+grep '^[A-Z]' install.config > install.env
 source ./install.env && rm -f install.env
 cd ../saas/
 python3 add_env.py
@@ -28,7 +34,7 @@ if [ ! -f ./install.config ];then
       echo "Please Change Directory to /opt/opsany-paas/install"
       exit
 else
-    grep '^[a-Z]' install.config > install.env
+    grep '^[A-Z]' install.config > install.env
     source ./install.env && rm -f install.env
 fi
 
@@ -181,6 +187,11 @@ saas_db_init(){
     mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "create database devops DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
     mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "grant all on devops.* to devops@'%' identified by "\"${MYSQL_OPSANY_DEVOPS_PASSWORD}\"";"
     mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "grant all on devops.* to opsany@'%' identified by "\"${MYSQL_OPSANY_PASSWORD}\"";" 
+
+    #bastion
+    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "create database bastion DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
+    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "grant all on bastion.* to bastion@'%' identified by "\"${MYSQL_OPSANY_BASTION_PASSWORD}\"";"
+    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "grant all on bastion.* to opsany@'%' identified by "\"${MYSQL_OPSANY_PASSWORD}\"";" 
 }
 
 # MonogDB Initialize
@@ -235,8 +246,11 @@ saas_deploy(){
     python3 deploy.py --domain $DOMAIN_NAME --username admin --password admin --file_name job-opsany-*.tar.gz
     python3 deploy.py --domain $DOMAIN_NAME --username admin --password admin --file_name monitor-opsany-*.tar.gz
     python3 deploy.py --domain $DOMAIN_NAME --username admin --password admin --file_name cmp-opsany-*.tar.gz
-    #python3 deploy.py --domain $DOMAIN_NAME --username admin --password admin --file_name devops-opsany-*.tar.gz
+    python3 deploy.py --domain $DOMAIN_NAME --username admin --password admin --file_name devops-opsany-*.tar.gz
+    python3 deploy.py --domain $DOMAIN_NAME --username admin --password admin --file_name bastion-opsany-*.tar.gz
     python3 init_script.py --domain $DOMAIN_NAME --private_ip $LOCAL_IP
+    chmod +x /etc/rc.d/rc.local
+    echo "sleep 60 && /bin/bash /opt/opsany/saas-restart.sh" >> /etc/rc.d/rc.local
 }
 
 # Main

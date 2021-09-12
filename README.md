@@ -48,7 +48,7 @@ paas-ce
   ```
   curl -o /etc/yum.repos.d/epel.repo http://mirrors.aliyun.com/repo/epel-7.repo
   curl -o /etc/yum.repos.d/docker-ce.repo https://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
-  yum install -y git wget docker-ce mariadb jq python3 python3-pip ntpdate
+  yum install -y git wget docker-ce mariadb jq python3 python3-pip python3-devel ntpdate
   systemctl enable --now docker
   ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
   ntpdate time1.aliyun.com
@@ -76,10 +76,9 @@ paas-ce
   ```
   dnf config-manager --add-repo=http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
   dnf -y install docker-ce --nobest
-  dnf -y install mariadb jq git ntpdate
+  dnf -y install mariadb jq git
   systemctl enable --now docker
   ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
-  ntpdate time1.aliyun.com
   ```
 
   MongoDB客户端
@@ -131,15 +130,17 @@ cd /opt && sudo git clone https://github.com/unixhot/opsany-paas.git
 
 3. 修改安装配置
 
+> 注意！注意！注意！切记修改install.config中所有的IP地址，可以批量查找替换。
+
 ```
 cd /opt/opsany-paas/install && cp install.config.example install.config
 vim /opt/opsany-paas/install/install.config
 
-# 安装OpsAny的本机内网IP地址。
+# 安装OpsAny的本机内网IP地址。请批量查找替换将192.168.56.11修改为部署OpsAny的本机IP地址。
 LOCAL_IP="192.168.56.11"
 
 # 访问OpsAny的域名，如果是在内网访问请修改为和LOCAL_IP一样，如果是外网访问，请修改为真实访问的域名或者公网IP。
-安装后暂不支持修改，此配置会作为Cookie的作用域的域名，所以如果配置的和访问的不同，会导致无法通过验证。
+安装后暂不支持修改，此配置会作为Cookie的作用域的域名，所以如果配置的和访问的不同，会导致无法通过验证。官方文档中有修改域名的办法。
 DOMAIN_NAME="192.168.56.11"
 ```
 
@@ -162,7 +163,7 @@ cd /opt/opsany-paas/install/
 
 ## 免费下载OpsAny社区版本
 
-> OpsAny社区版本v1.1.7正式发布 
+> OpsAny社区版本v1.1.10正式发布 
 
 [免费下载](https://opsany.com/#/download)
 

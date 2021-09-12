@@ -2,7 +2,7 @@
 FROM centos:7.8.2003
 
 # Install Pkg
-RUN curl -o /etc/yum.repos.d/epel.repo http://mirrors.aliyun.com/repo/epel-7.repo && yum install -y https://repo.saltstack.com/py3/redhat/salt-py3-repo-latest.el7.noarch.rpm && yum install -y kde-l10n-Chinese glibc-common salt-ssh nginx supervisor python2-pip python2-devel gcc glibc make zlib-devel openssl-devel curl-devel mysql-devel python36 python36-devel openssh-clients openssl-devel && mkdir -p /opt/opsany/logs && yum clean all && echo -e "LANG=zh_CN.UTF-8" > /etc/locale.conf && echo -e 'export LANG="zh_CN.UTF-8"' >> /etc/profile && localedef -c -f UTF-8 -i zh_CN zh_CN.utf8 && source /etc/profile
+RUN curl -o /etc/yum.repos.d/epel.repo http://mirrors.aliyun.com/repo/epel-7.repo && yum install -y kde-l10n-Chinese glibc-common sshpass nginx supervisor python2-pip python2-devel gcc glibc make zlib-devel openssl-devel curl-devel mysql-devel python36 python36-devel openssh-clients openssl-devel && mkdir -p /opt/opsany/logs && yum clean all && echo -e "LANG=zh_CN.UTF-8" > /etc/locale.conf && echo -e 'export LANG="zh_CN.UTF-8"' >> /etc/profile && localedef -c -f UTF-8 -i zh_CN zh_CN.utf8 && source /etc/profile
 
 # Add paas-agent
 ADD ./paas-agent /opt/opsany/paas-agent

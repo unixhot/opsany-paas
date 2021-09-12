@@ -19,8 +19,8 @@ os.chdir('../install')
 if not os.path.exists('install.config'):
     sys.exit('install config is not exists.')
 
-read_install_config = configparser.ConfigParser()  
-try:      
+read_install_config = configparser.ConfigParser()
+try:
     read_install_config.read('install.config')
     config_dict = dict(read_install_config)
 except Exception as e:
@@ -36,7 +36,7 @@ MYSQL_SERVER_IP = replace_str(config_dict.get('mysql').get("MYSQL_SERVER_IP", "1
 MYSQL_ROOT_PASSWORD = replace_str(config_dict.get("mysql").get("MYSQL_ROOT_PASSWORD", "OpsAny@2020"))
 
 try:
-    
+
     db = create_engine("mysql+mysqlconnector://root:{}@{}/opsany_paas".format(parse.quote_plus(MYSQL_ROOT_PASSWORD), MYSQL_SERVER_IP))
     Base = declarative_base(db)
 
@@ -56,7 +56,7 @@ envs = [
         "env": [
             # CMDB count 8
             {"key": "UPLOAD_PATH", "value": replace_str(config_dict.get('opsany_saas').get("UPLOAD_PATH")), "env_scope": "all", "intro": "uploads path"},
-            {"key": "MYSQL_PASSWORD", "value": replace_str(config_dict.get('mysql').get("MYSQL_ROOT_PASSWORD")), "env_scope": "all", "intro": "mysql password"},
+            {"key": "MYSQL_PASSWORD", "value": replace_str(config_dict.get('mysql').get("MYSQL_OPSANY_CMDB_PASSWORD")), "env_scope": "all", "intro": "mysql password"},
             {"key": "MYSQL_HOST", "value": replace_str(config_dict.get('mysql').get("MYSQL_SERVER_IP")), "env_scope": "all", "intro": "mysql host"},
             {"key": "MYSQL_PORT", "value": replace_str(config_dict.get('mysql').get("MYSQL_PORT")), "env_scope": "all", "intro": "mysql port"},
             {"key": "MONGO_HOST", "value": replace_str(config_dict.get('mongodb').get("MONGO_SERVER_IP")), "env_scope": "all", "intro": "mongo host"},
@@ -68,7 +68,7 @@ envs = [
         "app_code": "cmp",
         "env": [
             # CMP count 7
-            {"key": "MYSQL_PASSWORD", "value": replace_str(config_dict.get('mysql').get("MYSQL_ROOT_PASSWORD")), "env_scope": "all", "intro": "mysql password"},
+            {"key": "MYSQL_PASSWORD", "value": replace_str(config_dict.get('mysql').get("MYSQL_OPSANY_CMP_PASSWORD")), "env_scope": "all", "intro": "mysql password"},
             {"key": "MYSQL_HOST", "value": replace_str(config_dict.get('mysql').get("MYSQL_SERVER_IP")), "env_scope": "all", "intro": "mysql host"},
             {"key": "MYSQL_PORT", "value": replace_str(config_dict.get('mysql').get("MYSQL_PORT")), "env_scope": "all", "intro": "mysql port"},
             {"key": "MONGO_HOST", "value": replace_str(config_dict.get('mongodb').get("MONGO_SERVER_IP")), "env_scope": "all", "intro": "mongo host"},
@@ -81,7 +81,7 @@ envs = [
         "env": [
             # JOB  count 10
             {"key": "UPLOAD_PATH", "value": replace_str(config_dict.get('opsany_saas').get("UPLOAD_PATH")), "env_scope": "all", "intro": "uploads path"},
-            {"key": "MYSQL_PASSWORD", "value": replace_str(config_dict.get('mysql').get("MYSQL_ROOT_PASSWORD")), "env_scope": "all", "intro": "mysql password"},
+            {"key": "MYSQL_PASSWORD", "value": replace_str(config_dict.get('mysql').get("MYSQL_OPSANY_JOB_PASSWORD")), "env_scope": "all", "intro": "mysql password"},
             {"key": "MYSQL_HOST", "value": replace_str(config_dict.get('mysql').get("MYSQL_SERVER_IP")), "env_scope": "all", "intro": "mysql host"},
             {"key": "MYSQL_PORT", "value": replace_str(config_dict.get('mysql').get("MYSQL_PORT")), "env_scope": "all", "intro": "mysql port"},
             {"key": "FILE_ROOT", "value": replace_str(config_dict.get('opsany_saas').get("FILE_ROOT")), "env_scope": "all", "intro": "Salt file root"},
@@ -89,6 +89,9 @@ envs = [
             {"key": "MONGO_HOST", "value": replace_str(config_dict.get('mongodb').get("MONGO_SERVER_IP")), "env_scope": "all", "intro": "mongo host"},
             {"key": "MONGO_PORT", "value": replace_str(config_dict.get('mongodb').get("MONGO_PORT")), "env_scope": "all", "intro": "mongo port"},
             {"key": "MONGO_PASSWORD", "value": replace_str(config_dict.get('mongodb').get("MONGO_JOB_PASSWORD")), "env_scope": "all", "intro": "mongo password"},
+            {"key": "REDIS_HOST", "value": replace_str(config_dict.get("redis").get("REDIS_SERVER_IP")), "env_scope": "all", "intro": "redis host"},
+            {"key": "REDIS_PORT", "value": replace_str(config_dict.get("redis").get("REDIS_PORT")), "env_scope": "all", "intro": "redis port"},
+            {"key": "REDIS_PASSWORD", "value": replace_str(config_dict.get("redis").get("REDIS_SERVER_PASSWORD")), "env_scope": "all", "intro": "redis password"},
             # {"key": "DEFAULT_USER_ICON", "value": read_install_config.get("DEFAULT_USER_ICON"), "env_scope": "all", "intro": "user default icon"},
         ]
     },{
@@ -96,7 +99,7 @@ envs = [
         "env": [
             # WORKBENCH  count 7
             {"key": "UPLOAD_PATH", "value": replace_str(config_dict.get('opsany_saas').get("UPLOAD_PATH")), "env_scope": "all", "intro": "uploads path"},
-            {"key": "MYSQL_PASSWORD", "value": replace_str(config_dict.get('mysql').get("MYSQL_ROOT_PASSWORD")), "env_scope": "all", "intro": "mysql password"},
+            {"key": "MYSQL_PASSWORD", "value": replace_str(config_dict.get('mysql').get("MYSQL_OPSANY_WORKBENCH_PASSWORD")), "env_scope": "all", "intro": "mysql password"},
             {"key": "MYSQL_HOST", "value": replace_str(config_dict.get('mysql').get("MYSQL_SERVER_IP")), "env_scope": "all", "intro": "mysql host"},
             {"key": "MYSQL_PORT", "value": replace_str(config_dict.get('mysql').get("MYSQL_PORT")), "env_scope": "all", "intro": "mysql port"},
             {"key": "MONGO_HOST", "value": replace_str(config_dict.get('mongodb').get("MONGO_SERVER_IP")), "env_scope": "all", "intro": "mongo host"},
@@ -107,7 +110,7 @@ envs = [
         "app_code": "rbac",
         "env": [
             # RBAC  count 4
-            {"key": "MYSQL_PASSWORD", "value": replace_str(config_dict.get('mysql').get("MYSQL_ROOT_PASSWORD")), "env_scope": "all", "intro": "mysql password"},
+            {"key": "MYSQL_PASSWORD", "value": replace_str(config_dict.get('mysql').get("MYSQL_OPSANY_RBAC_PASSWORD")), "env_scope": "all", "intro": "mysql password"},
             {"key": "MYSQL_HOST", "value": replace_str(config_dict.get('mysql').get("MYSQL_SERVER_IP")), "env_scope": "all", "intro": "mysql host"},
             {"key": "MYSQL_PORT", "value": replace_str(config_dict.get('mysql').get("MYSQL_PORT")), "env_scope": "all", "intro": "mysql port"},
             # {"key": "DEFAULT_USER_ICON", "value": read_install_config.get("DEFAULT_USER_ICON"), "env_scope": "all", "intro": "user default icon"},
@@ -116,7 +119,7 @@ envs = [
         "app_code": "monitor",
         "env": [
             # MONITOR  count 10
-            {"key": "MYSQL_PASSWORD", "value": replace_str(config_dict.get('mysql').get("MYSQL_ROOT_PASSWORD")), "env_scope": "all", "intro": "mysql password"},
+            {"key": "MYSQL_PASSWORD", "value": replace_str(config_dict.get('mysql').get("MYSQL_OPSANY_MONITOR_PASSWORD")), "env_scope": "all", "intro": "mysql password"},
             {"key": "MYSQL_HOST", "value": replace_str(config_dict.get('mysql').get("MYSQL_SERVER_IP")), "env_scope": "all", "intro": "mysql host"},
             {"key": "MYSQL_PORT", "value": replace_str(config_dict.get('mysql').get("MYSQL_PORT")), "env_scope": "all", "intro": "mysql port"},
             {"key": "MONGO_HOST", "value": replace_str(config_dict.get('mongodb').get("MONGO_SERVER_IP")), "env_scope": "all", "intro": "mongo host"},
@@ -132,7 +135,7 @@ envs = [
         "env": [
             # CONTROL  count 13
             {"key": "UPLOAD_PATH", "value": replace_str(config_dict.get('opsany_saas').get("UPLOAD_PATH")), "env_scope": "all", "intro": "uploads path"},
-            {"key": "MYSQL_PASSWORD", "value": replace_str(config_dict.get('mysql').get("MYSQL_ROOT_PASSWORD")), "env_scope": "all", "intro": "mysql password"},
+            {"key": "MYSQL_PASSWORD", "value": replace_str(config_dict.get('mysql').get("MYSQL_OPSANY_CONTROL_PASSWORD")), "env_scope": "all", "intro": "mysql password"},
             {"key": "MYSQL_HOST", "value": replace_str(config_dict.get('mysql').get("MYSQL_SERVER_IP")), "env_scope": "all", "intro": "mysql host"},
             {"key": "MYSQL_PORT", "value": replace_str(config_dict.get('mysql').get("MYSQL_PORT")), "env_scope": "all", "intro": "mysql port"},
             {"key": "MONGO_HOST", "value": replace_str(config_dict.get('mongodb').get("MONGO_SERVER_IP")), "env_scope": "all", "intro": "mongo host"},
@@ -150,13 +153,26 @@ envs = [
         "env": [
             # devops  count 8
             {"key": "UPLOAD_PATH", "value": replace_str(config_dict.get('opsany_saas').get("UPLOAD_PATH")), "env_scope": "all", "intro": "uploads path"},
-            {"key": "MYSQL_PASSWORD", "value": replace_str(config_dict.get('mysql').get("MYSQL_ROOT_PASSWORD")), "env_scope": "all", "intro": "mysql password"},
+            {"key": "MYSQL_PASSWORD", "value": replace_str(config_dict.get('mysql').get("MYSQL_OPSANY_DEVOPS_PASSWORD")), "env_scope": "all", "intro": "mysql password"},
             {"key": "MYSQL_HOST", "value": replace_str(config_dict.get('mysql').get("MYSQL_SERVER_IP")), "env_scope": "all", "intro": "mysql host"},
             {"key": "MYSQL_PORT", "value": replace_str(config_dict.get('mysql').get("MYSQL_PORT")), "env_scope": "all", "intro": "mysql port"},
             {"key": "MONGO_HOST", "value": replace_str(config_dict.get('mongodb').get("MONGO_SERVER_IP")), "env_scope": "all", "intro": "mongo host"},
             {"key": "MONGO_PORT", "value": replace_str(config_dict.get('mongodb').get("MONGO_PORT")), "env_scope": "all", "intro": "mongo port"},
             {"key": "MONGO_PASSWORD", "value": replace_str(config_dict.get('mongodb').get("MONGO_DEVOPS_PASSWORD")), "env_scope": "all", "intro": "mongo password"},
             # {"key": "DEFAULT_USER_ICON", "value": read_install_config.get("DEFAULT_USER_ICON"), "env_scope": "all", "intro": "user default icon"},
+        ]
+    },{
+        "app_code": "bastion",
+        "env": [
+            # bastion  count 8
+            {"key": "UPLOAD_PATH", "value": replace_str(config_dict.get('opsany_saas').get("UPLOAD_PATH")), "env_scope": "all", "intro": "uploads path"},
+            {"key": "MYSQL_PASSWORD", "value": replace_str(config_dict.get('mysql').get("MYSQL_OPSANY_BASTION_PASSWORD")), "env_scope": "all", "intro": "mysql password"},
+            {"key": "MYSQL_HOST", "value": replace_str(config_dict.get('mysql').get("MYSQL_SERVER_IP")), "env_scope": "all", "intro": "mysql host"},
+            {"key": "MYSQL_PORT", "value": replace_str(config_dict.get('mysql').get("MYSQL_PORT")), "env_scope": "all", "intro": "mysql port"},
+            {"key": "REDIS_HOST", "value": replace_str(config_dict.get("redis").get("REDIS_SERVER_IP")), "env_scope": "all", "intro": "redis host"},
+            {"key": "REDIS_PORT", "value": replace_str(config_dict.get("redis").get("REDIS_PORT")), "env_scope": "all", "intro": "redis port"},
+            {"key": "REDIS_PASSWORD", "value": replace_str(config_dict.get("redis").get("REDIS_SERVER_PASSWORD")), "env_scope": "all", "intro": "redis password"},
+            {"key": "TERMINAL_TIMEOUT", "value": replace_str(config_dict.get("redis").get("TERMINAL_TIMEOUT")), "env_scope": "all", "intro": "terminal timeout"},
         ]
     }
 ]
@@ -315,4 +331,4 @@ class AddEnv:
 if __name__ == '__main__':
     AddEnv().add_env_v2()
     print("ENV INPUT IS DONE, SUCCESS.")
-    
+

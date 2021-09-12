@@ -179,7 +179,7 @@ class ReleaseTestView(AppDeveloperRequiredMixin, View):
         # 检测测试服务器是否激活
         is_test_app_deployable = BkServer.objects.check_test_app_deployable()
         if not is_test_app_deployable:
-            message = "当前没有可用的[测试服务器], 无法进行提测操作. 请到<a href='/engine/server/'> [蓝鲸智云-开发者中心-服务器信息] </a> 注册并激活服务器"
+            message = "当前没有可用的[测试服务器], 无法进行提测操作. 请到<a href='/engine/server/'> [开发者中心-服务器信息] </a> 注册并激活服务器"
             logger.info("[app:%s] %s", app_code, message)
             return FailJsonResponse(message)
 
@@ -245,7 +245,7 @@ class ReleaseProductionView(AppDeveloperRequiredMixin, View):
 
         is_prod_app_deployable = BkServer.objects.check_prod_app_deployable()
         if not is_prod_app_deployable:
-            message = "当前没有可用的[正式服务器], 无法进行提测操作. 请到<a href='/engine/server/'> [蓝鲸智云-开发者中心-服务器信息] </a> 注册并激活服务器"
+            message = "当前没有可用的[正式服务器], 无法进行提测操作. 请到<a href='/engine/server/'> [开发者中心-服务器信息] </a> 注册并激活服务器"
             logger.info("[app:%s] %s", app_code, message)
             return FailJsonResponse(message)
 

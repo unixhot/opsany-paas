@@ -477,7 +477,7 @@ def saas_online_task(saas_app_version_id, username):
     """
     is_saas_app_deployable = BkServer.objects.check_saas_app_deployable()
     if not is_saas_app_deployable:
-        message = "当前没有可用的[正式服务器], 无法进行应用部署操作. 请到<a href='/engine/server/'> [蓝鲸智云-开发者中心-服务器信息] </a>注册并激活服务器"
+        message = "当前没有可用的[正式服务器], 无法进行应用部署操作. 请到<a href='/engine/server/'> [开发者中心-服务器信息] </a>注册并激活服务器"
         logger.info(message)
         return False, message, None
 

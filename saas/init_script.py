@@ -206,7 +206,6 @@ class ZabbixApi:
                 "id": 1
             }
             res = session.post(self.url, data=json.dumps(body), verify=False)
-            print("update_host_info", res, res.json())
             if res.json().get("result"):
                 return res.json().get("result")["hostids"][0]
             else:
@@ -476,7 +475,7 @@ class Run:
             "name": "默认控制器",
             "type": "本地",
             # TEST DATA 8011 -> 8005
-            "api1": "https://{}:8005".format(self.paas_domain) if self.paas_domain else "",
+            "api1": "https://{}:8005".format(self.private_ip) if self.private_ip else "",
             "api2": "https://{}:8005".format(self.private_ip) if self.private_ip else "",
             "username1": "saltapi",
             "username2": "saltapi",
@@ -485,7 +484,7 @@ class Run:
             "password2": "OpsAny@2020",
             "port1": "",
             "port2": "",
-            "zabbix_url": "http://" + self.paas_domain + ":8006/api_jsonrpc.php",
+            "zabbix_url": "http://" + self.private_ip + ":8006/api_jsonrpc.php",
             "zabbix_username": "zabbixapi",
             "zabbix_password": "OpsAny@2020",
         }
