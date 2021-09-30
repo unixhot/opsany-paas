@@ -19,6 +19,12 @@ class HostProblemInfo(Component):
     ### 请求参数
     {{ common_args_desc }}
 
+    #### 接口参数
+
+    | 字段    | 类型     | 必选   | 描述       |
+    | ----- | ------ | ---- | -------- |
+    | data_type | string | 否  | 请求类型 |
+
     ### 返回结果示例
 
     ```python
@@ -37,11 +43,11 @@ class HostProblemInfo(Component):
 
     # Form处理参数校验
     class Form(BaseComponentForm):
-        pass
+        data_type = forms.Field(required=False)
 
         # clean方法返回的数据可通过组件的form_data属性获取
         def clean(self):
-            return self.get_cleaned_data_when_exist()
+            return self.get_cleaned_data_when_exist(keys=["data_type"])
 
     # 组件处理入口
     def handle(self):
@@ -55,6 +61,7 @@ class HostProblemInfo(Component):
         response = self.outgoing.http_client.get(
             host=configs.host,
             path='{}host-problem-info/'.format(base_api_url),
+            params=params,
             cookies=self.request.wsgi_request.COOKIES,
         )
 

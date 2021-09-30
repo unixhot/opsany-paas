@@ -106,53 +106,6 @@
                         </div>
 
 
-                        <div><strong>Python开发框架（1.0.0）：</strong></div>
-                        <div class="king-timeline-body">
-                            <strong>示例1：<a href="${SITE_URL}media/framework.tar.gz">点击下载Python开发框架(1.0.0)代码 </a> ，将框架代码放到自己的代码仓库中，并按以下提示修改：</strong>
-                            <ol class="guide-list">
-                                <li>conf/default.py 文件：APP_ID 和 APP_TOKEN
-                                    <span>（开发中心 -> 点击应用ID -> 基本信息 中可以查看到这两个值的信息）;</span>
-                                </li>
-                                <li>conf/default.py 文件：BK_PAAS_HOST的值设置为: <code>${paas_host}</code>;
-                                </li>
-                                <li>conf/settings_development.py 文件：DATABASES（请创建本地开发数据库，并修改配置信息）;</li>
-                                <li>conf/settings_testing.py 文件：DATABASES（请创建测试环境数据库，并修改配置信息）;</li>
-                                <li>conf/settings_production.py 文件：DATABASES（请创建正式环境数据库，并修改配置信息）。</li>
-                                <p class="mt5"><strong><code>注意：</code>测试环境 和 正式环境 的数据库需要对 AppServer 授权</strong>
-                                (
-                                % if active_server_ips:
-                                    <code>${active_server_ips}</code>
-                                % else:
-                                    <a href="${SITE_URL}engine/server/" target="_blank">添加并激活 AppServer</a>
-                                % endif
-                                )
-                                </p>
-                                <li class="mt10">若需要使用 celery，请修改以下配置：(<a href="http://bkopen-10032816.file.myqcloud.com/paas/celery_packages.zip">点击下载 celery 开发指引</a>)</li>
-                                <span class="ml40">conf/default.py 文件：IS_USE_CELERY的值设置为: <code>True</code></span><br>
-                                <span class="ml40">conf/default.py 文件：BROKER_URL_DEV（请创建本地开发的 celery消息队列，并修改配置信息，推荐使用 RabbitMQ）</span><br>
-                                <span class="ml40">conf/default.py 文件：CELERY_IMPORTS（添加celery任务模块）</span>
-                            </ol>
-                            <br>
-
-                            <strong>示例2：非应用框架开发的应用，请检查以下配置信息(<a href="${STATIC_URL}assets/bksite.zip">点击下载示例代码</a>) ：</strong>
-                            <ol class="guide-list">
-                                <li>
-                                    settings.py文件中添加 APP_ID 和 APP_TOKEN
-                                    <span>（开发中心 -> 点击应用ID -> 基本信息 中可以查看到这两个值的信息);</span>
-                                </li>
-                                <li>
-                                    在工程目录下添加 requirements.txt文件，并在 requirements.txt 中添加包依赖信息;
-                                </li>
-                                <li>
-                                    请修改 mysite/settings.py 中的 DATABASES信息（请创建数据库，并修改配置信息）;
-                                </li>
-                                <li>
-                                    请确认 uwsgi.py 文件在根目录下，也就是跟 manage.py 同级目录下。
-                                </li>
-                            </ol>
-                        </div>
-
-
                     </div>
                 </li>
 

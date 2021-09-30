@@ -16,7 +16,8 @@ SHELL_LOG="${SHELL_NAME}.log"
 ADMIN_PASSWORD=admin
 
 # Import Config 
-source ./install.config
+grep '^[A-Z]' install.config > install.env
+source ./install.env && rm -f install.env
 
 # Shell Log Record
 shell_log(){

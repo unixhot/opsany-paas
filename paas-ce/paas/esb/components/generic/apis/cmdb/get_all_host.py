@@ -28,7 +28,8 @@ class GetAllHost(Component):
     | 字段    | 类型     | 必选   | 描述       |
     | ----- | ------ | ---- | -------- |
     | model_code | str | 否   | 模型code |
-
+    | search_type | str | 否   | 筛选字段 |
+    | search_data | str | 否   | 筛选数据 |
 
     ### 返回结果示例
 
@@ -51,10 +52,12 @@ class GetAllHost(Component):
     # Form处理参数校验
     class Form(BaseComponentForm):
         model_code = forms.Field()
+        search_type = forms.Field(required=False)
+        search_data = forms.Field(required=False)
 
         # clean方法返回的数据可通过组件的form_data属性获取
         def clean(self):
-            return self.get_cleaned_data_when_exist(keys=['model_code'])
+            return self.get_cleaned_data_when_exist(keys=['model_code', 'search_type', 'search_data'])
 
     # 组件处理入口
     def handle(self):

@@ -146,6 +146,7 @@ envs = [
             {"key": "REDIS_PASSWORD", "value": replace_str(config_dict.get("redis").get("REDIS_SERVER_PASSWORD")), "env_scope": "all", "intro": "redis password"},
             {"key": "ROSTER_FILE_URL", "value": replace_str(config_dict.get('opsany_saas').get("ROSTER_FILE_URL")), "env_scope": "all", "intro": "roster file path"},
             {"key": "SALT_SSH_FILE_URL", "value": replace_str(config_dict.get('opsany_saas').get("SALT_SSH_FILE_URL")), "env_scope": "all", "intro": "salt ssh file path"},
+            {"key": "ANSIBLE_HOST_KEY_CHECKING", "value": replace_str(config_dict.get("opsany_saas").get("ANSIBLE_HOST_KEY_CHECKING")), "env_scope": "all", "intro": "ansible vs host checking"},
             # {"key": "DEFAULT_USER_ICON", "value": read_install_config.get("DEFAULT_USER_ICON"), "env_scope": "all", "intro": "user default icon"},
         ]
     },{

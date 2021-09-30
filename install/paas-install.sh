@@ -54,24 +54,24 @@ fi
 
 # Create Self-signed Server Certificate
 ssl_make(){
+    shell_log "Create Self-signed Server Certificate"
     # create dir for ssl
     if [ ! -d ./conf/nginx-conf.d/ssl ];then
       mkdir -p ./conf/nginx-conf.d/ssl
     fi
     cp ./conf/openssl.cnf ./conf/nginx-conf.d/ssl/
     cd ./conf/nginx-conf.d/ssl
-    shell_log "Create server key..."
     openssl genrsa -des3 -passout pass:opsany -out $DOMAIN_NAME.key 2048 >/dev/null 2>&1
 
-    shell_log "Create server certificate signing request..."
+    #Create server certificate signing request
     SUBJECT="/C=CN/ST=BeiJing/L=BeiJing/O=BeiJing/OU=OpsAny/CN=OpsAny"
     openssl req -new -passin pass:opsany -subj $SUBJECT -key $DOMAIN_NAME.key -out $DOMAIN_NAME.csr >/dev/null 2>&1
 
-    shell_log "Remove password..."
+    #Remove password
     mv $DOMAIN_NAME.key $DOMAIN_NAME.origin.key
     openssl rsa -passin pass:opsany -in $DOMAIN_NAME.origin.key  -out $DOMAIN_NAME.key >/dev/null 2>&1
 
-    shell_log "Sign SSL certificate..."
+    #Sign SSL certificate
     openssl x509 -req -days 3650 -extfile openssl.cnf -extensions 'v3_req'  -in $DOMAIN_NAME.csr -signkey $DOMAIN_NAME.key -out $DOMAIN_NAME.crt >/dev/null 2>&1
     openssl x509 -in ${DOMAIN_NAME}.crt -out ${DOMAIN_NAME}.pem -outform PEM >/dev/null 2>&1
     mv ${DOMAIN_NAME}.pem ${DOMAIN_NAME}.origin.pem
@@ -95,7 +95,7 @@ opsany_init(){
     mkdir -p ${INSTALL_PATH}/{uploads/guacamole,uploads/workbench/icon,conf,esb,logs,saas/apps,saas/saasapp,salt-volume/certs,salt-volume/srv/pillar,salt-volume/srv/salt,salt-volume/etc,paasagent-volume,redis-volume,mongodb-volume,mysql-volume}
     cd $CDIR
     /bin/cp -r ../install/conf ${INSTALL_PATH}/
-    /bin/cp -r ../uploads/* ${INSTALL_PATH}/uploads/
+    /bin/cp -r ./uploads/* ${INSTALL_PATH}/uploads/
     /bin/cp -r ../paas-ce/saas/saas-logo/* ${INSTALL_PATH}/uploads/workbench/icon/
     ## init for esb
     /bin/cp -r ../paas-ce/paas/esb/components/generic/apis/ ${INSTALL_PATH}/esb/
@@ -142,7 +142,7 @@ paas_install(){
     -e MONGO_INITDB_ROOT_PASSWORD="$MONGO_INITDB_ROOT_PASSWORD" \
     -p 27017:27017 -v ${INSTALL_PATH}/mongodb-volume:/data/db \
     -v /etc/localtime:/etc/localtime:ro \
-    ${PAAS_DOCKER_REG}/mongo:4.4.1-bionic
+    ${PAAS_DOCKER_REG}/mongo:5.0.3
     
     # Guacd
     shell_log "======Start Guacd======"
@@ -184,7 +184,7 @@ esb_init(){
     sed -i "s/dev.opsany.cn/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/devops/toolkit/configs.py
     sed -i "s#/t/devops#/o/devops#g" ${INSTALL_PATH}/esb/apis/devops/toolkit/tools.py
     sed -i "s/dev.opsany.cn/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/bastion/toolkit/configs.py
-    sed -i "s#/t/bastion#/o/bastion#g" ${INSTALL_PATH}/esb/apis/bastion/toolkit/tools.py
+    sed -i "s#/t/bastion#/o/bastion#g" ${INSTALL_PATH}/esb/apis/bastion/toolkit/configs.py
 }
 
 # PaaS Configuration
