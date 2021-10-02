@@ -130,16 +130,16 @@ mongodb_init(){
                 opsany-mongodb /bin/bash -c "/usr/bin/mongo -u $MONGO_INITDB_ROOT_USERNAME -p $MONGO_INITDB_ROOT_PASSWORD /opt/mongodb_init.js"
 
     docker cp -a init/cmdb-init opsany-mongodb:/opt/
-    docker exec -e MONGO_CMDB_PASSWORD=MONGO_CMDB_PASSWORD \
+    docker exec -e MONGO_CMDB_PASSWORD=${MONGO_CMDB_PASSWORD} \
                 opsany-mongodb /bin/bash -c "mongoimport -u cmdb -p ${MONGO_CMDB_PASSWORD} --db cmdb --drop --collection field_group < /opt/cmdb-init/field_group.json"
-    docker exec -e MONGO_CMDB_PASSWORD=MONGO_CMDB_PASSWORD \
-                opsany-mongodb /bin/bash -c "mongoimport -u cmdb -p ${MONGO_CMDB_PASSWORD} --db cmdb --drop --collection field_group < /opt/cmdb-init/icon_model.json"
-    docker exec -e MONGO_CMDB_PASSWORD=MONGO_CMDB_PASSWORD \
-                opsany-mongodb /bin/bash -c "mongoimport -u cmdb -p ${MONGO_CMDB_PASSWORD} --db cmdb --drop --collection field_group < /opt/cmdb-init/link_relationship_model.json"
-    docker exec -e MONGO_CMDB_PASSWORD=MONGO_CMDB_PASSWORD \
-                opsany-mongodb /bin/bash -c "mongoimport -u cmdb -p ${MONGO_CMDB_PASSWORD} --db cmdb --drop --collection field_group < /opt/cmdb-init/model_field.json"
-    docker exec -e MONGO_CMDB_PASSWORD=MONGO_CMDB_PASSWORD \
-                opsany-mongodb /bin/bash -c "mongoimport -u cmdb -p ${MONGO_CMDB_PASSWORD} --db cmdb --drop --collection field_group < /opt/cmdb-init/model_info.json"
+    docker exec -e MONGO_CMDB_PASSWORD=${MONGO_CMDB_PASSWORD} \
+                opsany-mongodb /bin/bash -c "mongoimport -u cmdb -p ${MONGO_CMDB_PASSWORD} --db cmdb --drop --collection icon_model < /opt/cmdb-init/icon_model.json"
+    docker exec -e MONGO_CMDB_PASSWORD=${MONGO_CMDB_PASSWORD} \
+                opsany-mongodb /bin/bash -c "mongoimport -u cmdb -p ${MONGO_CMDB_PASSWORD} --db cmdb --drop --collection link_relationship_model < /opt/cmdb-init/link_relationship_model.json"
+    docker exec -e MONGO_CMDB_PASSWORD=${MONGO_CMDB_PASSWORD} \
+                opsany-mongodb /bin/bash -c "mongoimport -u cmdb -p ${MONGO_CMDB_PASSWORD} --db cmdb --drop --collection model_field < /opt/cmdb-init/model_field.json"
+    docker exec -e MONGO_CMDB_PASSWORD=${MONGO_CMDB_PASSWORD} \
+                opsany-mongodb /bin/bash -c "mongoimport -u cmdb -p ${MONGO_CMDB_PASSWORD} --db cmdb --drop --collection model_info < /opt/cmdb-init/model_info.json"
 
     shell_log "======MongoDB Initialize End======"
 }
