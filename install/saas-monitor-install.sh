@@ -128,18 +128,6 @@ mysql_init(){
     
 }
 
-# MonogDB Initialize
-mongodb_init(){
-    shell_log "======MongoDB Initialize======"
-    mongo --host $MONGO_SERVER_IP -u $MONGO_INITDB_ROOT_USERNAME -p$MONGO_INITDB_ROOT_PASSWORD <<END
-    use monitor;
-    db.createUser( {user: "monitor",pwd: "$MONGO_MONITOR_PASSWORD",roles: [ { role: "readWrite", db: "monitor" } ]});
-    exit;
-END
-    shell_log "======MongoDB Initialize End======"
-    
-}
-
 # SaaS Deploy
 saas_deploy(){
     cd $CDIR
@@ -160,7 +148,6 @@ saas_deploy(){
 main(){
     saas_init
     mysql_init
-    mongodb_init
     zabbix_install
     grafana_install
     es_install

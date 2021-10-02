@@ -117,29 +117,31 @@ mysql_init(){
 # MonogDB Initialize
 mongodb_init(){
     shell_log "======MongoDB Initialize======"
-    mongo --host $MONGO_SERVER_IP -u $MONGO_INITDB_ROOT_USERNAME -p$MONGO_INITDB_ROOT_PASSWORD <<END
-    use cmdb;
-    db.createUser({user: "cmdb",pwd: "$MONGO_CMDB_PASSWORD",roles: [ { role: "readWrite", db: "cmdb" } ]});
-    use job;
-    db.createUser( {user: "job",pwd: "$MONGO_JOB_PASSWORD",roles: [ { role: "readWrite", db: "job" } ]});
-    use cmp;
-    db.createUser( {user: "cmp",pwd: "$MONGO_CMP_PASSWORD",roles: [ { role: "readWrite", db: "cmp" } ]});
-    use workbench;
-    db.createUser( {user: "workbench",pwd: "$MONGO_WORKBENCH_PASSWORD",roles: [ { role: "readWrite", db: "workbench" } ]});
-    use devops;
-    db.createUser( {user: "devops",pwd: "$MONGO_DEVOPS_PASSWORD",roles: [ { role: "readWrite", db: "devops" } ]});
-    exit;
-END
-    shell_log "======MongoDB Initialize End======"
+    sed -i "s/MONGO_WORKBENCH_PASSWORD/${MONGO_WORKBENCH_PASSWORD}/g" ./init/mongodb-init/mongodb_init.js
+    sed -i "s/MONGO_CMDB_PASSWORD/${MONGO_CMDB_PASSWORD}/g" ./init/mongodb-init/mongodb_init.js
+    sed -i "s/MONGO_JOB_PASSWORD/${MONGO_JOB_PASSWORD}/g" ./init/mongodb-init/mongodb_init.js
+    sed -i "s/MONGO_DEVOPS_PASSWORD/${MONGO_DEVOPS_PASSWORD}/g" ./init/mongodb-init/mongodb_init.js
+    sed -i "s/MONGO_CMP_PASSWORD/${MONGO_CMP_PASSWORD}/g" ./init/mongodb-init/mongodb_init.js
+    sed -i "s/MONGO_MONITOR_PASSWORD/${MONGO_MONITOR_PASSWORD}/g" ./init/mongodb-init/mongodb_init.js
     
-    shell_log "======CMDB Initialize======"
-    mongoimport --host $MONGO_SERVER_IP -u cmdb -p${MONGO_CMDB_PASSWORD} --db cmdb --drop --collection field_group < ./init/cmdb-init/field_group.json
-    mongoimport --host $MONGO_SERVER_IP -u cmdb -p${MONGO_CMDB_PASSWORD} --db cmdb --drop --collection icon_model < ./init/cmdb-init/icon_model.json
-    mongoimport --host $MONGO_SERVER_IP -u cmdb -p${MONGO_CMDB_PASSWORD} --db cmdb --drop --collection link_relationship_model < ./init/cmdb-init/link_relationship_model.json
-    mongoimport --host $MONGO_SERVER_IP -u cmdb -p${MONGO_CMDB_PASSWORD} --db cmdb --drop --collection model_field < ./init/cmdb-init/model_field.json
-    mongoimport --host $MONGO_SERVER_IP -u cmdb -p${MONGO_CMDB_PASSWORD} --db cmdb --drop --collection model_group < ./init/cmdb-init/model_group.json
-    mongoimport --host $MONGO_SERVER_IP -u cmdb -p${MONGO_CMDB_PASSWORD} --db cmdb --drop --collection model_info < ./init/cmdb-init/model_info.json
-    shell_log "======Initialize End======"
+    docker cp init/mongodb-init/mongodb_init.js opsany-mongodb:/opt/
+    docker exec -e MONGO_INITDB_ROOT_USERNAME=$MONGO_INITDB_ROOT_USERNAME \
+                -e MONGO_INITDB_ROOT_PASSWORD=$MONGO_INITDB_ROOT_PASSWORD \
+                opsany-mongodb /bin/bash -c "/usr/bin/mongo -u $MONGO_INITDB_ROOT_USERNAME -p $MONGO_INITDB_ROOT_PASSWORD /opt/mongodb_init.js"
+
+    docker cp -a init/cmdb-init opsany-mongodb:/opt/
+    docker exec -e MONGO_CMDB_PASSWORD=MONGO_CMDB_PASSWORD \
+                opsany-mongodb /bin/bash -c "mongoimport -u cmdb -p ${MONGO_CMDB_PASSWORD} --db cmdb --drop --collection field_group < /opt/cmdb-init/field_group.json"
+    docker exec -e MONGO_CMDB_PASSWORD=MONGO_CMDB_PASSWORD \
+                opsany-mongodb /bin/bash -c "mongoimport -u cmdb -p ${MONGO_CMDB_PASSWORD} --db cmdb --drop --collection field_group < /opt/cmdb-init/icon_model.json"
+    docker exec -e MONGO_CMDB_PASSWORD=MONGO_CMDB_PASSWORD \
+                opsany-mongodb /bin/bash -c "mongoimport -u cmdb -p ${MONGO_CMDB_PASSWORD} --db cmdb --drop --collection field_group < /opt/cmdb-init/link_relationship_model.json"
+    docker exec -e MONGO_CMDB_PASSWORD=MONGO_CMDB_PASSWORD \
+                opsany-mongodb /bin/bash -c "mongoimport -u cmdb -p ${MONGO_CMDB_PASSWORD} --db cmdb --drop --collection field_group < /opt/cmdb-init/model_field.json"
+    docker exec -e MONGO_CMDB_PASSWORD=MONGO_CMDB_PASSWORD \
+                opsany-mongodb /bin/bash -c "mongoimport -u cmdb -p ${MONGO_CMDB_PASSWORD} --db cmdb --drop --collection field_group < /opt/cmdb-init/model_info.json"
+
+    shell_log "======MongoDB Initialize End======"
 }
 
 # SaaS Deploy

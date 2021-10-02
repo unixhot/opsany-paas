@@ -36,13 +36,13 @@ paas-ce
 
 ## Docker容器在线部署
 
-> 仅部署PaaS平台需要2C、4G内存的主机，部署OpsAny需要4C、8G内存的干净主机。生产使用推荐4C、16G内存。请检查是否关闭了SELinux和防火墙！
+> 仅部署PaaS平台需要2C、4G内存的主机，部署OpsAny SaaS需要4C、8G内存的干净主机。生产使用推荐4C、16G内存。请检查是否关闭了SELinux和防火墙！
 
 1. 安装Docker和初始化使用的软件包
 
 - 【CentOS 7】部署
 
-  安装Docker和MySQL
+  安装Docker和MySQL客户端
 
   ```
   curl -o /etc/yum.repos.d/epel.repo http://mirrors.aliyun.com/repo/epel-7.repo
@@ -53,24 +53,9 @@ paas-ce
   ntpdate time1.aliyun.com
   ```
 
-  安装MongoDB客户端
-
-  ```
-  cat > /etc/yum.repos.d/mongodb.repo <<"EOF"
-  [mongodb-org]
-  name=MongoDB Repository
-  #baseurl=https://mirrors.tuna.tsinghua.edu.cn/mongodb/yum/el$releasever/
-  baseurl=http://mirrors.cloud.tencent.com/mongodb/yum/el$releasever/
-  gpgcheck=0
-  enabled=1
-  EOF
-
-  yum install -y mongodb-org-shell mongodb-org-tools
-  ```
-
 - 【CentOS 8】部署
 
-  安装Docker和MySQL
+  安装Docker和MySQL客户端
 
   ```
   dnf config-manager --add-repo=http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
@@ -80,21 +65,7 @@ paas-ce
   ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
   ```
 
-  MongoDB客户端
-  ```
-  cat > /etc/yum.repos.d/mongodb.repo <<"EOF"
-  [mongodb-org]
-  name=MongoDB Repository
-  #baseurl=https://mirrors.tuna.tsinghua.edu.cn/mongodb/yum/el$releasever/
-  baseurl=http://mirrors.cloud.tencent.com/mongodb/yum/el$releasever/
-  gpgcheck=0
-  enabled=1
-  EOF
-
-  yum install -y mongodb-org-shell mongodb-org-tools
-  ```
-
-- 【Ubuntu】 安装Docker和MySQL、MongoDB客户端
+- 【Ubuntu】 部署
 
     安装Docker和MySQL客户端
 
@@ -113,32 +84,31 @@ paas-ce
     ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
     ntpdate time1.aliyun.com
     ```
-     
-    安装MongoDB客户端
-     ```
-     sudo wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | sudo apt-key add -
-     sudo add-apt-repository 'deb [arch=amd64] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/4.4 multiverse'
-     sudo apt install -y mongodb-org-shell mongodb-clients
-     ```
 
-2. 克隆代码
+2. 选择一个代码仓库克隆代码
 
 ```
+# Github
+cd /opt && sudo git clone https://github.com/unixhot/opsany-paas.git
+
+# Gitee
 cd /opt && sudo git clone https://gitee.com/unixhot/opsany-paas.git
 ```
 
-3. 修改安装配置
+3. 修改配置文件
 
 > 注意！注意！注意！切记修改install.config中所有的IP地址，可以批量查找替换。
 
 ```
 cd /opt/opsany-paas/install && cp install.config.example install.config
+sed -i 's/192.168.56.11/内网IP/g' install.config
+
 vim /opt/opsany-paas/install/install.config
 
 # 安装OpsAny的本机内网IP地址。请批量查找替换将192.168.56.11修改为部署OpsAny的本机IP地址。
 LOCAL_IP="192.168.56.11"
 
-# 访问OpsAny的域名，如果是在内网访问请修改为和LOCAL_IP一样，如果是外网访问，请修改为真实访问的域名或者公网IP。
+# 访问OpsAny PaaS的域名，如果是在内网访问请修改为和LOCAL_IP一样，如果是外网访问，请修改为真实访问的域名或者公网IP。
 安装后暂不支持修改，此配置会作为Cookie的作用域的域名，所以如果配置的和访问的不同，会导致无法通过验证。官方文档中有修改域名的办法。
 DOMAIN_NAME="192.168.56.11"
 ```
@@ -164,7 +134,8 @@ cd /opt/opsany-paas/install/
 
 ## 下载OpsAny社区版本
 
-> OpsAny社区版本v1.2.0正式发布 
+安装完毕OpsAny PaaS之后，就可以进行运维开发工作了，也可以继续部署OpsAny社区版本，进行日常运维工作，OpsAny社区版是OpsAny产品团队，自主研发的智能运维平台：支持自定义插件，支持用户使用Python、Shell、Powershell编写例如工具脚本、
+资产采集插件、智能巡检插件、指标采集插件等。
 
-[免费下载](https://opsany.com/#/download)
+> OpsAny社区版本v1.2.0正式发布 >> [免费下载](https://opsany.com/#/download)
 

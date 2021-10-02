@@ -48,3 +48,8 @@ docker exec opsany-paas-paasagent /usr/bin/supervisorctl -c /opt/opsany/paas-age
 docker exec opsany-paas-paasagent /usr/bin/supervisord -c /opt/opsany/paas-agent/apps/projects/devops/conf/supervisord.conf
 sleep 3
 docker exec opsany-paas-paasagent /usr/bin/supervisorctl -c /opt/opsany/paas-agent/apps/projects/devops/conf/supervisord.conf status
+
+#start bastion
+docker exec opsany-paas-paasagent /usr/bin/supervisord -c /opt/opsany/paas-agent/apps/projects/bastion/conf/supervisord.conf
+sleep 3
+docker exec opsany-paas-paasagent /usr/bin/supervisorctl -c /opt/opsany/paas-agent/apps/projects/bastion/conf/supervisord.conf status
