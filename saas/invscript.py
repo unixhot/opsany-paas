@@ -12,9 +12,9 @@ from base64 import urlsafe_b64encode, urlsafe_b64decode
 from Crypto.Cipher import AES
 
 
-DB_HOST = "localhost"
+DB_HOST = "LOCALHOST"
 DB_NAME = "control"
-DB_PASSWORD = "control"
+DB_PASSWORD = "CONTROL_PASSWORD"
 DB_USERNAME = "control"
 SECRET_KEY = "099f6e6f-9ad8-43d7-b487-7f655519598d"
 

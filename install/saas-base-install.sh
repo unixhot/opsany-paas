@@ -36,6 +36,8 @@ pip3 install requests==2.25.1 grafana-api==1.0.3 mysql-connector==2.2.9 SQLAlche
 cd ../saas/
 python3 add_env.py
 cp invscript.py ${INSTALL_PATH}/uploads/
+sed -i "s/LOCALHOST/${MYSQL_SERVER_IP}/g" ${INSTALL_PATH}/uploads/invscript.py
+sed -i "s/CONTROL_PASSWORD/${MYSQL_OPSANY_CONTROL_PASSWORD}/g" ${INSTALL_PATH}/uploads/invscript.py
 chmod +x ${INSTALL_PATH}/uploads/invscript.py
 
 # Shell Log Record
@@ -136,6 +138,8 @@ mongodb_init(){
                 opsany-mongodb /bin/bash -c "mongoimport -u cmdb -p ${MONGO_CMDB_PASSWORD} --db cmdb --drop --collection icon_model < /opt/cmdb-init/icon_model.json"
     docker exec -e MONGO_CMDB_PASSWORD=${MONGO_CMDB_PASSWORD} \
                 opsany-mongodb /bin/bash -c "mongoimport -u cmdb -p ${MONGO_CMDB_PASSWORD} --db cmdb --drop --collection link_relationship_model < /opt/cmdb-init/link_relationship_model.json"
+        docker exec -e MONGO_CMDB_PASSWORD=${MONGO_CMDB_PASSWORD} \
+                opsany-mongodb /bin/bash -c "mongoimport -u cmdb -p ${MONGO_CMDB_PASSWORD} --db cmdb --drop --collection model_group < /opt/cmdb-init/model_group.json"
     docker exec -e MONGO_CMDB_PASSWORD=${MONGO_CMDB_PASSWORD} \
                 opsany-mongodb /bin/bash -c "mongoimport -u cmdb -p ${MONGO_CMDB_PASSWORD} --db cmdb --drop --collection model_field < /opt/cmdb-init/model_field.json"
     docker exec -e MONGO_CMDB_PASSWORD=${MONGO_CMDB_PASSWORD} \
