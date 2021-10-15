@@ -11,7 +11,7 @@ CTIME=$(date "+%Y-%m-%d-%H-%M")
 
 # Shell Envionment Variables
 CDIR=$(pwd)
-SHELL_NAME="saas-install.sh"
+SHELL_NAME="saas-monitor-install.sh"
 SHELL_LOG="${SHELL_NAME}.log"
 
 # Check SAAS Package

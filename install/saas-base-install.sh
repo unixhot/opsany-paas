@@ -50,14 +50,15 @@ shell_log(){
 # Start SaltStack 
 saltstack_install(){
     shell_log "======Start SaltStack======"
-    docker run --restart=always --name opsany-saltstack --detach \
-        --publish 4505:4505 --publish 4506:4506 --publish 8005:8005 \
+    docker run --restart=always --name opsany-saltstack -d \
+        -p 4505:4505 -p 4506:4506 -p 8005:8005 \
         -v ${INSTALL_PATH}/logs:${INSTALL_PATH}/logs \
-        -v ${INSTALL_PATH}/salt-volume/srv/:/srv/ \
         -v ${INSTALL_PATH}/salt-volume/certs/:/etc/pki/tls/certs/ \
         -v ${INSTALL_PATH}/salt-volume/etc/salt/:/etc/salt/ \
         -v ${INSTALL_PATH}/salt-volume/etc/salt/master.d:/etc/salt/master.d \
         -v ${INSTALL_PATH}/salt-volume/cache/:/var/cache/salt/ \
+        -v ${INSTALL_PATH}/salt-volume/srv/salt:/srv/salt/ \
+        -v ${INSTALL_PATH}/salt-volume/srv/pillar:/srv/pillar/ \
         -v /etc/localtime:/etc/localtime:ro \
         ${PAAS_DOCKER_REG}/opsany-saltstack:${PAAS_VERSION}
     shell_log "======Waiting for SaltStack ...======"

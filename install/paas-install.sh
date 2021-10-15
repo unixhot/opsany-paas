@@ -159,9 +159,9 @@ mysql_init(){
     sleep 10
     cd ${CDIR}/../install/
     export MYSQL_PWD=${MYSQL_ROOT_PASSWORD}
-    mysql -h "${LOCAL_IP}" -u root  -e "CREATE DATABASE IF NOT EXISTS opsany_paas DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
-    mysql -h "${LOCAL_IP}" -u root  -e "grant all on opsany_paas.* to opsany@'%' identified by "\"${MYSQL_OPSANY_PASSWORD}\"";" 
-    mysql -h "${LOCAL_IP}" -u root  opsany_paas < init/opsany-paas.sql
+    mysql -h "${MYSQL_SERVER_IP}" -u root  -e "CREATE DATABASE IF NOT EXISTS opsany_paas DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
+    mysql -h "${MYSQL_SERVER_IP}" -u root  -e "grant all on opsany_paas.* to opsany@'%' identified by "\"${MYSQL_OPSANY_PASSWORD}\"";" 
+    mysql -h "${MYSQL_SERVER_IP}" -u root  opsany_paas < init/opsany-paas.sql
 }
 
 # ESB Initialize

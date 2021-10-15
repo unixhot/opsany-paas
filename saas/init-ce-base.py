@@ -170,7 +170,7 @@ class Run:
             "name": "默认控制器",
             "type": "本地",
             # TEST DATA 8011 -> 8005
-            "api1": "https://{}:8005".format(self.private_ip) if self.private_ip else "",
+            "api1": "https://{}:8005".format(self.paas_domain) if self.paas_domain else "",
             "api2": "https://{}:8005".format(self.private_ip) if self.private_ip else "",
             "username1": "saltapi",
             "username2": "saltapi",
