@@ -113,7 +113,7 @@ envs = [
             {"key": "MYSQL_PASSWORD", "value": replace_str(config_dict.get('mysql').get("MYSQL_OPSANY_RBAC_PASSWORD")), "env_scope": "all", "intro": "mysql password"},
             {"key": "MYSQL_HOST", "value": replace_str(config_dict.get('mysql').get("MYSQL_SERVER_IP")), "env_scope": "all", "intro": "mysql host"},
             {"key": "MYSQL_PORT", "value": replace_str(config_dict.get('mysql').get("MYSQL_PORT")), "env_scope": "all", "intro": "mysql port"},
-            # {"key": "DEFAULT_USER_ICON", "value": read_install_config.get("DEFAULT_USER_ICON"), "env_scope": "all", "intro": "user default icon"},
+            {"key": "UPLOAD_PATH", "value": replace_str(config_dict.get('opsany_saas').get("UPLOAD_PATH")), "env_scope": "all", "intro": "uploads path"},
         ]
     },{
         "app_code": "monitor",
@@ -128,7 +128,7 @@ envs = [
             {"key": "ELASTIC_HOST", "value": replace_str(config_dict.get('elasticsearch').get("ES_SERVER_IP")), "env_scope": "all", "intro": "es host"},
             {"key": "ELASTIC_PORT", "value": replace_str(config_dict.get('elasticsearch').get("ELASTIC_PORT")), "env_scope": "all", "intro": "es port"},
             {"key": "ELASTIC_PASSWORD", "value": replace_str(config_dict.get('elasticsearch').get("ES_PASSWORD")), "env_scope": "all", "intro": "es password"},
-            # {"key": "DEFAULT_USER_ICON", "value": read_install_config.get("DEFAULT_USER_ICON"), "env_scope": "all", "intro": "user default icon"},
+            {"key": "UPLOAD_PATH", "value": replace_str(config_dict.get('opsany_saas').get("UPLOAD_PATH")), "env_scope": "all", "intro": "uploads path"},
         ]
     },{
         "app_code": "control",
@@ -325,6 +325,7 @@ class AddEnv:
                                                                               "intro": env_dict.get("intro", ""),
                                                                               "app_code": app_code,
                                                                           })
+                    self.session.commit()
                     print("For {} update env info: key={} value={}".format(app_code, env_dict.get("key"),
                                                                            env_dict.get("value")))
 

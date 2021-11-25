@@ -18,6 +18,7 @@ ADMIN_PASSWORD=admin
 # Import Config 
 grep '^[A-Z]' install.config > install.env
 source ./install.env && rm -f install.env
+rm -f ../saas/*.gz
 
 # Shell Log Record
 shell_log(){
@@ -66,7 +67,7 @@ job_update(){
     #job
     cd $CDIR
     cd ../../opsany-saas/
-    /bin/cp mv -f job-opsany-*.tar.gz ../opsany-paas/saas/
+    /bin/cp -f job-opsany-*.tar.gz ../opsany-paas/saas/
     cd $CDIR
     python3 ../saas/deploy.py --domain $DOMAIN_NAME --username admin --password $ADMIN_PASSWORD --file_name ../saas/job-opsany-*.tar.gz
 }
@@ -85,7 +86,6 @@ cmp_update(){
     cd $CDIR
     cd ../../opsany-saas/
     /bin/cp cmp-opsany-*.tar.gz ../opsany-paas/saas/
-    rm -rf cmp
     cd $CDIR
     python3 ../saas/deploy.py --domain $DOMAIN_NAME --username admin --password $ADMIN_PASSWORD --file_name ../saas/cmp-opsany-*.tar.gz
 }

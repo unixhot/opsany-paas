@@ -243,7 +243,7 @@ class BkUserManager(BaseUserManager):
             records = paginator.page(paginator.num_pages)
         return records
 
-    def modify_or_create_user_by_userid(self, user_id, username, chname, phone, email, role):
+    def modify_or_create_user_by_userid(self, user_id, username, chname, phone, email, role, password=""):
         """
         修改或者创建用户
         """
@@ -269,7 +269,10 @@ class BkUserManager(BaseUserManager):
                     is_superuser=(role == RoleCodeEnum.SUPERUSER)
                 )
                 # 新用户设置默认密码
-                user.set_password(settings.PASSWORD)
+                if password:
+                    user.set_password(password)
+                else:
+                    user.set_password(settings.PASSWORD)
                 user.save()
                 user_id = user.id
             # 添加或者修改用户角色

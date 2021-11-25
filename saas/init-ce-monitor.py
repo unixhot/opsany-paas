@@ -469,13 +469,16 @@ class GrafanaBearerApi:
 
 
 class Run:
-    def __init__(self, paas_domain, private_ip, paas_username, paas_password, zabbix_password, grafana_password, modify_zabbix_password, zabbix_api_password, modify_grafana_password):
+    def __init__(self, paas_domain, private_ip, paas_username, paas_password, zabbix_ip, zabbix_password, grafana_ip,
+                  grafana_password, modify_zabbix_password, zabbix_api_password, modify_grafana_password):
         self.paas_domain = self.handle_domain(paas_domain)
         self.private_ip = self.handle_domain(private_ip)
+        self.grafana_ip = grafana_ip if grafana_ip else self.handle_domain(private_ip)
         self.grafana_password = grafana_password if grafana_password else default_grafana_password
-        self.basic_grafana_obj = GrafanaBasicApi("admin", self.grafana_password, "{}/grafana".format(self.private_ip))
+        self.basic_grafana_obj = GrafanaBasicApi("admin", self.grafana_password, "{}/grafana".format(self.grafana_ip))
         self.paas_username = paas_username if paas_username else default_paas_username
         self.paas_password = paas_password if paas_password else default_paas_password
+        self.zabbix_ip = zabbix_ip if zabbix_ip else self.handle_domain(private_ip)
         self.zabbix_password = zabbix_password if zabbix_password else default_zabbix_password
         self.zabbix_api_password = zabbix_api_password if zabbix_api_password else default_zabbix_api_password
         self.modify_zabbix_password = modify_zabbix_password if modify_zabbix_password else default_modify_zabbix_password
@@ -505,7 +508,7 @@ class Run:
             status = True
             default_zabbix_username = "Admin"
             try:
-                zabbix_api_url = "http://" + self.paas_domain + ":8006/api_jsonrpc.php"
+                zabbix_api_url = "http://" + self.zabbix_ip + ":8006/api_jsonrpc.php"
                 zabbix_obj = ZabbixApi(default_zabbix_username, self.zabbix_password, zabbix_api_url)
             except:
                 zabbix_api_url = "http://" + self.private_ip + ":8006/api_jsonrpc.php"
@@ -605,10 +608,10 @@ class Run:
             return False, "OpsAny平台认证失败"
 
 
-def start(paas_domain, private_ip, paas_username, paas_password, zabbix_password, grafana_password,
-          modify_zabbix_password, zabbix_api_password, modify_grafana_password):
-    run_obj = Run(paas_domain, private_ip, paas_username, paas_password, zabbix_password, grafana_password,
-                  modify_zabbix_password, zabbix_api_password, modify_grafana_password)
+def start(paas_domain, private_ip, paas_username, paas_password, zabbix_ip, zabbix_password, grafana_ip,
+          grafana_password, modify_zabbix_password, zabbix_api_password, modify_grafana_password):
+    run_obj = Run(paas_domain, private_ip, paas_username, paas_password, zabbix_ip, zabbix_password, grafana_ip,
+                  grafana_password, modify_zabbix_password, zabbix_api_password, modify_grafana_password)
     # 初始化Zabbix
     init_zabbix_status, init_zabbix_message = run_obj.init_zabbix()
     if init_zabbix_status:
@@ -632,8 +635,10 @@ def add_parameter():
     parameter.add_argument("--private_ip", help="Required parameters.", required=True)
     parameter.add_argument("--paas_username", help="OpsAny Username.", required=False)
     parameter.add_argument("--paas_password", help="OpsAny Password.", required=False)
+    parameter.add_argument("--zabbix_ip", help="Zabbix Host IP.", required=False)
     parameter.add_argument("--zabbix_password", help="Zabbix Admin Password.", required=False)
     parameter.add_argument("--zabbix_api_password", help="Zabbix Api User Password.", required=False)
+    parameter.add_argument("--grafana_ip", help="Grafana Host IP.", required=False)
     parameter.add_argument("--grafana_password", help="Grafana Admin Password.", required=False)
     parameter.add_argument("--modify_zabbix_password", help="Modify Zabbix Admin Password.", required=False)
     parameter.add_argument("--modify_grafana_password", help="Modify Grafana Admin Password.", required=False)
@@ -655,11 +660,21 @@ if __name__ == '__main__':
         options.private_ip,
         options.paas_username,
         options.paas_password,
+        options.zabbix_ip,
         options.zabbix_password,
+        options.grafana_ip,
         options.grafana_password,
         options.modify_zabbix_password,
         options.zabbix_api_password,
         options.modify_grafana_password
     )
 
-# python3 init-ce-monitor.py --domain 192.168.56.11 --private_ip 192.168.56.11 --paas_username admin --paas_password 123456.coM --zabbix_password OpsAny@2020 --grafana_password OpsAny@2020
+# python3 init-ce-monitor.py \
+# --domain 192.168.56.11 \
+# --private_ip 192.168.56.11 \
+# --paas_username admin \
+# --paas_password 123456.coM \
+# --zabbix_ip 192.168.56.11 \
+# --zabbix_password OpsAny@2020 \
+# --grafana_ip 192.168.56.11 \
+# --grafana_password OpsAny@2020

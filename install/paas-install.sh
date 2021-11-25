@@ -102,7 +102,7 @@ opsany_init(){
     ## init for saltstack 
     /bin/cp -a ${CDIR}/../install/conf/salt ${INSTALL_PATH}/salt-volume/etc/
     /bin/cp -a ${CDIR}/../install/conf/salt/certs/* ${INSTALL_PATH}/salt-volume/certs/
-    /bin/cp saas-restart.sh /opt/opsany/
+    /bin/cp saas-restart.sh $INSTALL_PATH/
     shell_log "End: Install Init"
 }
 

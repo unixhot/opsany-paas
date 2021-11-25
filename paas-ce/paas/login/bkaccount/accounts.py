@@ -11,6 +11,7 @@ import datetime
 import time
 import unicodedata
 import urllib
+import uuid
 
 from django.conf import settings
 from django.utils.translation import ugettext as _
@@ -30,7 +31,8 @@ from common.log import logger
 from bkaccount.encryption import encrypt, decrypt, salt
 from bkaccount.models import Loignlog, BkToken
 from bkaccount.forms import AuthenticationAndRegisterForm
-
+from bkaccount.opsany_user_auth import OpsAnyRbacUserAuth
+from bkaccount.models import BkUser
 
 class AccountSingleton(object):
     """
@@ -242,15 +244,25 @@ class Account(AccountSingleton):
         if request.method == 'POST':
             data = request.POST.dict()
             next = data.get("next", "")
+            username = data.get("username", "")
+            password = data.get("password", "")
             geetest_challenge = data.pop("geetest_challenge", None)
             geetest_seccode = data.pop("geetest_seccode", None)
             geetest_validate = data.pop("geetest_validate", None)
             if data.has_key("next") and data.has_key("app_id"):
                 if not geetest_challenge or not geetest_seccode or not geetest_validate:
                     return render(request, "login/login.html", {"data": 1, "app_id": app_id, "next": next, "IMG_URL": settings.IMG_URL, "SITE_URL": settings.SITE_URL})
-            form = authentication_form(request, data=request.POST)
-            if form.is_valid():
-                return self.login_success_response(request, form, redirect_to, app_id)
+            if "@" not in username:
+                form = authentication_form(request, data=request.POST)
+                if form.is_valid():
+                    return self.login_success_response(request, form, redirect_to, app_id)
+            else:
+                auth_object = OpsAnyRbacUserAuth(username, password)
+                res, data = auth_object.check_users()
+                user = self.get_user(data, username)
+                if res:
+                    return self.login_success_response(request, user, redirect_to, app_id)
+                form = authentication_form(request, data=request.POST)
         else:
             form = authentication_form(request)
 
@@ -270,6 +282,41 @@ class Account(AccountSingleton):
         response = TemplateResponse(request, template_name, context)
         response = self.set_bk_token_invalid(request, response)
         return response
+
+    def get_user(self, data, username):
+        """
+        {
+            'have_user': False,
+            'auth_status': False,
+            'domain_status': False,
+            'user_info': {}
+        }
+        """
+        have_user = data.get("have_user")
+        user_info = data.get("user_info")
+        if have_user:
+            username = user_info.get("username")
+            password = str(uuid.uuid4()).split("-")[-1]
+            status, user_dict, msg = BkUser.objects.get_user_info_v2(username)
+            if status:
+                user_id = user_dict.get("id")
+            else:
+                user_id = None
+            result, user_id, message = BkUser.objects.modify_or_create_user_by_userid(
+                user_id,
+                user_info.get("username"),
+                user_info.get("chname"),
+                user_info.get("phone"),
+                user_info.get("email"),
+                user_info.get("role"),
+                password
+            )
+            return BkUser.objects.filter(id=user_id).first()
+        else:
+            user = BkUser.objects.filter(username=username).first()
+            if user:
+                user.delete()
+            return None
 
     def logout(self, request, next_page=None):
         """
@@ -328,7 +375,11 @@ class Account(AccountSingleton):
         if not self.is_safe_url(url=redirect_to, host=request.get_host()):
             redirect_to = resolve_url('{}accounts/user/list/'.format(settings.SITE_URL))
         # 设置用户登录
-        auth_login(request, user)
+        try:
+            auth_login(request, user)
+        except:
+            user.backend = "django.contrib.auth.backends.ModelBackend"
+            auth_login(request, user)
         # 记录登录日志
         self.record_login_log(request, user, app_id)
         bk_token, expire_time = self.get_bk_token(username)

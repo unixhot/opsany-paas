@@ -32,6 +32,7 @@ if [ ! -f ./install.config ];then
 else
     grep '^[A-Z]' install.config > install.env
     source ./install.env && rm -f install.env
+    /bin/cp -r conf ${INSTALL_PATH}/
 fi
 
 # Shell Log Record
