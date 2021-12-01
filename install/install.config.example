@@ -28,7 +28,7 @@ PAAS_APPENGINE_IP="192.168.56.11"
 PAAS_ESB_IP="192.168.56.11"
 
 [opsany_saas]
-# SaaS need to add env
+# Please Do not modify
 UPLOAD_PATH="/opt/opsany/"
 FILE_ROOT="/srv/salt/"
 PILLAR_ROOT="/srv/pillar/"
@@ -96,6 +96,8 @@ ZABBIX_DB_PASSWORD="OpsAny@2020"
 ES_SERVER_IP="192.168.56.11"
 ES_PASSWORD="OpsAny@2020"
 ELASTIC_PORT="9200"
+ELASTIC_SEARCH_INDEX="heartbeat-7.13.3*"
+ELASTIC_SEARCH_USERNAME="elastic"
 
 [enterprise]
 

@@ -125,9 +125,11 @@ envs = [
             {"key": "MONGO_HOST", "value": replace_str(config_dict.get('mongodb').get("MONGO_SERVER_IP")), "env_scope": "all", "intro": "mongo host"},
             {"key": "MONGO_PORT", "value": replace_str(config_dict.get('mongodb').get("MONGO_PORT")), "env_scope": "all", "intro": "mongo port"},
             {"key": "MONGO_PASSWORD", "value": replace_str(config_dict.get('mongodb').get("MONGO_MONITOR_PASSWORD")), "env_scope": "all", "intro": "mongo password"},
-            {"key": "ELASTIC_HOST", "value": replace_str(config_dict.get('elasticsearch').get("ES_SERVER_IP")), "env_scope": "all", "intro": "es host"},
+            {"key": "ELASTIC_SEARCH_USERNAME", "value": replace_str(config_dict.get('elasticsearch').get("ELASTIC_SEARCH_USERNAME")), "env_scope": "all", "intro": "es username"},
+            {"key": "ES_PASSWORD", "value": replace_str(config_dict.get('elasticsearch').get("ES_PASSWORD")), "env_scope": "all", "intro": "es password"},
+            {"key": "ES_SERVER_IP", "value": replace_str(config_dict.get('elasticsearch').get("ES_SERVER_IP")), "env_scope": "all", "intro": "es host"},
             {"key": "ELASTIC_PORT", "value": replace_str(config_dict.get('elasticsearch').get("ELASTIC_PORT")), "env_scope": "all", "intro": "es port"},
-            {"key": "ELASTIC_PASSWORD", "value": replace_str(config_dict.get('elasticsearch').get("ES_PASSWORD")), "env_scope": "all", "intro": "es password"},
+            {"key": "ELASTIC_SEARCH_INDEX", "value": replace_str(config_dict.get('elasticsearch').get("ELASTIC_SEARCH_INDEX")), "env_scope": "all", "intro": "es index"},
             {"key": "UPLOAD_PATH", "value": replace_str(config_dict.get('opsany_saas').get("UPLOAD_PATH")), "env_scope": "all", "intro": "uploads path"},
         ]
     },{
