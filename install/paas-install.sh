@@ -30,28 +30,6 @@ else
     source ./install.env && rm -f install.env
 fi
 
-# OS Type And repo
-if [ -f /etc/redhat-release ];then
-    OS_TYPE="CENTOS"
-    CENTOS6=$(cat /proc/version | grep 'el6\.')
-    CENTOS7=$(cat /proc/version | grep 'el7\.')
-    CENTOS8=$(cat /proc/version | grep 'el8\.')
-    if [ -n "$CENTOS6" ];then
-            OS_VER=6
-            curl -s -o /etc/yum.repos.d/epel.repo $EPEL6
-        elif [ -n "$CENTOS7" ];then
-            OS_VER=7
-            curl -s -o /etc/yum.repos.d/epel.repo $EPEL7
-        elif [ -n "$CENTOS8" ];then
-            OS_VER=8
-    fi
-elif [ -f /etc/lsb-release ];then
-        OS_TYPE="UBUNTU"
-        OS_VER=$(cat /etc/lsb-release | grep DISTRIB_RELEASE | awk -F '=' {'print$2'})
-else
-    shell_log "This OS is not supported!" && exit
-fi
-
 # Create Self-signed Server Certificate
 ssl_make(){
     shell_log "Create Self-signed Server Certificate"

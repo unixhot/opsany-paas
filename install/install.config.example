@@ -6,10 +6,8 @@
 INSTALL_PATH="/opt/opsany"
 
 # Network
+DOMAIN_NAME="demo.opsany.com"
 LOCAL_IP="192.168.56.11"
-DOMAIN_NAME="192.168.56.11"
-
-EPEL7="http://mirrors.aliyun.com/repo/epel-7.repo"
 
 # For Docker Hub
 #PAAS_DOCKER_REG="opsany"
