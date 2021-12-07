@@ -99,6 +99,15 @@ devops_update(){
     python3 ../saas/deploy.py --domain $DOMAIN_NAME --username admin --password $ADMIN_PASSWORD --file_name ../saas/devops-opsany-*.tar.gz
 }
 
+bastion_update(){
+    #devops
+    cd $CDIR
+    cd ../../opsany-saas/
+    /bin/cp bastion-opsany-*.tar.gz ../opsany-paas/saas/
+    cd $CDIR
+    python3 ../saas/deploy.py --domain $DOMAIN_NAME --username admin --password $ADMIN_PASSWORD --file_name ../saas/bastion-opsany-*.tar.gz
+}
+
 # Main
 main(){
     case "$1" in
@@ -126,6 +135,9 @@ main(){
 	devops)
 		devops_update
 		;;
+    bastion)
+        bastion_update
+        ;;
 	all)
 		rbac_update
 		workbench_update
@@ -135,9 +147,10 @@ main(){
 		monitor_update
 		cmp_update
 		devops_update
+        bastion_update
 		;;
 	help|*)
-		echo $"Usage: $0 {all|rbac|workbench|cmdb|control|job|monitor|cmp|devops|help}"
+		echo $"Usage: $0 {all|rbac|workbench|cmdb|control|job|monitor|cmp|devops|bastion|help}"
 	        ;;
 esac
 }
