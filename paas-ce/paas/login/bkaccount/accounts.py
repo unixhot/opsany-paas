@@ -241,6 +241,8 @@ class Account(AccountSingleton):
         redirect_to = request.POST.get(redirect_field_name,
                                        request.GET.get(redirect_field_name, ''))
         app_id = request.POST.get('app_id', request.GET.get('app_id', ''))
+        c_url = request.POST.get('c_url', request.GET.get('c_url', '/'))
+        tab_key = request.POST.get('tab_key', request.GET.get('tab_key', 0))
         if request.method == 'POST':
             data = request.POST.dict()
             next = data.get("next", "")
@@ -249,30 +251,80 @@ class Account(AccountSingleton):
             geetest_challenge = data.pop("geetest_challenge", None)
             geetest_seccode = data.pop("geetest_seccode", None)
             geetest_validate = data.pop("geetest_validate", None)
+            mfa = data.pop("mfa", None)
+            verify_code = data.pop("verify_code", None)
+            domain = data.pop("domain", None)
+            form = authentication_form(request, data=request.POST)
+            if domain:
+                username = username + "@" + domain
             if data.has_key("next") and data.has_key("app_id"):
                 if not geetest_challenge or not geetest_seccode or not geetest_validate:
-                    return render(request, "login/login.html", {"data": 1, "app_id": app_id, "next": next, "IMG_URL": settings.IMG_URL, "SITE_URL": settings.SITE_URL})
+                    return render(request, "login/login.html", {"data": 1, "app_id": app_id, "next": next, "IMG_URL": settings.IMG_URL, "SITE_URL": settings.SITE_URL, "tab_key": tab_key})
+            auth_object = OpsAnyRbacUserAuth(username, password)
+            google_auth_status = auth_object.get_user_google_auth_status()
+            return_data = {"app_id": app_id, "next": next, "IMG_URL": settings.IMG_URL, "SITE_URL": settings.SITE_URL}
             if "@" not in username:
-                form = authentication_form(request, data=request.POST)
                 if form.is_valid():
-                    return self.login_success_response(request, form, redirect_to, app_id)
+                    if google_auth_status == "1":
+                	    mfa = "start" if not mfa else mfa
+                    if mfa == "start":
+                        check_status = auth_object.check_google_verify_code(verify_code)
+                        if check_status:
+                            return self.login_success_response(request, form, redirect_to, app_id)
+                        else:
+                            return_data["username"] = username
+                            return_data["password"] = password
+                            return_data["mfa"] = "start"
+                            return_data["domain"] = domain
+                            return_data["c_url"] = c_url
+                            return_data["verfiy_code"] = ""
+                            return_data["geetest_challenge"] = geetest_challenge
+                            return_data["geetest_seccode"] = geetest_seccode
+                            return_data["geetest_validate"] = geetest_validate
+                            if verify_code:
+                                return_data["check_status"] = False
+                            else:
+                                return_data["check_status"] = None
+                            return render(request, "login/login.html", return_data)
+                    else:
+                        return self.login_success_response(request, form, redirect_to, app_id)
             else:
-                auth_object = OpsAnyRbacUserAuth(username, password)
                 res, data = auth_object.check_users()
                 user = self.get_user(data, username)
                 if res:
-                    return self.login_success_response(request, user, redirect_to, app_id)
-                form = authentication_form(request, data=request.POST)
+                    if google_auth_status == "1":
+                	    mfa = "start" if not mfa else mfa
+                    if mfa == "start":
+                        check_status = auth_object.check_google_verify_code(verify_code)
+                        if check_status:
+                            return self.login_success_response(request, user, redirect_to, app_id)
+                        else:
+                            return_data["username"] = username
+                            return_data["password"] = password
+                            return_data["mfa"] = "start"
+                            return_data["domain"] = domain
+                            return_data["c_url"] = c_url
+                            return_data["verfiy_code"] = ""
+                            return_data["geetest_challenge"] = geetest_challenge
+                            return_data["geetest_seccode"] = geetest_seccode
+                            return_data["geetest_validate"] = geetest_validate
+                            if verify_code:
+                                return_data["check_status"] = False
+                            else:
+                                return_data["check_status"] = None
+                            return render(request, "login/login.html", return_data)
+                    else:
+                        return self.login_success_response(request, user, redirect_to, app_id)
         else:
             form = authentication_form(request)
-
         current_site = get_current_site(request)
         context = {
             'form': form,
             redirect_field_name: redirect_to,
             'site': current_site,
             'site_name': current_site.name,
-            'app_id': app_id,
+            'tab_key': tab_key,
+            'app_id': app_id
         }
         if extra_context is not None:
             context.update(extra_context)
@@ -308,7 +360,7 @@ class Account(AccountSingleton):
                 user_info.get("chname"),
                 user_info.get("phone"),
                 user_info.get("email"),
-                user_info.get("role"),
+                user_info.get("bk_role"),
                 password
             )
             return BkUser.objects.filter(id=user_id).first()
@@ -407,3 +459,4 @@ class Account(AccountSingleton):
         if is_from_logout:
             response = self.set_bk_token_invalid(request, response)
         return response
+

@@ -260,18 +260,19 @@ p_down {
   /* margin-left: -200px; */
   z-index: 100;
   overflow: hidden;
+  background:#ffffff;
 }
 .page-content .login-from .logo-title {
   width: 100%;
-  height: 80px;
+  height: 64px;
   border-radius: 2px 2px 0 0;
   /* background: #313b4c; */
   background-color: #fff;
   text-align: center;
-  line-height: 121px;
-  font-weight: 1000;
-  color: #303439;
-  font-size: 28px;
+  line-height: 66px;
+/*  font-weight: 500;*/
+  color: #333333;
+  font-size: 20px;
 
 }
 .page-content .login-from .logo-title1{
@@ -291,11 +292,12 @@ p_down {
   height: 279px;
 }
 .page-content .login-from .from-detail .is-danger-tip {
-  position: absolute;
+/*  position: absolute;*/
   color: #ff5656;
-  top: 8px;
+  bottom: 35px;
   left: 55px;
   font-size: 12px;
+  margin-left:60px;
 }
 .page-content
   .login-from
@@ -419,6 +421,15 @@ p_down {
 .page-content .login-from .form-login .group-control + .group-control {
   margin-top: 15px;
 }
+#mfaBtn{
+	color:#0ba360;
+	background:#ffffff;
+	padding:10px 12px;
+	border:none;
+	position:absolute;
+	top:0;
+	left:0
+}
 .page-content .login-from .form-login .group-control input {
   width: 100%;
   height: 100%;
@@ -451,6 +462,29 @@ p_down {
   input:-ms-input-placeholder {
   color: #aaa;
 }
+.ldap-icon{
+	text-align:center;
+	margin:20px 0	
+}
+.ldap-box{
+	padding:0 20px;
+}
+.ldap-title{
+	text-align:center;
+	color:grey;
+	margin-bottom:20px;
+}
+.ldap-step{
+	margin-bottom:20px;	
+	color:#333333;
+}
+.ldap-step-num{
+	font-size:14px;
+}
+.ldap-step-desc{
+	font-size:13px;
+	padding-top:5px;
+}
 .page-content .login-from .form-login .btn-content {
   font-size: 0;
   padding-top: 50px;
@@ -473,6 +507,30 @@ p_down {
 }
 .page-content .login-from .form-login .btn-content .login-btn:hover {
     background: #00BC6A;
+}
+.login-form-title{
+	padding:20px 20px 0 20px;
+	background:#ffffff;	
+}
+.login-form-title-box{
+	
+	display:flex;
+	justify-content: space-around;
+	border-bottom:1px solid #eeeeee;
+	text-align:center;
+}
+.login-form-title-box>div {
+	cursor: pointer;
+	padding:10px 0;
+	width:50%;
+	border-bottom:1px solid transparent;
+	color:#333333;
+	font-size:15px;
+	font-weight:600;
+}
+.login-form-title-box>.login-form-title-box-btn-check{
+	border-bottom:1px solid #0ba360;
+	color:#0ba360;
 }
 .page-content .login-from .form-login .btn-content .protocol-btn {
   font-size: 14px;

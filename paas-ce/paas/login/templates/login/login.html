@@ -1,5 +1,6 @@
 {% load i18n %}
 <!DOCTYPE html>
+
 <html lang="en">
     <head>
         <meta charset="utf-8">
@@ -22,6 +23,7 @@
                 <svg t="1622808046517" class="icon" style="margin-left: 5px"  viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2424" width="8" height="8"><path d="M0.006 284.4l56.597-56.598L512 683.2l455.396-455.397 56.598 56.597L512 796.395z" p-id="2425"></path></svg>
                 <ul class="drop_down_list">
                     <li><a>简体中文</a></li>
+                    
                 </ul>
             </span>
                </div>
@@ -32,54 +34,169 @@
             <div class="left-img" style='margin-left: 20%;margin-top:2%;'>
                 <img height="410" width="540" src="{{ IMG_URL }}img/home_page_picture.png" alt="">
             </div>
+            
+            {% if mfa != "start" %}
             <div class="login-from" style="margin-top: 5%; box-shadow: 0px 2px 30px 0px rgba(12, 34, 65, 0.2)">
-                <div class="logo-title">
-                    <!-- <img src="{{STATIC_URL}}img/logo/bk_login.png" height="32" width="311" alt=""> -->
-                    欢迎登录
+       		<div class="login-form-title">
+       			<div class="login-form-title-box">
+	       			<div class="login-form-title-box-btn " data-key="0">密码登录</div>
+	       			<div class="login-form-title-box-btn" data-key='1'>LDAP登录</div>
+       			</div>
+       		</div>
+			<!--密码登录-->
+       		<div id="form-pwd"  data-key="0">
+	                <div class="logo-title">
+	                    <!-- <img src="{{STATIC_URL}}img/logo/bk_login.png" height="32" width="311" alt=""> -->
+	                    欢迎使用密码登录
+	                </div>
+	                <p class="logo-title1"></p>
+	                <div class="from-detail" style="margin-top: 0; height: auto; padding-bottom: 16%">
+	                    <form action="{{ app_path }}" method="post" id="login-form" onsubmit="return refresh_token()">{% csrf_token %}
+	                        <div class="is-danger-tip">
+	                         {% if data and tab_key != '1'  %}
+	                             <i class="bk-icon icon-exclamation-circle-shape"></i><span>{% trans '请先完成验证码验证' %}</span>
+	                          {% elif form.errors or form.non_field_errors  %}
+	                          	{% if tab_key != '1'  %}
+	                                <i class="bk-icon icon-exclamation-circle-shape"></i><span>{% trans '账户或者密码错误，请重新输入' %}</span>
+	                              {% endif %}
+	                          {% endif %}
+	                        </div>
+	
+	                        <div class="form-login" style="padding: 5px 55px 0 56px">
+	                            <div class="user group-control" style="margin-bottom: 8%;width: 270px;">
+	                                <i style="color: #0BA360" class="bk-icon icon-user"></i>
+	                                <input id="user" type="text" name="username"  placeholder="{% trans '请输入用户名' %}" >
+	                            </div>
+	                            <div class="pwd group-control" style="width: 270px;">
+	                                <i style="color: #0BA360" class="bk-icon icon-lock"></i>
+	                                <input class="password" id="password" type="password" name="password" value=""  placeholder="{% trans '请输入用户密码' %}">
+	                            </div>
+	                             <div style="margin-top: 8%">
+	                                <div id="captcha">
+	                                	<p id="wait" class="show">正在加载验证码......</p>
+	                                </div>
+	                             </div>
+	                            <div>
+	                                <input type="hidden" name="next" value="{{ next }}" />
+	                                <input type="hidden" name="app_id" value="{{app_id }}">
+	                            </div>
+	                            <div class="btn-content clearfix" style=";padding-top: 25px">
+	                                <button class="login-btn" style="width: 270px;border-radius: 22px">{% trans '立即登录' %}</button>
+	                            </div>
+	                        </div>
+	                    </form>
+	                </div>
                 </div>
-                <p class="logo-title1"></p>
-                <div class="from-detail" style="margin-top: 0; height: auto; padding-bottom: 16%">
-                    <form action="{{ app_path }}" method="post" id="login-form" onsubmit="return refresh_token()">{% csrf_token %}
-                        <div class="is-danger-tip">
-                         {% if data %}
-                             <i class="bk-icon icon-exclamation-circle-shape"></i><span>{% trans '请先完成验证码验证' %}</span>
-                          {% elif form.errors or form.non_field_errors %}
-                                <i class="bk-icon icon-exclamation-circle-shape"></i><span>{% trans '账户或者密码错误，请重新输入' %}</span>
-                          {% endif %}
-                        </div>
 
-                        <div class="form-login" style="padding: 40px 55px 0 56px">
-                            <div class="user group-control" style="margin-bottom: 10%;width: 270px;">
-                                <i style="color: #0BA360" class="bk-icon icon-user"></i>
-                                <input id="user" type="text" name="username"  placeholder="{% trans '请输入用户名' %}" >
-                            </div>
-                            <div class="pwd group-control" style="width: 270px;">
-                                <i style="color: #0BA360" class="bk-icon icon-lock"></i>
-                                <input class="password" id="password" type="password" name="password" value=""  placeholder="{% trans '请输入用户密码' %}">
-                            </div>
-                             <div style="margin-top: 10%">
-                                <div id="captcha">
-                                <p id="wait" class="show">正在加载验证码......</p>
-                                </div>
-                             </div>
-                            <div>
-                                <input type="hidden" name="next" value="{{ next }}" />
-                                <input type="hidden" name="app_id" value="{{app_id }}">
-                            </div>
-                            <div class="btn-content clearfix" style=";padding-top: 25px">
-                                <button class="login-btn" style="width: 270px;border-radius: 22px">{% trans '立即登录' %}</button>
-                            </div>
-                        </div>
-                    </form>
+			 <!--LDAP登录-->
+                <div id="form-ldap" style="display:none"  data-key="1">
+                	 <div class="logo-title">
+	                    <!-- <img src="{{STATIC_URL}}img/logo/bk_login.png" height="32" width="311" alt=""> -->
+	                    欢迎使用LDAP登录
+	                </div>
+	                <div class="from-detail" style="margin-top: 0; height: auto; padding-bottom: 16%;background:#ffffff">
+	                    <form action="{{ app_path }}" method="post" id="login-form" onsubmit="return refresh_token()">{% csrf_token %}
+	                        <div class="is-danger-tip">
+	                         {% if data and tab_key == '1' %}
+	                             <i class="bk-icon icon-exclamation-circle-shape"></i><span>{% trans '请先完成验证码验证' %}</span>
+	                          {% elif form.errors or form.non_field_errors %}
+	                          	<div></div>
+	                          	{% if tab_key == '1' %}
+	                                <i class="bk-icon icon-exclamation-circle-shape"></i><span>{% trans '账户或者密码错误，请重新输入' %}</span>
+	                              {% endif %}
+	                          {% endif %}
+	                        </div>
+	
+	                        <div class="form-login" style="padding: 5px 55px 0 56px">
+	                            <div class="user group-control" style="margin-bottom: 8%;width: 270px;">
+	                                <i style="color: #0BA360" class="bk-icon icon-code"></i>
+	                                <input id="user" type="text" name="domain"  placeholder="{% trans '请输入登陆域' %}" >
+	                            </div>
+	                            <div class="user group-control" style="margin-bottom: 8%;width: 270px;">
+	                                <i style="color: #0BA360" class="bk-icon icon-user"></i>
+	                                <input id="user" type="text" name="username"  placeholder="{% trans '请输入LDAP用户名' %}" >
+	                            </div>
+	                            <div class="pwd group-control" style="width: 270px;">
+	                                <i style="color: #0BA360" class="bk-icon icon-lock"></i>
+	                                <input class="password" id="password" type="password" name="password" value=""  placeholder="{% trans '请输入密码' %}">
+	                            </div>
+	                             <div style="margin-top: 8%">
+	                                <div id="captcha2">
+	                                	<p id="wait2" class="show">正在加载验证码......</p>
+	                                </div>
+	                             </div>
+	                            <div>
+	                                <input type="hidden" name="next" value="{{ next }}" />
+	                                <input type="hidden" name="app_id" value="{{app_id }}">
+	                                <input type="hidden" name="tab_key" value="1">
+	                            </div>
+	                            <div class="btn-content clearfix" style=";padding-top: 25px">
+	                                <button class="login-btn" style="width: 270px;border-radius: 22px">{% trans '立即登录' %}</button>
+	                            </div>
+	                        </div>
+	                    </form>
+	                </div>
                 </div>
             </div>
-    <footer class="footer">
-		<p>
-            <a href="#" target="_blank" hotrep="hp.footer.feedback" class="link">Copyright © 2012-2020 OpsAny. All Rights Reserved.</a>
-		</p>
+            {% endif %}  
+                      
+		  {% if mfa == "start" %}
+			  <!--LDAP动态码输入-->
+	            <div  class="login-from" style="margin-top: 8%; box-shadow: 0px 2px 30px 0px rgba(12, 34, 65, 0.2);">
+	            <form  action="{{ app_path }}" method="get" id="login-form" onsubmit="return refresh_token()">
+	            	<input type="hidden" id="mfa" name="mfa" value="{{ mfa }}">
+	            	<input type="hidden"  name="c_url" value="{{c_url}}">
+	            	<button id="mfaBtn">
+	            	<i style="color: #0ba360" class="bk-icon icon-arrows-left"></i>
+	            	返回</button>
+	            </form>
+	            <form action="{{ app_path }}" method="post" id="login-form" onsubmit="return refresh_token()">{% csrf_token %}
+	              
+		          <div class="ldap-icon">
+		               <img src="{{STATIC_URL}}img/ldap-icon.png" />
+		          </div>
+		          <div class="ldap-box">
+		            	<div class="ldap-title">账号保护已开启，请根据提示完成以下操作</div>
+		            	<div class="ldap-step">
+			            	<div class="ldap-step-num">第一步：</div>
+			            	<div class="ldap-step-desc">请打开手机中Google Authenticator（身份验证器）</div>
+		            	</div>
+					<div class="ldap-step">
+			            	<div class="ldap-step-num">第二步：</div>
+			            	<div class="ldap-step-desc">请输入6位动态码</div>
+		            	</div>
+		            	<div class="form-login" style="padding: 0;margin-bottom:20px">
+			            	<div class="user group-control" style="margin-bottom: 8%;width:100%">
+			                 <input style="padding-left:10px" type="number" name="verify_code" placeholder="请输入6位动态码" />
+			                 {% if check_status == False %}
+			                     <span style="color:red;font-size:13px;display:inline-block;margin:5px 0">{% trans '请确认您的验证码是否正确' %}</span>
+			                 {% endif %}
+			               </div>
+				          <div class="btn-content clearfix" style=";padding-top: 20px">
+			                 <button class="login-btn" style="width: 100%;border-radius: 22px">{% trans '确定' %}</button>
+			               </div>
+			               <div style="color:grey;font-size:12px;padding-top:10px">如无法提供安全码，请联系管理员解除双因素验证后继续操作。</div>
+		            	</div>
+		            	<input type="hidden" name="next" value="{{ next }}" />
+                         <input type="hidden" name="app_id" value="{{ app_id }}">
+                         <input type="hidden" name="geetest_challenge" value="{{ geetest_challenge }}">
+                         <input type="hidden" name="geetest_seccode" value="{{ geetest_seccode }}">
+                         <input type="hidden" name="geetest_validate" value="{{ geetest_validate }}">
+                         <input type="hidden" name="username" value="{{ username }}" />
+	                    <input type="hidden" name="password" value="{{ password }}">
+	            	</div>
+	            	</form>
+	            </div>
+	      {% endif %}
+    	
+    		<footer class="footer">
+			<p>
+	            <a href="#" target="_blank" hotrep="hp.footer.feedback" class="link">Copyright © 2012-2020 OpsAny. All Rights Reserved.</a>
+			</p>
 		<!-- <p>Copyright © 2012-2020 womaiyun. All Rights Reserved.</p> -->
-	</footer>
+		</footer>
         </div>
+        <input hidden id="tab_key" value="{{tab_key}}"></input>
         <div class="error-message-content is-chrome">
             <span>{% trans '您的浏览器非Chrome，建议您使用最新版本的Chrome浏览，以保证最好的体验效果' %}</span><i class="bk-icon icon-close-circle-shape" id="close-chrome"></i>
         </div>
@@ -90,41 +207,86 @@
     <script src="{{STATIC_URL}}assets/gt.js"></script>
     <script src="{{STATIC_URL}}js/login.{{JS_SUFFIX}}?v={{STATIC_VERSION}}"></script>
 <script>
-    var handler = function (captchaObj) {
-        $("#submit").click(function (e) {
-            var result = captchaObj.getValidate();
-            if (!result) {
-                $("#notice").show();
-                setTimeout(function () {
-                    $("#notice").hide();
-                }, 2000);
-                e.preventDefault();
-            }
-        });
-        // 将验证码加到id为captcha的元素里，同时会有三个input的值用于表单提交
-        captchaObj.appendTo("#captcha");
-        captchaObj.onReady(function () {
-            $("#wait").hide();
-        });
-    };
-    $.ajax({
-        url: "api/login-register/?t=" + (new Date()).getTime(), // 加随机数防止缓存
-        type: "get",
-        dataType: "json",
-        success: function (data) {
-            console.log(data);
-            // 调用 initGeetest 初始化参数
-            // 参数1：配置参数
-            // 参数2：回调，回调的第一个参数验证码对象，之后可以使用它调用相应的接口
-            initGeetest({
-                gt: data.data.gt,
-                challenge: data.data.challenge,
-                new_captcha: data.data.new_captcha, // 用于宕机时表示是新验证码的宕机
-                offline: !data.data.success, // 表示用户后台检测极验服务器是否宕机，一般不需要关注
-                product: "float", // 产品形式，包括：float，popup
-                width: "100%"
-            }, handler);
-        }
-    });
+	let key = $('#tab_key').val() || 0
+
+	//控制展示和隐藏哪个tab里面的内容
+	function showTabItem(){
+		for(let item of showItem){
+			$(item).hide()
+			$(showItem[key]).show()
+		}	
+	}
+
+	function initCaptch (){
+		const activeKey = key || 0
+		var handler = function (captchaObj) {
+	        $("#submit").click(function (e) {
+	            var result = captchaObj.getValidate();
+	            if (!result) {
+	                $("#notice").show();
+	                setTimeout(function () {
+	                    $("#notice").hide();
+	                }, 2000);
+	                e.preventDefault();
+	            }
+	        });
+	        if($('#mfa').val() == 'start') return
+	        // 将验证码加到id为captcha的元素里，同时会有三个input的值用于表单提交
+	        captchaObj.appendTo(captchaItem[activeKey]);
+	        captchaObj.onReady(function () {
+	            $(waitItem[activeKey]).hide();
+	        });
+	    };
+	    $.ajax({
+	        url: "api/login-register/?t=" + (new Date()).getTime(), // 加随机数防止缓存
+	        type: "get",
+	        dataType: "json",
+	        success: function (data) {
+	            // 调用 initGeetest 初始化参数
+	            // 参数1：配置参数
+	            // 参数2：回调，回调的第一个参数验证码对象，之后可以使用它调用相应的接口
+	            initGeetest({
+	                gt: data.data.gt,
+	                challenge: data.data.challenge,
+	                new_captcha: data.data.new_captcha, // 用于宕机时表示是新验证码的宕机
+	                offline: !data.data.success, // 表示用户后台检测极验服务器是否宕机，一般不需要关注
+	                product: "float", // 产品形式，包括：float，popup
+	                width: "100%"
+	            }, handler);
+	        }
+	    });	
+	}
+	$('#mfaBtn').on('click',function(e){
+		$('#mfa').val('stop')
+	})
+    const showItem = ['#form-pwd','#form-ldap']
+    const captchaItem = ['#captcha','#captcha2'];
+    const waitItem = ['#wait','#wait2']
+
+	//加入class让tab自动选中
+	$('.login-form-title-box-btn').each((index,item)=>{
+		if($(item)[0].dataset.key == key){
+			$(item).addClass('login-form-title-box-btn-check')
+		}
+	})
+
+
+    showTabItem()
+    $('.login-form-title-box-btn').click(e=>{
+		$('.login-form-title-box-btn').each((index,item)=>{
+			$(item).removeClass('login-form-title-box-btn-check')
+		})
+		const btnItem = $(e.target)
+		key = btnItem[0].dataset.key
+	    	btnItem.addClass('login-form-title-box-btn-check')
+		showTabItem()
+		
+		//如果已经切换的时候没有初始化过极验的按钮
+		if($(`${captchaItem[key]} .geetest_holder`).length == 0){
+			initCaptch()
+	    }
+    	})
+
+    	initCaptch()
 </script>
 </html>
