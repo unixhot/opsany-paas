@@ -219,7 +219,7 @@ paas_start(){
     -p 8001:8001 -v ${INSTALL_PATH}/logs:/opt/opsany/logs \
     -v ${INSTALL_PATH}/conf/settings_production.py.paas:/opt/opsany/paas/paas/conf/settings_production.py \
     -v /etc/localtime:/etc/localtime:ro \
-    ${PAAS_DOCKER_REG}/opsany-paas-paas:${PAAS_VERSION}
+    ${PAAS_DOCKER_REG}/opsany-paas-paas:v3.2.6
     
     #login
     shell_log "======Start login Service======"
@@ -227,7 +227,7 @@ paas_start(){
     -p 8003:8003 -v ${INSTALL_PATH}/logs:/opt/opsany/logs \
     -v ${INSTALL_PATH}/conf/settings_production.py.login:/opt/opsany/paas/login/conf/settings_production.py \
     -v /etc/localtime:/etc/localtime:ro \
-    ${PAAS_DOCKER_REG}/opsany-paas-login:${PAAS_VERSION}
+    ${PAAS_DOCKER_REG}/opsany-paas-login:v3.2.7
     
     #esb
     shell_log "======Start esb Service======"
@@ -236,7 +236,7 @@ paas_start(){
     -v ${INSTALL_PATH}/esb/apis:/opt/opsany/paas/esb/components/generic/apis \
     -v ${INSTALL_PATH}/conf/settings_production.py.esb:/opt/opsany/paas/esb/configs/default.py \
     -v /etc/localtime:/etc/localtime:ro \
-    ${PAAS_DOCKER_REG}/opsany-paas-esb:${PAAS_VERSION}
+    ${PAAS_DOCKER_REG}/opsany-paas-esb:v3.2.6
     
     #appengine
     shell_log "======Start appengine Service======"
@@ -244,7 +244,7 @@ paas_start(){
     -p 8000:8000 -v ${INSTALL_PATH}/logs:/opt/opsany/logs \
     -v ${INSTALL_PATH}/conf/settings_production.py.appengine:/opt/opsany/paas/appengine/controller/settings.py \
     -v /etc/localtime:/etc/localtime:ro \
-    ${PAAS_DOCKER_REG}/opsany-paas-appengine:${PAAS_VERSION}
+    ${PAAS_DOCKER_REG}/opsany-paas-appengine:v3.2.6
     
     #websocket
     shell_log "======Start websocket Service======"
@@ -254,7 +254,7 @@ paas_start(){
     -v ${INSTALL_PATH}/conf/settings_production.py.websocket:/opt/opsany/websocket/config/prod.py \
     -v ${INSTALL_PATH}/conf/settings_production.py.websocket.init:/opt/opsany/websocket/config/__init__.py \
     -v /etc/localtime:/etc/localtime:ro \
-    ${PAAS_DOCKER_REG}/opsany-paas-websocket:${PAAS_VERSION}
+    ${PAAS_DOCKER_REG}/opsany-paas-websocket:v3.2.6
     
     #openresty
     shell_log "======Start openresty Service======"
@@ -306,7 +306,7 @@ paas_agent_start(){
     -v ${INSTALL_PATH}/salt-volume/etc/salt/:/etc/salt/ \
     -v ${INSTALL_PATH}/salt-volume/cache/:/var/cache/salt/ \
     -v /etc/localtime:/etc/localtime:ro \
-    ${PAAS_DOCKER_REG}/opsany-paas-paasagent:${PAAS_VERSION}
+    ${PAAS_DOCKER_REG}/opsany-paas-paasagent:v3.2.6
     
     sleep 10
     

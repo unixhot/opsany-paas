@@ -60,7 +60,7 @@ saltstack_install(){
         -v ${INSTALL_PATH}/salt-volume/srv/salt:/srv/salt/ \
         -v ${INSTALL_PATH}/salt-volume/srv/pillar:/srv/pillar/ \
         -v /etc/localtime:/etc/localtime:ro \
-        ${PAAS_DOCKER_REG}/opsany-saltstack:${PAAS_VERSION}
+        ${PAAS_DOCKER_REG}/opsany-saltstack:v3.2.6
     shell_log "======Waiting for SaltStack ...======"
     sleep 20
     docker exec opsany-saltstack salt-key -A -y

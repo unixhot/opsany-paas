@@ -17,8 +17,6 @@ PAAS_DOCKER_REG="registry.cn-beijing.aliyuncs.com/opsany"
 #PAAS_DOCKER_REG="registry-vpc.cn-beijing.aliyuncs.com/opsany"
 
 [opsany_paas]
-# PAAS VERSION
-PAAS_VERSION="v3.2.6"
 # PAAS Config
 PAAS_PAAS_IP="192.168.56.11"
 PAAS_LOGIN_IP="192.168.56.11"

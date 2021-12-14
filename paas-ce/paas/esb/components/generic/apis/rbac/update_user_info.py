@@ -47,9 +47,9 @@ class UpdateUserInfo(Component):
     # Form处理参数校验
     class Form(BaseComponentForm):
         username = forms.Field()
-        ch_name = forms.Field()
-        phone = forms.Field()
-        email = forms.Field()
+        ch_name = forms.Field(required=False)
+        phone = forms.Field(required=False)
+        email = forms.Field(required=False)
 
         # clean方法返回的数据可通过组件的form_data属性获取
         def clean(self):

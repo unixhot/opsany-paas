@@ -66,28 +66,34 @@ class UserQueryForm(forms.Form):
 
 
 class BaseUserInfoForm(forms.Form):
-    chname = forms.CharField(max_length=16, error_messages={
+    chname = forms.CharField(max_length=16, required=False, error_messages={
         "max_length": _("名称长度不能超过16个字符")
     })
-    phone = forms.CharField(max_length=11, error_messages={
+    phone = forms.CharField(max_length=11, required=False, error_messages={
         "max_length": _("手机号长度不能超过11个字符")
     })
-    email = forms.EmailField(max_length=254)
+    email = forms.EmailField(max_length=254, required=False)
 
     def clean_chname(self):
-        chname = self.cleaned_data["chname"]
+        chname = self.cleaned_data.get("chname", "")
         chname = chname.strip()
-        if not CHNAME_CHECK_PATTERN.match(chname):
-            self.add_error('chname', _("中文名错误，只能包含数字、字母、中文汉字、下划线，长度在1-16个字符"))
+        if chname:
+            if not CHNAME_CHECK_PATTERN.match(chname):
+                self.add_error('chname', _("中文名错误，只能包含数字、字母、中文汉字、下划线，长度在1-16个字符"))
         return chname
 
     def clean_phone(self):
-        phone = self.cleaned_data["phone"]
-        phone = phone.strip()
-        if not PHONE_CHECK_PATTERN.match(phone):
-            self.add_error('phone', _("手机号错误，仅支持11位数字的号码"))
+        phone = self.cleaned_data.get("phone", "")
+        if phone:
+            phone = phone.strip()
+            if not PHONE_CHECK_PATTERN.match(phone):
+                self.add_error('phone', _("手机号错误，仅支持11位数字的号码"))
         return phone
-
+    
+    def clean_email(self):
+        email = self.cleaned_data.get("email", "")
+        return email
+        
 
 class UserInfoForm(BaseUserInfoForm):
     username = forms.CharField(max_length=20, min_length=4, error_messages={
