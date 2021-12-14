@@ -306,7 +306,7 @@ paas_agent_start(){
     -v ${INSTALL_PATH}/salt-volume/etc/salt/:/etc/salt/ \
     -v ${INSTALL_PATH}/salt-volume/cache/:/var/cache/salt/ \
     -v /etc/localtime:/etc/localtime:ro \
-    ${PAAS_DOCKER_REG}/opsany-paas-paasagent:v3.2.6
+    ${PAAS_DOCKER_REG}/opsany-paas-paasagent:v3.2.7
     
     sleep 10
     
