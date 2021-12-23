@@ -244,6 +244,9 @@ class Account(AccountSingleton):
         c_url = request.POST.get('c_url', request.GET.get('c_url', '/'))
         tab_key = request.POST.get('tab_key', request.GET.get('tab_key', 0))
         if request.method == 'POST':
+            # 改写request中密码内容
+            request.POST = request.POST.copy()
+            request.POST["password"] = request.POST["password"].strip()
             data = request.POST.dict()
             next = data.get("next", "")
             username = data.get("username", "")

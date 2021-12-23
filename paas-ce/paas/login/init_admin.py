@@ -4,7 +4,7 @@
 def init_password():
     user = BkUser.objects.filter(username="admin").first()
     if user:
-        user.set_password("123456")
+        user.set_password("123456.coM")
         user.save()
         print "success"
     else:
