@@ -86,6 +86,7 @@ WEBSOCKET_GUACD_HOST="192.168.56.11"
 ZABBIX_DB_NAME="zabbix"
 ZABBIX_DB_USER="opsany"
 ZABBIX_DB_PASSWORD="OpsAny@2020"
+ZABBIX_API_PASSWORD="OpsAny@2020"
 
 [elasticsearch]
 # ElasticSearch

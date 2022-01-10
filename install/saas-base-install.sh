@@ -59,6 +59,7 @@ saltstack_install(){
         -v ${INSTALL_PATH}/salt-volume/cache/:/var/cache/salt/ \
         -v ${INSTALL_PATH}/salt-volume/srv/salt:/srv/salt/ \
         -v ${INSTALL_PATH}/salt-volume/srv/pillar:/srv/pillar/ \
+        -v ${INSTALL_PATH}/uploads:/opt/opsany/uploads \
         -v /etc/localtime:/etc/localtime:ro \
         ${PAAS_DOCKER_REG}/opsany-saltstack:v3.2.6
     shell_log "======Waiting for SaltStack ...======"
@@ -74,7 +75,6 @@ mysql_init(){
     mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" opsany_paas < ./init/esb-init/esb_api_doc.sql
     mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" opsany_paas < ./init/esb-init/esb_channel.sql
     mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" opsany_paas < ./init/esb-init/esb_component_system.sql
-    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" opsany_paas -e "INSERT INTO esb_user_auth_token VALUES (1, 'workbench', 'admin', 'opsany-esb-auth-token-9e8083137204', '2031-01-01 10:27:18', '2020-12-08 10:20:22', '2020-12-08 10:20:24'), (2, 'rbac', 'admin', 'opsany-esb-auth-token-9e8083137204', '2031-01-01 10:27:18', '2020-12-08 10:20:22', '2020-12-08 10:20:24'), (3, 'cmdb', 'admin', 'opsany-esb-auth-token-9e8083137204', '2031-01-01 10:27:18', '2020-12-08 10:20:22', '2020-12-08 10:20:24'), (4, 'job', 'admin', 'opsany-esb-auth-token-9e8083137204', '2031-01-01 10:27:18', '2020-12-08 10:20:22', '2020-12-08 10:20:24'), (5, 'control', 'admin', 'opsany-esb-auth-token-9e8083137204', '2031-01-01 10:27:18', '2020-12-08 10:20:22', '2020-12-08 10:20:24'), (6, 'monitor', 'admin', 'opsany-esb-auth-token-9e8083137204', '2031-01-01 10:27:18', '2020-12-08 10:20:22', '2020-12-08 10:20:24'), (7, 'cmp', 'admin', 'opsany-esb-auth-token-9e8083137204', '2031-01-01 10:27:18', '2020-12-08 10:20:22', '2020-12-08 10:20:24');"
     
     #rbac
     mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "create database rbac DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
@@ -167,7 +167,7 @@ saas_deploy(){
     python3 deploy.py --domain $DOMAIN_NAME --username admin --password admin --file_name cmp-opsany-*.tar.gz
     python3 deploy.py --domain $DOMAIN_NAME --username admin --password admin --file_name devops-opsany-*.tar.gz
     python3 deploy.py --domain $DOMAIN_NAME --username admin --password admin --file_name bastion-opsany-*.tar.gz
-    python3 init-ce-base.py --domain $DOMAIN_NAME --private_ip $LOCAL_IP --paas_username admin --paas_password admin --zabbix_api_password OpsAny@2020
+    python3 init-ce-base.py --domain $DOMAIN_NAME --private_ip $LOCAL_IP --paas_username admin --paas_password admin --zabbix_api_password $ZABBIX_API_PASSWORD
     chmod +x /etc/rc.d/rc.local
     echo "sleep 60 && /bin/bash ${INSTALL_PATH}/saas-restart.sh" >> /etc/rc.d/rc.local
 }

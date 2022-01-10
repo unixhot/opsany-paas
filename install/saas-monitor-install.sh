@@ -51,7 +51,7 @@ saas_init(){
 # Start Zabbix
 zabbix_install(){
     shell_log "=====Start Zabbix======"
-    docker run --restart=always --name opsany-zabbix-server -t \
+    docker run --restart=always --name opsany-zabbix-server-st2 -t \
       -e DB_SERVER_HOST="${MYSQL_SERVER_IP}" \
       -e MYSQL_DATABASE="${ZABBIX_DB_NAME}" \
       -e MYSQL_USER="${ZABBIX_DB_USER}" \
@@ -63,7 +63,7 @@ zabbix_install(){
       -v ${INSTALL_PATH}/zabbix-volume/externalscripts:/usr/lib/zabbix/externalscripts \
       -v ${INSTALL_PATH}/zabbix-volume/snmptraps:/var/lib/zabbix/snmptraps \
       -v /etc/localtime:/etc/localtime:ro \
-      -d ${PAAS_DOCKER_REG}/zabbix-server-mysql:alpine-5.0-latest
+      -d ${PAAS_DOCKER_REG}/zabbix-server-mysql:alpine-5.0-st2
 
     sleep 20
     
@@ -89,7 +89,7 @@ grafana_install(){
     -v ${INSTALL_PATH}/conf/grafana/grafana.pem:/etc/grafana/grafana.pem \
     -v /etc/localtime:/etc/localtime:ro \
     -p 8007:3000 \
-    ${PAAS_DOCKER_REG}/opsany-grafana:7.3.5
+    ${PAAS_DOCKER_REG}/opsany-grafana:8.3.3
 }
 
 # Start Elasticsearch

@@ -994,7 +994,7 @@ CREATE TABLE `esb_component_system` (
 
 LOCK TABLES `esb_component_system` WRITE;
 /*!40000 ALTER TABLE `esb_component_system` DISABLE KEYS */;
-INSERT INTO `esb_component_system` VALUES (1,'BK_LOGIN','统一登录','','','','','',NULL,NULL,NULL),(2,'CC','配置平台','','','','','',NULL,NULL,NULL),(3,'GSE','管控平台','','','','','',NULL,NULL,NULL),(4,'JOB','作业平台','','','','','',NULL,NULL,NULL),(5,'CMSI','消息管理','','','','','',NULL,NULL,NULL),(6,'SOPS','标准运维','','','','','',NULL,NULL,NULL),(7,'CMDB','我买云资源平台','','admin','','','',NULL,NULL,3),(8,'CONTROL','我买云管控平台','','admin','','','',NULL,NULL,3),(9,'WORKBENCH','我买云工作台','','guoyuchen','','','',30,30,3),(10,'TASK','我买云作业平台','','','','','',NULL,NULL,3),(11,'rbac','我买云企业管理后台','','zhangyusheng','','','',NULL,NULL,3),(12,'MONITOR','监控平台','','guoyuchen','','','',30,30,3);
+INSERT INTO `esb_component_system` VALUES (1,'BK_LOGIN','统一登录','','','','','',NULL,NULL,NULL),(2,'CC','配置平台','','','','','',NULL,NULL,NULL),(3,'GSE','管控平台','','','','','',NULL,NULL,NULL),(4,'JOB','作业平台','','','','','',NULL,NULL,NULL),(5,'CMSI','消息管理','','','','','',NULL,NULL,NULL),(6,'SOPS','标准运维','','','','','',NULL,NULL,NULL),(7,'CMDB','OpsAny资源平台','','admin','','','',NULL,NULL,3),(8,'CONTROL','OpsAny管控平台','','admin','','','',NULL,NULL,3),(9,'WORKBENCH','OpsAny工作台','','admin','','','',30,30,3),(10,'TASK','OpsAny作业平台','','','','','',NULL,NULL,3),(11,'rbac','OpsAny统一权限','','admin','','','',NULL,NULL,3),(12,'MONITOR','监控平台','','admin','','','',30,30,3);
 /*!40000 ALTER TABLE `esb_component_system` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1070,7 +1070,7 @@ CREATE TABLE `esb_user_auth_token` (
   `last_accessed_time` datetime NOT NULL,
   `created_time` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1079,6 +1079,7 @@ CREATE TABLE `esb_user_auth_token` (
 
 LOCK TABLES `esb_user_auth_token` WRITE;
 /*!40000 ALTER TABLE `esb_user_auth_token` DISABLE KEYS */;
+INSERT INTO `esb_user_auth_token` VALUES (1,'workbench','admin','opsany-esb-auth-token-9e8083137204','2031-01-01 10:27:18','2020-12-08 10:20:22','2020-12-08 10:20:24'),(2,'rbac','admin','opsany-esb-auth-token-9e8083137204','2031-01-01 10:27:18','2020-12-08 10:20:22','2020-12-08 10:20:24'),(3,'cmdb','admin','opsany-esb-auth-token-9e8083137204','2031-01-01 10:27:18','2020-12-08 10:20:22','2020-12-08 10:20:24'),(4,'job','admin','opsany-esb-auth-token-9e8083137204','2031-01-01 10:27:18','2020-12-08 10:20:22','2020-12-08 10:20:24'),(5,'control','admin','opsany-esb-auth-token-9e8083137204','2031-01-01 10:27:18','2020-12-08 10:20:22','2020-12-08 10:20:24'),(6,'monitor','admin','opsany-esb-auth-token-9e8083137204','2031-01-01 10:27:18','2020-12-08 10:20:22','2020-12-08 10:20:24'),(7,'cmp','admin','opsany-esb-auth-token-9e8083137204','2031-01-01 10:27:18','2020-12-08 10:20:22','2020-12-08 10:20:24'),(8,'devops','admin','opsany-esb-auth-token-9e8083137204','2031-01-01 10:27:18','2020-12-08 10:20:22','2020-12-08 10:20:24'),(9,'event','admin','opsany-esb-auth-token-9e8083137204','2031-01-01 10:27:18','2020-12-08 10:20:22','2020-12-08 10:20:24');
 /*!40000 ALTER TABLE `esb_user_auth_token` ENABLE KEYS */;
 UNLOCK TABLES;
 
