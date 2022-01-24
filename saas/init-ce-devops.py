@@ -212,7 +212,7 @@ class OpsAnyApi:
     def init_devops_st2(self):
         """init devops st2 server"""
         try:
-            API = "/t/devops//api/devops/v0_1/config-stackstorm/"
+            API = "/o/devops//api/devops/v0_1/config-stackstorm/"
             URL = self.paas_domain + API
             metadata = {"name": "OpsAny-Devops", "used_by": "OpsAny-Devops",
                         "why": "OpsAny Devops StackStorm Service Login header (st2-api-key) Can Not Delete."}
@@ -253,7 +253,7 @@ class OpsAnyApi:
             if res_dic.get("status") == "succeeded":
 
                 return True, ""
-            if res_dic.get("status") == "failed":
+            if res_dic.get("status") in ["failed", "timeout"]:
                 try:
                     errors = res_dic.get("result", {}).get("errors", [])[0].get("result").get("stderr", "")
                 except:
@@ -281,8 +281,8 @@ def start(paas_domain, username, password, st2_url, st2_username, st2_password):
     # 配置核心包参数
     pack = "opsany_core"
     api_url = paas_domain
-    app_code = "develop"
-    app_secret = "b5c153fa-e0c7-400e-8e97-7893bf928216"
+    app_code = "devops"
+    app_secret = "f64f3fae-b335-11eb-a88b-00163e105ceb"
     access_token = "opsany-esb-auth-token-9e8083137204"
 
     # 1. 初始化应用平台初始化StackStorm服务
@@ -323,22 +323,6 @@ if __name__ == '__main__':
     st2_username = options.st2_username
     st2_password = options.st2_password
     start(domain, username, password, st2_url=st2_url, st2_username=st2_username, st2_password=st2_password)
-    # domain = "https://dev.opsany.cn"
-    # username = "huxingqi"
-    # password = "123456.coM"
-    # st2_url = "https://81.69.6.201/"
-    # st2_username = "st2admin"
-    # st2_password = "OpsAny@2020"
-    # start(domain, username, password, st2_url, st2_username, st2_password)
-    # st2_api = StackStormApi(st2_url, st2_username, st2_password)
-    # print(st2_api.get_token())
-    # print(st2_api.install_pack(st2_url, st2_username, st2_password))
-    # opsany_api = OpsAnyApi(domain, username, password)
-    # print(opsany_api.init_st2_pack(st2_url, st2_username, st2_password))
-    # line 150, in download_pack\n    % (local_pack_directory)\nValueError: Local pack directory \"/D:/code/opsany-paas/saas\\opsany_demo\" doesn't exist\n",
-    #   "exit_code": 1,
-    #   "result": "None"
-    # BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(
-    #     __file__)))
 
-# python init-ce-devops.py --domain https://dev.opsany.cn --username huxingqi  --password 123456.coM --st2_url https://81.69.6.201/  --st2_username st2admin --st2_password OpsAny@2020
+
+# python init-ce-devops.py --domain https://www.opsany_url.cn --username opsany_username  --password opsany_password --st2_url https://st2_url/  --st2_username st2admin --st2_password st2_password

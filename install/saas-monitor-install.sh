@@ -44,7 +44,7 @@ shell_log(){
 
 # Check Install requirement
 saas_init(){
-    mkdir -p ${INSTALL_PATH}/{zabbix-volume/alertscripts,zabbix-volume/externalscripts,zabbix-volume/snmptraps,grafana-volume/plugins}
+    mkdir -p ${INSTALL_PATH}/{es-volume,zabbix-volume/alertscripts,zabbix-volume/externalscripts,zabbix-volume/snmptraps,grafana-volume/plugins}
     mkdir -p ${INSTALL_PATH}/uploads/monitor/heartbeat-monitors.d
 }
 
@@ -99,13 +99,14 @@ es_install(){
     docker run -d --restart=always --name opsany-elasticsearch \
     -e "discovery.type=single-node" \
     -e "ELASTIC_PASSWORD=${ES_PASSWORD}" \
-    -e "xpack.license.self_generated.type=trial" \
+    -e "xpack.license.self_generated.type=basic" \
     -e "xpack.security.enabled=true" \
     -e "bootstrap.memory_lock=true" \
     -e "ES_JAVA_OPTS=-Xms512m -Xmx512m" \
     -v /etc/localtime:/etc/localtime:ro \
+    -v ${INSTALL_PATH}/es-volume:/usr/share/elasticsearch/data/ \
     -p 9200:9200 -p 9300:9300 \
-    ${PAAS_DOCKER_REG}/elasticsearch:7.12.0
+    ${PAAS_DOCKER_REG}/elasticsearch:7.16.3
     
     #heartbeat
     shell_log "====Start Heartbeat===="

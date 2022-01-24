@@ -44,7 +44,7 @@ CREATE TABLE `esb_component_system` (
 
 LOCK TABLES `esb_component_system` WRITE;
 /*!40000 ALTER TABLE `esb_component_system` DISABLE KEYS */;
-INSERT INTO `esb_component_system` VALUES (1,'BK_LOGIN','统一登录','','','','','',NULL,NULL,NULL),(2,'CC','配置平台','','','','','',NULL,NULL,NULL),(3,'GSE','管控平台','','','','','',NULL,NULL,NULL),(4,'JOB','作业平台','','','','','',NULL,NULL,NULL),(5,'CMSI','消息管理','','','','','',NULL,NULL,NULL),(6,'SOPS','标准运维','','','','','',NULL,NULL,NULL),(7,'CMDB','OpsAny资源平台','','admin','','','',NULL,NULL,3),(8,'CONTROL','OpsAny管控平台','','admin','','','',NULL,NULL,3),(9,'WORKBENCH','OpsAny工作台','','guoyuchen','','','',30,30,3),(10,'TASK','OpsAny作业平台','','','','','',NULL,NULL,3),(11,'rbac','OpsAny企业管理后台','','zhangyusheng','','','',NULL,NULL,3),(12,'MONITOR','监控平台','','guoyuchen','','','',30,30,3),(13,'CMP','OpsAny云管平台','','','','','',NULL,NULL,3),(14,'DEVOPS','OpsAny应用平台','','huxingqi','','','',NULL,NULL,3),(15,'BASTION','堡垒机','','huxingqi','','','',NULL,NULL,3);
+INSERT INTO `esb_component_system` VALUES (1,'BK_LOGIN','蓝鲸统一登录','','','','','',NULL,NULL,NULL),(2,'CC','蓝鲸配置平台','','','','','',NULL,NULL,NULL),(3,'GSE','蓝鲸管控平台','','','','','',NULL,NULL,NULL),(4,'JOB','蓝鲸作业平台','','','','','',NULL,NULL,NULL),(5,'CMSI','蓝鲸消息管理','','','','','',NULL,NULL,NULL),(6,'SOPS','标准运维','','','','','',NULL,NULL,NULL),(7,'CMDB','我买云资源平台','','admin','','','',NULL,NULL,3),(8,'CONTROL','我买云管控平台','','admin','','','',NULL,NULL,3),(9,'WORKBENCH','我买云工作台','','guoyuchen','','','',30,30,3),(10,'TASK','我买云作业平台','','','','','',NULL,NULL,3),(11,'rbac','我买云企业管理后台','','zhangyusheng','','','',NULL,NULL,3),(12,'MONITOR','监控平台','','guoyuchen','','','',30,30,3),(13,'CMP','我买云云管平台','','','','','',NULL,NULL,3),(14,'DEVOPS','我买云应用平台','','huxingqi','','','',NULL,NULL,3),(15,'BASTION','堡垒机','','huxingqi','','','',NULL,NULL,3);
 /*!40000 ALTER TABLE `esb_component_system` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -57,4 +57,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-01-10 19:26:56
+-- Dump completed on 2022-01-17 22:11:03

@@ -107,7 +107,7 @@ class UserInfoForm(BaseUserInfoForm):
         username = self.cleaned_data["username"]
         username = username.strip()
         if not USERNAME_CHECK_PATTERN.match(username):
-            self.add_error('username', _("用户名错误，只能包含数字、字母、下划线和点，长度在4-20个字符，且必须以字母或数字开头"))
+            self.add_error('username', _("用户名错误，只能包含数字、字母或#$%^&*.-_/，长度在4-20个字符，且必须以字母或数字开头"))
         return username
 
 

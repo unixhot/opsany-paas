@@ -17,7 +17,7 @@ from common.constants import enum
 
 
 # 用户名校验规则：包含数字和字母，长度在4-20个字符
-USERNAME_CHECK_PATTERN = re.compile(r'^[A-Za-z0-9][A-Za-z0-9._/@]{2,18}[A-Za-z0-9]$')
+USERNAME_CHECK_PATTERN = re.compile(r'^[A-Za-z0-9][A-Za-z0-9#$%^&*.\-_/@]{2,18}[A-Za-z0-9]$')
 # 密码校验规则: 仅包含数字、字母或!@#$%^*()_-+=，长度在8-20个字符, 且必须同时包含大小写字母和数字
 PASSWORD_CHECK_PATTERN = re.compile(r'^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[A-Za-z0-9!@#\$%\^\*\(\)-_\+=]{8,20}$')
 # 中文名校验规则：数字、字母、中文汉字、下划线，长度在1-16个字符
