@@ -9,13 +9,13 @@ from .toolkit import configs
 from .toolkit.tools import base_api_url
 
 
-class GetAgentNetWork(Component):
+class SendMail(Component):
     """
-    apiMethod GET
+    apiMethod POST
 
     ### 功能描述
 
-    获取Agent的端口情况
+    发送邮件
 
     ### 请求参数
     {{ common_args_desc }}
@@ -23,31 +23,35 @@ class GetAgentNetWork(Component):
     #### 接口参数
 
     | 字段    | 类型     | 必选   | 描述       |
-    location ~ ^/doc/(.*) {
-        proxy_pass http://OPEN_PAAS/static/doc/$1$is_args$args;
-        proxy_pass_header Server;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Scheme $scheme;
-        proxy_set_header Host $http_host;
-        proxy_redirect off;
-        proxy_read_timeout 600;
-
-    }
     | ----- | ------ | ---- | -------- |
-    | name | string | 是  | 主机名 
-    | ip | string | 是  | ip |
+    | receiver | string | 是  | 接收人 |
+    | subject | string | 是  | 主题 |
+    | text | string | 是  | 内容 |
+    | text_type | string | 是  | 发送类型 |
 
+    ### 请求参数示例
+
+    ```python
+    {
+        "bk_app_code": "esb-test-app",
+        "bk_app_secret": "xxx",
+        "bk_token": "xxx-xxx-xxx-xxx-xxx",
+        "receiver":  xx,
+        "text":  xx,
+        "subject":  xx,
+        "text_type":  xx"
+    }
+    ```
 
     ### 返回结果示例
 
     ```python
     {
         "code": 200,
-        "apicode": 20012,
+        "apicode": 20003,
         "result": true,
         "request_id": xxxxxxxxxxxxxxxxxxxxxxxx,
-        "message": "获取相关信息成功"
+        "message": "信息发送成功"
     }
     ```
     """#
@@ -57,26 +61,33 @@ class GetAgentNetWork(Component):
 
     # Form处理参数校验
     class Form(BaseComponentForm):
-        name = forms.Field()
+        receiver = forms.Field(required=True)
+        subject = forms.Field(required=True)
+        operator = forms.Field(required=True)
+        text = forms.Field(required=True)
+        operator = forms.Field(required=True)
+        text_type = forms.Field(required=True)
 
         # clean方法返回的数据可通过组件的form_data属性获取
         def clean(self):
-            return self.get_cleaned_data_when_exist(keys=["name"])
+            return self.get_cleaned_data_when_exist(keys=["receiver", "subject", "text", "text_type", "operator"])
 
     # 组件处理入口
     def handle(self):
         # 获取Form clean处理后的数据
-        params = self.form_data
+        data = self.form_data
 
         # 设置当前操作者
-        params['operator'] = self.current_user.username
+        # data['operator'] = self.current_user.username
 
         # 请求系统接口
-        response = self.outgoing.http_client.get(
+        # print "self.request.wsgi_request.COOKIES"
+        # print self.request.wsgi_request.COOKIES
+        response = self.outgoing.http_client.post(
             host=configs.host,
-            path='{}get-agent-network/'.format(base_api_url),
-            params=params,
-            data=None,
+            path='{}send-mail/'.format(base_api_url),
+            params=None,
+            data=json.dumps(data),
             cookies=self.request.wsgi_request.COOKIES,
         )
 
@@ -88,7 +99,7 @@ class GetAgentNetWork(Component):
                 'api_code': response['successcode'],
                 'message': response['message'],
                 'result': True,
-                'data': response.get("data", None),
+                # 'data': response['data'],
             }
         else:
             result = {

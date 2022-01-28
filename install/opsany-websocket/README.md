@@ -4,4 +4,4 @@ Websocket镜像和Bastion堡垒机的代码是一致的，只需要删除掉无�
 
 ## 构建镜像
 
-docker build -t opsany/opsany-paas-paas:v3.2.3 .
+docker build -t opsany/opsany-paas-websocket:v3.2.8 .

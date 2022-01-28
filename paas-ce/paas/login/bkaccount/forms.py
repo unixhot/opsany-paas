@@ -96,9 +96,9 @@ class BaseUserInfoForm(forms.Form):
         
 
 class UserInfoForm(BaseUserInfoForm):
-    username = forms.CharField(max_length=20, min_length=4, error_messages={
+    username = forms.CharField(max_length=128, min_length=4, error_messages={
         "required": _("用户名不能为空"),
-        "max_length": _("用户名长度不能超过20个字符"),
+        "max_length": _("用户名长度不能超过128个字符"),
         "min_length": _("用户名长度不能少于4个字符")
     })
     role = forms.IntegerField(required=False)
@@ -107,7 +107,7 @@ class UserInfoForm(BaseUserInfoForm):
         username = self.cleaned_data["username"]
         username = username.strip()
         if not USERNAME_CHECK_PATTERN.match(username):
-            self.add_error('username', _("用户名错误，只能包含数字、字母或#$%^&*.-_/，长度在4-20个字符，且必须以字母或数字开头"))
+            self.add_error('username', _("用户名错误，只能包含数字、字母或#$%^&*.-_/，长度在4-128个字符，且必须以字母或数字开头"))
         return username
 
 

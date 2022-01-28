@@ -1,5 +1,5 @@
 # Base Image
-FROM python:3.6.12-alpine3.11
+FROM python:3.7.12-alpine3.15
 
 # Install PATH
 RUN mkdir /opt/opsany && mkdir /etc/supervisord.d

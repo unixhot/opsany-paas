@@ -9,13 +9,13 @@ from .toolkit import configs
 from .toolkit.tools import base_api_url
 
 
-class GetAgentNetWork(Component):
+class PostFunc(Component):
     """
-    apiMethod GET
+    apiMethod POST
 
     ### 功能描述
 
-    获取Agent的端口情况
+    执行模块
 
     ### 请求参数
     {{ common_args_desc }}
@@ -23,31 +23,33 @@ class GetAgentNetWork(Component):
     #### 接口参数
 
     | 字段    | 类型     | 必选   | 描述       |
-    location ~ ^/doc/(.*) {
-        proxy_pass http://OPEN_PAAS/static/doc/$1$is_args$args;
-        proxy_pass_header Server;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Scheme $scheme;
-        proxy_set_header Host $http_host;
-        proxy_redirect off;
-        proxy_read_timeout 600;
-
-    }
     | ----- | ------ | ---- | -------- |
-    | name | string | 是  | 主机名 
-    | ip | string | 是  | ip |
+    | host_list | list | 是  | 主机唯一标识列表 |
+    | func | string | 是  | 执行模块名 |
+    | param | string | 否  | 执行参数 |
 
+    ### 请求参数示例
+
+    ```python
+    {
+        "bk_app_code": "esb-test-app",
+        "bk_app_secret": "xxx",
+        "bk_token": "xxx-xxx-xxx-xxx-xxx",
+        "host_list":  ["unique value1", "unique value2", "unique value3"],
+        "command": "ls"
+    }
+    ```
 
     ### 返回结果示例
 
     ```python
     {
         "code": 200,
-        "apicode": 20012,
+        "apicode": 20003,
         "result": true,
         "request_id": xxxxxxxxxxxxxxxxxxxxxxxx,
-        "message": "获取相关信息成功"
+        "message": "操作成功",
+        "data": "xxxxxxx"
     }
     ```
     """#
@@ -57,11 +59,13 @@ class GetAgentNetWork(Component):
 
     # Form处理参数校验
     class Form(BaseComponentForm):
-        name = forms.Field()
+        host_list = forms.Field()
+        func = forms.Field()
+        param = forms.Field(required=False)
 
         # clean方法返回的数据可通过组件的form_data属性获取
         def clean(self):
-            return self.get_cleaned_data_when_exist(keys=["name"])
+            return self.get_cleaned_data_when_exist(keys=["host_list", "func", "param"])
 
     # 组件处理入口
     def handle(self):
@@ -70,16 +74,13 @@ class GetAgentNetWork(Component):
 
         # 设置当前操作者
         params['operator'] = self.current_user.username
-
         # 请求系统接口
-        response = self.outgoing.http_client.get(
+        response = self.outgoing.http_client.post(
             host=configs.host,
-            path='{}get-agent-network/'.format(base_api_url),
-            params=params,
-            data=None,
+            path='{}func/'.format(base_api_url.replace("api/control/v0_1/", "api/execution/v0_1/")),
+            data=json.dumps(params),
             cookies=self.request.wsgi_request.COOKIES,
         )
-
         # 对结果进行解析
         code = response['code']
         if code == 200:
@@ -88,13 +89,14 @@ class GetAgentNetWork(Component):
                 'api_code': response['successcode'],
                 'message': response['message'],
                 'result': True,
-                'data': response.get("data", None),
+                'data': response['data'],
             }
         else:
             result = {
-                'api_code': response['errcode'],
+                'api_code': response['error_code'],
                 'result': False,
-                'message': response['message']
+                'message': response['message'],
+                'request_data': params
             }
 
         # 设置组件返回结果，payload为组件实际返回结果
