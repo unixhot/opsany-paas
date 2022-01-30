@@ -28,6 +28,7 @@ if [ ! -f ./install.config ];then
 else
     grep '^[A-Z]' install.config > install.env
     source ./install.env && rm -f install.env
+    setenforce 0
 fi
 
 # Create Self-signed Server Certificate
@@ -227,7 +228,7 @@ paas_start(){
     -p 8003:8003 -v ${INSTALL_PATH}/logs:/opt/opsany/logs \
     -v ${INSTALL_PATH}/conf/settings_production.py.login:/opt/opsany/paas/login/conf/settings_production.py \
     -v /etc/localtime:/etc/localtime:ro \
-    ${PAAS_DOCKER_REG}/opsany-paas-login:v3.2.8
+    ${PAAS_DOCKER_REG}/opsany-paas-login:v3.2.9
     
     #esb
     shell_log "======Start esb Service======"
