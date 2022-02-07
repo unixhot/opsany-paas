@@ -83,13 +83,14 @@ tcp        0      0 127.0.0.1:27017         0.0.0.0:*               LISTEN      
 ```
 
 ### 5. 部署Redis数据库
-
+```
 [root@opsany-paas ~]# vim /etc/redis.conf
 bind 0.0.0.0
 daemonize yes
 requirepass 123456.coM
+```
 
-### 5.克隆代码
+### 6.克隆代码
 ```
 [root@paas-node-1 ~]# cd /opt
 [root@paas-node-1 opt]# git clone https://github.com/unixhot/opsany-paas.git
@@ -280,6 +281,50 @@ DATABASES = {
 (esb) [root@ops esb]# deactivate
 ```
 
+## 启动apigateway
+
+### 1.初始化Python虚拟环境
+```
+# 创建Python虚拟环境
+[root@ops ~]# cd /opt/opsany/.runtime/
+[root@dev .runtime]# virtualenv apigw
+
+# 使用Python虚拟环境
+[root@dev .runtime]# source /opt/opsany/.runtime/apigw/bin/activate
+
+# 安装依赖软件包
+(esb) [root@dev .runtime]# cd /opt/opsany-paas/paas-ce/paas/apigw/
+(esb) [root@dev esb]# pip install -r requirements.txt 
+```
+
+### 2.配置apigw
+
+- 修改数据库配置，可以根据需求修改域名和端口，这里保持默认。
+```
+(esb) [root@ops esb]# cd configs/
+(esb) [root@ops configs]# cp default_template.py default.py
+(runtime-esb) [root@paas-node-1 configs]# vim default.py 
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'opsany_paas',
+        'USER': 'opsany',
+        'PASSWORD': '123456.coM',
+        'HOST': '127.0.0.1',
+        'PORT': '3306',
+    }
+}
+```
+
+- 进行数据库初始化（如果遇到权限问题请检查数据库授权）
+
+```
+(esb) [root@ops esb]# python manage.py migrate
+```
+退出python虚拟环境
+```
+(esb) [root@ops esb]# deactivate
+```
 
 ## 使用screen启动服务
 
