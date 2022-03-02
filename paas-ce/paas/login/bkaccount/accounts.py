@@ -251,6 +251,9 @@ class Account(AccountSingleton):
             next = data.get("next", "")
             username = data.get("username", "")
             password = data.get("password", "")
+            google_auth_url = data.pop("google_auth_url", {})
+            google_auth_type = data.pop("google_auth_type", None)
+            secret = data.pop("secret", "") 
             geetest_challenge = data.pop("geetest_challenge", None)
             geetest_seccode = data.pop("geetest_seccode", None)
             geetest_validate = data.pop("geetest_validate", None)
@@ -268,8 +271,34 @@ class Account(AccountSingleton):
             return_data = {"app_id": app_id, "next": next, "IMG_URL": settings.IMG_URL, "SITE_URL": settings.SITE_URL}
             if "@" not in username:
                 if form.is_valid():
-                    if google_auth_status == "1":
-                	    mfa = "start" if not mfa else mfa
+                    # if google_auth_status == "1":
+                    if google_auth_status in ["1", "3", "4", "5"]:
+                        if google_auth_status in ["3"]:
+                            if google_auth_url:
+                                return_data["google_auth_url"] = google_auth_url
+                                return_data["secret"] = secret
+                            else:
+                                google_auth_pic = auth_object.get_google_auth()
+                                return_data["google_auth_url"] = google_auth_pic.get("url", "")
+                                return_data["secret"] = google_auth_pic.get("secret", "")
+                        if google_auth_type == "bind_google_auth":
+                            bind_google_auth = auth_object.bind_google_auth(secret=secret, verify_code=verify_code)
+                            return_data["bind_google_auth"] = bind_google_auth.get("data", {})
+                            if bind_google_auth.get("result"):
+                                return self.login_success_response(request, form, redirect_to, app_id)
+                            else:
+                                return_data["username"] = username
+                                return_data["password"] = password
+                                return_data["mfa"] = "start"
+                                return_data["domain"] = domain
+                                return_data["c_url"] = c_url
+                                return_data["verfiy_code"] = verify_code
+                                return_data["google_auth_status"] = google_auth_status
+                                return_data["geetest_challenge"] = geetest_challenge
+                                return_data["geetest_seccode"] = geetest_seccode
+                                return_data["geetest_validate"] = geetest_validate
+                                return render(request, "login/login.html", return_data)
+                	mfa = "start" if not mfa else mfa
                     if mfa == "start":
                         check_status = auth_object.check_google_verify_code(verify_code)
                         if check_status:
@@ -281,6 +310,7 @@ class Account(AccountSingleton):
                             return_data["domain"] = domain
                             return_data["c_url"] = c_url
                             return_data["verfiy_code"] = ""
+                            return_data["google_auth_status"] = google_auth_status
                             return_data["geetest_challenge"] = geetest_challenge
                             return_data["geetest_seccode"] = geetest_seccode
                             return_data["geetest_validate"] = geetest_validate
@@ -295,8 +325,35 @@ class Account(AccountSingleton):
                 res, data = auth_object.check_users()
                 user = self.get_user(data, username)
                 if res:
-                    if google_auth_status == "1":
-                	    mfa = "start" if not mfa else mfa
+                    # if google_auth_status == "1":
+                    if google_auth_status in ["1", "3", "4", "5"]:
+                        if google_auth_status in ["3"]:
+                            if google_auth_url:
+                                return_data["google_auth_url"] = google_auth_url
+                                return_data["secret"] = secret
+                            else:
+                                google_auth_pic = auth_object.get_google_auth()
+                                return_data["google_auth_url"] = google_auth_pic.get("url", "")
+                                return_data["secret"] = google_auth_pic.get("secret", "")
+                            
+                        if google_auth_type == "bind_google_auth":
+                            bind_google_auth = auth_object.bind_google_auth(secret=secret, verify_code=verify_code)
+                            return_data["bind_google_auth"] = bind_google_auth.get("data", {})
+                            if bind_google_auth.get("result"):
+                                return self.login_success_response(request, user, redirect_to, app_id)
+                            else:
+                                return_data["username"] = username
+                                return_data["password"] = password
+                                return_data["mfa"] = "start"
+                                return_data["domain"] = domain
+                                return_data["c_url"] = c_url
+                                return_data["verfiy_code"] = verify_code
+                                return_data["google_auth_status"] = google_auth_status
+                                return_data["geetest_challenge"] = geetest_challenge
+                                return_data["geetest_seccode"] = geetest_seccode
+                                return_data["geetest_validate"] = geetest_validate
+                                return render(request, "login/login.html", return_data)
+                	mfa = "start" if not mfa else mfa
                     if mfa == "start":
                         check_status = auth_object.check_google_verify_code(verify_code)
                         if check_status:
@@ -308,6 +365,7 @@ class Account(AccountSingleton):
                             return_data["domain"] = domain
                             return_data["c_url"] = c_url
                             return_data["verfiy_code"] = ""
+                            return_data["google_auth_status"] = google_auth_status
                             return_data["geetest_challenge"] = geetest_challenge
                             return_data["geetest_seccode"] = geetest_seccode
                             return_data["geetest_validate"] = geetest_validate

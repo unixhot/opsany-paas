@@ -44,7 +44,41 @@ class OpsAnyRbacUserAuth(object):
         if end_data.get("result"):
             end_data = end_data.get("data")
             return end_data
-        return "4"
+        return "6"
+        
+    def get_google_auth(self):
+        API = "/api/c/compapi/workbench/get_google_auth/"
+        req = {
+            "bk_app_code": self.APP_CODE,
+            "bk_app_secret": self.APP_SECRET,
+            "bk_access_token": self.ACCESS_TOKEN,
+            "username": self.username
+        }
+        URL = self.BK_URL + API
+        response = requests.get(url=URL, params=req, headers={"Cookie": "bk_token=None"}, verify=False)
+        end_data = json.loads(response.text)
+        dt = {}
+        if end_data.get("result"):
+            end_data = end_data.get("data", {})
+            return end_data
+        return dt
+
+    def bind_google_auth(self, secret, verify_code):
+        API = "/api/c/compapi/workbench/bind_google_auth/"
+        req = {
+            "bk_app_code": self.APP_CODE,
+            "bk_app_secret": self.APP_SECRET,
+            "bk_access_token": self.ACCESS_TOKEN,
+            "username": self.username,
+            "operator": self.username,
+            "secret": secret,
+            "verify_code": verify_code
+        }
+        url = self.BK_URL + API
+        response = requests.post(url, data=req, headers={"Cookie": "bk_token=None"}, verify=False)
+        end_data = json.loads(response.text)
+        return end_data
+
 
     def check_google_verify_code(self, verify_code):
         API = "/api/c/compapi/rbac/check_google_verify_code/"

@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+"""
+"""
 import json
 
 from django import forms
@@ -8,43 +10,46 @@ from components.component import Component
 from .toolkit import configs
 
 
-class CreateGoogleSecretForUser(Component):
+class GetCopyrightConfig(Component):
     """
-    apiMethod POST
+    apiMethod GET
 
     ### 功能描述
 
-    为用户创建Google验证秘钥
+    获取底部版权信息
 
     ### 请求参数
-    {{ common_args_desc }}
 
+    #### 接口参数
+
+    ### 请求参数示例
 
     ### 返回结果示例
 
-    ```python
+    ```
     {
         "code": 200,
-        "apicode": 20012,
-        "result": true,
-        "request_id": xxxxxxxxxxxxxxxxxxxxxxxx,
-        "message": "相关信息创建成功"
-    }
+        "successcode": 20005,
+        "message": "相关信息信息获取成功",
+        "data": {
+            "id": 1,
+            "content": "Copyright © 2019-2022 OpsAny. All Rights Reserved"
+        }
+    } 
+ 	
     ```
-    """#
+    """
 
     # 组件所属系统的系统名
     sys_name = configs.SYSTEM_NAME
 
     # Form处理参数校验
     class Form(BaseComponentForm):
-        username = forms.CharField(required=True)
-        google_secret = forms.CharField(required=True)
-        operator = forms.CharField()
+        pass
 
         # clean方法返回的数据可通过组件的form_data属性获取
         def clean(self):
-            return self.get_cleaned_data_when_exist(keys=["username", "google_secret", "operator"])
+            return self.get_cleaned_data_when_exist()
 
     # 组件处理入口
     def handle(self):
@@ -55,24 +60,26 @@ class CreateGoogleSecretForUser(Component):
         params['operator'] = self.current_user.username
 
         # 请求系统接口
-        response = self.outgoing.http_client.post(
-            host=configs.host,
-            path='{}create-google-secret-for-user/'.format(configs.base_api_url),
-            data=json.dumps(params),
-            cookies=self.request.wsgi_request.COOKIES,
-        )
+        try:
+            response = self.outgoing.http_client.get(
+                host=configs.host,
+                path=configs.base_api_url + 'copyright-config/',
+                params=params,
+                data=None,
+                cookies=self.request.wsgi_request.COOKIES,	            
+            )
+        except:
+            pass
 
         # 对结果进行解析
-        code = response['code']
-        print "fffffffffffff"
-        print response
+	code = response['code']
         if code == 200:
             result = {
                 'code': response['code'],
                 'api_code': response['successcode'],
                 'message': response['message'],
                 'result': True,
-                'data': response.get("data", None),
+                'data': response['data'],
             }
         else:
             result = {

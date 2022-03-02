@@ -6,29 +6,40 @@ from django import forms
 from common.forms import BaseComponentForm
 from components.component import Component
 from .toolkit import configs
+from .toolkit.tools import base_api_url
 
 
-class CreateGoogleSecretForUser(Component):
+class GetGoogleAuth(Component):
     """
-    apiMethod POST
+    apiMethod GET
 
     ### 功能描述
 
-    为用户创建Google验证秘钥
+    获取MFA绑定二维码
 
     ### 请求参数
     {{ common_args_desc }}
+    
+        {
+        "bk_app_code": "esb-test-app",
+        "bk_app_secret": "xxx",
+        "bk_token": "xxx-xxx-xxx-xxx-xxx",
+        "username": "username",
+    }
 
 
     ### 返回结果示例
 
-    ```python
+    ```
     {
         "code": 200,
-        "apicode": 20012,
-        "result": true,
-        "request_id": xxxxxxxxxxxxxxxxxxxxxxxx,
-        "message": "相关信息创建成功"
+        "successcode": 20001,
+        "message": "信息获取成功",
+        "data": {
+            "url": "/YB3FWDHCWA6J5LZX6YYTBAYOMLAVVY7H326SEU7F3RJT6A7KEYYU4ICVTNUNDFHODK.png",
+            "secret": "YB3FWDHCWA6J5LZX6YYTBAYOMLAVVY7H326SEU7F3RJT6A7KEYYU4ICVTNUNDFHODK",
+            "username": "username"
+        }
     }
     ```
     """#
@@ -39,12 +50,10 @@ class CreateGoogleSecretForUser(Component):
     # Form处理参数校验
     class Form(BaseComponentForm):
         username = forms.CharField(required=True)
-        google_secret = forms.CharField(required=True)
-        operator = forms.CharField()
 
         # clean方法返回的数据可通过组件的form_data属性获取
         def clean(self):
-            return self.get_cleaned_data_when_exist(keys=["username", "google_secret", "operator"])
+            return self.get_cleaned_data_when_exist(keys=["username"])
 
     # 组件处理入口
     def handle(self):
@@ -55,17 +64,16 @@ class CreateGoogleSecretForUser(Component):
         params['operator'] = self.current_user.username
 
         # 请求系统接口
-        response = self.outgoing.http_client.post(
+        response = self.outgoing.http_client.get(
             host=configs.host,
-            path='{}create-google-secret-for-user/'.format(configs.base_api_url),
-            data=json.dumps(params),
+            path='{}google-auth/'.format(base_api_url),
+            params=params,
+            data=None,
             cookies=self.request.wsgi_request.COOKIES,
         )
 
         # 对结果进行解析
         code = response['code']
-        print "fffffffffffff"
-        print response
         if code == 200:
             result = {
                 'code': response['code'],

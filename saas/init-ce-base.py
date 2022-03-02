@@ -75,7 +75,7 @@ class OpsAnyApi:
         except:
             return False
 
-    def create_controller(self, create_data):
+    def create_controller_salt(self, create_data):
         # TEST DATA  /t/ -> /o/
         API = "/o/control/api/control/v0_1/controller/"
         url = self.paas_domain + API
@@ -84,6 +84,22 @@ class OpsAnyApi:
             if str(res.json().get("code", "")) == "200":
                 # API请求成功
                 return True, "控制器创建成功"
+            else:
+                # API请求失败
+                return False, res.json().get("message")
+        else:
+            # 连接API失败
+            return False, "API连接不成功，请检查API地址{}".format(url)
+
+    def create_controller_zabbix(self, create_data):
+        # TEST DATA  /t/ -> /o/
+        API = "/o/control/api/control/v0_1/controller-init/"
+        url = self.paas_domain + API
+        res = self.session.post(url, json=create_data, verify=False)
+        if res.status_code == 200:
+            if str(res.json().get("code", "")) == "200":
+                # API请求成功
+                return True, "Zabbix集成创建成功"
             else:
                 # API请求失败
                 return False, res.json().get("message")
@@ -165,7 +181,7 @@ class Run:
         else:
             return domain
 
-    def create_controller(self):
+    def create_controller_salt(self):
         controller_dict = {
             "name": "默认控制器",
             "type": "本地",
@@ -178,13 +194,29 @@ class Run:
             "password1": "OpsAny@2020",
             "password2": "OpsAny@2020",
             "port1": "",
-            "port2": "",
+            "port2": ""
+        }
+        if self.opsany_api_obj.token:
+            status, message = self.opsany_api_obj.create_controller_salt(controller_dict)
+            if status:
+                return True, message
+            else:
+                return False, message
+        else:
+            return False, "OpsAny平台认证失败"
+
+    def create_controller_zabbix(self):
+        controller_dict = {
+            "name": "内置Zabbix Server",
+            "description": "内置Zabbix Server",
+            "built_in": True,
+            "default": True,
             "zabbix_url": "http://" + self.private_ip + ":8006/api_jsonrpc.php",
             "zabbix_username": "zabbixapi",
             "zabbix_password": self.zabbix_api_password,
         }
         if self.opsany_api_obj.token:
-            status, message = self.opsany_api_obj.create_controller(controller_dict)
+            status, message = self.opsany_api_obj.create_controller_zabbix(controller_dict)
             if status:
                 return True, message
             else:
@@ -211,9 +243,13 @@ class Run:
 def start(paas_domain, private_ip, paas_username, paas_password, zabbix_api_password):
     run_obj = Run(paas_domain, private_ip, paas_username, paas_password, zabbix_api_password)
     # 创建控制器
-    create_controller_status, create_controller_message = run_obj.create_controller()
+    create_controller_status, create_controller_message = run_obj.create_controller_salt()
     print("[SUCCESS] Create controller success") if create_controller_status else \
         print("[ERROR] Create controller error, error info: {}".format(create_controller_message))
+    # 创建Zabbix
+    create_controller_zabbix_status, create_controller_zabbix_message = run_obj.create_controller_zabbix()
+    print("[SUCCESS] Create controller zabbix success") if create_controller_zabbix_status else \
+        print("[ERROR] Create controller zabbix error, error info: {}".format(create_controller_zabbix_message))
     # 更新用户admin用户信息
     update_admin_user_info_status, update_admin_user_info_message = run_obj.update_admin_user()
     print("[SUCCESS] Update admin user info success") if update_admin_user_info_status else \
@@ -247,3 +283,5 @@ if __name__ == '__main__':
     )
 
 # python3 init-ce-base.py --domain 192.168.56.11 --private_ip 192.168.56.11 --paas_username admin --paas_password 123456.coM --zabbix_api_password OpsAny@2020
+
+# python init-ce-base.py --domain dev.opsany.cn --private_ip 192.168.56.11 --paas_username huxingqi --paas_password Huxingqi27 --zabbix_api_password OpsAny@2020

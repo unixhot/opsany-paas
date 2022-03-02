@@ -139,125 +139,55 @@
                 </div>
             </div>
             {% endif %}  
-        {% if google_auth_status == "3" %}
-        	<form action="{{ app_path }}" method="post" id="login-form" onsubmit="return refresh_token()">{% csrf_token %}
-	   		<div class="mfa_setting_box">
-				<h4>
-					<span>绑定 MFA 设备</span>
-					<span class="info">
-						<i style="background:#1890FF;color:#fff;font-size:12px;padding:2px;border-radius:50%;" class="bk-icon icon-info"></i>
-						<span>管理员已开启强制所有用户绑定MFA功能，请完成以下操作以免影响使用。</span>
-					</span>
-				</h4>
-				<div class="mfa_setting_content">
-					<h4 class="step">
-						第一步：请在手机端下载并安装Google Authenticator（身份验证器）
-					</h4>
-					<div class="step_content">
-						<div style="margin:0 0 0 100px;text-align: center;">
-							<img style="height:120px;padding:0px;border:1px solid #e8e8e8" src="{{ IMG_URL }}img/apple_qrcode.png" alt="" />
-							<p style="fot-size:12px">扫描下载iOS版</p>
-						</div>
-						<div style="margin:0 0 0 20px;text-align: center;">
-							<img style="height:120px;padding:0px;border:1px solid #e8e8e8" src="{{ IMG_URL }}img/android_qrcod.png" alt="" />
-							<p style="fot-size:12px">扫描下载Android版</p>
-						</div>
-					</div>
-					<span class="info">
-						<i style="background:#1890FF;color:#fff;font-size:12px;padding:2px;border-radius:50%;" class="bk-icon icon-info"></i>
-						<span>开启Google身份认证后，每次登录时都需要进行验证。</span>
-					</span>
-					<h4 class="step">
-						第二步：使用Google Authenticator（身份验证器）扫描以下二维码
-					</h4>
-					<div  class="step_content">
-						<img id="google_auth_pic" style="height:120px;padding:0px;border:1px solid #e8e8e8;margin:0 0 0 100px;" src="" alt="" />
-						<div style="margin:0 0 0 20px;font-size:12px;">
-							<p>扫不了码？试试账号&密钥方式获取</p>
-							<p style="margin:10px 0 10px 0;"><span style="width:50px;display:inline-block;">账号：</span><span style="color:#333;">{{ username }}</span></p>
-							<p style="width:280px;word-break: break-word;display:flex;">
-								<span style="flex:0 0 50px;">密钥：</span>
-								<span>{{ secret }}<a onclick="copy()" style="margin:0 0 0 10px;color:#0ba360;cursor:pointer">复制</a> </span>
-							</p>
-						</div>
-					</div>
-					<h4 class="step">
-						第三步：输入授权码 <input placeholder="请输入6位授权码" name="verify_code" type="text" />
-					</h4>
-					<input id="copy" style="position:absolute;z-index:-10;" value="{{ secret }}" />
-					<div class="is-danger-tip">
-	                         {% if bind_google_auth and bind_google_auth.code != 200 %}
-	                         	<i class="bk-icon icon-exclamation-circle-shape"></i><span>{% trans '认证失败，请检查您的验证码是否正确' %}</span>
-	                    	{% endif %}
-	                    </div>
-				</div>
-				<footer>
-					<button>确定绑定</button>
-				</footer>	
-				<div>
-	                   	<input type="hidden" name="google_auth_type" value="bind_google_auth" />
-	                    <input type="hidden" name="secret" value="{{ secret }}">
-	                    <input type="hidden" name="username" value="{{ username }}" />
-                         <input type="hidden" name="password" value="{{ password }}">
-                         <input type="hidden" name="next" value="{{ next }}" />
-	                    <input type="hidden" name="app_id" value="{{app_id }}">
-	                    <input type="hidden" name="geetest_challenge" value="{{ geetest_challenge }}">
+                      
+		  {% if mfa == "start" %}
+			  <!--LDAP动态码输入-->
+	            <div  class="login-from" style="margin-top: 8%; box-shadow: 0px 2px 30px 0px rgba(12, 34, 65, 0.2);">
+	            <form  action="{{ app_path }}" method="get" id="login-form" onsubmit="return refresh_token()">
+	            	<input type="hidden" id="mfa" name="mfa" value="{{ mfa }}">
+	            	<input type="hidden"  name="c_url" value="{{c_url}}">
+	            	<button id="mfaBtn">
+	            	<i style="color: #0ba360" class="bk-icon icon-arrows-left"></i>
+	            	返回</button>
+	            </form>
+	            <form action="{{ app_path }}" method="post" id="login-form" onsubmit="return refresh_token()">{% csrf_token %}
+	              
+		          <div class="ldap-icon">
+		               <img src="{{STATIC_URL}}img/ldap-icon.png" />
+		          </div>
+		          <div class="ldap-box">
+		            	<div class="ldap-title">账号保护已开启，请根据提示完成以下操作</div>
+		            	<div class="ldap-step">
+			            	<div class="ldap-step-num">第一步：</div>
+			            	<div class="ldap-step-desc">请打开手机中Google Authenticator（身份验证器）</div>
+		            	</div>
+					<div class="ldap-step">
+			            	<div class="ldap-step-num">第二步：</div>
+			            	<div class="ldap-step-desc">请输入6位动态码</div>
+		            	</div>
+		            	<div class="form-login" style="padding: 0;margin-bottom:20px">
+			            	<div class="user group-control" style="margin-bottom: 8%;width:100%">
+			                 <input style="padding-left:10px" type="number" name="verify_code" placeholder="请输入6位动态码" />
+			                 {% if check_status == False %}
+			                     <span style="color:red;font-size:13px;display:inline-block;margin:5px 0">{% trans '请确认您的验证码是否正确' %}</span>
+			                 {% endif %}
+			               </div>
+				          <div class="btn-content clearfix" style=";padding-top: 20px">
+			                 <button class="login-btn" style="width: 100%;border-radius: 22px">{% trans '确定' %}</button>
+			               </div>
+			               <div style="color:grey;font-size:12px;padding-top:10px">如无法提供安全码，请联系管理员解除双因素验证后继续操作。</div>
+		            	</div>
+		            	<input type="hidden" name="next" value="{{ next }}" />
+                         <input type="hidden" name="app_id" value="{{ app_id }}">
+                         <input type="hidden" name="geetest_challenge" value="{{ geetest_challenge }}">
                          <input type="hidden" name="geetest_seccode" value="{{ geetest_seccode }}">
                          <input type="hidden" name="geetest_validate" value="{{ geetest_validate }}">
-                         <input type="hidden" name="google_auth_url" value="{{ google_auth_url }}">
-	               </div>
-			</div>       
-	   </form>
-        {% else %}
-            {% if mfa == "start" %}
-                <!--LDAP动态码输入-->
-                    <div  class="login-from" style="margin-top: 8%; box-shadow: 0px 2px 30px 0px rgba(12, 34, 65, 0.2);">
-                    <form  action="{{ app_path }}" method="get" id="login-form" onsubmit="return refresh_token()">
-                        <input type="hidden" id="mfa" name="mfa" value="{{ mfa }}">
-                        <input type="hidden"  name="c_url" value="{{c_url}}">
-                        <button id="mfaBtn">
-                        <i style="color: #0ba360" class="bk-icon icon-arrows-left"></i>
-                        返回</button>
-                    </form>
-                    <form action="{{ app_path }}" method="post" id="login-form" onsubmit="return refresh_token()">{% csrf_token %}
-                    
-                    <div class="ldap-icon">
-                        <img src="{{STATIC_URL}}img/ldap-icon.png" />
-                    </div>
-                    <div class="ldap-box">
-                            <div class="ldap-title">账号保护已开启，请根据提示完成以下操作</div>
-                            <div class="ldap-step">
-                                <div class="ldap-step-num">第一步：</div>
-                                <div class="ldap-step-desc">请打开手机中Google Authenticator（身份验证器）</div>
-                            </div>
-                        <div class="ldap-step">
-                                <div class="ldap-step-num">第二步：</div>
-                                <div class="ldap-step-desc">请输入6位动态码</div>
-                            </div>
-                            <div class="form-login" style="padding: 0;margin-bottom:20px">
-                                <div class="user group-control" style="margin-bottom: 8%;width:100%">
-                                <input style="padding-left:10px" type="number" name="verify_code" placeholder="请输入6位动态码" />
-                                {% if check_status == False %}
-                                    <span style="color:red;font-size:13px;display:inline-block;margin:5px 0">{% trans '请确认您的验证码是否正确' %}</span>
-                                {% endif %}
-                            </div>
-                            <div class="btn-content clearfix" style=";padding-top: 20px">
-                                <button class="login-btn" style="width: 100%;border-radius: 22px">{% trans '确定' %}</button>
-                            </div>
-                            <div style="color:grey;font-size:12px;padding-top:10px">如无法提供安全码，请联系管理员解除双因素验证后继续操作。</div>
-                            </div>
-                            <input type="hidden" name="next" value="{{ next }}" />
-                            <input type="hidden" name="app_id" value="{{ app_id }}">
-                            <input type="hidden" name="geetest_challenge" value="{{ geetest_challenge }}">
-                            <input type="hidden" name="geetest_seccode" value="{{ geetest_seccode }}">
-                            <input type="hidden" name="geetest_validate" value="{{ geetest_validate }}">
-                            <input type="hidden" name="username" value="{{ username }}" />
-                            <input type="hidden" name="password" value="{{ password }}">
-                        </div>
-                        </form>
-                    </div>
-            {% endif %}
-        {% endif %}
+                         <input type="hidden" name="username" value="{{ username }}" />
+	                    <input type="hidden" name="password" value="{{ password }}">
+	            	</div>
+	            	</form>
+	            </div>
+	      {% endif %}
     	
     		<footer class="footer">
 			<p>
@@ -358,14 +288,5 @@
     	})
 
     	initCaptch()
-    	console.log("{{ google_auth_url }}")
-  	console.log("{{ google_auth_url }}")
-    	$("#google_auth_pic").attr("src",window.location.origin+"/"+"{{ google_auth_url }}")
-    	function copy(){
-    		let input = document.getElementById("copy");
-		input.select();
-  		document.execCommand("copy")
-    	}
-	
 </script>
 </html>
