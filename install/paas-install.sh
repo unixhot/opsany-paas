@@ -228,7 +228,7 @@ paas_start(){
     -p 8003:8003 -v ${INSTALL_PATH}/logs:/opt/opsany/logs \
     -v ${INSTALL_PATH}/conf/settings_production.py.login:/opt/opsany/paas/login/conf/settings_production.py \
     -v /etc/localtime:/etc/localtime:ro \
-    ${PAAS_DOCKER_REG}/opsany-paas-login:v3.2.10
+    ${PAAS_DOCKER_REG}/opsany-paas-login:v3.2.11
     
     #esb
     shell_log "======Start esb Service======"
@@ -255,7 +255,7 @@ paas_start(){
     -v ${INSTALL_PATH}/conf/settings_production.py.websocket:/opt/opsany/websocket/config/prod.py \
     -v ${INSTALL_PATH}/conf/settings_production.py.websocket.init:/opt/opsany/websocket/config/__init__.py \
     -v /etc/localtime:/etc/localtime:ro \
-    ${PAAS_DOCKER_REG}/opsany-paas-websocket:v3.2.8
+    ${PAAS_DOCKER_REG}/opsany-paas-websocket:v3.2.10
     
     #openresty
     shell_log "======Start openresty Service======"
