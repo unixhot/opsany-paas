@@ -177,6 +177,48 @@ envs = [
             {"key": "REDIS_PASSWORD", "value": replace_str(config_dict.get("redis").get("REDIS_SERVER_PASSWORD")), "env_scope": "all", "intro": "redis password"},
             {"key": "TERMINAL_TIMEOUT", "value": replace_str(config_dict.get("redis").get("TERMINAL_TIMEOUT")), "env_scope": "all", "intro": "terminal timeout"},
         ]
+    },
+    {
+        "app_code": "deploy",
+        "env": [
+            # devops  count 8
+            {"key": "UPLOAD_PATH", "value": replace_str(config_dict.get('opsany_saas').get("UPLOAD_PATH")), "env_scope": "all", "intro": "uploads path"},
+            {"key": "MYSQL_PASSWORD", "value": replace_str(config_dict.get('mysql').get("MYSQL_OPSANY_DEVOPS_PASSWORD")), "env_scope": "all", "intro": "mysql password"},
+            {"key": "MYSQL_HOST", "value": replace_str(config_dict.get('mysql').get("MYSQL_SERVER_IP")), "env_scope": "all", "intro": "mysql host"},
+            {"key": "MYSQL_PORT", "value": replace_str(config_dict.get('mysql').get("MYSQL_PORT")), "env_scope": "all", "intro": "mysql port"},
+            {"key": "MONGO_HOST", "value": replace_str(config_dict.get('mongodb').get("MONGO_SERVER_IP")), "env_scope": "all", "intro": "mongo host"},
+            {"key": "MONGO_PORT", "value": replace_str(config_dict.get('mongodb').get("MONGO_PORT")), "env_scope": "all", "intro": "mongo port"},
+            {"key": "MONGO_PASSWORD", "value": replace_str(config_dict.get('mongodb').get("MONGO_DEVOPS_PASSWORD")), "env_scope": "all", "intro": "mongo password"},
+            # {"key": "DEFAULT_USER_ICON", "value": read_install_config.get("DEFAULT_USER_ICON"), "env_scope": "all", "intro": "user default icon"},
+        ]
+    },
+    {
+        "app_code": "pipeline",
+        "env": [
+            # pipeline  count 8
+            {"key": "UPLOAD_PATH", "value": replace_str(config_dict.get('opsany_saas').get("UPLOAD_PATH")), "env_scope": "all", "intro": "uploads path"},
+            {"key": "MYSQL_PASSWORD", "value": replace_str(config_dict.get('mysql').get("MYSQL_OPSANY_DEVOPS_PASSWORD")), "env_scope": "all", "intro": "mysql password"},
+            {"key": "MYSQL_HOST", "value": replace_str(config_dict.get('mysql').get("MYSQL_SERVER_IP")), "env_scope": "all", "intro": "mysql host"},
+            {"key": "MYSQL_PORT", "value": replace_str(config_dict.get('mysql').get("MYSQL_PORT")), "env_scope": "all", "intro": "mysql port"},
+            {"key": "MONGO_HOST", "value": replace_str(config_dict.get('mongodb').get("MONGO_SERVER_IP")), "env_scope": "all", "intro": "mongo host"},
+            {"key": "MONGO_PORT", "value": replace_str(config_dict.get('mongodb').get("MONGO_PORT")), "env_scope": "all", "intro": "mongo port"},
+            {"key": "MONGO_PASSWORD", "value": replace_str(config_dict.get('mongodb').get("MONGO_DEVOPS_PASSWORD")), "env_scope": "all", "intro": "mongo password"},
+            # {"key": "DEFAULT_USER_ICON", "value": read_install_config.get("DEFAULT_USER_ICON"), "env_scope": "all", "intro": "user default icon"},
+        ]
+    },
+    {
+        "app_code": "repo",
+        "env": [
+            # repo  count 8
+            {"key": "UPLOAD_PATH", "value": replace_str(config_dict.get('opsany_saas').get("UPLOAD_PATH")), "env_scope": "all", "intro": "uploads path"},
+            {"key": "MYSQL_PASSWORD", "value": replace_str(config_dict.get('mysql').get("MYSQL_OPSANY_DEVOPS_PASSWORD")), "env_scope": "all", "intro": "mysql password"},
+            {"key": "MYSQL_HOST", "value": replace_str(config_dict.get('mysql').get("MYSQL_SERVER_IP")), "env_scope": "all", "intro": "mysql host"},
+            {"key": "MYSQL_PORT", "value": replace_str(config_dict.get('mysql').get("MYSQL_PORT")), "env_scope": "all", "intro": "mysql port"},
+            {"key": "MONGO_HOST", "value": replace_str(config_dict.get('mongodb').get("MONGO_SERVER_IP")), "env_scope": "all", "intro": "mongo host"},
+            {"key": "MONGO_PORT", "value": replace_str(config_dict.get('mongodb').get("MONGO_PORT")), "env_scope": "all", "intro": "mongo port"},
+            {"key": "MONGO_PASSWORD", "value": replace_str(config_dict.get('mongodb').get("MONGO_DEVOPS_PASSWORD")), "env_scope": "all", "intro": "mongo password"},
+            # {"key": "DEFAULT_USER_ICON", "value": read_install_config.get("DEFAULT_USER_ICON"), "env_scope": "all", "intro": "user default icon"},
+        ]
     }
 ]
 

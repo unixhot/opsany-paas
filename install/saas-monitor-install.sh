@@ -46,6 +46,7 @@ shell_log(){
 saas_init(){
     mkdir -p ${INSTALL_PATH}/{es-volume,zabbix-volume/alertscripts,zabbix-volume/externalscripts,zabbix-volume/snmptraps,grafana-volume/plugins}
     mkdir -p ${INSTALL_PATH}/uploads/monitor/heartbeat-monitors.d
+    chmod -R 777 ${INSTALL_PATH}/es-volume
 }
 
 # Start Zabbix

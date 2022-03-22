@@ -3,7 +3,7 @@ db = db.getSiblingDB('cmdb')
 
 db.createUser({
   user: 'cmdb',
-  pwd: 'OpsAny@2020',
+  pwd: 'MONGO_CMDB_PASSWORD',
   roles: [
     {
       role: 'readWrite',
@@ -17,7 +17,7 @@ db = db.getSiblingDB('job')
 
 db.createUser({
   user: 'job',
-  pwd: 'OpsAny@2020',
+  pwd: 'MONGO_JOB_PASSWORD',
   roles: [
     {
       role: 'readWrite',
@@ -31,7 +31,7 @@ db = db.getSiblingDB('workbench')
 
 db.createUser({
   user: 'workbench',
-  pwd: 'OpsAny@2020',
+  pwd: 'MONGO_WORKBENCH_PASSWORD',
   roles: [
     {
       role: 'readWrite',
@@ -45,7 +45,7 @@ db = db.getSiblingDB('devops')
 
 db.createUser({
   user: 'devops',
-  pwd: 'OpsAny@2020',
+  pwd: 'MONGO_DEVOPS_PASSWORD',
   roles: [
     {
       role: 'readWrite',
@@ -59,7 +59,7 @@ db = db.getSiblingDB('cmp')
 
 db.createUser({
   user: 'cmp',
-  pwd: 'OpsAny@2020',
+  pwd: 'MONGO_CMP_PASSWORD',
   roles: [
     {
       role: 'readWrite',
@@ -73,11 +73,39 @@ db = db.getSiblingDB('monitor')
 
 db.createUser({
   user: 'monitor',
-  pwd: 'OpsAny@2020',
+  pwd: 'MONGO_MONITOR_PASSWORD',
   roles: [
     {
       role: 'readWrite',
       db: 'monitor',
+    },
+  ],
+});
+
+//event
+db = db.getSiblingDB('event')
+
+db.createUser({
+  user: 'event',
+  pwd: 'MONGO_EVENT_PASSWORD',
+  roles: [
+    {
+      role: 'readWrite',
+      db: 'event',
+    },
+  ],
+});
+
+//auto
+db = db.getSiblingDB('auto')
+
+db.createUser({
+  user: 'auto',
+  pwd: 'MONGO_AUTO_PASSWORD',
+  roles: [
+    {
+      role: 'readWrite',
+      db: 'auto',
     },
   ],
 });

@@ -1,10 +1,10 @@
 # Base Image
-FROM centos:7.8.2003
+FROM centos:7.9.2009
 
 # Install Pkg
 RUN curl -o /etc/yum.repos.d/epel.repo http://mirrors.aliyun.com/repo/epel-7.repo && \
     curl -s https://packagecloud.io/install/repositories/StackStorm/stable/script.rpm.sh | bash && \
-    yum install -y st2 crudini httpd-tools st2web supervisor && \
+    yum install -y st2 crudini httpd-tools st2web supervisor nginx && \
     yum clean all
 
 # Setup Datastore Encryption
@@ -17,16 +17,12 @@ RUN DATASTORE_ENCRYPTION_KEYS_DIRECTORY="/etc/st2/keys" && \
     chgrp st2 ${DATASTORE_ENCRYPTION_KEY_PATH} && \
     chmod o-r ${DATASTORE_ENCRYPTION_KEY_PATH} && \
     crudini --set /etc/st2/st2.conf keyvalue encryption_key_path ${DATASTORE_ENCRYPTION_KEY_PATH} && \
-    st2ctl restart-component st2api
-
-
-# Pip Install
-RUN pip --no-cache-dir install requests -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
 
 #Supervisord config
 ADD nginx.conf /etc/nginx/nginx.conf
 ADD supervisord.conf /etc/supervisord.conf
 ADD nginx.ini /etc/supervisord.d/nginx.ini
+ADD st2api.ini /etc/supervisord.d/st2api.ini
 
 ENV LANG "zh_CN.UTF-8"
 # Outside Port

@@ -584,7 +584,7 @@ class Run:
     def init_monitor(self, api_token):
         if api_token:
             api_token_dict = {
-                "url": "{}/grafana".format(self.private_ip),
+                "url": "{}/grafana".format(self.paas_domain),
                 "api_key": api_token,
             }
             if self.opsany_api_obj.token:
