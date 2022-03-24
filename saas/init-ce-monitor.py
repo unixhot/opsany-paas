@@ -368,6 +368,23 @@ class OpsAnyApi:
         else:
             return None, "获取用户ID失败"
 
+    def import_zabbix(self):
+        # TEST DATA  /t/ -> /o/
+        API = "/o/control/api/control/v0_1/import-zabbix/"
+        url = self.paas_domain + API
+        res = self.session.post(url, json={}, verify=False)
+        data = res.json()
+        if res.status_code == 200:
+            if str(data.get("code", "")) == "200":
+                # API请求成功
+                return True, data.get("data", "操作成功")
+            else:
+                # API请求失败
+                return False, data.get("message")
+        else:
+            # 连接API失败
+            return False, "API连接不成功，请检查API地址{}".format(url)
+
 
 class GrafanaBasicApi:
     """
@@ -607,6 +624,16 @@ class Run:
         else:
             return False, "OpsAny平台认证失败"
 
+    def import_zabbix(self):
+        if self.opsany_api_obj.token:
+            status, message = self.opsany_api_obj.import_zabbix()
+            if status:
+                return True, message
+            else:
+                return False, message
+        else:
+            return False, "OpsAny平台认证失败"
+
 
 def start(paas_domain, private_ip, paas_username, paas_password, zabbix_ip, zabbix_password, grafana_ip,
           grafana_password, modify_zabbix_password, zabbix_api_password, modify_grafana_password):
@@ -624,6 +651,9 @@ def start(paas_domain, private_ip, paas_username, paas_password, zabbix_ip, zabb
         sync_dashboard_status, sync_dashboard_status_message = run_obj.sync_dashboard()
         print("[SUCCESS] Sync dashboard success") if sync_dashboard_status else \
             print("[ERROR] Sync dashboard error, error info: {}".format(sync_dashboard_status_message))
+        import_zabbix_status, import_zabbix_status_message = run_obj.import_zabbix()
+        print("[SUCCESS] import agent zabbix success") if import_zabbix_status else \
+            print("[ERROR] import agent zabbix error, error info: {}".format(import_zabbix_status_message))
         print("[SUCCESS] ALL success")
     else:
         print("[ERROR] Init zabbix error, error info: {}".format(init_zabbix_message))
