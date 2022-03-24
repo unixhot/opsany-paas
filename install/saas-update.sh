@@ -146,7 +146,6 @@ main(){
 		job_update
 		monitor_update
 		cmp_update
-		devops_update
         bastion_update
 		;;
 	help|*)
