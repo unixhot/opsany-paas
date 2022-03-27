@@ -47,6 +47,14 @@ mysql_init(){
 
 }
 
+# workbench nav icon, app list icon
+copy_logo(){
+  cd $CDIR
+  /bin/cp -r ../paas-ce/saas/saas-logo/* /opt/opsany/uploads/workbench/icon/
+  /bin/cp -r ../paas-ce/saas/saas-logo/* /opt/opsany-paas/paas-ce/paas/paas/media/applogo/
+}
+
+
 # SaaS Deploy
 saas_deploy(){
     cd $CDIR
@@ -61,6 +69,7 @@ saas_deploy(){
     #python3 deploy.py --domain $DOMAIN_NAME --username admin --password admin --file_name deploy-opsany-*.tar.gz
     #python3 deploy.py --domain $DOMAIN_NAME --username admin --password admin --file_name pipeline-opsany-*.tar.gz
     #python3 deploy.py --domain $DOMAIN_NAME --username admin --password admin --file_name repo-opsany-*.tar.gz
+    # python3 init-ce-devops.py --domain https://www.opsany_url.cn --username opsany_username  --password opsany_password --st2_url https://st2_url/  --st2_username st2admin --st2_password st2_password
     shell_log "======OpsAny: Make Ops Perfect======"
 
 }
@@ -68,6 +77,7 @@ saas_deploy(){
 # Main
 main(){
     mysql_init
+    copy_logo
     saas_deploy
 }
 
