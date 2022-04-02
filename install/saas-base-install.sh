@@ -162,10 +162,9 @@ saas_deploy(){
     python3 deploy.py --domain $DOMAIN_NAME --username admin --password admin --file_name control-opsany-*.tar.gz
     python3 deploy.py --domain $DOMAIN_NAME --username admin --password admin --file_name job-opsany-*.tar.gz
     python3 deploy.py --domain $DOMAIN_NAME --username admin --password admin --file_name cmp-opsany-*.tar.gz
-    #python3 deploy.py --domain $DOMAIN_NAME --username admin --password admin --file_name devops-opsany-*.tar.gz
     python3 deploy.py --domain $DOMAIN_NAME --username admin --password admin --file_name bastion-opsany-*.tar.gz
     shell_log "======OpsAny Data Initialize======"
-    python3 init-ce-base.py --domain $DOMAIN_NAME --private_ip $LOCAL_IP --paas_username admin --paas_password admin --zabbix_api_password $ZABBIX_API_PASSWORD
+    python3 init-ce-base.py --domain $DOMAIN_NAME --private_ip $LOCAL_IP --paas_username admin --paas_password admin
     chmod +x /etc/rc.d/rc.local
     echo "sleep 60 && /bin/bash ${INSTALL_PATH}/saas-restart.sh" >> /etc/rc.d/rc.local
     shell_log "======OpsAny: Make Ops Perfect======"

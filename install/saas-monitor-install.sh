@@ -20,11 +20,6 @@ if [ ! -d ../../opsany-saas ];then
     exit;
 fi
 
-# Configuration file write to DB
-pip3 install requests==2.25.1 grafana-api==1.0.3 mysql-connector==2.2.9 SQLAlchemy==1.4.22 \
-             -i http://mirrors.aliyun.com/pypi/simple/ \
-             --trusted-host mirrors.aliyun.com
-
 # Install Inspection
 if [ ! -f ./install.config ];then
       echo "Please Change Directory to ${INSTALL_PATH}/install"
@@ -44,6 +39,10 @@ shell_log(){
 
 # Check Install requirement
 saas_init(){
+    # Configuration file write to DB
+    pip3 install requests==2.25.1 grafana-api==1.0.3 mysql-connector==2.2.9 SQLAlchemy==1.4.22 \
+             -i http://mirrors.aliyun.com/pypi/simple/ \
+             --trusted-host mirrors.aliyun.com
     mkdir -p ${INSTALL_PATH}/{es-volume,zabbix-volume/alertscripts,zabbix-volume/externalscripts,zabbix-volume/snmptraps,grafana-volume/plugins}
     mkdir -p ${INSTALL_PATH}/uploads/monitor/heartbeat-monitors.d
     chmod -R 777 ${INSTALL_PATH}/es-volume
@@ -131,6 +130,12 @@ mysql_init(){
     
 }
 
+copy_logo(){
+  cd $CDIR
+  /bin/cp -r ../paas-ce/saas/saas-logo/* /opt/opsany/uploads/workbench/icon/
+  /bin/cp -r ../paas-ce/saas/saas-logo/* /opt/opsany-paas/paas-ce/paas/paas/media/applogo/
+}
+
 # SaaS Deploy
 saas_deploy(){
     cd $CDIR
@@ -144,17 +149,41 @@ saas_deploy(){
     python3 deploy.py --domain $DOMAIN_NAME --username admin --password admin --file_name monitor-opsany-*.tar.gz
     #python3 deploy.py --domain $DOMAIN_NAME --username admin --password admin --file_name log-opsany-*.tar.gz
     #python3 deploy.py --domain $DOMAIN_NAME --username admin --password admin --file_name apm-opsany-*.tar.gz
-    python3 init-ce-monitor.py --domain $DOMAIN_NAME --private_ip $LOCAL_IP --paas_username admin --paas_password admin --zabbix_password zabbix --grafana_password admin --zabbix_api_password OpsAny@2020 --modify_zabbix_password OpsAny@2020 --modify_grafana_password OpsAny@2020
+    python3 init-ce-monitor.py --domain $DOMAIN_NAME --private_ip $LOCAL_IP --paas_username admin --paas_password admin --zabbix_password zabbix --grafana_password admin --zabbix_api_password $ZABBIX_ADMIN_PASSWORD --modify_zabbix_password $ZABBIX_API_PASSWORD --modify_grafana_password $GRAFANA_ADMIN_PASSWORD
 }
 
 # Main
 main(){
-    saas_init
-    mysql_init
-    zabbix_install
-    grafana_install
-    es_install
-    saas_deploy
+    case "$1" in
+	only)
+		saas_init
+        mysql_init
+        grafana_install
+        es_install
+        copy_logo
+        saas_deploy
+		;;
+    zabbix)
+        saas_init
+        mysql_init
+        zabbix_install
+        grafana_install
+        es_install
+        copy_logo
+        saas_deploy
+        ;;
+	prometheus)
+		saas_init
+        mysql_init
+        grafana_install
+        es_install
+        copy_logo
+        saas_deploy
+		;;
+	help|*)
+		echo $"Usage: $0 {only|zabbix|prometheus|help}"
+	        ;;
+esac
 }
 
-main
+main $1

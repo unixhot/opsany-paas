@@ -4,13 +4,30 @@ import requests
 import json
 from grafana_api.grafana_face import GrafanaFace
 import urllib3
+
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 import argparse
+
 try:
     from default_monitor_dashboard_dict import request_dict as monitor_request_dict
     from default_host_dashboard_dict import request_dict as host_request_dict
 except:
     pass
+
+
+class InitData:
+    # 导航分组
+    NAV_GROUP = {
+        "group_name": "自动化运维",
+        "nav_list": [
+            {
+                "nav_name": "Zabbix监控",
+                "nav_url": "/o/monitor/",
+                "describe": "兼容Zabbix监控平台",
+                "group_name": "自动化运维"
+            }
+        ]
+    }
 
 
 class ZabbixApi:
@@ -86,13 +103,14 @@ class ZabbixApi:
             }
             a = session.post(self.url, data=json.dumps(body), verify=False)
             if a.json().get("result"):
-                admin_group_id_list = [obj.get("usrgrpid") for obj in a.json().get("result") if obj.get("name") == "Zabbix administrators"]
+                admin_group_id_list = [obj.get("usrgrpid") for obj in a.json().get("result") if
+                                       obj.get("name") == "Zabbix administrators"]
                 return admin_group_id_list[0] if admin_group_id_list else None
             else:
                 return None
         return None
 
-    def create_admin_user(self, admin_group_id, zabbix_api_password):
+    def create_admin_user(self, admin_group_id, zabbix_api_username, zabbix_api_password):
         session = requests.session()
         session.headers.update({
             'Content-Type': 'application/json-rpc',
@@ -104,7 +122,7 @@ class ZabbixApi:
                 "jsonrpc": "2.0",
                 "method": "user.create",
                 "params": {
-                    "alias": "zabbixapi",
+                    "alias": zabbix_api_username,
                     "passwd": zabbix_api_password,
                     "type": 3,
                     "usrgrps": [
@@ -167,7 +185,8 @@ class ZabbixApi:
             }
             a = session.post(self.url, data=json.dumps(body), verify=False)
             if a.json().get("result"):
-                user_id_list = [user_obj.get("userid") for user_obj in a.json().get("result") if user_obj.get("alias") == "Admin"]
+                user_id_list = [user_obj.get("userid") for user_obj in a.json().get("result") if
+                                user_obj.get("alias") == "Admin"]
                 admin_user_id = user_id_list[0] if user_id_list else None
                 return admin_user_id
             else:
@@ -385,16 +404,53 @@ class OpsAnyApi:
             # 连接API失败
             return False, "API连接不成功，请检查API地址{}".format(url)
 
+    def workbench_add_nav(self, nav_group):
+        """工作台初始化导航菜单"""
+        try:
+            NAV_API = "/o/workbench//api/workbench/v0_1/update-nav/"
+            NAV_GROUP_URL = self.paas_domain + NAV_API
+            nav_group.update({"username": self.username})
+
+            response = self.session.post(url=NAV_GROUP_URL, data=json.dumps(nav_group), verify=False)
+            if response.status_code == 200:
+                res = response.json()
+            else:
+                res = {"code": 500, "message": "error", "data": response.status_code}
+            if res.get("code") == 200:
+                return 1, res.get("data") or res.get("message")
+            else:
+                return 0, res.get("data") or res.get("errors") or res.get("message")
+        except Exception as e:
+            return 0, str(e)
+
+    def create_controller_zabbix(self, create_data):
+        # TEST DATA  /t/ -> /o/
+        API = "/o/control/api/control/v0_1/controller-init/"
+        url = self.paas_domain + API
+        res = self.session.post(url, json=create_data, verify=False)
+        if res.status_code == 200:
+            if str(res.json().get("code", "")) == "200":
+                # API请求成功
+                return True, "Zabbix集成创建成功"
+            else:
+                # API请求失败
+                return False, res.json().get("message")
+        else:
+            # 连接API失败
+            return False, "API连接不成功，请检查API地址{}".format(url)
+
 
 class GrafanaBasicApi:
     """
     ("admin", "admin", "dev.opsany.cn/grafana")
     """
+
     def __init__(self, username, password, grafana_url):
         self.username = username
         self.password = password
         self.grafana_url = grafana_url
-        self.grafana_api_obj = GrafanaFace(auth=(self.username, self.password), host=grafana_url, protocol="https", verify=False)
+        self.grafana_api_obj = GrafanaFace(auth=(self.username, self.password), host=grafana_url, protocol="https",
+                                           verify=False)
         self.link_status = self.test_ping()
 
     def test_ping(self):
@@ -431,6 +487,7 @@ class GrafanaBearerApi:
     """
     ("eyJrIjoiR3ZZZGxjbmZ6N0NybEowWEZ4RVJiRDgwYWVyb0RYcTMiLCJuIjoiYXBpa2V5MSIsImlkIjoxfQ==", "dev.opsany.cn/grafana")
     """
+
     def __init__(self, api_token, grafana_url, zabbix_api_password):
         self.grafana_api_obj = GrafanaFace(auth=api_token, host=grafana_url, protocol="https", verify=False)
         self.link_status = self.test_ping()
@@ -443,7 +500,7 @@ class GrafanaBearerApi:
         except Exception as e:
             return False
 
-    def create_data_source(self, zabbix_api):
+    def create_data_source(self, zabbix_api, zabbix_zpi_username):
         try:
             data_source_dict = {
                 'orgId': 1,
@@ -461,7 +518,7 @@ class GrafanaBearerApi:
                     'trends': True,
                     'trendsFrom': '',
                     'trendsRange': '',
-                    'username': 'zabbixapi',
+                    'username': zabbix_zpi_username,
                     'password': self.zabbix_api_password
                 },
                 'readOnly': False
@@ -487,7 +544,7 @@ class GrafanaBearerApi:
 
 class Run:
     def __init__(self, paas_domain, private_ip, paas_username, paas_password, zabbix_ip, zabbix_password, grafana_ip,
-                  grafana_password, modify_zabbix_password, zabbix_api_password, modify_grafana_password):
+                 grafana_password, modify_zabbix_password, zabbix_api_password, modify_grafana_password):
         self.paas_domain = self.handle_domain(paas_domain)
         self.private_ip = self.handle_domain(private_ip)
         self.grafana_ip = grafana_ip if grafana_ip else self.handle_domain(private_ip)
@@ -498,6 +555,7 @@ class Run:
         self.zabbix_ip = zabbix_ip if zabbix_ip else self.handle_domain(private_ip)
         self.zabbix_password = zabbix_password if zabbix_password else default_zabbix_password
         self.zabbix_api_password = zabbix_api_password if zabbix_api_password else default_zabbix_api_password
+        self.zabbix_api_username = default_zabbix_api_username
         self.modify_zabbix_password = modify_zabbix_password if modify_zabbix_password else default_modify_zabbix_password
         self.modify_grafana_password = modify_grafana_password
         self.opsany_api_obj = OpsAnyApi("https://" + self.paas_domain, self.paas_username, self.paas_password)
@@ -533,7 +591,8 @@ class Run:
             # 创建用户
             group_id = zabbix_obj.get_admin_user_group_id()
             if group_id:
-                create_user_status = zabbix_obj.create_admin_user(group_id, self.zabbix_api_password)
+                create_user_status = zabbix_obj.create_admin_user(group_id, self.zabbix_api_username,
+                                                                  self.zabbix_api_password)
                 if not create_user_status:
                     status = False
                     return status, "创建初始化用户失败，用户可能已经存在"
@@ -567,15 +626,16 @@ class Run:
                 return False, "[ERROR] Link grafana error, please check username or password", ""
             if grafana_api_token:
                 bearer_grafana_obj = GrafanaBearerApi(
-                        grafana_api_token,
-                        "{}/grafana".format(self.private_ip),
-                        self.zabbix_api_password
-                    )
+                    grafana_api_token,
+                    "{}/grafana".format(self.private_ip),
+                    self.zabbix_api_password
+                )
                 create_data_source_status, create_data_source_name_or_message = bearer_grafana_obj.create_data_source(
-                        "http://{}:8006/api_jsonrpc.php".format(self.private_ip)
-                    )
+                    "http://{}:8006/api_jsonrpc.php".format(self.private_ip), self.zabbix_api_username
+                )
                 if create_data_source_status:
-                    import_monitor_status, import_monitor_message = bearer_grafana_obj.import_dashboard(monitor_request_dict)
+                    import_monitor_status, import_monitor_message = bearer_grafana_obj.import_dashboard(
+                        monitor_request_dict)
                     if not import_monitor_status:
                         print("[ERROR] Import default monitor dashboard error: {}".format(import_monitor_message))
                     else:
@@ -586,7 +646,8 @@ class Run:
                     else:
                         print("[SUCCESS] Import default host dashboard success")
                     if self.modify_grafana_password:
-                        update_password_status, update_password_message = self.basic_grafana_obj.update_password(self.modify_grafana_password)
+                        update_password_status, update_password_message = self.basic_grafana_obj.update_password(
+                            self.modify_grafana_password)
                         if not update_password_status:
                             print("[ERROR] Update grafana password error: {}".format(update_password_message))
                         else:
@@ -634,6 +695,30 @@ class Run:
         else:
             return False, "OpsAny平台认证失败"
 
+    def create_controller_zabbix(self):
+        controller_dict = {
+            "name": "内置Zabbix Server",
+            "description": "内置Zabbix Server",
+            "built_in": True,
+            "default": True,
+            "zabbix_url": "http://" + self.zabbix_ip + ":8006/api_jsonrpc.php",
+            "zabbix_username": self.zabbix_api_username,
+            "zabbix_password": self.modify_zabbix_password,
+        }
+        if self.opsany_api_obj.token:
+            status, message = self.opsany_api_obj.create_controller_zabbix(controller_dict)
+            if status:
+                return True, message
+            else:
+                return False, message
+        else:
+            return False, "OpsAny平台认证失败"
+
+    def workbench_add_nav(self):
+        data = InitData()
+        nav_data = data.NAV_GROUP
+        return self.opsany_api_obj.workbench_add_nav(nav_data)
+
 
 def start(paas_domain, private_ip, paas_username, paas_password, zabbix_ip, zabbix_password, grafana_ip,
           grafana_password, modify_zabbix_password, zabbix_api_password, modify_grafana_password):
@@ -647,13 +732,26 @@ def start(paas_domain, private_ip, paas_username, paas_password, zabbix_ip, zabb
         # 创建api_token至OpsAny
         create_api_token_status, create_api_token_message = run_obj.init_monitor(grafana_api_token)
         print("[SUCCESS] Create api token success") if create_api_token_status else \
-            print("[ERROR] Create api token error, error info: {}, Api token: {}".format(create_api_token_message, grafana_api_token))
+            print("[ERROR] Create api token error, error info: {}, Api token: {}".format(create_api_token_message,
+                                                                                         grafana_api_token))
         sync_dashboard_status, sync_dashboard_status_message = run_obj.sync_dashboard()
         print("[SUCCESS] Sync dashboard success") if sync_dashboard_status else \
             print("[ERROR] Sync dashboard error, error info: {}".format(sync_dashboard_status_message))
+        # 创建Zabbix
+        create_controller_zabbix_status, create_controller_zabbix_message = run_obj.create_controller_zabbix()
+        print("[SUCCESS] Create controller zabbix success") if create_controller_zabbix_status else \
+            print("[ERROR] Create controller zabbix error, error info: {}".format(create_controller_zabbix_message))
+
+        # 管控主机导入zabbix
         import_zabbix_status, import_zabbix_status_message = run_obj.import_zabbix()
         print("[SUCCESS] import agent zabbix success") if import_zabbix_status else \
             print("[ERROR] import agent zabbix error, error info: {}".format(import_zabbix_status_message))
+
+        # 初始化工作台导航目录
+        add_nav_status, add_nav_data = run_obj.workbench_add_nav()
+        print("[SUCCESS] add nav success") if add_nav_status else print(
+            "[ERROR] add nav error, error info: {}".format(add_nav_data))
+
         print("[SUCCESS] ALL success")
     else:
         print("[ERROR] Init zabbix error, error info: {}".format(init_zabbix_message))
@@ -684,6 +782,7 @@ if __name__ == '__main__':
     default_zabbix_password = "admin"
     default_grafana_password = "admin"
     default_zabbix_api_password = "OpsAny@2020"
+    default_zabbix_api_username = "zabbixapi"
     default_modify_zabbix_password = "OpsAny@2020"
     start(
         options.domain,

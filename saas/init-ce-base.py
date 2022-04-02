@@ -91,22 +91,6 @@ class OpsAnyApi:
             # 连接API失败
             return False, "API连接不成功，请检查API地址{}".format(url)
 
-    def create_controller_zabbix(self, create_data):
-        # TEST DATA  /t/ -> /o/
-        API = "/o/control/api/control/v0_1/controller-init/"
-        url = self.paas_domain + API
-        res = self.session.post(url, json=create_data, verify=False)
-        if res.status_code == 200:
-            if str(res.json().get("code", "")) == "200":
-                # API请求成功
-                return True, "Zabbix集成创建成功"
-            else:
-                # API请求失败
-                return False, res.json().get("message")
-        else:
-            # 连接API失败
-            return False, "API连接不成功，请检查API地址{}".format(url)
-
     def create_grafana_api_token(self, create_data):
         # TEST DATA  /t/ -> /o/
         API = "/o/monitor/api/monitor/v0_1/api/grafana/v0_2/grafana/"
@@ -155,12 +139,11 @@ class OpsAnyApi:
 
 
 class Run:
-    def __init__(self, paas_domain, private_ip, paas_username, paas_password, zabbix_api_password):
+    def __init__(self, paas_domain, private_ip, paas_username, paas_password):
         self.paas_domain = self.handle_domain(paas_domain)
         self.private_ip = self.handle_domain(private_ip)
         self.paas_username = paas_username if paas_username else default_paas_username
         self.paas_password = paas_password if paas_password else default_paas_password
-        self.zabbix_api_password = zabbix_api_password if zabbix_api_password else default_zabbix_api_password
         self.opsany_api_obj = OpsAnyApi("https://" + self.paas_domain, self.paas_username, self.paas_password)
 
     def handle_domain(self, domain: str):
@@ -205,25 +188,6 @@ class Run:
         else:
             return False, "OpsAny平台认证失败"
 
-    def create_controller_zabbix(self):
-        controller_dict = {
-            "name": "内置Zabbix Server",
-            "description": "内置Zabbix Server",
-            "built_in": True,
-            "default": True,
-            "zabbix_url": "http://" + self.private_ip + ":8006/api_jsonrpc.php",
-            "zabbix_username": "zabbixapi",
-            "zabbix_password": self.zabbix_api_password,
-        }
-        if self.opsany_api_obj.token:
-            status, message = self.opsany_api_obj.create_controller_zabbix(controller_dict)
-            if status:
-                return True, message
-            else:
-                return False, message
-        else:
-            return False, "OpsAny平台认证失败"
-
     def update_admin_user(self):
         bk_token = self.opsany_api_obj.token
         usename, user_id_or_error_message = self.opsany_api_obj.get_admin_user_id()
@@ -240,16 +204,12 @@ class Run:
         return status, message
 
 
-def start(paas_domain, private_ip, paas_username, paas_password, zabbix_api_password):
-    run_obj = Run(paas_domain, private_ip, paas_username, paas_password, zabbix_api_password)
+def start(paas_domain, private_ip, paas_username, paas_password):
+    run_obj = Run(paas_domain, private_ip, paas_username, paas_password)
     # 创建控制器
     create_controller_status, create_controller_message = run_obj.create_controller_salt()
     print("[SUCCESS] Create controller success") if create_controller_status else \
         print("[ERROR] Create controller error, error info: {}".format(create_controller_message))
-    # 创建Zabbix
-    create_controller_zabbix_status, create_controller_zabbix_message = run_obj.create_controller_zabbix()
-    print("[SUCCESS] Create controller zabbix success") if create_controller_zabbix_status else \
-        print("[ERROR] Create controller zabbix error, error info: {}".format(create_controller_zabbix_message))
     # 更新用户admin用户信息
     update_admin_user_info_status, update_admin_user_info_message = run_obj.update_admin_user()
     print("[SUCCESS] Update admin user info success") if update_admin_user_info_status else \
@@ -263,7 +223,6 @@ def add_parameter():
     parameter.add_argument("--private_ip", help="Required parameters.", required=True)
     parameter.add_argument("--paas_username", help="OpsAny Username.", required=False)
     parameter.add_argument("--paas_password", help="OpsAny Password.", required=False)
-    parameter.add_argument("--zabbix_api_password", help="Zabbix Api User Password.", required=False)
     parameter.parse_args()
     return parameter
 
@@ -273,15 +232,13 @@ if __name__ == '__main__':
     options = parameter.parse_args()
     default_paas_username = "admin"
     default_paas_password = "admin"
-    default_zabbix_api_password = "OpsAny@2020"
     start(
         options.domain,
         options.private_ip,
         options.paas_username,
-        options.paas_password,
-        options.zabbix_api_password
+        options.paas_password
     )
 
-# python3 init-ce-base.py --domain 192.168.56.11 --private_ip 192.168.56.11 --paas_username admin --paas_password 123456.coM --zabbix_api_password OpsAny@2020
+# python3 init-ce-base.py --domain 192.168.56.11 --private_ip 192.168.56.11 --paas_username admin --paas_password 123456.coM
 
-# python init-ce-base.py --domain dev.opsany.cn --private_ip 192.168.56.11 --paas_username huxingqi --paas_password Huxingqi27 --zabbix_api_password OpsAny@2020
+# python init-ce-base.py --domain dev.opsany.cn --private_ip 192.168.56.11 --paas_username huxingqi --paas_password Huxingqi27
