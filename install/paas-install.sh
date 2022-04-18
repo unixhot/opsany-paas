@@ -71,9 +71,10 @@ install_check(){
 # Install Initialize
 opsany_init(){
     shell_log "Start: Install Init"
-    mkdir -p ${INSTALL_PATH}/{uploads/guacamole,uploads/workbench/icon,conf,esb,logs,saas/apps,saas/saasapp,salt-volume/certs,salt-volume/srv/pillar,salt-volume/srv/salt,salt-volume/etc,paasagent-volume,redis-volume,mongodb-volume,mysql-volume,st2-volume}
+    mkdir -p ${INSTALL_PATH}/{uploads/guacamole,uploads/workbench/icon,conf,esb,logs,saas/apps,saas/saasapp,salt-volume/certs,salt-volume/srv/pillar,salt-volume/srv/salt,salt-volume/etc,paasagent-volume,redis-volume,mongodb-volume,mysql-volume,st2-volume,grafana-volume/plugins}
     cd $CDIR
     /bin/cp -r ../install/conf ${INSTALL_PATH}/
+    /bin/cp -r ../install/init ${INSTALL_PATH}/
     /bin/cp -r ./uploads/* ${INSTALL_PATH}/uploads/
     /bin/cp -r ../paas-ce/saas/saas-logo/* ${INSTALL_PATH}/uploads/workbench/icon/
     ## init for st2
@@ -270,6 +271,15 @@ paas_start(){
     -v /etc/localtime:/etc/localtime:ro \
     ${PAAS_DOCKER_REG}/openresty:1.17.8.2-alpine
 
+    # Grafana
+    shell_log "=====Start Grafana======"
+    docker run -d --restart=always --name opsany-grafana \
+    -v ${INSTALL_PATH}/conf/grafana/grafana.ini:/etc/grafana/grafana.ini \
+    -v ${INSTALL_PATH}/conf/grafana/grafana.key:/etc/grafana/grafana.key \
+    -v ${INSTALL_PATH}/conf/grafana/grafana.pem:/etc/grafana/grafana.pem \
+    -v /etc/localtime:/etc/localtime:ro \
+    -p 8007:3000 \
+    ${PAAS_DOCKER_REG}/opsany-grafana:8.3.3
 }
 
 # Start PaasAgent

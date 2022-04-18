@@ -43,7 +43,7 @@ saas_init(){
     pip3 install requests==2.25.1 grafana-api==1.0.3 mysql-connector==2.2.9 SQLAlchemy==1.4.22 \
              -i http://mirrors.aliyun.com/pypi/simple/ \
              --trusted-host mirrors.aliyun.com
-    mkdir -p ${INSTALL_PATH}/{es-volume,zabbix-volume/alertscripts,zabbix-volume/externalscripts,zabbix-volume/snmptraps,grafana-volume/plugins}
+    mkdir -p ${INSTALL_PATH}/{es-volume,zabbix-volume/alertscripts,zabbix-volume/externalscripts,zabbix-volume/snmptraps}
     mkdir -p ${INSTALL_PATH}/uploads/monitor/heartbeat-monitors.d
     chmod -R 777 ${INSTALL_PATH}/es-volume
 }
@@ -79,46 +79,6 @@ zabbix_install(){
       -d ${PAAS_DOCKER_REG}/zabbix-web-nginx-mysql:alpine-5.0-latest
 }
 
-# Start Grafana
-grafana_install(){
-    # Grafana
-    shell_log "=====Start Grafana======"
-    docker run -d --restart=always --name opsany-grafana \
-    -v ${INSTALL_PATH}/conf/grafana/grafana.ini:/etc/grafana/grafana.ini \
-    -v ${INSTALL_PATH}/conf/grafana/grafana.key:/etc/grafana/grafana.key \
-    -v ${INSTALL_PATH}/conf/grafana/grafana.pem:/etc/grafana/grafana.pem \
-    -v /etc/localtime:/etc/localtime:ro \
-    -p 8007:3000 \
-    ${PAAS_DOCKER_REG}/opsany-grafana:8.3.3
-}
-
-# Start Elasticsearch
-es_install(){
-    #Elasticsearch
-    shell_log "====Start Elasticsearch"
-    docker run -d --restart=always --name opsany-elasticsearch \
-    -e "discovery.type=single-node" \
-    -e "ELASTIC_PASSWORD=${ES_PASSWORD}" \
-    -e "xpack.license.self_generated.type=basic" \
-    -e "xpack.security.enabled=true" \
-    -e "bootstrap.memory_lock=true" \
-    -e "ES_JAVA_OPTS=-Xms512m -Xmx512m" \
-    -v /etc/localtime:/etc/localtime:ro \
-    -v ${INSTALL_PATH}/es-volume:/usr/share/elasticsearch/data/ \
-    -p 9200:9200 -p 9300:9300 \
-    ${PAAS_DOCKER_REG}/elasticsearch:7.16.3
-    
-    #heartbeat
-    shell_log "====Start Heartbeat===="
-    docker run -d --restart=always --name opsany-heartbeat \
-    -v ${INSTALL_PATH}/conf/heartbeat.yml:/etc/heartbeat/heartbeat.yml \
-    -v ${INSTALL_PATH}/uploads/monitor/heartbeat-monitors.d:/etc/heartbeat/monitors.d \
-    -v ${INSTALL_PATH}/logs:/var/log/heartbeat \
-    -v /etc/localtime:/etc/localtime:ro \
-    ${PAAS_DOCKER_REG}/opsany-heartbeat:7.13.2
-    
-}
-
 # SaaS DB Initialize
 mysql_init(){
     shell_log "======MySQL Initialize======"
@@ -142,46 +102,46 @@ saas_deploy(){
     cd ../../opsany-saas/
     /bin/cp *.tar.gz ../opsany-paas/saas/
     cd $CDIR
-    cd ../saas/ && ls *.tar.gz
+    cd ../saas/ && ls monitor*
     if [ $? -ne 0 ];then
         echo "Please Download SAAS first" && exit
     fi
     python3 deploy.py --domain $DOMAIN_NAME --username admin --password admin --file_name monitor-opsany-*.tar.gz
     #python3 deploy.py --domain $DOMAIN_NAME --username admin --password admin --file_name log-opsany-*.tar.gz
     #python3 deploy.py --domain $DOMAIN_NAME --username admin --password admin --file_name apm-opsany-*.tar.gz
-    python3 init-ce-monitor.py --domain $DOMAIN_NAME --private_ip $LOCAL_IP --paas_username admin --paas_password admin --zabbix_password zabbix --grafana_password admin --zabbix_api_password $ZABBIX_ADMIN_PASSWORD --modify_zabbix_password $ZABBIX_API_PASSWORD --modify_grafana_password $GRAFANA_ADMIN_PASSWORD
+}
+
+monitor_init(){
+    cd $CDIR
+    cd ../saas/
+    python3 init-ce-monitor.py --domain $DOMAIN_NAME --private_ip $LOCAL_IP --paas_username admin --paas_password admin
+}
+monitor_with_zabbix_init(){
+    cd $CDIR
+    cd ../saas/
+    python3 init-ce-monitor_zabbix.py --domain $DOMAIN_NAME --private_ip $LOCAL_IP --paas_username admin --paas_password admin --zabbix_password zabbix --grafana_password $GRAFANA_ADMIN_PASSWORD --zabbix_api_password $ZABBIX_ADMIN_PASSWORD --modify_zabbix_password $ZABBIX_API_PASSWORD
 }
 
 # Main
 main(){
     case "$1" in
 	only)
-		saas_init
+        saas_init
         mysql_init
-        grafana_install
-        es_install
         copy_logo
         saas_deploy
+        monitor_init
 		;;
     zabbix)
         saas_init
         mysql_init
         zabbix_install
-        grafana_install
-        es_install
         copy_logo
         saas_deploy
+        monitor_with_zabbix_init
         ;;
-	prometheus)
-		saas_init
-        mysql_init
-        grafana_install
-        es_install
-        copy_logo
-        saas_deploy
-		;;
 	help|*)
-		echo $"Usage: $0 {only|zabbix|prometheus|help}"
+		echo $"Usage: $0 {only|zabbix|help}"
 	        ;;
 esac
 }

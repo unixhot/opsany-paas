@@ -65,6 +65,33 @@ END
     shell_log "======Enterprise SAAS MongoDB Initialize End======"
 }
 
+# Start Elasticsearch
+es_install(){
+    #Elasticsearch
+    shell_log "====Start Elasticsearch"
+    docker run -d --restart=always --name opsany-elasticsearch \
+    -e "discovery.type=single-node" \
+    -e "ELASTIC_PASSWORD=${ES_PASSWORD}" \
+    -e "xpack.license.self_generated.type=basic" \
+    -e "xpack.security.enabled=true" \
+    -e "bootstrap.memory_lock=true" \
+    -e "ES_JAVA_OPTS=-Xms512m -Xmx512m" \
+    -v /etc/localtime:/etc/localtime:ro \
+    -v ${INSTALL_PATH}/es-volume:/usr/share/elasticsearch/data/ \
+    -p 9200:9200 -p 9300:9300 \
+    ${PAAS_DOCKER_REG}/elasticsearch:7.16.3
+    
+    #heartbeat
+    shell_log "====Start Heartbeat===="
+    docker run -d --restart=always --name opsany-heartbeat \
+    -v ${INSTALL_PATH}/conf/heartbeat.yml:/etc/heartbeat/heartbeat.yml \
+    -v ${INSTALL_PATH}/uploads/monitor/heartbeat-monitors.d:/etc/heartbeat/monitors.d \
+    -v ${INSTALL_PATH}/logs:/var/log/heartbeat \
+    -v /etc/localtime:/etc/localtime:ro \
+    ${PAAS_DOCKER_REG}/opsany-heartbeat:7.13.2
+    
+}
+
 ee_saas_init(){
     #python3 init_script.py --domain $DOMAIN_NAME --private_ip $LOCAL_IP
     echo 'hehe'

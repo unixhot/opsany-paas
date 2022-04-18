@@ -115,16 +115,16 @@ mysql_init(){
 # MonogDB Initialize
 mongodb_init(){
     shell_log "======MongoDB Initialize======"
-    sed -i "s/MONGO_WORKBENCH_PASSWORD/${MONGO_WORKBENCH_PASSWORD}/g" ./init/mongodb-init/mongodb_init.js
-    sed -i "s/MONGO_CMDB_PASSWORD/${MONGO_CMDB_PASSWORD}/g" ./init/mongodb-init/mongodb_init.js
-    sed -i "s/MONGO_JOB_PASSWORD/${MONGO_JOB_PASSWORD}/g" ./init/mongodb-init/mongodb_init.js
-    sed -i "s/MONGO_DEVOPS_PASSWORD/${MONGO_DEVOPS_PASSWORD}/g" ./init/mongodb-init/mongodb_init.js
-    sed -i "s/MONGO_CMP_PASSWORD/${MONGO_CMP_PASSWORD}/g" ./init/mongodb-init/mongodb_init.js
-    sed -i "s/MONGO_MONITOR_PASSWORD/${MONGO_MONITOR_PASSWORD}/g" ./init/mongodb-init/mongodb_init.js
-    sed -i "s/MONGO_AUTO_PASSWORD/${MONGO_AUTO_PASSWORD}/g" ./init/mongodb-init/mongodb_init.js
-    sed -i "s/MONGO_EVENT_PASSWORD/${MONGO_EVENT_PASSWORD}/g" ./init/mongodb-init/mongodb_init.js
+    sed -i "s/MONGO_WORKBENCH_PASSWORD/${MONGO_WORKBENCH_PASSWORD}/g" ${INSTALL_PATH}/init/mongodb-init/mongodb_init.js
+    sed -i "s/MONGO_CMDB_PASSWORD/${MONGO_CMDB_PASSWORD}/g" ${INSTALL_PATH}/init/mongodb-init/mongodb_init.js
+    sed -i "s/MONGO_JOB_PASSWORD/${MONGO_JOB_PASSWORD}/g" ${INSTALL_PATH}/init/mongodb-init/mongodb_init.js
+    sed -i "s/MONGO_DEVOPS_PASSWORD/${MONGO_DEVOPS_PASSWORD}/g" ${INSTALL_PATH}/init/mongodb-init/mongodb_init.js
+    sed -i "s/MONGO_CMP_PASSWORD/${MONGO_CMP_PASSWORD}/g" ${INSTALL_PATH}/init/mongodb-init/mongodb_init.js
+    sed -i "s/MONGO_MONITOR_PASSWORD/${MONGO_MONITOR_PASSWORD}/g" ${INSTALL_PATH}/init/mongodb-init/mongodb_init.js
+    sed -i "s/MONGO_AUTO_PASSWORD/${MONGO_AUTO_PASSWORD}/g" ${INSTALL_PATH}/init/mongodb-init/mongodb_init.js
+    sed -i "s/MONGO_EVENT_PASSWORD/${MONGO_EVENT_PASSWORD}/g" ${INSTALL_PATH}/init/mongodb-init/mongodb_init.js
     
-    docker cp init/mongodb-init/mongodb_init.js opsany-mongodb:/opt/
+    docker cp ${INSTALL_PATH}/init/mongodb-init/mongodb_init.js opsany-mongodb:/opt/
     docker exec -e MONGO_INITDB_ROOT_USERNAME=$MONGO_INITDB_ROOT_USERNAME \
                 -e MONGO_INITDB_ROOT_PASSWORD=$MONGO_INITDB_ROOT_PASSWORD \
                 opsany-mongodb /bin/bash -c "/usr/bin/mongo -u $MONGO_INITDB_ROOT_USERNAME -p $MONGO_INITDB_ROOT_PASSWORD /opt/mongodb_init.js"
@@ -164,7 +164,9 @@ saas_deploy(){
     python3 deploy.py --domain $DOMAIN_NAME --username admin --password admin --file_name cmp-opsany-*.tar.gz
     python3 deploy.py --domain $DOMAIN_NAME --username admin --password admin --file_name bastion-opsany-*.tar.gz
     shell_log "======OpsAny Data Initialize======"
-    python3 init-ce-base.py --domain $DOMAIN_NAME --private_ip $LOCAL_IP --paas_username admin --paas_password admin
+    python3 init-ce-base.py --domain $DOMAIN_NAME --private_ip $LOCAL_IP --paas_username admin --paas_password admin --grafana_password admin --grafana_change_password $GRAFANA_ADMIN_PASSWORD
+
+
     chmod +x /etc/rc.d/rc.local
     echo "sleep 60 && /bin/bash ${INSTALL_PATH}/saas-restart.sh" >> /etc/rc.d/rc.local
     shell_log "======OpsAny: Make Ops Perfect======"

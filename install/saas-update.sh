@@ -138,18 +138,17 @@ main(){
     bastion)
         bastion_update
         ;;
-	all)
+	base)
 		rbac_update
 		workbench_update
 		cmdb_update
 		control_update
 		job_update
-		monitor_update
 		cmp_update
         bastion_update
 		;;
 	help|*)
-		echo $"Usage: $0 {all|rbac|workbench|cmdb|control|job|monitor|cmp|devops|bastion|help}"
+		echo $"Usage: $0 {base|rbac|workbench|cmdb|control|job|monitor|cmp|devops|bastion|help}"
 	        ;;
 esac
 }
