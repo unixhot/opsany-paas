@@ -2925,8 +2925,8 @@ default_monitor_dashboard_dict = {
         ]
     },
     "timezone": "",
-    "title": "内置主机大屏",
-    "uid": "built_in_host_dashboard",
+    "title": "内置监控大屏",
+    "uid": "built_in_monitor_dashboard",
     "version": 2
 }
 

@@ -432,7 +432,7 @@ class OpsAnyApi:
         if res.status_code == 200:
             if str(res.json().get("code", "")) == "200":
                 # API请求成功
-                return True, "Zabbix集成创建成功"
+                return True, res.json().get("data", "")
             else:
                 # API请求失败
                 return False, res.json().get("message")
