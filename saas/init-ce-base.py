@@ -183,7 +183,7 @@ class GrafanaBasicApi:
 
 
 class Run:
-    def __init__(self, paas_domain, private_ip, paas_username, paas_password, grafana_password, grafana_change_password):
+    def __init__(self, paas_domain, private_ip, paas_username, paas_password, grafana_password, grafana_change_password, proxy_url, proxy_public_url, proxy_token):
         self.paas_domain = self.handle_domain(paas_domain)
         self.private_ip = self.handle_domain(private_ip)
         self.paas_username = paas_username if paas_username else default_paas_username
@@ -193,6 +193,9 @@ class Run:
         self.grafana_ip = self.handle_domain(private_ip)
         self.opsany_api_obj = OpsAnyApi("https://" + self.paas_domain, self.paas_username, self.paas_password)
         self.basic_grafana_obj = GrafanaBasicApi("admin", self.grafana_password, "{}/grafana".format(self.grafana_ip))
+        self.proxy_url = proxy_url
+        self.proxy_public_url = proxy_public_url
+        self.proxy_token = proxy_token
 
 
     def handle_domain(self, domain: str):
@@ -228,8 +231,16 @@ class Run:
             "port1": "",
             "port2": ""
         }
+        controller_dict_v2 = {
+            "name": "默认控制器",
+            "type": "本地",
+            # TEST DATA 8011 -> 8005
+            "proxy_url": self.proxy_url,
+            "proxy_public_url": self.proxy_public_url,
+            "proxy_token": self.proxy_token,
+        }
         if self.opsany_api_obj.token:
-            status, message = self.opsany_api_obj.create_controller_salt(controller_dict)
+            status, message = self.opsany_api_obj.create_controller_salt(controller_dict_v2)
             if status:
                 return True, message
             else:
@@ -291,8 +302,8 @@ class Run:
         return False, "没有获取到有效key"
 
 
-def start(paas_domain, private_ip, paas_username, paas_password, grafana_password, grafana_change_password=None):
-    run_obj = Run(paas_domain, private_ip, paas_username, paas_password, grafana_password, grafana_change_password)
+def start(paas_domain, private_ip, paas_username, paas_password, grafana_password, proxy_url, proxy_public_url, proxy_token, grafana_change_password=None):
+    run_obj = Run(paas_domain, private_ip, paas_username, paas_password, grafana_password, grafana_change_password, proxy_url, proxy_public_url, proxy_token)
     # 创建控制器
     create_controller_status, create_controller_message = run_obj.create_controller_salt()
     print("[SUCCESS] Create controller success") if create_controller_status else \
@@ -319,6 +330,9 @@ def add_parameter():
     parameter = argparse.ArgumentParser()
     parameter.add_argument("--domain", help="Required parameters.", required=True)
     parameter.add_argument("--private_ip", help="Required parameters.", required=True)
+    parameter.add_argument("--proxy_url", help="Required parameters.", required=True)
+    parameter.add_argument("--proxy_public_url", help="Required parameters.", required=True)
+    parameter.add_argument("--proxy_token", help="Required parameters.", required=True)
     parameter.add_argument("--paas_username", help="OpsAny Username.", required=False)
     parameter.add_argument("--paas_password", help="OpsAny Password.", required=False)
     parameter.add_argument("--grafana_password", help="Grafana Admin Password.", required=False)
@@ -339,8 +353,11 @@ if __name__ == '__main__':
         options.paas_username,
         options.paas_password,
         options.grafana_password,
+        options.proxy_url,
+        options.proxy_public_url,
+        options.proxy_token,
         options.grafana_change_password
     )
 
-# python3 init-ce-base.py --domain 192.168.56.11 --private_ip 192.168.56.11 --paas_username admin --paas_password 123456.coM --grafana_password grafana_password --grafana_change_password new_password
+# python3 init-ce-base.py --domain 192.168.56.11 --private_ip 192.168.56.11 --proxy_url https://192.168.56.11:8011 --proxy_token fa4b47fb-4f0f-4140-be69-171e00ca4831 --paas_username admin --paas_password 123456.coM --grafana_password grafana_password --grafana_change_password new_password
 

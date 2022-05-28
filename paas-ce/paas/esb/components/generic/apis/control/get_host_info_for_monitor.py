@@ -40,11 +40,12 @@ class GetHostInfoForMonitor(Component):
     class Form(BaseComponentForm):
         page = forms.Field()
         pageSize = forms.Field()
+        token_data = forms.Field(required=True)
         filter = forms.Field(required=False)
 
         # clean方法返回的数据可通过组件的form_data属性获取
         def clean(self):
-            return self.get_cleaned_data_when_exist(keys=["page", "pageSize", "filter"])
+            return self.get_cleaned_data_when_exist(keys=["page", "pageSize", "filter", "token_data"])
 
     # 组件处理入口
     def handle(self):

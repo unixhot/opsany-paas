@@ -46,7 +46,7 @@ class GetLinkModelCount(Component):
 
     # Form处理参数校验
     class Form(BaseComponentForm):
-    	inst_model_code = forms.Field(required=True)
+        inst_model_code = forms.Field(required=True)
         model_code_name_list = forms.Field(required=True)
         field_code_list = forms.Field(required=True)
         # group_list = forms.ListField(required=True)

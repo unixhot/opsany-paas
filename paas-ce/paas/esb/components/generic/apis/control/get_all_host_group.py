@@ -38,11 +38,11 @@ class GetAllHostGroup(Component):
 
     # Form处理参数校验
     class Form(BaseComponentForm):
-        pass
+        token_data = forms.Field(required=False)
 
         # clean方法返回的数据可通过组件的form_data属性获取
         def clean(self):
-            return self.get_cleaned_data_when_exist()
+            return self.get_cleaned_data_when_exist(keys=["token_data"])
 
     # 组件处理入口
     def handle(self):

@@ -94,7 +94,7 @@ class PostScript(Component):
             }
         else:
             result = {
-                'api_code': response['error_code'],
+                'api_code': response['errcode'],
                 'result': False,
                 'message': response['message'],
                 'request_data': params

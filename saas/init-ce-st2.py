@@ -1,6 +1,12 @@
 #! /usr/bin/python3
 # -*- coding: utf8 -*-
+"""_summary_
 
+Returns:
+    _notion_: 执行前需要确认stackstorm是否部署成功。否则执行失败。
+    _description_: 执行脚本前需确认是否下载 opsany_core opsany_workflow 两个pack 至目标目录。否则执行失败。
+    
+"""
 
 import time
 
@@ -39,7 +45,7 @@ class StackStormApi:
                 'accept': 'application/json'
             }
             res = req.post(url, headers=headers, timeout=self.timeout, verify=False)
-            if res.status_code == 200 or res.status_code == 201:
+            if res.status_code in [200, 201]:
                 return True, res.json().get("token")
 
             else:
@@ -67,7 +73,7 @@ class StackStormApi:
             self.update_headers()
             res = requests.get(url, headers=self.headers, timeout=self.timeout, params=params, verify=False)
             res.encoding = 'utf-8'
-            if res.status_code == 200 or res.status_code == 204:
+            if res.status_code in [200, 204]:
                 return True, res.json()
             else:
                 return False, res.json()
@@ -194,7 +200,7 @@ class OpsAnyApi:
                 return resp.cookies["bklogin_csrftoken"]
             else:
                 return ""
-        except:
+        except Exception:
             return ""
 
     def login(self):
@@ -208,7 +214,7 @@ class OpsAnyApi:
             if resp.status_code == 200:
                 return self.session.cookies.get("bk_token")
             return ""
-        except:
+        except Exception:
             return False
 
     def init_devops_st2(self):
@@ -258,7 +264,7 @@ class OpsAnyApi:
             if res_dic.get("status") in ["failed", "timeout"]:
                 try:
                     errors = res_dic.get("result", {}).get("errors", [])[0].get("result").get("stderr", "")
-                except:
+                except Exception:
                     errors = "Install error please contact the developer"
                 return False, errors
         end_time = time.time()

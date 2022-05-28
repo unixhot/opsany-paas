@@ -25,7 +25,8 @@ class HostGroupToJob(Component):
     | 字段    | 类型     | 必选   | 描述       |
     | ----- | ------ | ---- | -------- |
     | group_list | list | 是  | 分组id列表 |
-    | group_list | dict | 是  | 搜索参数 |
+    | filters | dict | 是  | 搜索参数 |
+    | token_data | string | 是  | token |
 
     ### 返回结果示例
 
@@ -47,11 +48,12 @@ class HostGroupToJob(Component):
     class Form(BaseComponentForm):
         group_list = forms.Field(required=True)
         filters = forms.Field(required=False)
+        token_data = forms.Field(required=False)
         # group_list = forms.ListField(required=True)
         pass
         # clean方法返回的数据可通过组件的form_data属性获取
         def clean(self):
-            return self.get_cleaned_data_when_exist(keys=["group_list", "filters"])
+            return self.get_cleaned_data_when_exist(keys=["group_list", "filters", "token_data"])
 
     # 组件处理入口
     def handle(self):
@@ -60,7 +62,6 @@ class HostGroupToJob(Component):
 
         # 设置当前操作者
         params['operator'] = self.current_user.username
-        print("params111111", params)
         # 请求系统接口
         response = self.outgoing.http_client.post(
             host=configs.host,

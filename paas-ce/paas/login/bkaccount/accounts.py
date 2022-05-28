@@ -12,6 +12,7 @@ import time
 import unicodedata
 import urllib
 import uuid
+import json
 
 from django.conf import settings
 from django.utils.translation import ugettext as _
@@ -21,7 +22,7 @@ from django.contrib.auth import (login as auth_login,
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.views import redirect_to_login
 from django.contrib.sites.shortcuts import get_current_site
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.shortcuts import resolve_url, render
 from django.template.response import TemplateResponse
 from django.utils.six.moves.urllib.parse import urlparse
@@ -521,3 +522,41 @@ class Account(AccountSingleton):
             response = self.set_bk_token_invalid(request, response)
         return response
 
+    def _login_success(self, request, username):
+        response = JsonResponse({"code": 200, "successcode": 20000, "data": {}})
+        bk_token, expire_time = self.get_bk_token(username)
+        response.set_cookie(self.BK_COOKIE_NAME, bk_token,
+                            expires=expire_time,
+                            domain=settings.BK_COOKIE_DOMAIN,
+                            httponly=True)
+        return response
+
+    def login_api(self, request):
+        data = request.POST.dict()
+        username = data.get("username", "").strip()
+        password = data.get("password", "").strip()
+        domain = data.get("domain", "").strip()
+        verify_code = data.get("verify_code", "").strip()
+        if domain:
+            username = username + "@" + domain
+        auth_object = OpsAnyRbacUserAuth(username, password)
+        if domain:
+            status, data = auth_object.check_users()
+            # LDAP用户如果没在蓝鲸创建则创建
+            self.get_user(data, username)
+        else:
+            status = AuthenticationForm(request, data=request.POST).is_valid()
+        if status:
+            # 检查MFA状态
+            res = auth_object.get_user_google_auth_status()
+            if res in ["0", "2"]:
+                return self._login_success(request, username)
+            elif res in ["1", "3", "4", "5"]:
+                res = auth_object.check_google_verify_code(verify_code)
+                if res:
+                    return self._login_success(request, username)
+                return JsonResponse({"code": 401, "error_code": 40101, "message": "MFA验证码错误"})
+            else:
+                return JsonResponse({"code": 400, "error_code": 40000,
+                                     "message": "ESB组件错误，请先联系管理员修复ESB后再做登录"})
+        return JsonResponse({"code": 401, "error_code": 40100, "message": "账号密码错误"})

@@ -13,6 +13,7 @@ CTIME=$(date "+%Y-%m-%d-%H-%M")
 CDIR=$(pwd)
 SHELL_NAME="saas-monitor-install.sh"
 SHELL_LOG="${SHELL_NAME}.log"
+ADMIN_PASSWORD="admin"
 
 # Check SAAS Package
 if [ ! -d ../../opsany-saas ];then
@@ -79,6 +80,32 @@ zabbix_install(){
       -d ${PAAS_DOCKER_REG}/zabbix-web-nginx-mysql:alpine-5.0-latest
 }
 
+es_install(){
+    #Elasticsearch
+    shell_log "====Start Elasticsearch"
+    docker run -d --restart=always --name opsany-elasticsearch \
+    -e "discovery.type=single-node" \
+    -e "ELASTIC_PASSWORD=${ES_PASSWORD}" \
+    -e "xpack.license.self_generated.type=basic" \
+    -e "xpack.security.enabled=true" \
+    -e "bootstrap.memory_lock=true" \
+    -e "ES_JAVA_OPTS=-Xms512m -Xmx512m" \
+    -v /etc/localtime:/etc/localtime:ro \
+    -v ${INSTALL_PATH}/es-volume:/usr/share/elasticsearch/data/ \
+    -p 9200:9200 -p 9300:9300 \
+    ${PAAS_DOCKER_REG}/elasticsearch:7.16.3
+    
+    #heartbeat
+    shell_log "====Start Heartbeat===="
+    docker run -d --restart=always --name opsany-heartbeat \
+    -v ${INSTALL_PATH}/conf/heartbeat.yml:/etc/heartbeat/heartbeat.yml \
+    -v ${INSTALL_PATH}/uploads/monitor/heartbeat-monitors.d:/etc/heartbeat/monitors.d \
+    -v ${INSTALL_PATH}/logs:/var/log/heartbeat \
+    -v /etc/localtime:/etc/localtime:ro \
+    ${PAAS_DOCKER_REG}/opsany-heartbeat:7.13.2
+}
+
+
 # SaaS DB Initialize
 mysql_init(){
     shell_log "======MySQL Initialize======"
@@ -106,20 +133,20 @@ saas_deploy(){
     if [ $? -ne 0 ];then
         echo "Please Download SAAS first" && exit
     fi
-    python3 deploy.py --domain $DOMAIN_NAME --username admin --password admin --file_name monitor-opsany-*.tar.gz
-    #python3 deploy.py --domain $DOMAIN_NAME --username admin --password admin --file_name log-opsany-*.tar.gz
-    #python3 deploy.py --domain $DOMAIN_NAME --username admin --password admin --file_name apm-opsany-*.tar.gz
+    python3 deploy.py --domain $DOMAIN_NAME --username admin --password ${ADMIN_PASSWORD} --file_name monitor-opsany-*.tar.gz
+    #python3 deploy.py --domain $DOMAIN_NAME --username admin --password ${ADMIN_PASSWORD} --file_name log-opsany-*.tar.gz
+    #python3 deploy.py --domain $DOMAIN_NAME --username admin --password ${ADMIN_PASSWORD} --file_name apm-opsany-*.tar.gz
 }
 
 monitor_init(){
     cd $CDIR
     cd ../saas/
-    python3 init-ce-monitor.py --domain $DOMAIN_NAME --private_ip $LOCAL_IP --paas_username admin --paas_password admin
+    python3 init-ce-monitor.py --domain $DOMAIN_NAME --private_ip $LOCAL_IP --paas_username admin --paas_password ${ADMIN_PASSWORD}
 }
 monitor_with_zabbix_init(){
     cd $CDIR
     cd ../saas/
-    python3 init-ce-monitor_zabbix.py --domain $DOMAIN_NAME --private_ip $LOCAL_IP --paas_username admin --paas_password admin --zabbix_password zabbix --grafana_password $GRAFANA_ADMIN_PASSWORD --zabbix_api_password $ZABBIX_ADMIN_PASSWORD --modify_zabbix_password $ZABBIX_API_PASSWORD
+    python3 init-ce-monitor_zabbix.py --domain $DOMAIN_NAME --private_ip $LOCAL_IP --paas_username admin --paas_password ${ADMIN_PASSWORD} --zabbix_password zabbix --grafana_password $GRAFANA_ADMIN_PASSWORD --zabbix_api_password $ZABBIX_ADMIN_PASSWORD --modify_zabbix_password $ZABBIX_API_PASSWORD
 }
 
 # Main
@@ -130,6 +157,7 @@ main(){
         mysql_init
         copy_logo
         saas_deploy
+        es_install
         monitor_init
 		;;
     zabbix)
@@ -138,6 +166,7 @@ main(){
         zabbix_install
         copy_logo
         saas_deploy
+        es_install
         monitor_with_zabbix_init
         ;;
 	help|*)

@@ -19,6 +19,7 @@ from bkaccount.constants import ApiErrorCodeEnumV2
 from bkaccount.models import BkUser
 from bkaccount.utils import validate_bk_token, is_request_from_esb
 from bkaccount.geetest import GeeTest
+from bkaccount.accounts import Account
 
 
 class CheckLoginView(LoginExemptMixin, View):
@@ -95,3 +96,8 @@ class LoginRegisterView(LoginExemptMixin, View):
     def get(self, request):
         geetest = GeeTest()
         return geetest.local_init()
+
+
+class LoginApiView(LoginExemptMixin, View):
+    def post(self, request):
+        return Account().login_api(request)

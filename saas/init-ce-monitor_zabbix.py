@@ -21,9 +21,9 @@ class InitData:
         "group_name": "自动化运维",
         "nav_list": [
             {
-                "nav_name": "Zabbix监控",
+                "nav_name": "基础监控",
                 "nav_url": "/o/monitor/",
-                "describe": "兼容Zabbix监控平台",
+                "describe": "基础监控平台",
                 "group_name": "自动化运维",
                 "icon_name": "monitor.png"
             }

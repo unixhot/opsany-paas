@@ -54,8 +54,6 @@ class BusinessTree(Component):
         params['operator'] = self.current_user.username
 
         # 请求系统接口
-        print "demo"
-        print self.request.wsgi_request.COOKIES
         response = self.outgoing.http_client.get(
             host=configs.host,
             path='{}business-tree/'.format(base_api_url),

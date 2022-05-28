@@ -53,10 +53,11 @@ class Deploy(object):
             "geetest_seccode": "opsany"
         }
         resp = self.session.post(self.login_url, data=login_form, verify=False)
-        if resp.status_code == 200:
-            print("登陆认证成功")
+        bk_token = self.session.cookies.get("bk_token", None) # 判断token 是否生成
+        if resp.status_code == 200 and bk_token:
+            print("登录认证成功")
         else:
-            print("登陆认证失败")
+            print("登录认证失败")
             sys.exit(1)
 
     # 获取上传文件
@@ -81,23 +82,22 @@ class Deploy(object):
             else:               # 第二次部署
                 app_code = app_code
             status, version = self.upload_file(file_path, app_code)
-            if status and version:
-                url_app_code = app_code if app_code else "0"
-                deploy_url = "{}://{}/saas/{}/release/online/{}/".format(HTTP_SCHEMA, self.paas_domain, url_app_code, version)
-                res = self.session.post(deploy_url, json={"csrfmiddlewaretoken": self.csrfmiddlewaretoken},
-                                        verify=False, headers={"X-CSRFToken": self.session.cookies.get("bk_csrftoken")})
-                if res.status_code == 200:
-                    event_id = res.json().get("event_id")
-                    if event_id:
-                        print("开始部署: {}".format(file_name.split("-")[0]))
-                        self.get_result(event_id, file_name.split("-")[0])
-                    else:
-                        print("部署失败，请手工部署: {}".format(file_name))
-                        print("失败信息: {}".format(res.json().get("message")))
-                        if url_app_code == "0":
-                            self.delete_first_error_saas(file_name.split("-")[0])
-            else:
+            if not status or not version:
                 continue
+            url_app_code = app_code if app_code else "0"
+            deploy_url = "{}://{}/saas/{}/release/online/{}/".format(HTTP_SCHEMA, self.paas_domain, url_app_code, version)
+            res = self.session.post(deploy_url, json={"csrfmiddlewaretoken": self.csrfmiddlewaretoken},
+                                    verify=False, headers={"X-CSRFToken": self.session.cookies.get("bk_csrftoken")})
+            if res.status_code == 200:
+                event_id = res.json().get("event_id")
+                if event_id:
+                    print("开始部署: {}".format(file_name.split("-")[0]))
+                    self.get_result(event_id, file_name.split("-")[0])
+                else:
+                    print("部署失败，请手工部署: {}".format(file_name))
+                    print("失败信息: {}".format(res.json().get("message")))
+                    if url_app_code == "0":
+                        self.delete_first_error_saas(file_name.split("-")[0])
 
     # 用于删除第一次部署时，部署错误造成的遗留数据
     def delete_first_error_saas(self, app_code):
@@ -129,7 +129,7 @@ class Deploy(object):
         try:
             json_res = res.json()
             return json_res.get("result")
-        except:
+        except Exception:
             print("Paas服务异常")
             sys.exit(1)
 

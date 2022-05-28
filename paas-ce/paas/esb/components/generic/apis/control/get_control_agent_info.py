@@ -20,6 +20,17 @@ class GetControlAgentInfo(Component):
     ### 请求参数
     {{ common_args_desc }}
 
+    #### 接口参数
+
+    | 字段    | 类型     | 必选   | 描述       |
+    | ----- | ------ | ---- | -------- |
+    | token_data | str | 是  | token |
+    | system_type | str | 是  | 系统类型 |
+    | group_type | string | 是  | 分组ID |
+    | search_type | string | 是  | 搜索字段 |
+    | search_data | string | 是  | 搜索内容 |
+    | group_level | string | 是  | 获取主机分组深度 |
+
 
     ### 返回结果示例
 
@@ -32,7 +43,7 @@ class GetControlAgentInfo(Component):
         "message": "获取相关信息成功"
     }
     ```
-    """#
+    """
 
     # 组件所属系统的系统名
     sys_name = configs.SYSTEM_NAME
@@ -44,9 +55,10 @@ class GetControlAgentInfo(Component):
         group_type = forms.Field(required=False)
         search_type = forms.Field(required=False)
         search_data = forms.Field(required=False)
+        group_level = forms.Field(required=False)
         # clean方法返回的数据可通过组件的form_data属性获取
         def clean(self):
-            return self.get_cleaned_data_when_exist(keys=["token_data", "system_type", "group_type", "search_type", "search_data"])
+            return self.get_cleaned_data_when_exist(keys=["token_data", "system_type", "group_type", "search_type", "search_data", "group_level"])
 
     # 组件处理入口
     def handle(self):

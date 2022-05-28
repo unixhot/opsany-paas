@@ -8,6 +8,8 @@ INSTALL_PATH="/opt/opsany"
 # Network
 DOMAIN_NAME="demo.opsany.com"
 LOCAL_IP="192.168.56.11"
+PROXY_PUBLIC_IP="192.168.56.11"
+PROXY_LOCAL_IP="192.168.56.11"
 
 # For Docker Hub
 #PAAS_DOCKER_REG="opsany"
@@ -72,6 +74,7 @@ MONGO_CONTROL_PASSWORD="OpsAny@2020"
 [redis]
 # Redis Password
 REDIS_SERVER_IP="192.168.56.11"
+# Password Don't include "@"
 REDIS_SERVER_PASSWORD="OpsAny2020"
 REDIS_PORT="6379"
 TERMINAL_TIMEOUT="1800"

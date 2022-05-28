@@ -1,0 +1,16 @@
+auth:
+  sid: BK_PAASAGENT_SID
+  token: BK_PAASAGENT_TOKEN
+settings:
+  CONTROLLER_SERVER_URL: 'http://LOCAL_IP:8000' # App Engine地址
+  PAAS_SERVER_URL: 'https://LOCAL_IP' # App Engine地址
+  BASE_PATH: '/opt/opsany/paas-agent/' # eg. /data/paas
+  BASE_APP_PATH: '/opt/opsany/paas-agent'
+  USE_PYPI: 'true'
+  AGENT_LOG_PATH: '/opt/opsany/logs/paas-agent.log'
+  TEMPLATE_PATH: 'etc/templates'
+  BUILD_PATH: 'etc/build'
+  EXECUTE_TIME_LIMIT: 3000
+  PYTHON_PIP: 'http://pypi.douban.com/simple/'
+port: 4245
+ip: ''

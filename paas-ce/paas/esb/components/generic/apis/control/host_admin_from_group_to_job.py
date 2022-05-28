@@ -36,9 +36,10 @@ class HostAdminFromGroupToJob(Component):
 
     | 字段    | 类型     | 必选   | 描述       |
     | ----- | ------ | ---- | -------- |
-    | group_id | int | 是  | 分组ID |
+    | group_id | int/str | 是  | 分组ID 1 or "1,2,3" |
     | token_data | string | 是  | token |
-    
+    | username | string | 是  | 用户名用来定位授权分组 |
+
     """
 
     # 组件所属系统的系统名
@@ -46,12 +47,13 @@ class HostAdminFromGroupToJob(Component):
 
     # Form处理参数校验
     class Form(BaseComponentForm):
-        token_data = forms.Field(required=True)
+        token_data = forms.Field(required=False)
         group_id = forms.Field(required=True)
+        username = forms.Field(required=False)
 
         # clean方法返回的数据可通过组件的form_data属性获取
         def clean(self):
-            return self.get_cleaned_data_when_exist(keys=["token_data", "group_id"])
+            return self.get_cleaned_data_when_exist(keys=["token_data", "group_id", "username"])
 
     # 组件处理入口
     def handle(self):

@@ -85,9 +85,17 @@ saas_deploy(){
 
 # Main
 main(){
-    mysql_init
-    copy_logo
-    saas_deploy
+    case "$1" in
+	install)
+        mysql_init
+        copy_logo
+        saas_deploy
+		;;
+	help|*)
+		echo $"Usage: $0 {install|help}"
+	        ;;
+    esac
 }
 
-main
+main $1
+

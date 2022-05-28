@@ -6,8 +6,10 @@ docker exec opsany-paas-paasagent rm -f /opt/opsany/paas-agent/apps/projects/rba
 docker exec opsany-paas-paasagent rm -f /opt/opsany/paas-agent/apps/projects/workbench/run/supervisord.sock
 docker exec opsany-paas-paasagent rm -f /opt/opsany/paas-agent/apps/projects/cmdb/run/supervisord.sock
 docker exec opsany-paas-paasagent rm -f /opt/opsany/paas-agent/apps/projects/control/run/supervisord.sock
-docker exec opsany-paas-paasagent rm -f /opt/opsany/paas-agent/apps/projects/job/run/supervisord.sock
+docker exec opsany-paas-paasagent rm -f /opt/opsany/paas-agent/apps/projects/cmp/run/supervisord.sock
 docker exec opsany-paas-paasagent rm -f /opt/opsany/paas-agent/apps/projects/monitor/run/supervisord.sock
+docker exec opsany-paas-paasagent rm -f /opt/opsany/paas-agent/apps/projects/devops/run/supervisord.sock
+docker exec opsany-paas-paasagent rm -f /opt/opsany/paas-agent/apps/projects/bastion/run/supervisord.sock
 
 #start rbac
 docker exec opsany-paas-paasagent /usr/bin/supervisord -c /opt/opsany/paas-agent/apps/projects/rbac/conf/supervisord.conf

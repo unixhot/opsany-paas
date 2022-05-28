@@ -13,6 +13,7 @@ CTIME=$(date "+%Y-%m-%d-%H-%M")
 CDIR=$(pwd)
 SHELL_NAME="saas-base-install.sh"
 SHELL_LOG="${SHELL_NAME}.log"
+ADMIN_PASSWORD="admin"
 
 # Check SAAS Package
 if [ ! -d ../../opsany-saas ];then
@@ -29,42 +30,57 @@ else
     source ./install.env && rm -f install.env
 fi
 
-# Add ENV For SaaS
-pip3 install requests==2.25.1 grafana-api==1.0.3 mysql-connector==2.2.9 SQLAlchemy==1.4.22 \
+install_init(){
+    # Add ENV For SaaS
+    pip3 install requests==2.25.1 grafana-api==1.0.3 mysql-connector==2.2.9 SQLAlchemy==1.4.22 \
              -i http://mirrors.aliyun.com/pypi/simple/ \
              --trusted-host mirrors.aliyun.com
-cd ../saas/
-python3 add_env.py
-cp invscript.py ${INSTALL_PATH}/uploads/
-sed -i "s/LOCALHOST/${MYSQL_SERVER_IP}/g" ${INSTALL_PATH}/uploads/invscript.py
-sed -i "s/CONTROL_PASSWORD/${MYSQL_OPSANY_CONTROL_PASSWORD}/g" ${INSTALL_PATH}/uploads/invscript.py
-chmod +x ${INSTALL_PATH}/uploads/invscript.py
+    cd ../saas/
+    python3 add_env.py
+    cp invscript_proxy.py ${INSTALL_PATH}/conf/proxy/
+    sed -i "s/LOCALHOST/${MYSQL_SERVER_IP}/g" ${INSTALL_PATH}/conf/proxy/invscript_proxy.py
+    sed -i "s/PROXY_PASSWORD/${MYSQL_OPSANY_PASSWORD}/g" ${INSTALL_PATH}/conf/proxy/invscript_proxy.py
+    chmod +x ${INSTALL_PATH}/conf/proxy/invscript_proxy.py
+}
 
 # Shell Log Record
 shell_log(){
     LOG_INFO=$1
-    echo "----------------$CTIME ${SHELL_NAME} : ${LOG_INFO}----------------"
+    echo -e "\033[32m---------------- $CTIME ${SHELL_NAME} : ${LOG_INFO} ----------------\033[0m"
     echo "$CTIME ${SHELL_NAME} : ${LOG_INFO}" >> ${SHELL_LOG}
 }
 
-# Start SaltStack 
-saltstack_install(){
-    shell_log "======Start SaltStack======"
-    docker run --restart=always --name opsany-saltstack -d \
-        -p 4505:4505 -p 4506:4506 -p 8005:8005 \
+shell_warning_log(){
+    LOG_INFO=$1
+    echo -e "\033[33m---------------- $CTIME ${SHELL_NAME} : ${LOG_INFO} ----------------\033[0m"
+    echo "$CTIME ${SHELL_NAME} : ${LOG_INFO}" >> ${SHELL_LOG}
+}
+
+shell_error_log(){
+    LOG_INFO=$1
+    echo -e "\031[32m---------------- $CTIME ${SHELL_NAME} : ${LOG_INFO} ----------------\033[0m"
+    echo "$CTIME ${SHELL_NAME} : ${LOG_INFO}" >> ${SHELL_LOG}
+}
+
+# Start Proxy
+proxy_install(){
+    # Proxy
+    shell_log "======Start Proxy======"
+    docker run --restart=always --name opsany-proxy -d \
+        -p 4505:4505 -p 4506:4506 -p 8010:8010 \
         -v ${INSTALL_PATH}/logs:${INSTALL_PATH}/logs \
-        -v ${INSTALL_PATH}/salt-volume/certs/:/etc/pki/tls/certs/ \
-        -v ${INSTALL_PATH}/salt-volume/etc/salt/:/etc/salt/ \
-        -v ${INSTALL_PATH}/salt-volume/etc/salt/master.d:/etc/salt/master.d \
-        -v ${INSTALL_PATH}/salt-volume/cache/:/var/cache/salt/ \
-        -v ${INSTALL_PATH}/salt-volume/srv/salt:/srv/salt/ \
-        -v ${INSTALL_PATH}/salt-volume/srv/pillar:/srv/pillar/ \
+        -v ${INSTALL_PATH}/proxy-volume/certs/:/etc/pki/tls/certs/ \
+        -v ${INSTALL_PATH}/proxy-volume/etc/salt/:/etc/salt/ \
+        -v ${INSTALL_PATH}/proxy-volume/etc/salt/master.d:/etc/salt/master.d \
+        -v ${INSTALL_PATH}/proxy-volume/cache/:/var/cache/salt/ \
+        -v ${INSTALL_PATH}/proxy-volume/srv/salt:/srv/salt/ \
+        -v ${INSTALL_PATH}/proxy-volume/srv/pillar:/srv/pillar/ \
+        -v ${INSTALL_PATH}/proxy-volume/srv/playbook:/srv/playbook/ \
         -v ${INSTALL_PATH}/uploads:/opt/opsany/uploads \
+        -v ${INSTALL_PATH}/conf/proxy/settings_production.py.proxy:/opt/opsany-proxy/config/prod.py \
+        -v ${INSTALL_PATH}/conf/proxy/invscript_proxy.py:/opt/opsany-proxy/invscript_proxy.py \
         -v /etc/localtime:/etc/localtime:ro \
-        ${PAAS_DOCKER_REG}/opsany-saltstack:v3.2.6
-    shell_log "======Waiting for SaltStack ...======"
-    sleep 20
-    docker exec opsany-saltstack salt-key -A -y
+        ${PAAS_DOCKER_REG}/opsany-proxy:1.1.6
 }
 
 # SaaS DB Initialize
@@ -156,29 +172,45 @@ saas_deploy(){
     if [ $? -ne 0 ];then
         echo "Please Download SAAS first" && exit
     fi
-    python3 deploy.py --domain $DOMAIN_NAME --username admin --password admin --file_name rbac-opsany-*.tar.gz
-    python3 deploy.py --domain $DOMAIN_NAME --username admin --password admin --file_name workbench-opsany-*.tar.gz
-    python3 deploy.py --domain $DOMAIN_NAME --username admin --password admin --file_name cmdb-opsany-*.tar.gz
-    python3 deploy.py --domain $DOMAIN_NAME --username admin --password admin --file_name control-opsany-*.tar.gz
-    python3 deploy.py --domain $DOMAIN_NAME --username admin --password admin --file_name job-opsany-*.tar.gz
-    python3 deploy.py --domain $DOMAIN_NAME --username admin --password admin --file_name cmp-opsany-*.tar.gz
-    python3 deploy.py --domain $DOMAIN_NAME --username admin --password admin --file_name bastion-opsany-*.tar.gz
+    python3 deploy.py --domain $DOMAIN_NAME --username admin --password ${ADMIN_PASSWORD} --file_name rbac-opsany-*.tar.gz
+    python3 deploy.py --domain $DOMAIN_NAME --username admin --password ${ADMIN_PASSWORD} --file_name workbench-opsany-*.tar.gz
+    python3 deploy.py --domain $DOMAIN_NAME --username admin --password ${ADMIN_PASSWORD} --file_name cmdb-opsany-*.tar.gz
+    python3 deploy.py --domain $DOMAIN_NAME --username admin --password ${ADMIN_PASSWORD} --file_name control-opsany-*.tar.gz
+    python3 deploy.py --domain $DOMAIN_NAME --username admin --password ${ADMIN_PASSWORD} --file_name job-opsany-*.tar.gz
+    python3 deploy.py --domain $DOMAIN_NAME --username admin --password ${ADMIN_PASSWORD} --file_name cmp-opsany-*.tar.gz
+    python3 deploy.py --domain $DOMAIN_NAME --username admin --password ${ADMIN_PASSWORD} --file_name bastion-opsany-*.tar.gz
+    
     shell_log "======OpsAny Data Initialize======"
-    python3 init-ce-base.py --domain $DOMAIN_NAME --private_ip $LOCAL_IP --paas_username admin --paas_password admin --grafana_password admin --grafana_change_password $GRAFANA_ADMIN_PASSWORD
 
+    # OpsAny Database Init
+    docker exec -e OPS_ANY_ENV=production \
+        opsany-proxy /bin/sh -c "/usr/local/bin/python3 /opt/opsany-proxy/manage.py makemigrations && /usr/local/bin/python3 /opt/opsany-proxy/manage.py migrate"
+
+    # Create Proxy Token
+    PROXY_TOKEN=$(docker exec -e OPS_ANY_ENV=production \
+            opsany-proxy /bin/sh -c " /usr/local/bin/python3 /opt/opsany-proxy/manage.py create_access" | grep 'Access' | awk -F ': ' '{print $2}' | awk -F '.' '{print $1}')
+
+    python3 init-ce-base.py --domain $DOMAIN_NAME --private_ip $LOCAL_IP --paas_username admin --paas_password ${ADMIN_PASSWORD} --grafana_password admin --grafana_change_password $GRAFANA_ADMIN_PASSWORD --proxy_url https://${PROXY_LOCAL_IP}:8011 --proxy_public_url https://${PROXY_PUBLIC_IP}:8011 --proxy_token $PROXY_TOKEN
 
     chmod +x /etc/rc.d/rc.local
     echo "sleep 60 && /bin/bash ${INSTALL_PATH}/saas-restart.sh" >> /etc/rc.d/rc.local
-    shell_log "======OpsAny: Make Ops Perfect======"
-
+    shell_warning_log "======OpsAny: Make Ops Perfect======"
 }
 
 # Main
 main(){
-    mysql_init
-    mongodb_init
-    saltstack_install
-    saas_deploy
+    case "$1" in
+	install)
+        install_init
+        mysql_init
+        mongodb_init
+        proxy_install
+        saas_deploy
+		;;
+	help|*)
+		echo $"Usage: $0 {install|help}"
+	        ;;
+    esac
 }
 
-main
+main $1

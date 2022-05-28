@@ -90,7 +90,7 @@ class GetRequestIdStatus(Component):
             }
         else:
             result = {
-                'api_code': response['error_code'],
+                'api_code': response['errcode'],
                 'result': False,
                 'message': response['message']
             }

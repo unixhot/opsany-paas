@@ -44,6 +44,7 @@ base_urlpatterns = [
     url(r'^api/v2/get_user/$', views_api_v2.UserView.as_view()),
     url(r'^api/v2/get_batch_users/$', views_api_v2.BatchUsersView.as_view()),
     url(r'^api/login-register/', views_api_v2.LoginRegisterView.as_view()),
+    url(r'^api/login/', views_api_v2.LoginApiView.as_view()),
     url(r'^api/v2/get_all_users/$', views_api_v2.AllUsersView.as_view()),
 ]
 

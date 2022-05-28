@@ -1,58 +1,5 @@
 default_host_dashboard_dict = {
-    "__inputs": [
-        {
-            "name": "DS_ZABBIX",
-            "label": "Zabbix",
-            "description": "",
-            "type": "datasource",
-            "pluginId": "alexanderzobnin-zabbix-datasource",
-            "pluginName": "Zabbix"
-        }
-    ],
-    "__requires": [
-        {
-            "type": "datasource",
-            "id": "alexanderzobnin-zabbix-datasource",
-            "name": "Zabbix",
-            "version": "1.0.0"
-        },
-        {
-            "type": "panel",
-            "id": "alexanderzobnin-zabbix-triggers-panel",
-            "name": "Zabbix Problems",
-            "version": ""
-        },
-        {
-            "type": "panel",
-            "id": "bargauge",
-            "name": "Bar gauge",
-            "version": ""
-        },
-        {
-            "type": "panel",
-            "id": "gauge",
-            "name": "Gauge",
-            "version": ""
-        },
-        {
-            "type": "grafana",
-            "id": "grafana",
-            "name": "Grafana",
-            "version": "7.5.7"
-        },
-        {
-            "type": "panel",
-            "id": "graph",
-            "name": "Graph",
-            "version": ""
-        },
-        {
-            "type": "panel",
-            "id": "stat",
-            "name": "Stat",
-            "version": ""
-        }
-    ],
+    
     "annotations": {
         "list": [
             {
@@ -67,15 +14,15 @@ default_host_dashboard_dict = {
         ]
     },
     "description": "Nice and clean status about your server.",
-    "editable": False,
-    "gnetId": 5363,
-    "graphTooltip": 1,
+    "editable": True,
+    "gnetId": None,
+    "graphTooltip": 0,
     "id": None,
     "iteration": 1623529989121,
     "links": [],
     "panels": [
         {
-            "datasource": "内置Zabbix Server",
+            "datasource": None,
             "gridPos": {
                 "h": 1,
                 "w": 24,
@@ -87,8 +34,8 @@ default_host_dashboard_dict = {
             "type": "row"
         },
         {
-            "cacheTimeout": None,
-            "datasource": "内置Zabbix Server",
+            
+            "datasource": None,
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -188,14 +135,14 @@ default_host_dashboard_dict = {
                     }
                 }
             ],
-            "timeFrom": "10y",
+            "timeFrom": None,
             "timeShift": None,
             "title": "Total memory",
             "type": "stat"
         },
         {
             "cacheTimeout": None,
-            "datasource": "内置Zabbix Server",
+            "datasource": None,
             "description": "System uptime",
             "fieldConfig": {
                 "defaults": {
@@ -299,7 +246,7 @@ default_host_dashboard_dict = {
             "type": "stat"
         },
         {
-            "datasource": "内置Zabbix Server",
+            "datasource": None,
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -394,7 +341,7 @@ default_host_dashboard_dict = {
         },
         {
             "cacheTimeout": None,
-            "datasource": "内置Zabbix Server",
+            "datasource": None,
             "fieldConfig": {
                 "defaults": {
                     "mappings": [
@@ -508,7 +455,7 @@ default_host_dashboard_dict = {
             "type": "stat"
         },
         {
-            "datasource": "内置Zabbix Server",
+            "datasource": None,
             "description": "",
             "fieldConfig": {
                 "defaults": {
@@ -611,7 +558,7 @@ default_host_dashboard_dict = {
         },
         {
             "cacheTimeout": None,
-            "datasource": "内置Zabbix Server",
+            "datasource": None,
             "fieldConfig": {
                 "defaults": {
                     "decimals": 0,
@@ -707,7 +654,7 @@ default_host_dashboard_dict = {
         },
         {
             "collapsed": False,
-            "datasource": "内置Zabbix Server",
+            "datasource": None,
             "gridPos": {
                 "h": 1,
                 "w": 24,
@@ -721,7 +668,7 @@ default_host_dashboard_dict = {
         },
         {
             "cacheTimeout": None,
-            "datasource": "内置Zabbix Server",
+            "datasource": None,
             "fieldConfig": {
                 "defaults": {
                     "decimals": 0,
@@ -838,7 +785,7 @@ default_host_dashboard_dict = {
             "bars": False,
             "dashLength": 10,
             "dashes": False,
-            "datasource": "内置Zabbix Server",
+            "datasource": None,
             "decimals": 0,
             "fieldConfig": {
                 "defaults": {
@@ -1034,7 +981,7 @@ default_host_dashboard_dict = {
         },
         {
             "cacheTimeout": None,
-            "datasource": "内置Zabbix Server",
+            "datasource": None,
             "fieldConfig": {
                 "defaults": {
                     "decimals": 0,
@@ -1139,7 +1086,7 @@ default_host_dashboard_dict = {
             "type": "gauge"
         },
         {
-            "datasource": "内置Zabbix Server",
+            "datasource": None,
             "description": "Amount of time the CPU has been waiting for I/O to complete.",
             "fieldConfig": {
                 "defaults": {
@@ -1239,7 +1186,7 @@ default_host_dashboard_dict = {
             "type": "stat"
         },
         {
-            "datasource": "内置Zabbix Server",
+            "datasource": None,
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -1329,7 +1276,7 @@ default_host_dashboard_dict = {
             "type": "stat"
         },
         {
-            "datasource": "内置Zabbix Server",
+            "datasource": None,
             "description": "",
             "fieldConfig": {
                 "defaults": {
@@ -1454,7 +1401,7 @@ default_host_dashboard_dict = {
             "type": "bargauge"
         },
         {
-            "datasource": "内置Zabbix Server",
+            "datasource": None,
             "description": "The amount of disk devices in the system",
             "fieldConfig": {
                 "defaults": {
@@ -1558,7 +1505,7 @@ default_host_dashboard_dict = {
             "type": "stat"
         },
         {
-            "datasource": "内置Zabbix Server",
+            "datasource": None,
             "description": "Number of users who are currently logged in",
             "fieldConfig": {
                 "defaults": {
@@ -1652,7 +1599,7 @@ default_host_dashboard_dict = {
         },
         {
             "collapsed": False,
-            "datasource": "内置Zabbix Server",
+            "datasource": None,
             "gridPos": {
                 "h": 1,
                 "w": 24,
@@ -1677,7 +1624,7 @@ default_host_dashboard_dict = {
             "bars": False,
             "dashLength": 10,
             "dashes": False,
-            "datasource": "内置Zabbix Server",
+            "datasource": None,
             "decimals": 0,
             "fieldConfig": {
                 "defaults": {
@@ -1869,7 +1816,7 @@ default_host_dashboard_dict = {
             }
         },
         {
-            "datasource": "内置Zabbix Server",
+            "datasource": None,
             "description": "This item is the percentage of elapsed time that the selected disk drive was busy servicing read or writes requests.",
             "fieldConfig": {
                 "defaults": {
@@ -2007,7 +1954,7 @@ default_host_dashboard_dict = {
             "bars": False,
             "dashLength": 10,
             "dashes": False,
-            "datasource": "内置Zabbix Server",
+            "datasource": None,
             "decimals": 0,
             "description": "Used storage in Bytes",
             "fieldConfig": {
@@ -2166,7 +2113,7 @@ default_host_dashboard_dict = {
         },
         {
             "collapsed": False,
-            "datasource": "内置Zabbix Server",
+            "datasource": None,
             "gridPos": {
                 "h": 1,
                 "w": 24,
@@ -2180,7 +2127,7 @@ default_host_dashboard_dict = {
         },
         {
             "cacheTimeout": None,
-            "datasource": "内置Zabbix Server",
+            "datasource": None,
             "description": "",
             "fieldConfig": {
                 "defaults": {
@@ -2292,7 +2239,7 @@ default_host_dashboard_dict = {
             "bars": False,
             "dashLength": 10,
             "dashes": False,
-            "datasource": "内置Zabbix Server",
+            "datasource": None,
             "decimals": 0,
             "fieldConfig": {
                 "defaults": {
@@ -2468,7 +2415,7 @@ default_host_dashboard_dict = {
         },
         {
             "cacheTimeout": None,
-            "datasource": "内置Zabbix Server",
+            "datasource": None,
             "fieldConfig": {
                 "defaults": {
                     "color": {
@@ -2572,7 +2519,7 @@ default_host_dashboard_dict = {
         },
         {
             "collapsed": False,
-            "datasource": "内置Zabbix Server",
+            "datasource": None,
             "gridPos": {
                 "h": 1,
                 "w": 24,
@@ -2589,7 +2536,7 @@ default_host_dashboard_dict = {
             "ackField": True,
             "ageField": True,
             "customLastChangeFormat": False,
-            "datasource": "内置Zabbix Server",
+            "datasource": None,
             "descriptionAtNewLine": False,
             "descriptionField": True,
             "fieldConfig": {
@@ -2756,47 +2703,61 @@ default_host_dashboard_dict = {
     "templating": {
         "list": [
             {
+                "allFormat": "regex values",
                 "allValue": None,
-                "current": {},
-                "datasource": "内置Zabbix Server",
-                "definition": "",
-                "description": None,
-                "error": None,
-                "hide": 0,
-                "includeAll": True,
-                "label": None,
-                "multi": True,
-                "name": "Group",
-                "options": [],
-                "query": "*",
-                "refresh": 1,
-                "regex": "/Linux|Windows|Zabbix/",
-                "skipUrlSync": False,
-                "sort": 1,
-                "tagValuesQuery": "",
-                "tags": [],
-                "tagsQuery": "",
-                "type": "query",
-                "useTags": False
-            },
-            {
-                "allValue": None,
-                "current": {},
-                "datasource": "内置Zabbix Server",
+                "current": {
+                    "selected": False,
+                    "text": "$Group",
+                    "value": "$Group"
+                },
+                "datasource": None,
                 "definition": "",
                 "description": None,
                 "error": None,
                 "hide": 0,
                 "includeAll": False,
-                "label": None,
+                "label": "Group",
                 "multi": False,
+                "multiFormat": "glob",
+                "name": "Group",
+                "options": [],
+                "query": "*",
+                "refresh": 1,
+                "refresh_on_load": False,
+                "regex": "",
+                "skipUrlSync": False,
+                "sort": 0,
+                "tagValuesQuery": "",
+                "tags": [],
+                "tagsQuery": "",
+                "type": "query",
+                "useTags": False
+            },
+            {
+                "allFormat": "glob",
+                "allValue": None,
+                "current": {
+                    "selected": False,
+                    "text": "$Host",
+                    "value": "$Host"
+                },
+                "datasource": None,
+                "definition": "",
+                "description": None,
+                "error": None,
+                "hide": 0,
+                "includeAll": False,
+                "label": "Host",
+                "multi": False,
+                "multiFormat": "glob",
                 "name": "Host",
                 "options": [],
                 "query": "$Group.*",
                 "refresh": 1,
+                "refresh_on_load": False,
                 "regex": "",
                 "skipUrlSync": False,
-                "sort": 1,
+                "sort": 0,
                 "tagValuesQuery": "",
                 "tags": [],
                 "tagsQuery": "",
@@ -2804,89 +2765,31 @@ default_host_dashboard_dict = {
                 "useTags": False
             },
             {
-                "allValue": "All",
-                "current": {},
-                "datasource": "内置Zabbix Server",
-                "definition": "Zabbix - application",
+                "allFormat": "regex values",
+                "allValue": None,
+                "current": {
+                    "selected": False,
+                    "text": "All",
+                    "value": "$__all"
+                },
+                "datasource": None,
+                "definition": "",
                 "description": None,
                 "error": None,
-                "hide": 2,
+                "hide": 0,
+                "hideLabel": False,
                 "includeAll": True,
-                "label": None,
-                "multi": False,
-                "name": "Disk",
+                "label": "Network interface",
+                "multi": True,
+                "multiFormat": "regex values",
+                "name": "netif",
                 "options": [],
-                "query": {
-                    "application": "/Disk/",
-                    "group": "$Group",
-                    "host": "$Host",
-                    "item": "/.*/",
-                    "queryType": "application"
-                },
+                "query": "*.$host.Network interfaces.*",
                 "refresh": 1,
-                "regex": "",
+                "refresh_on_load": False,
+                "regex": "/(?:Incoming|Outgoing) network traffic on (.*)/",
                 "skipUrlSync": False,
-                "sort": 1,
-                "tagValuesQuery": "",
-                "tags": [],
-                "tagsQuery": "",
-                "type": "query",
-                "useTags": False
-            },
-            {
-                "allValue": "All",
-                "current": {},
-                "datasource": "内置Zabbix Server",
-                "definition": "Zabbix - application",
-                "description": None,
-                "error": None,
-                "hide": 2,
-                "includeAll": True,
-                "label": None,
-                "multi": False,
-                "name": "Filesystem",
-                "options": [],
-                "query": {
-                    "application": "/Filesystem\\s/",
-                    "group": "$Group",
-                    "host": "$Host",
-                    "item": "/.*/",
-                    "queryType": "application"
-                },
-                "refresh": 1,
-                "regex": "",
-                "skipUrlSync": False,
-                "sort": 1,
-                "tagValuesQuery": "",
-                "tags": [],
-                "tagsQuery": "",
-                "type": "query",
-                "useTags": False
-            },
-            {
-                "allValue": "All",
-                "current": {},
-                "datasource": "内置Zabbix Server",
-                "definition": "Zabbix - application",
-                "description": None,
-                "error": None,
-                "hide": 2,
-                "includeAll": True,
-                "label": None,
-                "multi": False,
-                "name": "Network",
-                "options": [],
-                "query": {
-                    "application": "/Interface\\s/",
-                    "group": "$Group",
-                    "host": "$Host",
-                    "item": "/.*/",
-                    "queryType": "application"
-                },
-                "refresh": 1,
-                "regex": "",
-                "skipUrlSync": False,
-                "sort": 1,
+                "sort": 0,
                 "tagValuesQuery": "",
                 "tags": [],
                 "tagsQuery": "",
