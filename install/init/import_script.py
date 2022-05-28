@@ -208,6 +208,7 @@ class OpsAnyApi:
 
     def import_task(self, target_list):
         self.get_menu("job")
+        self.get_menu("control")
         task_group_id = self.get_task_default_group_id()
         server_default_group_id = self.get_control_server_default_group()
         for target in target_list:
