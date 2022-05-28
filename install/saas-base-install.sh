@@ -192,6 +192,14 @@ saas_deploy(){
 
     python3 init-ce-base.py --domain $DOMAIN_NAME --private_ip $LOCAL_IP --paas_username admin --paas_password ${ADMIN_PASSWORD} --grafana_password admin --grafana_change_password $GRAFANA_ADMIN_PASSWORD --proxy_url https://${PROXY_LOCAL_IP}:8011 --proxy_public_url https://${PROXY_PUBLIC_IP}:8011 --proxy_token $PROXY_TOKEN
 
+    # Init Script Job
+    cd $CDIR/init/
+    python3 import_script.py --domain https://${DOMAIN_NAME} --paas_username admin --paas_password ${ADMIN_PASSWORD} \
+--target_type script --target_path ./job-script
+
+    python3 import_script.py --domain https://$DOMAIN_NAME --paas_username admin --paas_password ${ADMIN_PASSWORD} \
+--target_type task --target_path ./job-task
+
     chmod +x /etc/rc.d/rc.local
     echo "sleep 60 && /bin/bash ${INSTALL_PATH}/saas-restart.sh" >> /etc/rc.d/rc.local
     shell_warning_log "======OpsAny: Make Ops Perfect======"
