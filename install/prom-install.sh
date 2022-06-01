@@ -62,12 +62,19 @@ install_init(){
 }
 
 prometheus_install(){
-    # Prometheus
-    shell_log "======Start Prometheus======"
-    docker run -d --restart=always --name opsany-prometheus \
+    # Prometheus Release Date: 2022-04-21 https://hub.docker.com/u/prom
+    shell_log "======Start Prometheus Server======"
+    docker run -d --restart=always --name opsany-prometheus-server \
     -p 9090:9090 \
     -v ${INSTALL_PATH}/prometheus-volume/data/:/var/lib/prometheus \
-    -v ${INSTALL_PATH}/prometheus-volume/conf/:/etc/prometheus/ \
+    -v ${INSTALL_PATH}/prometheus-volume/conf/prometheus.yml:/etc/prometheus/prometheus.yml \
     -v /etc/localtime:/etc/localtime:ro \
-    ${PAAS_DOCKER_REG}/prometheus:v2.35.0
+    prom/prometheus:v2.35.0
+
+    # Prometheus Node Exporter Release Date: 2021-12-01 https://hub.docker.com/u/prom
+    shell_log "======Start Prometheus Node_Exporter======"
+    docker run -d --restart=always --name opsany-prometheus-node_exporter \
+    -p 9100:9100 \
+    -v /etc/localtime:/etc/localtime:ro \
+    prom/prometheus:v1.3.1
 }

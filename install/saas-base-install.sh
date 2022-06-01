@@ -80,7 +80,7 @@ proxy_install(){
         -v ${INSTALL_PATH}/conf/proxy/settings_production.py.proxy:/opt/opsany-proxy/config/prod.py \
         -v ${INSTALL_PATH}/conf/proxy/invscript_proxy.py:/opt/opsany-proxy/invscript_proxy.py \
         -v /etc/localtime:/etc/localtime:ro \
-        ${PAAS_DOCKER_REG}/opsany-proxy:1.1.6
+        ${PAAS_DOCKER_REG}/opsany-proxy:1.1.8
 }
 
 # SaaS DB Initialize

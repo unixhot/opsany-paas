@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 '''
 python import_script.py 
---domain https://dev.opsany.cn 
+--domain https://domain
 --paas_username guoyuchen
---paas_password 123456
+--paas_password ******
 --target_type collection/script/task/patrol    collection/script/patrol则扫描目标路径下为json的文件，task则扫描目标路径下为zip的文件
   user参数比较特殊，用于刚部署完SaaS后，SaaS中没有第一个用户，导致导入内容时报错：没有获取到用户信息. 当target_type为user的时候，APP_CODE不能为空
 --target_file   目标文件
