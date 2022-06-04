@@ -27,3 +27,11 @@ scrape_configs:
 
     static_configs:
       - targets: ["localhost:9090"]
+    basic_auth:
+      username: admin
+      password: PROM_SERVER_PASSWD
+
+  # Local Node
+  - job_name: "local"
+    static_configs:
+      - targets: ["LOCAL_IP:9100"]

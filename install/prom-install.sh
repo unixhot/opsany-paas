@@ -57,24 +57,60 @@ install_init(){
     shell_log "Start: Install Init"
     mkdir -p ${INSTALL_PATH}/{uploads,conf,logs,prometheus-volume/conf,prometheus-volume/data}
     cd $CDIR
-    /bin/cp -r ../install/conf ${INSTALL_PATH}/
+    /bin/cp -r ./conf/prometheus/* ${INSTALL_PATH}/prometheus-volume/conf/
+    pip3 install requests==2.25.1 grafana-api==1.0.3 mysql-connector==2.2.9 SQLAlchemy==1.4.22 bcrypt==3.2.2 \
+             -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
     shell_log "End: Install Init"
 }
 
 prometheus_install(){
+    # Prometheus Server Basic Auth
+    PROM_SERVER_HASH=$(python3 ./prom-pass.py $PROM_SERVER_PASSWD)
+    sed -i "s#PROM_SERVER_HASH#$PROM_SERVER_HASH#g" ${INSTALL_PATH}/prometheus-volume/conf/web.yml
+    sed -i "s#LOCAL_IP#$LOCAL_IP#g" ${INSTALL_PATH}/prometheus-volume/conf/prometheus.yml
+    sed -i "s#PROM_SERVER_PASSWD#$PROM_SERVER_PASSWD#g" ${INSTALL_PATH}/prometheus-volume/conf/prometheus.yml
+
     # Prometheus Release Date: 2022-04-21 https://hub.docker.com/u/prom
     shell_log "======Start Prometheus Server======"
     docker run -d --restart=always --name opsany-prometheus-server \
     -p 9090:9090 \
     -v ${INSTALL_PATH}/prometheus-volume/data/:/var/lib/prometheus \
     -v ${INSTALL_PATH}/prometheus-volume/conf/prometheus.yml:/etc/prometheus/prometheus.yml \
+    -v ${INSTALL_PATH}/prometheus-volume/conf/web.yml:/etc/prometheus/web.yml \
     -v /etc/localtime:/etc/localtime:ro \
-    prom/prometheus:v2.35.0
+    prom/prometheus:v2.35.0 --config.file=/etc/prometheus/prometheus.yml --storage.tsdb.path=/prometheus --web.console.libraries=/usr/share/prometheus/console_libraries --web.console.templates=/usr/share/prometheus/consoles --web.config.file=/etc/prometheus/web.yml
 
     # Prometheus Node Exporter Release Date: 2021-12-01 https://hub.docker.com/u/prom
     shell_log "======Start Prometheus Node_Exporter======"
     docker run -d --restart=always --name opsany-prometheus-node_exporter \
     -p 9100:9100 \
     -v /etc/localtime:/etc/localtime:ro \
-    prom/prometheus:v1.3.1
+    prom/node-exporter:v1.3.1
 }
+
+prometheus_uninstall(){
+    docker stop opsany-prometheus-server
+    docker stop opsany-prometheus-node_exporter
+    docker rm opsany-prometheus-server
+    docker rm opsany-prometheus-node_exporter
+    rm -rf ${INSTALL_PATH}/prometheus-volume/*
+}
+
+# Main
+main(){
+    case "$1" in
+	install)
+            install_check
+            install_init
+            prometheus_install
+		;;
+        uninstall)
+            prometheus_uninstall
+                ;;
+	help|*)
+		echo $"Usage: $0 {install|uninstall|help}"
+	        ;;
+    esac
+}
+
+main $1

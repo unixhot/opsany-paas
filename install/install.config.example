@@ -93,6 +93,10 @@ ZABBIX_API_PASSWORD="OpsAny@2020"
 ZABBIX_ADMIN_PASSWORD="OpsAny@2020"
 GRAFANA_ADMIN_PASSWORD="OpsAny@2020"
 
+[prometheus]
+# Prometheus
+PROM_SERVER_PASSWD="OpsAny@2020"
+
 [elasticsearch]
 # ElasticSearch
 ES_SERVER_IP="192.168.56.11"

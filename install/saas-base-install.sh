@@ -32,9 +32,8 @@ fi
 
 install_init(){
     # Add ENV For SaaS
-    pip3 install requests==2.25.1 grafana-api==1.0.3 mysql-connector==2.2.9 SQLAlchemy==1.4.22 \
-             -i http://mirrors.aliyun.com/pypi/simple/ \
-             --trusted-host mirrors.aliyun.com
+    pip3 install requests==2.25.1 grafana-api==1.0.3 mysql-connector==2.2.9 SQLAlchemy==1.4.22 bcrypt==3.2.2 \
+             -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
     cd ../saas/
     python3 add_env.py
     cp invscript_proxy.py ${INSTALL_PATH}/conf/proxy/
@@ -80,7 +79,7 @@ proxy_install(){
         -v ${INSTALL_PATH}/conf/proxy/settings_production.py.proxy:/opt/opsany-proxy/config/prod.py \
         -v ${INSTALL_PATH}/conf/proxy/invscript_proxy.py:/opt/opsany-proxy/invscript_proxy.py \
         -v /etc/localtime:/etc/localtime:ro \
-        ${PAAS_DOCKER_REG}/opsany-proxy:1.1.8
+        ${PAAS_DOCKER_REG}/opsany-proxy:1.1.10
 }
 
 # SaaS DB Initialize
