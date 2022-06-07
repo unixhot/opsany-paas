@@ -92,9 +92,9 @@ def commmysql(host_name1=""):
     db = MySQLdb.connect(host=DB_HOST, db=DB_NAME, user=DB_USERNAME, password=DB_PASSWORD, charset='utf8')
     cursor = db.cursor()
     if not host_name1:
-        sql = "SELECT host_name, ip, ssh_port, username, password, ssh_type FROM agent_admin;"
+        sql = "SELECT host_name, ip, ssh_port, username, password, ssh_type, privilege_password FROM agent_admin;"
     else:
-        sql = "SELECT host_name, ip, ssh_port, username, password, ssh_type FROM agent_admin WHERE host_name='{}';".format(host_name1)
+        sql = "SELECT host_name, ip, ssh_port, username, password, ssh_type, privilege_password FROM agent_admin WHERE host_name='{}';".format(host_name1)
     cursor.execute(sql)
     if not host_name1:
         results = cursor.fetchall()
@@ -107,6 +107,7 @@ def commmysql(host_name1=""):
                 "username": res[3],
                 "password": res[4],
                 "ssh_type": res[5],
+                "privilege_password": res[6],
             })
     else:
         res = cursor.fetchone()
@@ -117,6 +118,7 @@ def commmysql(host_name1=""):
             "username": res[3],
             "password": res[4],
             "ssh_type": res[5],
+            "privilege_password": res[6],
         }
     return end_data
 
@@ -171,6 +173,10 @@ def get_agent_group_json():
         if host_query.get("ssh_type") == "password":
             new_password = get_password(host_query.get("password"))
             host_info_dict["ansible_ssh_pass"] = new_password
+        privilege_password = host_query.get("privilege_password")
+        if privilege_password:
+            new_privilege_password = get_password(privilege_password)
+            host_info_dict["ansible_become_password"] = new_privilege_password
         hostvars[host_query.get("name")] = host_info_dict
     data = {
         "all": {
@@ -210,6 +216,10 @@ def get_agent_host_json(host):
         if host_query_object.get("ssh_type") == "password":
             new_password = get_password(host_query_object.get("password"))
             data[host_query_object.get("name")]["ansible_ssh_pass"] = new_password
+        privilege_password = host_query_object.get("privilege_password")
+        if privilege_password:
+            new_privilege_password = get_password(privilege_password)
+            data[host_query_object.get("name")]["ansible_become_password"] = new_privilege_password
         return data
     return {}
 
