@@ -108,6 +108,24 @@ bastion_update(){
     python3 ../saas/deploy.py --domain $DOMAIN_NAME --username admin --password $ADMIN_PASSWORD --file_name ../saas/bastion-opsany-*.tar.gz
 }
 
+pipeline_update(){
+    #pipeline
+    cd $CDIR
+    cd ../../opsany-saas/
+    /bin/cp pipeline-opsany-*.tar.gz ../opsany-paas/saas/
+    cd $CDIR
+    python3 ../saas/deploy.py --domain $DOMAIN_NAME --username admin --password $ADMIN_PASSWORD --file_name ../saas/pipeline-opsany-*.tar.gz
+}
+
+deploy_update(){
+    #deploy
+    cd $CDIR
+    cd ../../opsany-saas/
+    /bin/cp deploy-opsany-*.tar.gz ../opsany-paas/saas/
+    cd $CDIR
+    python3 ../saas/deploy.py --domain $DOMAIN_NAME --username admin --password $ADMIN_PASSWORD --file_name ../saas/deploy-opsany-*.tar.gz
+}
+
 # Main
 main(){
     case "$1" in
@@ -134,6 +152,8 @@ main(){
 		;;
 	devops)
 		devops_update
+        pipeline_update
+        deploy_update
 		;;
     bastion)
         bastion_update
