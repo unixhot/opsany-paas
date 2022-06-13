@@ -84,7 +84,7 @@ install_check(){
 # Install Initialize
 opsany_init(){
     shell_log "Start: Install Init"
-    mkdir -p ${INSTALL_PATH}/{uploads/guacamole,uploads/workbench/icon,conf,esb,logs,saas/apps,saas/saasapp,proxy-volume/certs,proxy-volume/srv/pillar,proxy-volume/srv/salt,proxy-volume/etc,paasagent-volume,redis-volume,mongodb-volume,mysql-volume,st2-volume,grafana-volume/plugins}
+    mkdir -p ${INSTALL_PATH}/{uploads/guacamole,uploads/workbench/icon,conf,esb,logs,saas/apps,saas/saasapp,proxy-volume/certs,proxy-volume/pki,proxy-volume/srv/pillar,proxy-volume/srv/salt,proxy-volume/etc,paasagent-volume,redis-volume,mongodb-volume,mysql-volume,st2-volume,grafana-volume/plugins}
     cd $CDIR
     /bin/cp -r ../install/conf ${INSTALL_PATH}/
     /bin/cp -r ../install/init ${INSTALL_PATH}/
@@ -254,7 +254,9 @@ paas_config(){
     sed -i "s/public-proxy.opsany.com/${PROXY_PUBLIC_IP}/g" ${INSTALL_PATH}/conf/proxy/settings_production.py.proxy
     sed -i "s/LOCAL_IP/${PROXY_PUBLIC_IP} ${PROXY_LOCAL_IP}/g" ${INSTALL_PATH}/conf/proxy/nginx-conf.d/nginx_proxy.conf
     sed -i "s/DOMAIN_NAME/${PROXY_PUBLIC_IP} ${PROXY_LOCAL_IP}/g" ${INSTALL_PATH}/conf/proxy/nginx-conf.d/nginx_proxy.conf
-
+    sed -i "s/RABBIT_SERVER_IP/${RABBIT_SERVER_IP}/g" ${INSTALL_PATH}/conf/proxy/settings_production.py.proxy
+    sed -i "s/RABBITMQ_DEFAULT_USER/${RABBITMQ_DEFAULT_USER}/g" ${INSTALL_PATH}/conf/proxy/settings_production.py.proxy
+    sed -i "s/RABBITMQ_DEFAULT_PASS/${RABBITMQ_DEFAULT_PASS}/g" ${INSTALL_PATH}/conf/proxy/settings_production.py.proxy
 }
 
 # PaaS Service Start

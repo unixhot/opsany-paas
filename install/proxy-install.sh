@@ -55,7 +55,7 @@ install_check(){
 # Install Initialize
 install_init(){
     shell_log "Start: Install Init"
-    mkdir -p ${INSTALL_PATH}/{uploads/guacamole,conf,logs,proxy-volume/certs,proxy-volume/srv/pillar,proxy-volume/srv/salt,proxy-volume/etc,redis-volume,mysql-volume}
+    mkdir -p ${INSTALL_PATH}/{uploads/guacamole,conf,logs,proxy-volume/certs,proxy-volume/srv/pillar,proxy-volume/srv/salt,proxy-volume/etc,proxy-volume/pki,redis-volume,mysql-volume}
     cd $CDIR
     /bin/cp -r ../install/conf ${INSTALL_PATH}/
     #/bin/cp -r ../install/init ${INSTALL_PATH}/
@@ -115,6 +115,9 @@ proxy_config(){
     sed -i "s/MYSQL_OPSANY_PASSWORD/${MYSQL_OPSANY_PASSWORD}/g" ${INSTALL_PATH}/conf/proxy/settings_production.py.proxy
     sed -i "s/local-proxy.opsany.com/${PROXY_LOCAL_IP}/g" ${INSTALL_PATH}/conf/proxy/settings_production.py.proxy
     sed -i "s/public-proxy.opsany.com/${PROXY_PUBLIC_IP}/g" ${INSTALL_PATH}/conf/proxy/settings_production.py.proxy
+    sed -i "s/RABBIT_SERVER_IP/${RABBIT_SERVER_IP}/g" ${INSTALL_PATH}/conf/proxy/settings_production.py.proxy
+    sed -i "s/RABBITMQ_DEFAULT_USER/${RABBITMQ_DEFAULT_USER}/g" ${INSTALL_PATH}/conf/proxy/settings_production.py.proxy
+    sed -i "s/RABBITMQ_DEFAULT_PASS/${RABBITMQ_DEFAULT_PASS}/g" ${INSTALL_PATH}/conf/proxy/settings_production.py.proxy
     
     # OpenResty
     sed -i "s/LOCAL_IP/${PROXY_LOCAL_IP}/g" ${INSTALL_PATH}/conf/proxy/nginx-conf.d/nginx_proxy.conf 
@@ -143,8 +146,9 @@ proxy_start(){
         -v ${INSTALL_PATH}/uploads:/opt/opsany/uploads \
         -v ${INSTALL_PATH}/conf/proxy/settings_production.py.proxy:/opt/opsany-proxy/config/prod.py \
         -v ${INSTALL_PATH}/conf/proxy/invscript_proxy.py:/opt/opsany-proxy/invscript_proxy.py \
+        -v ${INSTALL_PATH}/proxy-volume/pki:/opt/opsany/pki \
         -v /etc/localtime:/etc/localtime:ro \
-        ${PAAS_DOCKER_REG}/opsany-proxy:1.1.11
+        ${PAAS_DOCKER_REG}/opsany-proxy:1.1.16
 
     #openresty
     shell_log "======Start openresty Service======"

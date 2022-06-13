@@ -92,9 +92,9 @@ def commmysql(host_name1=""):
     db = MySQLdb.connect(host=DB_HOST, db=DB_NAME, user=DB_USERNAME, password=DB_PASSWORD, charset='utf8')
     cursor = db.cursor()
     if not host_name1:
-        sql = "SELECT host_name, ip, ssh_port, username, password, ssh_type, privilege_password FROM agent_admin;"
+        sql = "SELECT host_name, ip, ssh_port, username, password, ssh_type, private_key_file, privilege, privilege_password FROM agent_admin;"
     else:
-        sql = "SELECT host_name, ip, ssh_port, username, password, ssh_type, privilege_password FROM agent_admin WHERE host_name='{}';".format(host_name1)
+        sql = "SELECT host_name, ip, ssh_port, username, password, ssh_type, private_key_file, privilege, privilege_password FROM agent_admin WHERE host_name='{}';".format(host_name1)
     cursor.execute(sql)
     if not host_name1:
         results = cursor.fetchall()
@@ -107,7 +107,9 @@ def commmysql(host_name1=""):
                 "username": res[3],
                 "password": res[4],
                 "ssh_type": res[5],
-                "privilege_password": res[6],
+                "private_key_file": res[6],
+                "privilege": res[7],
+                "privilege_password": res[8],
             })
     else:
         res = cursor.fetchone()
@@ -118,7 +120,9 @@ def commmysql(host_name1=""):
             "username": res[3],
             "password": res[4],
             "ssh_type": res[5],
-            "privilege_password": res[6],
+            "private_key_file": res[6],
+            "privilege": res[7],
+            "privilege_password": res[8],
         }
     return end_data
 
@@ -170,7 +174,9 @@ def get_agent_group_json():
             "ansible_ssh_port": host_query.get("ssh_port"),
             "ansible_ssh_user": host_query.get("username"),
         }
-        if host_query.get("ssh_type") == "password":
+        if host_query.get("ssh_type") == "key":
+            host_info_dict["ansible_ssh_private_key_file"] = host_query.get("private_key_file", "")
+        else:
             new_password = get_password(host_query.get("password"))
             host_info_dict["ansible_ssh_pass"] = new_password
         privilege_password = host_query.get("privilege_password")
@@ -213,11 +219,15 @@ def get_agent_host_json(host):
                 "ansible_ssh_user": host_query_object.get("username"),
             }
         }
-        if host_query_object.get("ssh_type") == "password":
+        if host_query_object.get("ssh_type") == "key":
+            data[host_query_object.get("name")]["ansible_ssh_private_key_file"] = host_query_object.get("private_key_file", "")
+        else:
             new_password = get_password(host_query_object.get("password"))
             data[host_query_object.get("name")]["ansible_ssh_pass"] = new_password
         privilege_password = host_query_object.get("privilege_password")
-        if privilege_password:
+        privilege = host_query_object.get("privilege")
+
+        if privilege and privilege_password:
             new_privilege_password = get_password(privilege_password)
             data[host_query_object.get("name")]["ansible_become_password"] = new_privilege_password
         return data

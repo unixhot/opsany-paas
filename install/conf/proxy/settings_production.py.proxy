@@ -7,7 +7,7 @@ RUN_MODE = 'PRODUCT'
 
 DEBUG = False
 
-# 本地开发数据库设置
+# MySQL数据库设置
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
@@ -19,6 +19,7 @@ DATABASES = {
     },
 }
 
+# Redis缓存设置
 REDIS_HOST = os.getenv("REDIS_HOST", "REDIS_SERVER_IP")
 REDIS_PORT = os.getenv("REDIS_PORT", "6379")
 REDIS_PASSWORD = os.getenv("REDIS_PASSWORD", "REDIS_SERVER_PASSWORD")
@@ -37,6 +38,15 @@ CACHES = {
         }
     },
 }
+
+# RabbitMQ 消息队列设置
+#MQ_USER = os.getenv("MQ_USER", "RABBITMQ_DEFAULT_USER")
+#MQ_PASSWORD = os.getenv("MQ_PASSWORD", "RABBITMQ_DEFAULT_PASS")
+#MQ_HOST = os.getenv("MQ_HOST", "RABBIT_SERVER_IP")
+#MQ_PORT = os.getenv("MQ_PORT", "5672")
+
+#BROKER_URL = 'amqp://{MQ_USER}:{MQ_PASSWORD}@{MQ_HOST}:{MQ_PORT}//'.format(MQ_USER=MQ_USER, MQ_PASSWORD=MQ_PASSWORD,MQ_HOST=MQ_HOST, MQ_PORT=MQ_PORT)
+
 
 # ansible数据源脚本: 脚本文件在proxy/utils/下
 INVSCRIPT_FILE =  "/opt/opsany-proxy/invscript_proxy.py"
