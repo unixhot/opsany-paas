@@ -13,7 +13,7 @@ CTIME=$(date "+%Y-%m-%d-%H-%M")
 CDIR=$(pwd)
 SHELL_NAME="saas-monitor-install.sh"
 SHELL_LOG="${SHELL_NAME}.log"
-ADMIN_PASSWORD="admin"
+ADMIN_PASSWORD=""
 
 # Check SAAS Package
 if [ ! -d ../../opsany-saas ];then
@@ -28,6 +28,9 @@ if [ ! -f ./install.config ];then
 else
     grep '^[A-Z]' install.config > install.env
     source ./install.env && rm -f install.env
+    if [ -z "$ADMIN_PASSWORD" ];then
+        source ${INSTALL_PATH}/conf/.passwd_env
+    fi
     #/bin/cp -r conf ${INSTALL_PATH}/
 fi
 

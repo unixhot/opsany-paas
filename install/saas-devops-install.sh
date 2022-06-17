@@ -13,6 +13,7 @@ CTIME=$(date "+%Y-%m-%d-%H-%M")
 CDIR=$(pwd)
 SHELL_NAME="saas-devops-install.sh"
 SHELL_LOG="${SHELL_NAME}.log"
+ADMIN_PASSWORD=""
 
 # Check SAAS Package
 if [ ! -d ../../opsany-saas ];then
@@ -27,6 +28,9 @@ if [ ! -f ./install.config ];then
 else
     grep '^[A-Z]' install.config > install.env
     source ./install.env && rm -f install.env
+    if [ -z "$ADMIN_PASSWORD" ];then
+        source ${INSTALL_PATH}/conf/.passwd_env
+    fi
 fi
 
 # Shell Log Record
@@ -74,11 +78,11 @@ saas_deploy(){
     if [ $? -ne 0 ];then
         echo "Please Download SAAS first" && exit
     fi
-    python3 deploy.py --domain $DOMAIN_NAME --username admin --password admin --file_name devops-opsany-*.tar.gz
-    python3 deploy.py --domain $DOMAIN_NAME --username admin --password admin --file_name deploy-opsany-*.tar.gz
-    python3 deploy.py --domain $DOMAIN_NAME --username admin --password admin --file_name pipeline-opsany-*.tar.gz
+    python3 deploy.py --domain $DOMAIN_NAME --username admin --password $ADMIN_PASSWORD --file_name devops-opsany-*.tar.gz
+    python3 deploy.py --domain $DOMAIN_NAME --username admin --password $ADMIN_PASSWORD --file_name deploy-opsany-*.tar.gz
+    python3 deploy.py --domain $DOMAIN_NAME --username admin --password $ADMIN_PASSWORD --file_name pipeline-opsany-*.tar.gz
     #python3 deploy.py --domain $DOMAIN_NAME --username admin --password admin --file_name repo-opsany-*.tar.gz
-    python3 init-ce-devops.py --domain https://${DOMAIN_NAME} --username admin  --password admin
+    python3 init-ce-devops.py --domain https://${DOMAIN_NAME} --username admin  --password $ADMIN_PASSWORD
     shell_log "======OpsAny: Make Ops Perfect======"
 
 }

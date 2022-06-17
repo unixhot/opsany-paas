@@ -205,6 +205,16 @@ saas_deploy(){
     shell_warning_log "======OpsAny: Make Ops Perfect======"
 }
 
+admin_password_init(){
+    STR=`head /dev/urandom | tr -dc A-Za-z0-9 | head -c 8`
+    NUM=`echo $RANDOM`
+    ADMIN_PASSWORD=$STR$NUM
+    echo "ADMIN_PASSWORD=$ADMIN_PASSWORD" > ${INSTALL_PATH}/conf/.passwd_env
+    cd ${CDIR}
+    python3 password-init.py --paas_domain https://$DOMAIN_NAME --username admin --password admin --new_password $ADMIN_PASSWORD
+    shell_warning_log "Login admin password: $ADMIN_PASSWORD"
+}
+
 # Main
 main(){
     case "$1" in
@@ -214,6 +224,7 @@ main(){
         mongodb_init
         proxy_install
         saas_deploy
+        admin_password_init
 		;;
 	help|*)
 		echo $"Usage: $0 {install|help}"

@@ -84,7 +84,7 @@ install_check(){
 # Install Initialize
 opsany_init(){
     shell_log "Start: Install Init"
-    mkdir -p ${INSTALL_PATH}/{uploads/guacamole,uploads/workbench/icon,conf,esb,logs,saas/apps,saas/saasapp,proxy-volume/certs,proxy-volume/pki,proxy-volume/srv/pillar,proxy-volume/srv/salt,proxy-volume/etc,paasagent-volume,redis-volume,mongodb-volume,mysql-volume,st2-volume,grafana-volume/plugins}
+    mkdir -p ${INSTALL_PATH}/{uploads/guacamole,uploads/workbench/icon,conf,esb,logs,saas/apps,saas/saasapp,proxy-volume/certs,proxy-volume/pki,proxy-volume/srv/pillar,proxy-volume/srv/salt,proxy-volume/etc,paasagent-volume,redis-volume,mongodb-volume,mysql-volume,st2-volume,grafana-volume/plugins,grafana-volume/data}
     cd $CDIR
     /bin/cp -r ../install/conf ${INSTALL_PATH}/
     /bin/cp -r ../install/init ${INSTALL_PATH}/
@@ -153,13 +153,14 @@ paas_install(){
 
     # Grafana
     shell_log "Start Grafana"
-    docker run -d --restart=always --name opsany-grafana \
+    docker run -d --restart=always --name opsany-grafana --user root \
     -v ${INSTALL_PATH}/conf/grafana/grafana.ini:/etc/grafana/grafana.ini \
     -v ${INSTALL_PATH}/conf/grafana/grafana.key:/etc/grafana/grafana.key \
     -v ${INSTALL_PATH}/conf/grafana/grafana.pem:/etc/grafana/grafana.pem \
     -v /etc/localtime:/etc/localtime:ro \
+    -v ${INSTALL_PATH}/grafana-volume/data:/var/lib/grafana \
     -p 8007:3000 \
-    ${PAAS_DOCKER_REG}/opsany-grafana:8.3.3
+    ${PAAS_DOCKER_REG}/opsany-grafana:8.3.4
 }
 
 # MySQL Initialize

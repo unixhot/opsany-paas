@@ -739,10 +739,10 @@ def start(paas_domain, private_ip, paas_username, paas_password, zabbix_ip, zabb
         print("[SUCCESS] Create controller zabbix success") if create_controller_zabbix_status else \
             print("[ERROR] Create controller zabbix error, error info: {}".format(create_controller_zabbix_message))
 
-        # 管控主机导入zabbix
-        import_zabbix_status, import_zabbix_status_message = run_obj.import_zabbix()
-        print("[SUCCESS] import agent zabbix success") if import_zabbix_status else \
-            print("[ERROR] import agent zabbix error, error info: {}".format(import_zabbix_status_message))
+        # # 管控主机导入zabbix
+        # import_zabbix_status, import_zabbix_status_message = run_obj.import_zabbix()
+        # print("[SUCCESS] import agent zabbix success") if import_zabbix_status else \
+        #     print("[ERROR] import agent zabbix error, error info: {}".format(import_zabbix_status_message))
 
         # 初始化工作台导航目录
         add_nav_status, add_nav_data = run_obj.workbench_add_nav()
