@@ -138,7 +138,6 @@ proxy_start(){
         -v ${INSTALL_PATH}/logs:${INSTALL_PATH}/logs \
         -v ${INSTALL_PATH}/proxy-volume/certs/:/etc/pki/tls/certs/ \
         -v ${INSTALL_PATH}/proxy-volume/etc/salt/:/etc/salt/ \
-        -v ${INSTALL_PATH}/proxy-volume/etc/salt/master.d:/etc/salt/master.d \
         -v ${INSTALL_PATH}/proxy-volume/cache/:/var/cache/salt/ \
         -v ${INSTALL_PATH}/proxy-volume/srv/salt:/srv/salt/ \
         -v ${INSTALL_PATH}/proxy-volume/srv/pillar:/srv/pillar/ \
@@ -148,7 +147,7 @@ proxy_start(){
         -v ${INSTALL_PATH}/conf/proxy/invscript_proxy.py:/opt/opsany-proxy/invscript_proxy.py \
         -v ${INSTALL_PATH}/proxy-volume/pki:/opt/opsany/pki \
         -v /etc/localtime:/etc/localtime:ro \
-        ${PAAS_DOCKER_REG}/opsany-proxy:1.1.16
+        ${PAAS_DOCKER_REG}/opsany-proxy:1.1.17
 
     #openresty
     shell_log "======Start openresty Service======"

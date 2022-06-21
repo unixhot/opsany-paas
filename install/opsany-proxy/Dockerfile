@@ -1,9 +1,6 @@
 # Base Image
 FROM python:3.6.15-alpine3.15
 
-# Volumes
-VOLUME ["/etc/salt/pki", "/var/cache/salt", "/var/logs/salt", "/etc/salt/master.d", "/srv/salt"]
-
 # Add Proxy
 ADD opsany-proxy /opt/opsany-proxy
 

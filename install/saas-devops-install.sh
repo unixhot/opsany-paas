@@ -67,6 +67,15 @@ copy_logo(){
   /bin/cp -r ../paas-ce/saas/saas-logo/* /opt/opsany-paas/paas-ce/paas/paas/media/applogo/
 }
 
+#mkdir -p ${INSTALL_PATH}/jenkins-volume
+
+jenkins_install(){
+    shell_log "====Start Jenkins===="
+    docker run -d --restart=always --name opsany-jenkins \
+    -v ${INSTALL_PATH}/jenkins-volume:/var/jenkins_home \
+    -p 8008:8080 -p 50000:50000 \
+    jenkins/jenkins:2.332.3-lts-jdk11
+}
 
 # SaaS Deploy
 saas_deploy(){

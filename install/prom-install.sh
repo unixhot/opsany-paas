@@ -55,12 +55,25 @@ install_check(){
 # Install Initialize
 install_init(){
     shell_log "Start: Install Init"
-    mkdir -p ${INSTALL_PATH}/{uploads,conf,logs,prometheus-volume/conf,prometheus-volume/data}
+    mkdir -p ${INSTALL_PATH}/{uploads,conf,logs,prometheus-volume/conf,prometheus-volume/data,consul-volume/data,consul-volume/config}
     cd $CDIR
     /bin/cp -r ./conf/prometheus/* ${INSTALL_PATH}/prometheus-volume/conf/
     pip3 install requests==2.25.1 grafana-api==1.0.3 mysql-connector==2.2.9 SQLAlchemy==1.4.22 bcrypt==3.2.2 \
              -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
     shell_log "End: Install Init"
+}
+
+consul_install(){
+    shell_log "Start: Consul Install..."
+    
+    sed -i "s#PROM_CONSUL_SERVER#$PROXY_LOCAL_IP#g" ${INSTALL_PATH}/prometheus-volume/conf/prometheus.yml
+    docker run --name opsany-consul -d --restart=always --privileged \
+           -p 8500:8500 \
+           -v ${INSTALL_PATH}/consul-volume/config:/consul/config \
+           -v ${INSTALL_PATH}/consul-volume/data:/consul/data \
+           consul
+
+    shell_log "End: Consule Installed"
 }
 
 prometheus_install(){

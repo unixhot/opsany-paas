@@ -13,23 +13,30 @@ CTIME=$(date "+%Y-%m-%d-%H-%M")
 CDIR=$(pwd)
 SHELL_NAME="saas-ee-install.sh"
 SHELL_LOG="${SHELL_NAME}.log"
+ADMIN_PASSWORD=""
 
-#Configuration file write to DB
-cd $CDIR 
-grep '^[A-Z]' install.config > install.env
-source ./install.env && rm -f install.env
-cd ../saas/
-python3 add_ee_env.py
+# Check SAAS Package
+if [ ! -d ../../opsany-saas-ee ];then
+    echo "======Download the Enterprise SAAS package first======"
+    exit;
+fi
 
 # Install Inspection
-cd ${CDIR}
 if [ ! -f ./install.config ];then
-      echo "Please Change Directory to /opt/opsany-paas/install"
+      echo "Please Change Directory to ${INSTALL_PATH}/install"
       exit
 else
     grep '^[A-Z]' install.config > install.env
     source ./install.env && rm -f install.env
+    if [ -z "$ADMIN_PASSWORD" ];then
+        source ${INSTALL_PATH}/conf/.passwd_env
+    fi
 fi
+
+#Configuration file write to DB
+cd $CDIR 
+cd ../saas/
+python3 add_ee_env.py
 
 # Shell Log Record
 shell_log(){
@@ -65,35 +72,33 @@ END
     shell_log "======Enterprise SAAS MongoDB Initialize End======"
 }
 
-# Start Elasticsearch
-es_install(){
-    #Elasticsearch
-    shell_log "====Start Elasticsearch"
-    docker run -d --restart=always --name opsany-elasticsearch \
-    -e "discovery.type=single-node" \
-    -e "ELASTIC_PASSWORD=${ES_PASSWORD}" \
-    -e "xpack.license.self_generated.type=basic" \
-    -e "xpack.security.enabled=true" \
-    -e "bootstrap.memory_lock=true" \
-    -e "ES_JAVA_OPTS=-Xms512m -Xmx512m" \
-    -v /etc/localtime:/etc/localtime:ro \
-    -v ${INSTALL_PATH}/es-volume:/usr/share/elasticsearch/data/ \
-    -p 9200:9200 -p 9300:9300 \
-    ${PAAS_DOCKER_REG}/elasticsearch:7.16.3
-    
-    #heartbeat
-    shell_log "====Start Heartbeat===="
-    docker run -d --restart=always --name opsany-heartbeat \
-    -v ${INSTALL_PATH}/conf/heartbeat.yml:/etc/heartbeat/heartbeat.yml \
-    -v ${INSTALL_PATH}/uploads/monitor/heartbeat-monitors.d:/etc/heartbeat/monitors.d \
-    -v ${INSTALL_PATH}/logs:/var/log/heartbeat \
-    -v /etc/localtime:/etc/localtime:ro \
-    ${PAAS_DOCKER_REG}/opsany-heartbeat:7.13.2
-    
+# SaaS Deploy
+saas_deploy(){
+    cd $CDIR
+    cd ../../opsany-saas-ee/
+    /bin/cp *.tar.gz ../opsany-paas/saas/
+    cd $CDIR
+    cd ../saas/ && ls *.tar.gz
+    if [ $? -ne 0 ];then
+        echo "Please Download SAAS first" && exit
+    fi
+    python3 deploy.py --domain $DOMAIN_NAME --username admin --password $ADMIN_PASSWORD --file_name auto-opsany-*.tar.gz
+    python3 deploy.py --domain $DOMAIN_NAME --username admin --password $ADMIN_PASSWORD --file_name event-opsany-*.tar.gz
+    #python3 deploy.py --domain $DOMAIN_NAME --username admin --password $ADMIN_PASSWORD --file_name k8s-opsany-*.tar.gz
+    #python3 deploy.py --domain $DOMAIN_NAME --username admin --password $ADMIN_PASSWORD --file_name repo-opsany-*.tar.gz
+    #python3 deploy.py --domain $DOMAIN_NAME --username admin --password $ADMIN_PASSWORD --file_name hostsec-opsany-*.tar.gz
+    #python3 deploy.py --domain $DOMAIN_NAME --username admin --password $ADMIN_PASSWORD --file_name redis-opsany-*.tar.gz
+    #python3 deploy.py --domain $DOMAIN_NAME --username admin --password $ADMIN_PASSWORD --file_name mysql-opsany-*.tar.gz
+    #python3 deploy.py --domain $DOMAIN_NAME --username admin --password $ADMIN_PASSWORD --file_name mongodb-opsany-*.tar.gz
+    #python3 deploy.py --domain $DOMAIN_NAME --username admin --password $ADMIN_PASSWORD --file_name host-opsany-*.tar.gz
+    shell_log "======OpsAny: Make Ops Perfect======"
+
 }
 
+
 ee_saas_init(){
-    #python3 init_script.py --domain $DOMAIN_NAME --private_ip $LOCAL_IP
+    #cd $CDIR && cd ../saas/ 
+    #python3 saas-ee-init.py --domain https://www.opsany_url.cn --username opsany_username  --password opsany_password --st2_url https://st2_url/  --st2_username st2admin --st2_password st2_password  
     echo 'hehe'
 }
 
@@ -101,6 +106,7 @@ ee_saas_init(){
 main(){
     saas_db_init
     mongodb_init
+    saas_deploy
 }
 
 main

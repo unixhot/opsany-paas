@@ -24,8 +24,8 @@ class StackStormApi:
         self.username = st2_username
         self.password = st2_password
         self.timeout = timeout
-        self.AUTH_TOKENS = "auth/tokens/"  # 登录 POST
-        self.API_KEYS = "api/v1/apikeys/"  # api key list GET POST
+        self.AUTH_TOKENS = "/auth/tokens/"  # 登录 POST
+        self.API_KEYS = "/api/v1/apikeys/"  # api key list GET POST
         self.GET_PACK = "/api/v1/packs/{ref_or_id}"
         self.EXECUTION_LOG = "/api/v1/executions/{execution_id}/"
         self.INSTALL_PACK = "/api/v1/packs/install"
@@ -332,5 +332,9 @@ if __name__ == '__main__':
     st2_password = options.st2_password
     start(domain, username, password, st2_url=st2_url, st2_username=st2_username, st2_password=st2_password)
 
-
-# python init-ce-devops.py --domain https://www.opsany_url.cn --username opsany_username  --password opsany_password --st2_url https://st2_url/  --st2_username st2admin --st2_password st2_password
+"""
+1. 部署完应用平台和StackStorm
+2. 将包opsany-core和opsany-workflow两个包复制到StackStorm服务器/opt/stackstorm-packs/下
+3. 执行init-ce-st2.py脚本，参数为OpsAny地址用户名密码，St2地址用户名密码
+# python3 init-ce-st2.py --domain https://www.opsany_url.cn --username opsany_username  --password opsany_password --st2_url https://st2_url/  --st2_username st2admin --st2_password st2_password
+"""
