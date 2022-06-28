@@ -125,6 +125,11 @@ mysql_init(){
     mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "create database bastion DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
     mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "grant all on bastion.* to bastion@'%' identified by "\"${MYSQL_OPSANY_BASTION_PASSWORD}\"";"
     mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "grant all on bastion.* to opsany@'%' identified by "\"${MYSQL_OPSANY_PASSWORD}\"";" 
+
+    #dashboard
+    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "create database dashboard DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
+    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "grant all on dashboard.* to dashboard@'%' identified by "\"${MYSQL_OPSANY_DASHBOARD_PASSWORD}\"";"
+    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "grant all on dashboard.* to opsany@'%' identified by "\"${MYSQL_OPSANY_PASSWORD}\"";" 
 }
 
 # MonogDB Initialize
@@ -178,6 +183,7 @@ saas_deploy(){
     python3 deploy.py --domain $DOMAIN_NAME --username admin --password ${ADMIN_PASSWORD} --file_name job-opsany-*.tar.gz
     python3 deploy.py --domain $DOMAIN_NAME --username admin --password ${ADMIN_PASSWORD} --file_name cmp-opsany-*.tar.gz
     python3 deploy.py --domain $DOMAIN_NAME --username admin --password ${ADMIN_PASSWORD} --file_name bastion-opsany-*.tar.gz
+    python3 deploy.py --domain $DOMAIN_NAME --username admin --password ${ADMIN_PASSWORD} --file_name dashboard-opsany-*.tar.gz
     
     shell_log "======OpsAny Data Initialize======"
 

@@ -15,9 +15,18 @@ SHELL_NAME="saas-install.sh"
 SHELL_LOG="${SHELL_NAME}.log"
 ADMIN_PASSWORD=admin
 
-# Import Config 
-grep '^[A-Z]' install.config > install.env
-source ./install.env && rm -f install.env
+# Install Inspection
+if [ ! -f ./install.config ];then
+      echo "Please Change Directory to ${INSTALL_PATH}/install"
+      exit
+else
+    grep '^[A-Z]' install.config > install.env
+    source ./install.env && rm -f install.env
+    if [ -z "$ADMIN_PASSWORD" ];then
+        source ${INSTALL_PATH}/conf/.passwd_env
+    fi
+fi
+
 rm -f ../saas/*.gz
 
 # Shell Log Record
@@ -126,6 +135,15 @@ deploy_update(){
     python3 ../saas/deploy.py --domain $DOMAIN_NAME --username admin --password $ADMIN_PASSWORD --file_name ../saas/deploy-opsany-*.tar.gz
 }
 
+dashboard_update(){
+    #dashboard
+    cd $CDIR
+    cd ../../opsany-saas/
+    /bin/cp dashboard-opsany-*.tar.gz ../opsany-paas/saas/
+    cd $CDIR
+    python3 ../saas/deploy.py --domain $DOMAIN_NAME --username admin --password $ADMIN_PASSWORD --file_name ../saas/dashboard-opsany-*.tar.gz
+}
+
 # Main
 main(){
     case "$1" in
@@ -152,12 +170,15 @@ main(){
 		;;
 	devops)
 		devops_update
-        pipeline_update
-        deploy_update
+                pipeline_update
+                deploy_update
 		;;
-    bastion)
-        bastion_update
-        ;;
+        bastion)
+                bastion_update
+               ;;
+        dashboard)
+                dashboard_update
+               ;;
 	base)
 		rbac_update
 		workbench_update
@@ -165,10 +186,10 @@ main(){
 		control_update
 		job_update
 		cmp_update
-        bastion_update
+                bastion_update
 		;;
 	help|*)
-		echo $"Usage: $0 {base|rbac|workbench|cmdb|control|job|monitor|cmp|devops|bastion|help}"
+		echo $"Usage: $0 {base|rbac|workbench|cmdb|control|job|monitor|cmp|devops|bastion|dashboard|help}"
 	        ;;
 esac
 }

@@ -219,6 +219,14 @@ envs = [
             {"key": "MONGO_PASSWORD", "value": replace_str(config_dict.get('mongodb').get("MONGO_DEVOPS_PASSWORD")), "env_scope": "all", "intro": "mongo password"},
             # {"key": "DEFAULT_USER_ICON", "value": read_install_config.get("DEFAULT_USER_ICON"), "env_scope": "all", "intro": "user default icon"},
         ]
+    }, {
+        "app_code": "dashboard",
+        "env": [
+            # dashboard count 3
+            {"key": "MYSQL_PASSWORD", "value": replace_str(config_dict.get('mysql').get("MYSQL_OPSANY_DASHBOARD_PASSWORD")), "env_scope": "all", "intro": "mysql password"},
+            {"key": "MYSQL_HOST", "value": replace_str(config_dict.get('mysql').get("MYSQL_SERVER_IP")), "env_scope": "all", "intro": "mysql host"},
+            {"key": "MYSQL_PORT", "value": replace_str(config_dict.get('mysql').get("MYSQL_PORT")), "env_scope": "all", "intro": "mysql port"},
+        ]
     }
 ]
 
