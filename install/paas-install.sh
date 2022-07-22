@@ -160,7 +160,7 @@ paas_install(){
     -v /etc/localtime:/etc/localtime:ro \
     -v ${INSTALL_PATH}/grafana-volume/data:/var/lib/grafana \
     -p 8007:3000 \
-    ${PAAS_DOCKER_REG}/opsany-grafana:8.3.4
+    ${PAAS_DOCKER_REG}/opsany-grafana:9.0.2
 }
 
 # MySQL Initialize

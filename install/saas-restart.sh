@@ -12,6 +12,7 @@ docker exec opsany-paas-paasagent rm -f /opt/opsany/paas-agent/apps/projects/dev
 docker exec opsany-paas-paasagent rm -f /opt/opsany/paas-agent/apps/projects/bastion/run/supervisord.sock
 docker exec opsany-paas-paasagent rm -f /opt/opsany/paas-agent/apps/projects/pipeline/run/supervisord.sock
 docker exec opsany-paas-paasagent rm -f /opt/opsany/paas-agent/apps/projects/deploy/run/supervisord.sock
+docker exec opsany-paas-paasagent rm -f /opt/opsany/paas-agent/apps/projects/dashboard/run/supervisord.sock
 
 
 #start rbac
@@ -68,3 +69,8 @@ docker exec opsany-paas-paasagent /usr/bin/supervisorctl -c /opt/opsany/paas-age
 docker exec opsany-paas-paasagent /usr/bin/supervisord -c /opt/opsany/paas-agent/apps/projects/deploy/conf/supervisord.conf
 sleep 3
 docker exec opsany-paas-paasagent /usr/bin/supervisorctl -c /opt/opsany/paas-agent/apps/projects/deploy/conf/supervisord.conf status
+
+#start dashboard
+docker exec opsany-paas-paasagent /usr/bin/supervisord -c /opt/opsany/paas-agent/apps/projects/dashboard/conf/supervisord.conf
+sleep 3
+docker exec opsany-paas-paasagent /usr/bin/supervisorctl -c /opt/opsany/paas-agent/apps/projects/dashboard/conf/supervisord.conf status

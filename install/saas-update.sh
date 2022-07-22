@@ -170,23 +170,24 @@ main(){
 		;;
 	devops)
 		devops_update
-                pipeline_update
-                deploy_update
+        pipeline_update
+        deploy_update
 		;;
-        bastion)
-                bastion_update
-               ;;
-        dashboard)
-                dashboard_update
-               ;;
+    bastion)
+        bastion_update
+        ;;
+    dashboard)
+        dashboard_update
+        ;;
 	base)
 		rbac_update
 		workbench_update
 		cmdb_update
 		control_update
 		job_update
+        dashboard_update
 		cmp_update
-                bastion_update
+        bastion_update
 		;;
 	help|*)
 		echo $"Usage: $0 {base|rbac|workbench|cmdb|control|job|monitor|cmp|devops|bastion|dashboard|help}"
