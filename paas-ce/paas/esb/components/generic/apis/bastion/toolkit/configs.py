@@ -8,7 +8,7 @@ SYSTEM_NAME = 'bastion'
 
 host = SmartHost(
     # 需要填入系统正式环境的域名地址
-    host_prod='dev.opsany.cn',
+    host_prod='DOMAIN_NAME',
 )
 
 base_api_url = "/t/bastion/api/bastion/v0_1/"

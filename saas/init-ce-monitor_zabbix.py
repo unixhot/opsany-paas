@@ -443,7 +443,7 @@ class OpsAnyApi:
 
 class GrafanaBasicApi:
     """
-    ("admin", "admin", "dev.opsany.cn/grafana")
+    ("admin", "admin", "demo.opsany.com/grafana")
     """
 
     def __init__(self, username, password, grafana_url):
@@ -486,7 +486,7 @@ class GrafanaBasicApi:
 
 class GrafanaBearerApi:
     """
-    ("eyJrIjoiR3ZZZGxjbmZ6N0NybEowWEZ4RVJiRDgwYWVyb0RYcTMiLCJuIjoiYXBpa2V5MSIsImlkIjoxfQ==", "dev.opsany.cn/grafana")
+    ("eyJrIjoiR3ZZZGxjbmZ6N0NybEowWEZ4RVJiRDgwYWVyb0RYcTMiLCJuIjoiYXBpa2V5MSIsImlkIjoxfQ==", "demo.opsany.com/grafana")
     """
 
     def __init__(self, api_token, grafana_url, zabbix_api_password):

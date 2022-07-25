@@ -19,7 +19,7 @@ APP_CODE = 'bastion'
 # SaaS安全密钥，注意请勿泄露该密钥
 SECRET_KEY = os.getenv("APP_TOKEN", '73a828d2-0cc1-11ec-bea7-00163e105ceb')
 # PAAS平台URL
-BK_URL = os.getenv("BK_PAAS_HOST", "https://dev.opsany.cn")
+BK_URL = os.getenv("BK_PAAS_HOST", "https://PAAS_PAAS_IP")
 # UploadPath
 UPLOAD_PATH = os.getenv("UPLOAD_PATH", "/opt/opsany/")
 

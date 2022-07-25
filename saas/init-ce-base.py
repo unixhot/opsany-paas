@@ -141,7 +141,7 @@ class OpsAnyApi:
 
 class GrafanaBasicApi:
     """
-    ("admin", "admin", "dev.opsany.cn/grafana")
+    ("admin", "admin", "demo.opsany.com/grafana")
     """
 
     def __init__(self, username, password, grafana_url):

@@ -8,7 +8,7 @@ SYSTEM_NAME = 'rbac'
 
 host = SmartHost(
     # 需要填入系统正式环境的域名地址
-    host_prod='dev.opsany.cn',
+    host_prod='DOMAIN_NAME',
 )
 # -*- coding: utf-8 -*-
 
