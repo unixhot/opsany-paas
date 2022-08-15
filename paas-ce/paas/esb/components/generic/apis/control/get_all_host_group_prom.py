@@ -9,23 +9,16 @@ from .toolkit import configs
 from .toolkit.tools import base_api_url
 
 
-class PostNewZabbixInfo(Component):
+class GetAllHostGroupProm(Component):
     """
-    apiMethod POST
+    apiMethod GET
 
     ### 功能描述
 
-    刷新主机最新zabbix监控信息
+    获取所有主机组(应用监控)
 
     ### 请求参数
     {{ common_args_desc }}
-
-    #### 接口参数
-
-    | 字段    | 类型     | 必选   | 描述       |
-    | ----- | ------ | ---- | -------- |
-    | data_type | str | 是    | 数据类型 |
-    | data_info | dict | 否    | 数据内容 |
 
     ### 返回结果示例
 
@@ -38,19 +31,18 @@ class PostNewZabbixInfo(Component):
         "message": "获取相关信息成功"
     }
     ```
-    """
+    """#
 
     # 组件所属系统的系统名
     sys_name = configs.SYSTEM_NAME
 
     # Form处理参数校验
     class Form(BaseComponentForm):
-        data_type = forms.Field()
-        data_info = forms.Field(required=False)
+        token_data = forms.Field(required=False)
 
         # clean方法返回的数据可通过组件的form_data属性获取
         def clean(self):
-            return self.get_cleaned_data_when_exist(keys=["data_type", "data_info"])
+            return self.get_cleaned_data_when_exist(keys=["token_data"])
 
     # 组件处理入口
     def handle(self):
@@ -59,11 +51,13 @@ class PostNewZabbixInfo(Component):
 
         # 设置当前操作者
         params['operator'] = self.current_user.username
+
         # 请求系统接口
-        response = self.outgoing.http_client.post(
+        response = self.outgoing.http_client.get(
             host=configs.host,
-            path='{}get-new-zabbix-info/'.format(base_api_url),
-            data=json.dumps(params),
+            path='{}get-all-host-group-prom/'.format(base_api_url),
+            params=params,
+            data=None,
             cookies=self.request.wsgi_request.COOKIES,
         )
 

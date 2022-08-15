@@ -244,6 +244,7 @@ class Account(AccountSingleton):
         app_id = request.POST.get('app_id', request.GET.get('app_id', ''))
         c_url = request.POST.get('c_url', request.GET.get('c_url', '/'))
         tab_key = request.POST.get('tab_key', request.GET.get('tab_key', 0))
+        error_message = ""
         if request.method == 'POST':
             # 改写request中密码内容
             request.POST = request.POST.copy()
@@ -377,6 +378,27 @@ class Account(AccountSingleton):
                             return render(request, "login/login.html", return_data)
                     else:
                         return self.login_success_response(request, user, redirect_to, app_id)
+        elif request.method == 'GET' and request.GET.get("appid") and request.GET.get("code") and request.GET.get("auth_type"):
+            appid = request.GET.get("appid")
+            code = request.GET.get("code")
+            auth_type = request.GET.get("auth_type")
+            return_data = {"app_id": "", "next": "", "IMG_URL": settings.IMG_URL, "SITE_URL": settings.SITE_URL}
+            if auth_type == "3":
+                auth_obj = OpsAnyRbacUserAuth(code=code, app_id=appid)
+                status, res = auth_obj.check_users()
+                if status and res.get("auth_status") and res.get("domain_status") and res.get("have_user"):
+                    user_info = res.get("user_info")
+                    user = self.get_user(res, user_info.get("username"))
+                    redirect_to = "/"
+                    return self.login_success_response(request, user, redirect_to, app_id)
+                else:
+                    return_data["message"] = res.get("message")
+                    form = authentication_form(request)
+                    error_message = res.get("message")
+            else:
+                return_data["message"] = "Unsupported auth type."
+                form = authentication_form(request)
+                error_message = res.get("message")
         else:
             form = authentication_form(request)
         current_site = get_current_site(request)
@@ -386,6 +408,7 @@ class Account(AccountSingleton):
             'site': current_site,
             'site_name': current_site.name,
             'tab_key': tab_key,
+            'error_message': error_message,
             'app_id': app_id
         }
         if extra_context is not None:
@@ -419,10 +442,10 @@ class Account(AccountSingleton):
             result, user_id, message = BkUser.objects.modify_or_create_user_by_userid(
                 user_id,
                 user_info.get("username"),
-                user_info.get("chname"),
-                user_info.get("phone"),
-                user_info.get("email"),
-                user_info.get("bk_role"),
+                user_info.get("chname", ""),
+                user_info.get("phone", ""),
+                "" if user_info.get("email", "") is None else user_info.get("email", ""),
+                user_info.get("bk_role", "0"),
                 password
             )
             return BkUser.objects.filter(id=user_id).first()

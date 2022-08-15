@@ -9,23 +9,16 @@ from .toolkit import configs
 from .toolkit.tools import base_api_url
 
 
-class PostNewZabbixInfo(Component):
+class GetHostInfoForProm(Component):
     """
-    apiMethod POST
+    apiMethod GET
 
     ### 功能描述
 
-    刷新主机最新zabbix监控信息
+    获取主机组下的主机（应用监控）
 
     ### 请求参数
     {{ common_args_desc }}
-
-    #### 接口参数
-
-    | 字段    | 类型     | 必选   | 描述       |
-    | ----- | ------ | ---- | -------- |
-    | data_type | str | 是    | 数据类型 |
-    | data_info | dict | 否    | 数据内容 |
 
     ### 返回结果示例
 
@@ -45,12 +38,14 @@ class PostNewZabbixInfo(Component):
 
     # Form处理参数校验
     class Form(BaseComponentForm):
-        data_type = forms.Field()
-        data_info = forms.Field(required=False)
+        page = forms.Field()
+        pageSize = forms.Field()
+        token_data = forms.Field(required=True)
+        filter = forms.Field(required=False)
 
         # clean方法返回的数据可通过组件的form_data属性获取
         def clean(self):
-            return self.get_cleaned_data_when_exist(keys=["data_type", "data_info"])
+            return self.get_cleaned_data_when_exist(keys=["page", "pageSize", "filter", "token_data"])
 
     # 组件处理入口
     def handle(self):
@@ -62,7 +57,7 @@ class PostNewZabbixInfo(Component):
         # 请求系统接口
         response = self.outgoing.http_client.post(
             host=configs.host,
-            path='{}get-new-zabbix-info/'.format(base_api_url),
+            path='{}get-host-info-for-prom/'.format(base_api_url),
             data=json.dumps(params),
             cookies=self.request.wsgi_request.COOKIES,
         )

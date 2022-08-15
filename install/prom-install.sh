@@ -71,7 +71,7 @@ consul_install(){
            -p 8500:8500 \
            -v ${INSTALL_PATH}/consul-volume/config:/consul/config \
            -v ${INSTALL_PATH}/consul-volume/data:/consul/data \
-           consul
+           consul:1.12.3
 
     shell_log "End: Consule Installed"
 }
@@ -80,7 +80,7 @@ prometheus_install(){
     # Prometheus Server Basic Auth
     PROM_SERVER_HASH=$(python3 ./prom-pass.py $PROM_SERVER_PASSWD)
     sed -i "s#PROM_SERVER_HASH#$PROM_SERVER_HASH#g" ${INSTALL_PATH}/prometheus-volume/conf/web.yml
-    sed -i "s#LOCAL_IP#$LOCAL_IP#g" ${INSTALL_PATH}/prometheus-volume/conf/prometheus.yml
+    sed -i "s#LOCAL_IP#$PROXY_LOCAL_IP#g" ${INSTALL_PATH}/prometheus-volume/conf/prometheus.yml
     sed -i "s#PROM_SERVER_PASSWD#$PROM_SERVER_PASSWD#g" ${INSTALL_PATH}/prometheus-volume/conf/prometheus.yml
 
     # Prometheus Release Date: 2022-04-21 https://hub.docker.com/u/prom
@@ -106,6 +106,8 @@ prometheus_uninstall(){
     docker stop opsany-prometheus-node_exporter
     docker rm opsany-prometheus-server
     docker rm opsany-prometheus-node_exporter
+    docker stop opsany-consul
+    docker rm opsany-consul
     rm -rf ${INSTALL_PATH}/prometheus-volume/*
 }
 
@@ -115,6 +117,7 @@ main(){
 	install)
             install_check
             install_init
+            consul_install
             prometheus_install
 		;;
         uninstall)

@@ -122,8 +122,8 @@ mysql_init(){
 
 copy_logo(){
   cd $CDIR
-  /bin/cp -r ../paas-ce/saas/saas-logo/* /opt/opsany/uploads/workbench/icon/
-  /bin/cp -r ../paas-ce/saas/saas-logo/* /opt/opsany-paas/paas-ce/paas/paas/media/applogo/
+  /bin/cp -r ../paas-ce/saas/saas-logo/* ${INSTALL_PATH}/uploads/workbench/icon/
+  /bin/cp -r ../paas-ce/saas/saas-logo/* ${INSTALL_PATH}/paas-ce/paas/paas/media/applogo/
 }
 
 # SaaS Deploy

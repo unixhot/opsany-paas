@@ -9,16 +9,20 @@ from .toolkit import configs
 from .toolkit.tools import base_api_url
 
 
-class GetHostInfoForMonitor(Component):
+class GetAllPrivateHost(Component):
     """
     apiMethod GET
 
     ### 功能描述
 
-    获取主机组下的主机(基础监控)
+    获取所有私有云主机详情
 
     ### 请求参数
     {{ common_args_desc }}
+    
+    | 字段    | 类型     | 必选   | 描述       |
+    | ----- | ------ | ---- | -------- |
+    | private_cloud_type | string | 是  | 私有云类型 | 
 
     ### 返回结果示例
 
@@ -28,24 +32,21 @@ class GetHostInfoForMonitor(Component):
         "apicode": 20012,
         "result": true,
         "request_id": xxxxxxxxxxxxxxxxxxxxxxxx,
-        "message": "获取相关信息成功"
+        "message": "相关信息更新成功"
     }
     ```
-    """
+    """#
 
     # 组件所属系统的系统名
     sys_name = configs.SYSTEM_NAME
 
     # Form处理参数校验
     class Form(BaseComponentForm):
-        page = forms.Field()
-        pageSize = forms.Field()
-        token_data = forms.Field(required=True)
-        filter = forms.Field(required=False)
+        private_cloud_type = forms.CharField(required=True)
 
         # clean方法返回的数据可通过组件的form_data属性获取
         def clean(self):
-            return self.get_cleaned_data_when_exist(keys=["page", "pageSize", "filter", "token_data"])
+            return self.get_cleaned_data_when_exist(keys=["private_cloud_type"])
 
     # 组件处理入口
     def handle(self):
@@ -54,11 +55,12 @@ class GetHostInfoForMonitor(Component):
 
         # 设置当前操作者
         params['operator'] = self.current_user.username
+
         # 请求系统接口
-        response = self.outgoing.http_client.post(
+        response = self.outgoing.http_client.get(
             host=configs.host,
-            path='{}get-host-info-for-monitor/'.format(base_api_url),
-            data=json.dumps(params),
+            path='{}get-all-private-host/'.format(base_api_url),
+            params=params,
             cookies=self.request.wsgi_request.COOKIES,
         )
 

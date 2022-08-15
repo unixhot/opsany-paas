@@ -38,12 +38,14 @@ class UserAuth(Component):
 
     # Form处理参数校验
     class Form(BaseComponentForm):
-        username = forms.CharField(required=True)
-        password = forms.CharField(required=True)
+        username = forms.CharField(required=False)
+        password = forms.CharField(required=False)
+        appid = forms.CharField(required=False)
+        code = forms.CharField(required=False)
 
         # clean方法返回的数据可通过组件的form_data属性获取
         def clean(self):
-            return self.get_cleaned_data_when_exist(keys=["username", "password"])
+            return self.get_cleaned_data_when_exist(keys=["username", "password", "appid", "code"])
 
     # 组件处理入口
     def handle(self):

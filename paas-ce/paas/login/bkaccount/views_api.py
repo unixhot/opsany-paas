@@ -20,6 +20,7 @@ from bkaccount.forms import PasswordForm, BaseUserInfoForm, WeixinInfoForm
 from bkaccount.models import BkUser
 from bkaccount.utils import validate_bk_token, is_request_from_esb
 from bkaccount.constants import ApiErrorCodeEnum
+from bkaccount.opsany_user_auth import OpsAnyRbacUserAuth
 
 
 class CheckLoginView(LoginExemptMixin, View):
@@ -29,6 +30,18 @@ class CheckLoginView(LoginExemptMixin, View):
         if not is_valid:
             return ApiV1FailJsonResponse(message, code=ApiErrorCodeEnum.PARAM_NOT_VALID)
         return ApiV1OKJsonResponse(_("用户验证成功"), data={'username': user.username})
+
+
+class GetVxWorkConfigView(LoginExemptMixin, View):
+    def get(self, request):
+        domain = request.GET.get("domain", "")
+        res, data = OpsAnyRbacUserAuth().get_vx_work_config(domain)
+        if res:
+            return ApiV1OKJsonResponse(_("获取配置信息成功"), data={
+                'agent_id': data.get("agent_id"),
+                'corp_id': data.get("corp_id"),
+            })
+        return ApiV1FailJsonResponse(data, code=ApiErrorCodeEnum.PARAM_NOT_VALID)
 
 
 class UserView(LoginExemptMixin, View):

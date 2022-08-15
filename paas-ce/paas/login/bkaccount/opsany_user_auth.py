@@ -10,9 +10,11 @@ class OpsAnyRbacUserAuth(object):
     BK_URL = "{}://{}".format(settings.HTTP_SCHEMA, settings.PAAS_INNER_DOMAIN)
     ACCESS_TOKEN = "opsany-esb-auth-token-9e8083137204"
 
-    def __init__(self, username, password=""):
+    def __init__(self, username="", password="", code="", app_id=""):
         self.username = username
         self.password = password
+        self.code = code
+        self.app_id = app_id
 
     def check_users(self):
         API = "/api/c/compapi/rbac/user_auth/"
@@ -22,13 +24,14 @@ class OpsAnyRbacUserAuth(object):
             "bk_app_secret": self.APP_SECRET,
             "bk_access_token": self.ACCESS_TOKEN,
             "username": self.username,
-            "password": self.password,
+            "code": self.code,
+            "appid": self.app_id,
         }
         res = requests.post(url, json=req, headers={"Cookie": "bk_token=None"}, verify=False)
         data = res.json().get("data")
         if data:
             return data.get("auth_status"), data
-        return False, {}
+        return False, {"message": "ESB组件发生了异常，请联系管理员"}
 
     def get_user_google_auth_status(self):
         API = "/api/c/compapi/rbac/get_user_google_auth_status/"
@@ -79,7 +82,6 @@ class OpsAnyRbacUserAuth(object):
         end_data = json.loads(response.text)
         return end_data
 
-
     def check_google_verify_code(self, verify_code):
         API = "/api/c/compapi/rbac/check_google_verify_code/"
         req = {
@@ -97,4 +99,19 @@ class OpsAnyRbacUserAuth(object):
             return end_data
         return False
 
+    def get_vx_work_config(self, domain=""):
+        API = "/api/c/compapi/rbac/get_wx_work_config/"
+        req = {
+            "bk_app_code": self.APP_CODE,
+            "bk_app_secret": self.APP_SECRET,
+            "bk_access_token": self.ACCESS_TOKEN,
+            "domain": domain
+        }
+        url = self.BK_URL + API
+        response = requests.post(url, data=json.dumps(req), headers={"Cookie": "bk_token=None"}, verify=False)
+        end_data = json.loads(response.text)
+        if end_data.get("result"):
+            end_data = end_data.get("data")
+            return True, end_data
+        return False, end_data.get("message")
 

@@ -15,7 +15,7 @@ class GetAllHostGroup(Component):
 
     ### 功能描述
 
-    获取所有主机组
+    获取所有主机组（基础监控）
 
     ### 请求参数
     {{ common_args_desc }}

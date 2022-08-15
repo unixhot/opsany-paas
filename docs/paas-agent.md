@@ -35,13 +35,13 @@ Python 2.7.15
 
 ```
 [root@linux-node1 ~]# cd /usr/local/src
-[root@linux-node1 src]# wget https://www.python.org/ftp/python/3.6.7/Python-3.6.7.tgz
-[root@linux-node1 src]# tar zxf Python-3.6.7.tgz
-[root@linux-node1 src]# cd Python-3.6.7/
-[root@linux-node1 Python-3.6.6]# ./configure --prefix=/usr/local/Python-3.6.7 --with-ssl
-[root@linux-node1 Python-3.6.6]# make && make install
-[root@linux-node1 Python-3.6.6]# ln -s /usr/local/Python-3.6.7/ /opt/py36
-[root@linux-node1 Python-3.6.6]# cd /opt/py36/bin
+[root@linux-node1 src]# wget https://www.python.org/ftp/python/3.6.8/Python-3.6.8.tgz
+[root@linux-node1 src]# tar zxf Python-3.6.8.tgz
+[root@linux-node1 src]# cd Python-3.6.8/
+[root@linux-node1 Python-3.6.8]# ./configure --prefix=/usr/local/Python-3.6.8 --with-ssl
+[root@linux-node1 Python-3.6.8]# make && make install
+[root@linux-node1 Python-3.6.8]# ln -s /usr/local/Python-3.6.8/ /opt/py36
+[root@linux-node1 Python-3.6.8]# cd /opt/py36/bin
 [root@ops bin]# ln -s python3.6 python
 [root@ops bin]# ln -s pip3 pip
 ```
@@ -49,7 +49,7 @@ Python 2.7.15
 确认Python版本
 ```
 [root@ops ~]# /opt/py36/bin/python --version
-Python 3.6.7
+Python 3.6.8
 ```
 
 构建目录及新建用户

@@ -8,6 +8,8 @@
         <link href="{{STATIC_URL}}css/bk.{{CSS_SUFFIX}}" rel="stylesheet" type="text/css" />
         <link href="{{STATIC_URL}}assets/bk-icon-2.0/iconfont.css" rel="stylesheet" type="text/css" />
         <link href="{{STATIC_URL}}css/login.{{CSS_SUFFIX}}?v={{STATIC_VERSION}}" rel="stylesheet" type="text/css" />
+        <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}modal/icon/iconfont.css">
+  	   <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}modal/modal.css">
         <title>{% trans '登录 | OpsAny' %}</title>
     </head>
     <body>
@@ -50,10 +52,12 @@
 	                    欢迎使用密码登录
 	                </div>
 	                <p class="logo-title1"></p>
-	                <div class="from-detail" style="margin-top: 0; height: auto; padding-bottom: 16%">
+	                <div class="from-detail" style="margin-top: 0; height: auto; padding-bottom: 10%">
 	                    <form action="{{ app_path }}" method="post" id="login-form" onsubmit="return refresh_token()">{% csrf_token %}
 	                        <div class="is-danger-tip">
-	                         {% if data and tab_key != '1'  %}
+	                         {% if error_message %}
+	                               <i class="bk-icon icon-exclamation-circle-shape"></i><span>{{ error_message }}</span>
+	                         {% elif data and tab_key != '1'  %}
 	                             <i class="bk-icon icon-exclamation-circle-shape"></i><span>{% trans '请先完成验证码验证' %}</span>
 	                          {% elif form.errors or form.non_field_errors  %}
 	                          	{% if tab_key != '1'  %}
@@ -61,7 +65,6 @@
 	                              {% endif %}
 	                          {% endif %}
 	                        </div>
-	
 	                        <div class="form-login" style="padding: 5px 55px 0 56px">
 	                            <div class="user group-control" style="margin-bottom: 8%;width: 270px;">
 	                                <i style="color: #0BA360" class="bk-icon icon-user"></i>
@@ -83,8 +86,25 @@
 	                            <div class="btn-content clearfix" style=";padding-top: 25px">
 	                                <button class="login-btn" style="width: 270px;border-radius: 22px">{% trans '立即登录' %}</button>
 	                            </div>
+						   <div class="other_login">
+						   	<div class="other_login_line"></div>
+						   	<div class="other_login_text">其他登录方式</div>
+						   	<div class="other_login_line"></div>
+						   </div>
+	                            <div class="qywxbox">
+	                            	<div title="企业微信登录" class="qywxbox_enable" data-auth_type="3">
+	                            		<img src="{{STATIC_URL}}img/qywx.png" alt="企业微信" data-auth_type="3" />  <span data-auth_type="3">企业微信</span>
+	                            	</div> 
+	                            	<div title="钉钉登录暂未开放" class="qywxbox_disabled" data-auth_type="4">
+	                            		<img src="{{STATIC_URL}}img/dingding.png" alt="钉钉" data-auth_type="4" />  <span data-auth_type="4">钉钉</span>
+	                            	</div>
+	                            	<div title="飞书登录暂未开放" class="qywxbox_disabled" data-auth_type="5">
+	                            		<img src="{{STATIC_URL}}img/feishu.png" alt="飞书" data-auth_type="5" />  <span data-auth_type="5">飞书</span>
+	                            	</div>
+	                            </div>
 	                        </div>
 	                    </form>
+
 	                </div>
                 </div>
 
@@ -94,7 +114,7 @@
 	                    <!-- <img src="{{STATIC_URL}}img/logo/bk_login.png" height="32" width="311" alt=""> -->
 	                    欢迎使用LDAP登录
 	                </div>
-	                <div class="from-detail" style="margin-top: 0; height: auto; padding-bottom: 16%;background:#ffffff">
+	                <div class="from-detail" style="margin-top: 0; height: auto; padding-bottom: 10%;background:#ffffff">
 	                    <form action="{{ app_path }}" method="post" id="login-form" onsubmit="return refresh_token()">{% csrf_token %}
 	                        <div class="is-danger-tip">
 	                         {% if data and tab_key == '1' %}
@@ -110,7 +130,7 @@
 	                        <div class="form-login" style="padding: 5px 55px 0 56px">
 	                            <div class="user group-control" style="margin-bottom: 8%;width: 270px;">
 	                                <i style="color: #0BA360" class="bk-icon icon-code"></i>
-	                                <input id="user" type="text" name="domain"  placeholder="{% trans '请输入登陆域' %}" >
+	                                <input id="user" type="text" name="domain" value="" placeholder="{% trans '请输入登陆域' %}" >
 	                            </div>
 	                            <div class="user group-control" style="margin-bottom: 8%;width: 270px;">
 	                                <i style="color: #0BA360" class="bk-icon icon-user"></i>
@@ -132,6 +152,22 @@
 	                            </div>
 	                            <div class="btn-content clearfix" style=";padding-top: 25px">
 	                                <button class="login-btn" style="width: 270px;border-radius: 22px">{% trans '立即登录' %}</button>
+	                            </div>
+						   <div class="other_login">
+						   	<div class="other_login_line"></div>
+						   	<div class="other_login_text">其他登录方式</div>
+						   	<div class="other_login_line"></div>
+						   </div>
+	                            <div class="qywxbox">
+	                            	<div title="企业微信登录" class="qywxbox_enable" data-auth_type="3">
+	                            		<img src="{{STATIC_URL}}img/qywx.png" alt="企业微信" data-auth_type="3" />  <span data-auth_type="3">企业微信</span>
+	                            	</div> 
+	                            	<div title="钉钉登录暂未开放" class="qywxbox_disabled" data-auth_type="4">
+	                            		<img src="{{STATIC_URL}}img/dingding.png" alt="钉钉" data-auth_type="4" />  <span data-auth_type="4">钉钉</span>
+	                            	</div>
+	                            	<div title="飞书登录暂未开放" class="qywxbox_disabled" data-auth_type="5">
+	                            		<img src="{{STATIC_URL}}img/feishu.png" alt="飞书" data-auth_type="5" />  <span data-auth_type="5">飞书</span>
+	                            	</div>
 	                            </div>
 	                        </div>
 	                    </form>
@@ -266,16 +302,32 @@
 		<!-- <p>Copyright © 2012-2020 womaiyun. All Rights Reserved.</p> -->
 		</footer>
         </div>
-        <input hidden id="tab_key" value="{{tab_key}}"></input>
-        <div class="error-message-content is-chrome">
-            <span>{% trans '您的浏览器非Chrome，建议您使用最新版本的Chrome浏览，以保证最好的体验效果' %}</span><i class="bk-icon icon-close-circle-shape" id="close-chrome"></i>
-        </div>
+	    <input hidden id="tab_key" value="{{tab_key}}"></input>
+	    <div class="error-message-content is-chrome">
+	            <span>{% trans '您的浏览器非Chrome，建议您使用最新版本的Chrome浏览，以保证最好的体验效果' %}</span><i class="bk-icon icon-close-circle-shape" id="close-chrome"></i>
+	        </div>
+	      <div class="m-modal__wrapper" id="m-modal__wrapper">
+	      	<div class="m-modal__container">
+	      		<div class="m-modal__header">
+	      			<div class="m-modal__title" id="m-modal__title"></div>
+	      			<button class="m-modal__headerbtn">
+	      				<i class="m-modal__close iconfont icon-close" id="m-modal__close"></i>
+	      			</button>
+	      		</div>
+	      		<div class="m-modal__body">
+	      			<div id="qywxCode"></div>
+	      		</div>
+	      	</div>
+	      </div>
+	    
     </body>
     <!-- js 国际化 -->
     <script type="text/javascript" src="{{SITE_URL}}jsi18n/i18n/"></script>
     <script src="{{STATIC_URL}}assets/jquery-1.10.2.min.js"></script>
     <script src="{{STATIC_URL}}assets/gt.js"></script>
     <script src="{{STATIC_URL}}js/login.{{JS_SUFFIX}}?v={{STATIC_VERSION}}"></script>
+	<!-- 企业微信-->
+    <script src="https://rescdn.qqmail.com/node/ww/wwopenmng/js/sso/wwLogin-1.0.0.js" type="text/javascript" charset="utf-8"></script>
 <script>
 	let key = $('#tab_key').val() || 0
 
@@ -287,6 +339,30 @@
 		}	
 	}
 
+	//初始化企业微信二维码
+	function initWwlogin(appid,agentid,redirect_uri){
+		window.WwLogin({
+			id : "qywxCode",  
+			appid, //企业微信的cropID，在 企业微信管理端->我的企业中查看 - 
+			agentid, //企业微信当前应用ID - 
+			redirect_uri:encodeURI(redirect_uri), //回调地址 - 
+			state:''
+		});	
+	}
+
+
+    //获取url参数
+    function getQueryVariable(variable){
+       var query = window.location.search.substring(1);
+       var vars = query.split("&");
+       for (var i=0;i<vars.length;i++) {
+               var pair = vars[i].split("=");
+               if(pair[0] == variable){return pair[1];}
+       }
+       return(false);
+   }
+
+	//初始化验证码
 	function initCaptch (){
 		const activeKey = key || 0
 		var handler = function (captchaObj) {
@@ -358,14 +434,62 @@
     	})
 
     	initCaptch()
-    	console.log("{{ google_auth_url }}")
-  	console.log("{{ google_auth_url }}")
+	//   console.log("{{ google_auth_url }}")
     	$("#google_auth_pic").attr("src",window.location.origin+"/"+"{{ google_auth_url }}")
     	function copy(){
     		let input = document.getElementById("copy");
 		input.select();
   		document.execCommand("copy")
     	}
+
+
+    	$('.qywxbox').click(e=>{
+    		//3 为企业微信
+    		//4 为钉钉
+    		//5 为飞书
+    		const auth_type = $(e.target).data('auth_type')
+    		if(auth_type!=3) return
+    		$('#m-modal__wrapper').css({
+    			'display':'block'	
+    		})
+    		let appid;
+    		let agentid;
+    		let c_url = encodeURIComponent(getQueryVariable('c_url')||'')
+    		let is_from_logout = encodeURIComponent(getQueryVariable('is_from_logout')||'')
+		//回调地址 默认回调到登录页 由于此url只允许带一个参数 所以下面注释的方式不起作用
+    		//let redirect_uri = window.location.origin+`/login/?c_url=${c_url}&is_from_logout=${is_from_logout}&auth_type=${auth_type}`; 
+    		 let redirect_uri = window.location.origin+`/login/?auth_type=${auth_type}`; //回调地址 默认回调到登录页
+		 $.ajax({
+	        url: "accounts/get_vx_work_config/",
+	        type: "get",
+	        dataType: "json",
+	        success: function (res) {
+			if(res.code == '00' && res.result){
+				appid = res.data.corp_id;
+				agentid = res.data.agent_id;
+				initWwlogin(appid,agentid,redirect_uri);
+			}else{
+				$('#m-modal__title').html(`提示`)
+				$('#qywxCode').html(`<div>${res.message || '获取参数失败，请重试或联系管理员'}</div>`)
+			}
+	        },
+	        error:function(e){
+	        	$('#m-modal__title').html(`提示`)
+			$('#qywxCode').html(`<div>获取参数失败，请重试或联系管理员</div>`)
+	        }
+	    });
+    	})
+
+    	$('#m-modal__close').click(e=>{
+    		$('#m-modal__wrapper').css({
+    			'display':'none'	
+    		})	
+    	})
+
+
+	
+
+
 	
 </script>
 </html>

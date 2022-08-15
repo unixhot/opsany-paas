@@ -9,13 +9,13 @@ from .toolkit import configs
 from .toolkit.tools import base_api_url
 
 
-class PostNewZabbixInfo(Component):
+class PostNewPromInfo(Component):
     """
     apiMethod POST
 
     ### 功能描述
 
-    刷新主机最新zabbix监控信息
+    刷新主机最新Prom监控信息
 
     ### 请求参数
     {{ common_args_desc }}
@@ -62,7 +62,7 @@ class PostNewZabbixInfo(Component):
         # 请求系统接口
         response = self.outgoing.http_client.post(
             host=configs.host,
-            path='{}get-new-zabbix-info/'.format(base_api_url),
+            path='{}get-new-prom-info/'.format(base_api_url),
             data=json.dumps(params),
             cookies=self.request.wsgi_request.COOKIES,
         )

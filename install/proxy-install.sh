@@ -73,7 +73,7 @@ install_init(){
 base_install(){
     # Redis
     shell_log "======Start Redis======"
-    docker run -d --restart=always --name opsany-redis \
+    docker run -d --restart=always --name opsany-proxy-redis \
     -p 6379:6379 -v ${INSTALL_PATH}/redis-volume:/data \
     -v ${INSTALL_PATH}/redis-volume/redis.conf:/data/redis.conf \
     -v /etc/localtime:/etc/localtime:ro \

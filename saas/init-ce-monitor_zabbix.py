@@ -526,11 +526,11 @@ class GrafanaBearerApi:
             }
             res = self.grafana_api_obj.datasource.create_datasource(data_source_dict)
             if res.get("datasource").get("name"):
-                return True, res.get("datasource").get("name")
+                return True, "", res.get("datasource", {})
             else:
-                return False, ""
+                return False, "Error", {}
         except Exception as e:
-            return False, str(e)
+            return False, str(e), {}
 
     def import_dashboard(self, request_json):
         try:
@@ -561,6 +561,7 @@ class Run:
         self.modify_zabbix_password = modify_zabbix_password if modify_zabbix_password else default_modify_zabbix_password
         self.modify_grafana_password = modify_grafana_password
         self.opsany_api_obj = OpsAnyApi("https://" + self.paas_domain, self.paas_username, self.paas_password)
+        self.data_source_dict = {}
 
     def handle_domain(self, domain):
         """
@@ -623,16 +624,16 @@ class Run:
                     grafana_api_token = create_token_key_or_message
                 else:
                     info = "[ERROR] Create api token error: {}".format(create_token_key_or_message)
-                    return False, info, ""
+                    return False, info, "", {}
             else:
-                return False, "[ERROR] Link grafana error, please check username or password", ""
+                return False, "[ERROR] Link grafana error, please check username or password", "", {}
             if grafana_api_token:
                 bearer_grafana_obj = GrafanaBearerApi(
                     grafana_api_token,
                     "{}/grafana".format(self.private_ip),
                     self.zabbix_api_password
                 )
-                create_data_source_status, create_data_source_name_or_message = bearer_grafana_obj.create_data_source(
+                create_data_source_status, create_data_source_message, create_data_source_dict = bearer_grafana_obj.create_data_source(
                     "http://{}:8006/api_jsonrpc.php".format(self.private_ip), self.zabbix_api_username, self.data_source_name
                 )
                 if create_data_source_status:
@@ -654,12 +655,12 @@ class Run:
                             print("[ERROR] Update grafana password error: {}".format(update_password_message))
                         else:
                             print("[SUCCESS] Update grafana password success")
-                    return True, "[SUCCESS] Init Grafana success", grafana_api_token
+                    return True, "[SUCCESS] Init Grafana success", grafana_api_token, create_data_source_dict
                 else:
-                    return False, "[ERROR] Create data source error: {}".format(create_data_source_name_or_message), \
-                           grafana_api_token
+                    return False, "[ERROR] Create data source error: {}".format(create_data_source_message), \
+                           grafana_api_token, {}
         except Exception as e:
-            return False, str(e), ""
+            return False, str(e), "", {}
 
     def init_monitor(self, api_token):
         if api_token:
@@ -697,7 +698,7 @@ class Run:
         else:
             return False, "OpsAny平台认证失败"
 
-    def create_controller_zabbix(self):
+    def create_controller_zabbix(self, datasource_dict: dict):
         controller_dict = {
             "name": self.data_source_name,
             "description": self.data_source_name,
@@ -706,6 +707,10 @@ class Run:
             "zabbix_url": "http://" + self.zabbix_ip + ":8006/api_jsonrpc.php",
             "zabbix_username": self.zabbix_api_username,
             "zabbix_password": self.modify_zabbix_password,
+            "datasource_id": datasource_dict.get("id", 1),
+            "datasource_uid": datasource_dict.get("uid"),
+            "datasource_name": datasource_dict.get("name"),
+            "datasource_type": datasource_dict.get("type"),
         }
         if self.opsany_api_obj.token:
             status, message = self.opsany_api_obj.create_controller_zabbix(controller_dict)
@@ -729,13 +734,13 @@ def start(paas_domain, private_ip, paas_username, paas_password, zabbix_ip, zabb
     # 初始化Zabbix
     init_zabbix_status, init_zabbix_message = run_obj.init_zabbix()
     if init_zabbix_status:
-        init_grafana_status, init_grafana_message, grafana_api_token = run_obj.init_grafana()
+        init_grafana_status, init_grafana_message, grafana_api_token, create_data_source_dict = run_obj.init_grafana()
         print(init_grafana_message)
         sync_dashboard_status, sync_dashboard_status_message = run_obj.sync_dashboard()
         print("[SUCCESS] Sync dashboard success") if sync_dashboard_status else \
             print("[ERROR] Sync dashboard error, error info: {}".format(sync_dashboard_status_message))
         # 创建Zabbix
-        create_controller_zabbix_status, create_controller_zabbix_message = run_obj.create_controller_zabbix()
+        create_controller_zabbix_status, create_controller_zabbix_message = run_obj.create_controller_zabbix(create_data_source_dict)
         print("[SUCCESS] Create controller zabbix success") if create_controller_zabbix_status else \
             print("[ERROR] Create controller zabbix error, error info: {}".format(create_controller_zabbix_message))
 

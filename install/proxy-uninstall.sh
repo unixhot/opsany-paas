@@ -18,7 +18,7 @@ uninstall_proxy(){
     docker rm -f opsany-proxy
 
     # Remove Install Path
-    rm -rf ${INSTALL_PATH}
+    #rm -rf ${INSTALL_PATH}
 }
 
 # Main

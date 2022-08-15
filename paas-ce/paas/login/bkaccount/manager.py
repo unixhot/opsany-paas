@@ -278,7 +278,8 @@ class BkUserManager(BaseUserManager):
             # 添加或者修改用户角色
             if role in ROLECODE_LIST:
                 self._modify_or_create_user_role(user, role)
-        except IntegrityError:
+        except IntegrityError as e:
+            print e
             return False, user_id, _("用户已经存在")
         except Exception as error:
             logger.exception("user info save failed, error: {}".format(error))

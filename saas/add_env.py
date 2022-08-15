@@ -114,6 +114,9 @@ envs = [
             {"key": "MYSQL_HOST", "value": replace_str(config_dict.get('mysql').get("MYSQL_SERVER_IP")), "env_scope": "all", "intro": "mysql host"},
             {"key": "MYSQL_PORT", "value": replace_str(config_dict.get('mysql').get("MYSQL_PORT")), "env_scope": "all", "intro": "mysql port"},
             {"key": "UPLOAD_PATH", "value": replace_str(config_dict.get('opsany_saas').get("UPLOAD_PATH")), "env_scope": "all", "intro": "uploads path"},
+            {"key": "REDIS_HOST", "value": replace_str(config_dict.get("redis").get("REDIS_SERVER_IP")), "env_scope": "all", "intro": "redis host"},
+            {"key": "REDIS_PORT", "value": replace_str(config_dict.get("redis").get("REDIS_PORT")), "env_scope": "all", "intro": "redis port"},
+            {"key": "REDIS_PASSWORD", "value": replace_str(config_dict.get("redis").get("REDIS_SERVER_PASSWORD")), "env_scope": "all", "intro": "redis password"},
         ]
     },{
         "app_code": "monitor",

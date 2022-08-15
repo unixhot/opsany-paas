@@ -42,6 +42,7 @@ urlpatterns = [
 
     # API 接口
     url(r'^is_login/$', views_api.CheckLoginView.as_view()),
+    url(r'^get_vx_work_config/$', views_api.GetVxWorkConfigView.as_view()),
     url(r'^get_user/$', views_api.UserView.as_view()),
     url(r'^get_all_user/$', views_api.AllUsersView.as_view()),
     url(r'^get_batch_user/$', views_api.BatchUsersView.as_view()),
