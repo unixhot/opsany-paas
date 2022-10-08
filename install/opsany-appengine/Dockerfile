@@ -2,7 +2,7 @@
 FROM python:2.7.18-alpine3.11
 
 # Install PATH
-RUN mkdir /opt/opsany && mkdir /etc/supervisord.d
+RUN mkdir -p /opt/opsany/logs && mkdir /etc/supervisord.d
 
 # Install Gcc
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories \

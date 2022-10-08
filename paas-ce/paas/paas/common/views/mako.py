@@ -55,13 +55,18 @@ class MakoTemplateResponseMixin(object):
 class MakoTemplateView(MakoTemplateResponseMixin, ContextMixin, View):
     def get(self, request, *args, **kwargs):
         from saas.models import SaaSApp
+        from app.models import App
         from django.http import HttpResponseRedirect
         # 增加判断是否有工作台，若有，则调转
         if "platform" in request.path_info:
             workbench_platform = SaaSApp.objects.filter(code="workbench")
             if workbench_platform:
                 return HttpResponseRedirect("/o/workbench/")
-
+            
+            dev_workbench_platform = App.objects.filter(code="workbench", is_saas=False)
+            if dev_workbench_platform:
+                return HttpResponseRedirect("/t/workbench/")
+        
         context = self.get_context_data(**kwargs)
         return self.render_to_response(context)
 
@@ -80,3 +85,4 @@ class JsonView(JsonResponseMixin, ContextMixin, View):
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
         return self.render_to_response(request, context)
+

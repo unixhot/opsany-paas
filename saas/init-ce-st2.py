@@ -129,6 +129,7 @@ class StackStormApi:
                 return False, res.json()
 
         except Exception as e:
+            print("create_api_key_error", str(e))
             return False, e
 
     def install_pack(self, packs):
@@ -243,9 +244,16 @@ class OpsAnyApi:
         except Exception as e:
             return False, str(e)
 
-    def init_st2_pack(self, opsany_core_pack_path, opsany_workflow_pack_path):
+    def init_st2_pack(self, opsany_core_pack_source_dict, st2_pack_install_type="file"):
         """install opsany_core and opsany_workflow"""
-        pack_url = [opsany_core_pack_path, opsany_workflow_pack_path]
+        if st2_pack_install_type in ["git", "gitee"]:
+            pack_url = opsany_core_pack_source_dict.get("gitee")
+        elif st2_pack_install_type in ["github"]:
+            pack_url = opsany_core_pack_source_dict.get("github")
+        # elif st2_pack_install_type in ["gitlab"]:
+        #     pack_url = opsany_core_pack_path_dict.get("gitlab")
+        else:
+            pack_url = opsany_core_pack_source_dict.get("file")
         print("Downloading the OpsAny core package is expected to take 60 seconds...")
         status, message = self.st2_api.install_pack(pack_url)
         # status, message = True, {}
@@ -279,13 +287,18 @@ class OpsAnyApi:
         return True, message
 
 
-def start(paas_domain, username, password, st2_url, st2_username, st2_password):
+def start(paas_domain, username, password, st2_url, st2_username, st2_password, st2_pack_install_type="file"):
     run_obj = OpsAnyApi(paas_domain=paas_domain, username=username, password=password, st2_url=st2_url,
                         st2_username=st2_username, st2_password=st2_password)
 
     # 初始化StackStorm核心包路径
-    opsany_core_pack_path = "/opt/stackstorm-packs/opsany_core/"
-    opsany_workflow_pack_path = "/opt/stackstorm-packs/opsany_workflow/"
+    # opsany_core_pack_path = "/opt/stackstorm-packs/opsany_core/"
+    # opsany_workflow_pack_path = "/opt/stackstorm-packs/opsany_workflow/"
+    opsany_core_pack_source_dict = {
+        "file": ["/opt/stackstorm-packs/opsany_core/", "/opt/stackstorm-packs/opsany_workflow/"],
+        "gitee": ["https://gitee.com/opsany/opsany_core.git", "https://gitee.com/opsany/opsany_workflow.git"],
+        "github": ["https://github.com/unixhot/opsany_core.git", "https://github.com/unixhot/opsany_workflow.git"],
+    }
     # 配置核心包参数
     pack = "opsany_core"
     api_url = paas_domain
@@ -299,7 +312,7 @@ def start(paas_domain, username, password, st2_url, st2_username, st2_password):
         "[ERROR] init devops st2 error, error info: {}".format(str(st2_message)))
 
     # 2. 初始化StackStorm包 opsany_core, opsany_workflow（需要提前将该两个包放入st2服务器指定路径）
-    st2_status, st2_data = run_obj.init_st2_pack(opsany_core_pack_path, opsany_workflow_pack_path)
+    st2_status, st2_data = run_obj.init_st2_pack(opsany_core_pack_source_dict, st2_pack_install_type)
     print("[SUCCESS] init st2 pack success.") if st2_status else print(
         "[ERROR] init st2 pack error info, error info: {}".format(str(st2_data)))
 
@@ -308,15 +321,15 @@ def start(paas_domain, username, password, st2_url, st2_username, st2_password):
     print("[SUCCESS] config core pack success.") if st2_status else print(
         "[ERROR] config core pack error info, error info: {}".format(str(st2_data)))
 
-
 def add_parameter():
-    parameter = argparse.ArgumentParser()
+    parameter = argparse.ArgumentParser("init_ce_st2")
     parameter.add_argument("--domain", help="domain parameters.", required=True)
     parameter.add_argument("--username", help="opsany admin username.", required=True)
     parameter.add_argument("--password", help="opsany admin password.", required=True)
     parameter.add_argument("--st2_url", help="StackStorm service url.", required=True)
     parameter.add_argument("--st2_username", help="StackStorm service username.", required=True)
     parameter.add_argument("--st2_password", help="StackStorm service password.", required=True)
+    parameter.add_argument("--st2_core_pack_source", default="StackStorm", help="St2 core pack source [file|git|gitee|github].", required=False)
     parameter.parse_args()
     return parameter
 
@@ -330,11 +343,14 @@ if __name__ == '__main__':
     st2_url = options.st2_url
     st2_username = options.st2_username
     st2_password = options.st2_password
-    start(domain, username, password, st2_url=st2_url, st2_username=st2_username, st2_password=st2_password)
+    st2_core_pack_source = options.st2_core_pack_source
+    start(domain, username, password, st2_url=st2_url, st2_username=st2_username, st2_password=st2_password, st2_pack_install_type=st2_core_pack_source)
 
 """
-1. 部署完应用平台和StackStorm
-2. 将包opsany-core和opsany-workflow两个包复制到StackStorm服务器/opt/stackstorm-packs/下
-3. 执行init-ce-st2.py脚本，参数为OpsAny地址用户名密码，St2地址用户名密码
+1. 部署完应用平台和StackStorm才可以执行此初始化脚本
+2. 如果StackStorm服务器可以联网[https://gitee.com | https://github.com]支持使用线上仓库安装(仓库地址已配置)，脚本参数为st2_core_pack_source [file|git|gitee|github]
+3. 离线安装可将包opsany-core和opsany-workflow两个包复制到StackStorm服务器/opt/stackstorm-packs/目录下，需要有pip源 核心包需要下载依赖
+4. 执行init-ce-st2.py脚本，参数为OpsAny地址用户名密码，St2地址用户名密码
+
 # python3 init-ce-st2.py --domain https://www.opsany_url.cn --username opsany_username  --password opsany_password --st2_url https://st2_url/  --st2_username st2admin --st2_password st2_password
 """

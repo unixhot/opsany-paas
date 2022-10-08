@@ -79,7 +79,7 @@ proxy_install(){
         -v ${INSTALL_PATH}/conf/proxy/invscript_proxy.py:/opt/opsany-proxy/invscript_proxy.py \
         -v ${INSTALL_PATH}/proxy-volume/pki:/opt/opsany/pki \
         -v /etc/localtime:/etc/localtime:ro \
-        ${PAAS_DOCKER_REG}/opsany-proxy:1.2.1
+        ${PAAS_DOCKER_REG}/opsany-proxy:1.2.6
 }
 
 # SaaS DB Initialize
@@ -211,9 +211,10 @@ saas_deploy(){
 }
 
 admin_password_init(){
-    STR=`head /dev/urandom | tr -dc A-Za-z0-9 | head -c 8`
+    PRESTR='Ops'
+    STR=`head /dev/urandom | tr -dc A-Za-z0-9 | head -c 5`
     NUM=`echo $RANDOM`
-    ADMIN_PASSWORD=$STR$NUM
+    ADMIN_PASSWORD=$PRESTR$STR$NUM
     echo "ADMIN_PASSWORD=$ADMIN_PASSWORD" > ${INSTALL_PATH}/conf/.passwd_env
     cd ${CDIR}
     python3 password-init.py --paas_domain https://$DOMAIN_NAME --username admin --password admin --new_password $ADMIN_PASSWORD

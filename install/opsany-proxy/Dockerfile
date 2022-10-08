@@ -6,7 +6,7 @@ ADD opsany-proxy /opt/opsany-proxy
 
 # Update System
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories \
-    && apk add --no-cache sshpass build-base nmap py-gevent mariadb-dev openssh-client zeromq zeromq-dev gcc g++ make libffi-dev openssl-dev zlib-dev jpeg-dev linux-pam linux-pam-dev gmp libssh2 procps pcre supervisor net-snmp net-snmp-tools \
+    && apk add --no-cache sshpass build-base nmap py-gevent mariadb-dev openssh-client zeromq zeromq-dev gcc g++ make libffi-dev openssl-dev zlib-dev jpeg-dev linux-pam linux-pam-dev gmp libssh2 procps pcre supervisor net-snmp net-snmp-tools nginx \
     && pip --no-cache-dir install CherryPy==18.6.1 jinja2==3.0.0 salt==3004.1 -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com \
     && pip --no-cache-dir install -r /opt/opsany-proxy/requirements.txt -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com \
     && mkdir -p /opt/opsany/logs \
@@ -18,6 +18,7 @@ ADD supervisord.conf /etc/supervisord.conf
 ADD saltmaster.ini /etc/supervisord.d/saltmaster.ini
 ADD saltapi.ini /etc/supervisord.d/saltapi.ini
 ADD proxy.ini /etc/supervisord.d/proxy.ini
+ADD ssh_config /etc/ssh/ssh_config
 
 ENV ANSIBLE_HOST_KEY_CHECKING=False
 ENV OPS_ANY_ENV=production

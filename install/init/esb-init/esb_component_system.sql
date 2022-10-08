@@ -35,7 +35,7 @@ CREATE TABLE `esb_component_system` (
   `query_timeout` int(11) DEFAULT NULL,
   `doc_category_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT;
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -44,7 +44,7 @@ CREATE TABLE `esb_component_system` (
 
 LOCK TABLES `esb_component_system` WRITE;
 /*!40000 ALTER TABLE `esb_component_system` DISABLE KEYS */;
-INSERT INTO `esb_component_system` VALUES (1,'BK_LOGIN','统一登录','','admin','','','',NULL,NULL,NULL),(2,'CC','配置平台','','admin','','','',NULL,NULL,NULL),(3,'GSE','管控平台','','admin','','','',NULL,NULL,NULL),(4,'JOB','作业平台','','admin','','','',NULL,NULL,NULL),(5,'CMSI','消息管理','','admin','','','',NULL,NULL,NULL),(6,'SOPS','标准运维','','admin','','','',NULL,NULL,NULL),(7,'CMDB','OpsAny 资源平台','','admin','','','',NULL,NULL,3),(8,'CONTROL','OpsAny 管控平台','','admin','','','',NULL,NULL,3),(9,'WORKBENCH','OpsAny 工作台','','admin','','','',30,30,3),(10,'TASK','OpsAny 作业平台','','admin','','','',NULL,NULL,3),(11,'rbac','OpsAny 企业管理后台','','admin','','','',NULL,NULL,3),(12,'MONITOR','OpsAny 监控平台','','admin','','','',30,30,3),(13,'CMP','OpsAny 云管平台','','admin','','','',NULL,NULL,3),(14,'DEVOPS','OpsAny 应用平台','','admin','','','',NULL,NULL,3),(15,'BASTION','OpsAny 堡垒机','','admin','','','',NULL,NULL,3);
+INSERT INTO `esb_component_system` VALUES (1,'BK_LOGIN','统一登录','','admin','','','',NULL,NULL,NULL),(2,'CC','配置平台','','admin','','','',NULL,NULL,NULL),(3,'GSE','管控平台','','admin','','','',NULL,NULL,NULL),(4,'JOB','作业平台','','admin','','','',NULL,NULL,NULL),(5,'CMSI','消息管理','','admin','','','',NULL,NULL,NULL),(6,'SOPS','标准运维','','admin','','','',NULL,NULL,NULL),(7,'CMDB','OpsAny 资源平台','','admin','','','',NULL,NULL,3),(8,'CONTROL','OpsAny 管控平台','','admin','','','',NULL,NULL,3),(9,'WORKBENCH','OpsAny 工作台','','admin','','','',30,30,3),(10,'TASK','OpsAny 作业平台','','admin','','','',NULL,NULL,3),(11,'rbac','OpsAny 企业管理后台','','admin','','','',NULL,NULL,3),(12,'MONITOR','OpsAny 监控平台','','admin','','','',30,30,3),(13,'CMP','OpsAny 云管平台','','admin','','','',NULL,NULL,3),(14,'DEVOPS','OpsAny 应用平台','','admin','','','',NULL,NULL,3),(15,'BASTION','OpsAny 堡垒机','','admin','','','',NULL,NULL,3),(16,'PROM','OpsAny 应用监控','','admin','','','',NULL,NULL,3);
 /*!40000 ALTER TABLE `esb_component_system` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -57,4 +57,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-08-09 17:20:25
+-- Dump completed on 2022-09-28 22:35:37

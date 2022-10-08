@@ -378,14 +378,20 @@ class Account(AccountSingleton):
                             return render(request, "login/login.html", return_data)
                     else:
                         return self.login_success_response(request, user, redirect_to, app_id)
-        elif request.method == 'GET' and request.GET.get("appid") and request.GET.get("code") and request.GET.get("auth_type"):
+        elif request.method == 'GET' and request.GET.get("code") and request.GET.get("auth_type"):
             appid = request.GET.get("appid")
             code = request.GET.get("code")
+            domain = request.GET.get("domain")
             auth_type = request.GET.get("auth_type")
             return_data = {"app_id": "", "next": "", "IMG_URL": settings.IMG_URL, "SITE_URL": settings.SITE_URL}
-            if auth_type == "3":
-                auth_obj = OpsAnyRbacUserAuth(code=code, app_id=appid)
+            if auth_type in ["3", "6"]:
+                if auth_type == "6":
+                    auth_obj = OpsAnyRbacUserAuth(code=code, domain=domain)
+                    print 'test'
+                else:
+                    auth_obj = OpsAnyRbacUserAuth(code=code, app_id=appid)
                 status, res = auth_obj.check_users()
+                print status, res
                 if status and res.get("auth_status") and res.get("domain_status") and res.get("have_user"):
                     user_info = res.get("user_info")
                     user = self.get_user(res, user_info.get("username"))

@@ -95,11 +95,15 @@
 	                            	<div title="企业微信登录" class="qywxbox_enable" data-auth_type="3">
 	                            		<img src="{{STATIC_URL}}img/qywx.png" alt="企业微信" data-auth_type="3" />  <span data-auth_type="3">企业微信</span>
 	                            	</div> 
-	                            	<div title="钉钉登录暂未开放" class="qywxbox_disabled" data-auth_type="4">
-	                            		<img src="{{STATIC_URL}}img/dingding.png" alt="钉钉" data-auth_type="4" />  <span data-auth_type="4">钉钉</span>
-	                            	</div>
-	                            	<div title="飞书登录暂未开放" class="qywxbox_disabled" data-auth_type="5">
-	                            		<img src="{{STATIC_URL}}img/feishu.png" alt="飞书" data-auth_type="5" />  <span data-auth_type="5">飞书</span>
+<!--	                            	<div title="钉钉登录暂未开放" class="qywxbox_disabled" data-auth_type="4">-->
+<!--	                            		<img src="{{STATIC_URL}}img/dingding.png" alt="钉钉" data-auth_type="4" />  <span data-auth_type="4">钉钉</span>-->
+<!--	                            	</div>-->
+<!--	                            	<div title="飞书登录暂未开放" class="qywxbox_disabled" data-auth_type="5">-->
+<!--	                            		<img src="{{STATIC_URL}}img/feishu.png" alt="飞书" data-auth_type="5" />  <span data-auth_type="5">飞书</span>-->
+<!--	                            	</div>-->
+	                            	<div title="OAuth登录" class="qywxbox_enable oauth_box" data-auth_type="6">
+	                            		<img src="{{STATIC_URL}}img/oauth.png" alt="OAuth" data-auth_type="6" />  <span data-auth_type="5">OAuth登录</span>
+	                            		<div class="oauth_box_content" ></div>
 	                            	</div>
 	                            </div>
 	                        </div>
@@ -158,15 +162,19 @@
 						   	<div class="other_login_text">其他登录方式</div>
 						   	<div class="other_login_line"></div>
 						   </div>
-	                            <div class="qywxbox">
+		                        <div class="qywxbox">
 	                            	<div title="企业微信登录" class="qywxbox_enable" data-auth_type="3">
 	                            		<img src="{{STATIC_URL}}img/qywx.png" alt="企业微信" data-auth_type="3" />  <span data-auth_type="3">企业微信</span>
 	                            	</div> 
-	                            	<div title="钉钉登录暂未开放" class="qywxbox_disabled" data-auth_type="4">
-	                            		<img src="{{STATIC_URL}}img/dingding.png" alt="钉钉" data-auth_type="4" />  <span data-auth_type="4">钉钉</span>
-	                            	</div>
-	                            	<div title="飞书登录暂未开放" class="qywxbox_disabled" data-auth_type="5">
-	                            		<img src="{{STATIC_URL}}img/feishu.png" alt="飞书" data-auth_type="5" />  <span data-auth_type="5">飞书</span>
+<!--	                            	<div title="钉钉登录暂未开放" class="qywxbox_disabled" data-auth_type="4">-->
+<!--	                            		<img src="{{STATIC_URL}}img/dingding.png" alt="钉钉" data-auth_type="4" />  <span data-auth_type="4">钉钉</span>-->
+<!--	                            	</div>-->
+<!--	                            	<div title="飞书登录暂未开放" class="qywxbox_disabled" data-auth_type="5">-->
+<!--	                            		<img src="{{STATIC_URL}}img/feishu.png" alt="飞书" data-auth_type="5" />  <span data-auth_type="5">飞书</span>-->
+<!--	                            	</div>-->
+	                            	<div title="OAuth登录" class="qywxbox_enable oauth_box" data-auth_type="6" >
+	                            		<img src="{{STATIC_URL}}img/oauth.png" alt="OAuth" data-auth_type="6" />  <span data-auth_type="5">OAuth登录</span>
+	                            		<div class="oauth_box_content" ></div>
 	                            	</div>
 	                            </div>
 	                        </div>
@@ -330,6 +338,7 @@
     <script src="https://rescdn.qqmail.com/node/ww/wwopenmng/js/sso/wwLogin-1.0.0.js" type="text/javascript" charset="utf-8"></script>
 <script>
 	let key = $('#tab_key').val() || 0
+	let OAuthList = []
 
 	//控制展示和隐藏哪个tab里面的内容
 	function showTabItem(){
@@ -360,6 +369,48 @@
                if(pair[0] == variable){return pair[1];}
        }
        return(false);
+   }
+
+   //获取OAuth列表
+   function getOAuthList(){
+   	$.ajax({
+        url: "accounts/get_auth_config/?auth_type=6",
+        type: "get",
+        dataType: "json",
+        success: function (res) {
+		if(res.code == '00' && res.result){
+			OAuthList = res.data.data || []
+			if(res.data.data.length){
+				let html = ''
+				res.data.data.forEach(item=>{
+					let origin = window.location.origin
+					html+=`<div title="${item.enable?item.name:'当前认证未启用'}" class="${item.enable?'auth_item':'disabled_auth'}" data-key="${item.id}"> <img src="${origin}/${item.auth_icon.url}"></img> <span>${item.name}</span></div>`
+				})
+				$('.oauth_box_content').html(html)
+				$('.auth_item').on('click',function(e){
+			    		let key = $(e.currentTarget).data('key')
+			    		const activeAuth = OAuthList.find(item=>item.id == key)
+			    		const url = activeAuth.auth_login_url+`?response_type=accessCode&client_id=${activeAuth.app_id}&redirect_uri=${window.location.origin}${window.location.pathname}?domain=${activeAuth.domain}`
+			    		window.location.href=url
+			    	})
+				
+			}
+
+			else {
+				$('.oauth_box').attr('title','暂未开启OAuth登录')
+				$('.oauth_box').addClass('qywxbox_disabled')
+				
+			}
+		}else{
+			$('.oauth_box').attr('title','暂未开启OAuth登录')
+			$('.oauth_box').addClass('qywxbox_disabled')
+		}
+        },
+        error:function(e){
+        	$('.oauth_box').attr('title','暂未开启OAuth登录')
+        	$('.oauth_box').addClass('qywxbox_disabled')
+        }
+    });
    }
 
 	//初始化验证码
@@ -418,6 +469,7 @@
 
 
     showTabItem()
+    getOAuthList()
     $('.login-form-title-box-btn').click(e=>{
 		$('.login-form-title-box-btn').each((index,item)=>{
 			$(item).removeClass('login-form-title-box-btn-check')
@@ -479,6 +531,9 @@
 	        }
 	    });
     	})
+
+
+
 
     	$('#m-modal__close').click(e=>{
     		$('#m-modal__wrapper').css({

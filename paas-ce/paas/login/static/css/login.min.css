@@ -259,7 +259,7 @@ p_down {
   left: 57%;
   /* margin-left: -200px; */
   z-index: 100;
-  overflow: hidden;
+/*  overflow: hidden;*/
   background:#ffffff;
 }
 .page-content .login-from .logo-title {
@@ -821,4 +821,9 @@ p_down {
 }
 
 
-
+#oauth_box:hover .oauth_box_content{
+	display:block;
+}
+oauth_box_content{
+	display:none;
+}

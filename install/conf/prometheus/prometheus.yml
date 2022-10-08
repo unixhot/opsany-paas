@@ -13,6 +13,7 @@ alerting:
 
 # Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
 rule_files:
+  - "/var/lib/prometheus-config/rules/*rules.yml"  # 增加告警规则yml文件路径
   # - "first_rules.yml"
   # - "second_rules.yml"
 
@@ -25,18 +26,24 @@ scrape_configs:
     # metrics_path defaults to '/metrics'
     # scheme defaults to 'http'.
 
-    static_configs:
-      - targets: ["localhost:9090"]
+#    static_configs:
+#      - targets: ["localhost:9090"]
     basic_auth:
       username: admin
       password: PROM_SERVER_PASSWD
 
-  # Local Node
-  - job_name: "local"
-    static_configs:
-      - targets: ["LOCAL_IP:9100"]
+  # Local Node  注释本地
+#  - job_name: "local"
+#    static_configs:
+#      - targets: ["LOCAL_IP:9100"]
 
-  - job_name: 'consul-prometheus'
+  - job_name: 'consul-prometheus'  # 从consul读取主机信息
     consul_sd_configs:
-    - server: 'PROM_CONSUL_SERVER:8500'
-      services: [] 
+    - server: 'PROM_CONSUL_SERVER:8500'  # 配置consul服务，PROM_CONSUL_SERVER只需填入域名或IP地址
+      services: []
+    relabel_configs:
+      - regex: __meta_consul_service_metadata_(.+) # 添加meta的重新匹配，Mate数据为Labels标签
+        action: labelmap   #
+      - source_labels: [__meta_consul_service_id]  # 过滤consul自测服务数据 consul 127.0.0.1:8300
+        regex: ^(consul)
+        action: drop

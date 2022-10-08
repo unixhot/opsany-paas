@@ -57,6 +57,16 @@ saas_db_init(){
     mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "create database auto DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
     mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "grant all on auto.* to auto@'%' identified by "\"${MYSQL_OPSANY_AUTO_PASSWORD}\"";"
     mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "grant all on auto.* to opsany@'%' identified by "\"${MYSQL_OPSANY_PASSWORD}\"";" 
+
+    #k8s
+    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "create database k8s DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
+    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "grant all on k8s.* to k8s@'%' identified by "\"${MYSQL_OPSANY_K8S_PASSWORD}\"";"
+    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "grant all on k8s.* to opsany@'%' identified by "\"${MYSQL_OPSANY_PASSWORD}\"";" 
+
+    #prom
+    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "create database prom DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
+    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "grant all on prom.* to prom@'%' identified by "\"${MYSQL_OPSANY_PROM_PASSWORD}\"";"
+    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "grant all on prom.* to opsany@'%' identified by "\"${MYSQL_OPSANY_PASSWORD}\"";" 
 }
 
 # MonogDB Initialize
@@ -84,8 +94,8 @@ saas_deploy(){
     fi
     python3 deploy.py --domain $DOMAIN_NAME --username admin --password $ADMIN_PASSWORD --file_name auto-opsany-*.tar.gz
     python3 deploy.py --domain $DOMAIN_NAME --username admin --password $ADMIN_PASSWORD --file_name event-opsany-*.tar.gz
-    #python3 deploy.py --domain $DOMAIN_NAME --username admin --password $ADMIN_PASSWORD --file_name k8s-opsany-*.tar.gz
-    #python3 deploy.py --domain $DOMAIN_NAME --username admin --password $ADMIN_PASSWORD --file_name repo-opsany-*.tar.gz
+    python3 deploy.py --domain $DOMAIN_NAME --username admin --password $ADMIN_PASSWORD --file_name k8s-opsany-*.tar.gz
+    python3 deploy.py --domain $DOMAIN_NAME --username admin --password $ADMIN_PASSWORD --file_name prom-opsany-*.tar.gz
     #python3 deploy.py --domain $DOMAIN_NAME --username admin --password $ADMIN_PASSWORD --file_name hostsec-opsany-*.tar.gz
     #python3 deploy.py --domain $DOMAIN_NAME --username admin --password $ADMIN_PASSWORD --file_name redis-opsany-*.tar.gz
     #python3 deploy.py --domain $DOMAIN_NAME --username admin --password $ADMIN_PASSWORD --file_name mysql-opsany-*.tar.gz

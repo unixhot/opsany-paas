@@ -44,6 +44,17 @@ class GetVxWorkConfigView(LoginExemptMixin, View):
         return ApiV1FailJsonResponse(data, code=ApiErrorCodeEnum.PARAM_NOT_VALID)
 
 
+class GetAuthConfigView(LoginExemptMixin, View):
+    def get(self, request):
+        auth_type = request.GET.get("auth_type", "")
+        res, data = OpsAnyRbacUserAuth().get_auth_config(auth_type)
+        if res:
+            return ApiV1OKJsonResponse(_("获取配置信息成功"), data={
+                "data": data
+            })
+        return ApiV1FailJsonResponse(data, code=ApiErrorCodeEnum.PARAM_NOT_VALID)
+
+
 class UserView(LoginExemptMixin, View):
     def get(self, request):
         # 验证Token参数

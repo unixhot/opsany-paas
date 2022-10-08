@@ -2,7 +2,7 @@
 FROM python:3.7.12-alpine3.15
 
 # Install PATH
-RUN mkdir /opt/opsany && mkdir /etc/supervisord.d
+RUN mkdir -p /opt/opsany/logs && mkdir /etc/supervisord.d
 
 # Add File
 ADD ./websocket /opt/opsany/websocket

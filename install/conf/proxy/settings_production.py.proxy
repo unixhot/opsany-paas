@@ -16,6 +16,9 @@ DATABASES = {
         'HOST': os.getenv("MYSQL_HOST", "MYSQL_SERVER_IP"),
         'PORT': os.getenv("MYSQL_PORT", "3306"),
         'PASSWORD': os.getenv("MYSQL_PASSWORD", "MYSQL_OPSANY_PASSWORD"),
+        'OPTIONS': {
+                "init_command": "SET default_storage_engine=INNODB",
+        }
     },
 }
 
@@ -24,7 +27,7 @@ REDIS_HOST = os.getenv("REDIS_HOST", "REDIS_SERVER_IP")
 REDIS_PORT = os.getenv("REDIS_PORT", "6379")
 REDIS_PASSWORD = os.getenv("REDIS_PASSWORD", "REDIS_SERVER_PASSWORD")
 
-BROKER_URL = "redis://:{PASSWORD}@{HOST}:{PORT}/8".format(PASSWORD=REDIS_PASSWORD, HOST=REDIS_HOST, PORT=REDIS_PORT)
+#BROKER_URL = "redis://:{PASSWORD}@{HOST}:{PORT}/8".format(PASSWORD=REDIS_PASSWORD, HOST=REDIS_HOST, PORT=REDIS_PORT)
 
 CACHES = {
     "default": {
@@ -40,12 +43,12 @@ CACHES = {
 }
 
 # RabbitMQ 消息队列设置
-#MQ_USER = os.getenv("MQ_USER", "RABBITMQ_DEFAULT_USER")
-#MQ_PASSWORD = os.getenv("MQ_PASSWORD", "RABBITMQ_DEFAULT_PASS")
-#MQ_HOST = os.getenv("MQ_HOST", "RABBIT_SERVER_IP")
-#MQ_PORT = os.getenv("MQ_PORT", "5672")
+MQ_USER = os.getenv("MQ_USER", "RABBITMQ_DEFAULT_USER")
+MQ_PASSWORD = os.getenv("MQ_PASSWORD", "RABBITMQ_DEFAULT_PASS")
+MQ_HOST = os.getenv("MQ_HOST", "RABBIT_SERVER_IP")
+MQ_PORT = os.getenv("MQ_PORT", "5672")
 
-#BROKER_URL = 'amqp://{MQ_USER}:{MQ_PASSWORD}@{MQ_HOST}:{MQ_PORT}//'.format(MQ_USER=MQ_USER, MQ_PASSWORD=MQ_PASSWORD,MQ_HOST=MQ_HOST, MQ_PORT=MQ_PORT)
+BROKER_URL = 'amqp://{MQ_USER}:{MQ_PASSWORD}@{MQ_HOST}:{MQ_PORT}//'.format(MQ_USER=MQ_USER, MQ_PASSWORD=MQ_PASSWORD,MQ_HOST=MQ_HOST, MQ_PORT=MQ_PORT)
 
 
 # ansible数据源脚本: 脚本文件在proxy/utils/下

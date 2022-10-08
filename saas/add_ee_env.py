@@ -8,7 +8,7 @@ import sys
 import configparser
 from sqlalchemy import Column, String, create_engine, Index
 from sqlalchemy.dialects.mysql import INTEGER, LONGTEXT
-from sqlalchemy.orm import  sessionmaker
+from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from urllib import parse
 
@@ -74,10 +74,13 @@ envs = [
              "env_scope": "all", "intro": "mongo password"},
             # {"key": "DEFAULT_USER_ICON", "value": os.environ.get("DEFAULT_USER_ICON"), "env_scope": "all", "intro": "user default icon"},
         ]
-    }, {
+    },
+    {
         "app_code": "auto",
         "env": [
-            # AUTO  共计6个
+            # AUTO  共计7个
+            {"key": "UPLOAD_PATH", "value": replace_str(config_dict.get('opsany_saas').get("UPLOAD_PATH")),
+             "env_scope": "all", "intro": "uploads path"},
             {"key": "MYSQL_PASSWORD",
              "value": replace_str(config_dict.get('enterprise').get("MYSQL_OPSANY_AUTO_PASSWORD")), "env_scope": "all",
              "intro": "mysql password"},
@@ -92,6 +95,36 @@ envs = [
             {"key": "MONGO_PASSWORD", "value": replace_str(config_dict.get('enterprise').get("MONGO_AUTO_PASSWORD")),
              "env_scope": "all", "intro": "mongo password"},
             # {"key": "DEFAULT_USER_ICON", "value": os.environ.get("DEFAULT_USER_ICON"), "env_scope": "all", "intro": "user default icon"},
+        ]
+    },
+    {
+        "app_code": "prom",
+        "env": [
+            # PROM  共计4个
+            {"key": "UPLOAD_PATH", "value": replace_str(config_dict.get('opsany_saas').get("UPLOAD_PATH")),
+             "env_scope": "all", "intro": "uploads path"},
+            {"key": "MYSQL_PASSWORD",
+             "value": replace_str(config_dict.get('enterprise').get("MYSQL_OPSANY_PROM_PASSWORD")), "env_scope": "all",
+             "intro": "mysql password"},
+            {"key": "MYSQL_HOST", "value": replace_str(config_dict.get('mysql').get("MYSQL_SERVER_IP")),
+             "env_scope": "all", "intro": "mysql host"},
+            {"key": "MYSQL_PORT", "value": replace_str(config_dict.get('mysql').get("MYSQL_PORT")), "env_scope": "all",
+             "intro": "mysql port"},
+        ]
+    },
+    {
+        "app_code": "k8s",
+        "env": [
+            # K8S  共计4个
+            {"key": "UPLOAD_PATH", "value": replace_str(config_dict.get('opsany_saas').get("UPLOAD_PATH")),
+             "env_scope": "all", "intro": "uploads path"},
+            {"key": "MYSQL_PASSWORD",
+             "value": replace_str(config_dict.get('enterprise').get("MYSQL_OPSANY_K8S_PASSWORD")), "env_scope": "all",
+             "intro": "mysql password"},
+            {"key": "MYSQL_HOST", "value": replace_str(config_dict.get('mysql').get("MYSQL_SERVER_IP")),
+             "env_scope": "all", "intro": "mysql host"},
+            {"key": "MYSQL_PORT", "value": replace_str(config_dict.get('mysql').get("MYSQL_PORT")), "env_scope": "all",
+             "intro": "mysql port"},
         ]
     }
 ]

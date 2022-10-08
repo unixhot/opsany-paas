@@ -42,10 +42,11 @@ class UserAuth(Component):
         password = forms.CharField(required=False)
         appid = forms.CharField(required=False)
         code = forms.CharField(required=False)
+        domain = forms.CharField(required=False)
 
         # clean方法返回的数据可通过组件的form_data属性获取
         def clean(self):
-            return self.get_cleaned_data_when_exist(keys=["username", "password", "appid", "code"])
+            return self.get_cleaned_data_when_exist(keys=["username", "password", "appid", "code", "domain"])
 
     # 组件处理入口
     def handle(self):
