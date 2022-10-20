@@ -80,6 +80,7 @@ proxy_install(){
         -v ${INSTALL_PATH}/proxy-volume/pki:/opt/opsany/pki \
         -v /etc/localtime:/etc/localtime:ro \
         ${PAAS_DOCKER_REG}/opsany-proxy:1.2.6
+    docker exec opsany-proxy mv /etc/ssh/ssh_config /tmp/
 }
 
 # SaaS DB Initialize
