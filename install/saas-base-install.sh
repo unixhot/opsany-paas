@@ -32,8 +32,6 @@ fi
 
 install_init(){
     # Add ENV For SaaS
-    pip3 install requests==2.25.1 grafana-api==1.0.3 mysql-connector==2.2.9 SQLAlchemy==1.4.22 bcrypt==3.2.2 \
-             -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
     cd ../saas/
     python3 add_env.py
     cp invscript_proxy.py ${INSTALL_PATH}/conf/proxy/
