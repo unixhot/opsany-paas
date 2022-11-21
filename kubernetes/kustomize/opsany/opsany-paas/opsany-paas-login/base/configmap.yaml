@@ -1,0 +1,9 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: paas-login-cm
+  namespace: opsany
+data:
+  settings_production.py: |
+{{ .Files.Get "files/opsany/conf/settings_production.py.login" | indent 4 }}

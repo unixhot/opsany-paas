@@ -1,0 +1,11 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: paas-paasagent-cm
+  namespace: opsany
+data:
+  paas_agent_config.yaml: |
+{{ .Files.Get "files/opsany/conf/paas_agent/paas_agent_config.yaml" | indent 4 }}
+  paasagent.conf: |
+{{ .Files.Get "files/opsany/conf/paas_agent/paasagent.conf" | indent 4 }}

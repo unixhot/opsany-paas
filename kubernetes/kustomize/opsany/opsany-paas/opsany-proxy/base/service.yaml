@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: opsany-proxy
+spec:
+  ports:
+  - name: http1
+    port: 4505
+    protocol: TCP
+    targetPort: 4505
+  - name: http2
+    port: 4506
+    protocol: TCP
+    targetPort: 4506
+  - name: http3
+    port: 8010
+    protocol: TCP
+    targetPort: 8010
+  selector:
+    deployment: opsany-proxy
+
+

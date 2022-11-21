@@ -77,8 +77,7 @@ proxy_install(){
         -v ${INSTALL_PATH}/conf/proxy/invscript_proxy.py:/opt/opsany-proxy/invscript_proxy.py \
         -v ${INSTALL_PATH}/proxy-volume/pki:/opt/opsany/pki \
         -v /etc/localtime:/etc/localtime:ro \
-        ${PAAS_DOCKER_REG}/opsany-proxy:1.2.6
-    docker exec opsany-proxy mv /etc/ssh/ssh_config /tmp/
+        ${PAAS_DOCKER_REG}/opsany-proxy:1.2.11
 }
 
 # SaaS DB Initialize
@@ -142,7 +141,8 @@ mongodb_init(){
     sed -i "s/MONGO_MONITOR_PASSWORD/${MONGO_MONITOR_PASSWORD}/g" ${INSTALL_PATH}/init/mongodb-init/mongodb_init.js
     sed -i "s/MONGO_AUTO_PASSWORD/${MONGO_AUTO_PASSWORD}/g" ${INSTALL_PATH}/init/mongodb-init/mongodb_init.js
     sed -i "s/MONGO_EVENT_PASSWORD/${MONGO_EVENT_PASSWORD}/g" ${INSTALL_PATH}/init/mongodb-init/mongodb_init.js
-    
+    sed -i "s/MONGO_PROM_PASSWORD/${MONGO_PROM_PASSWORD}/g" ${INSTALL_PATH}/init/mongodb-init/mongodb_init.js
+
     docker cp ${INSTALL_PATH}/init/mongodb-init/mongodb_init.js opsany-mongodb:/opt/
     docker exec -e MONGO_INITDB_ROOT_USERNAME=$MONGO_INITDB_ROOT_USERNAME \
                 -e MONGO_INITDB_ROOT_PASSWORD=$MONGO_INITDB_ROOT_PASSWORD \
@@ -184,6 +184,7 @@ saas_deploy(){
     python3 deploy.py --domain $DOMAIN_NAME --username admin --password ${ADMIN_PASSWORD} --file_name bastion-opsany-*.tar.gz
     python3 deploy.py --domain $DOMAIN_NAME --username admin --password ${ADMIN_PASSWORD} --file_name dashboard-opsany-*.tar.gz
     
+    python3 sync-user-script.py --domain https://${DOMAIN_NAME} --paas_username admin --paas_password ${ADMIN_PASSWORD} --app_code workbench cmdb control job cmp bastion dashboard
     shell_log "======OpsAny Data Initialize======"
 
     # OpsAny Database Init
@@ -204,9 +205,13 @@ saas_deploy(){
     python3 import_script.py --domain https://$DOMAIN_NAME --paas_username admin --paas_password ${ADMIN_PASSWORD} \
 --target_type task --target_path ./job-task
 
+    
+
     chmod +x /etc/rc.d/rc.local
     echo "sleep 60 && /bin/bash ${INSTALL_PATH}/saas-restart.sh" >> /etc/rc.d/rc.local
     shell_warning_log "======OpsAny: Make Ops Perfect======"
+
+    
 }
 
 admin_password_init(){
@@ -218,6 +223,8 @@ admin_password_init(){
     cd ${CDIR}
     python3 password-init.py --paas_domain https://$DOMAIN_NAME --username admin --password admin --new_password $ADMIN_PASSWORD
     shell_warning_log "Login admin password: $ADMIN_PASSWORD"
+
+   
 }
 
 # Main

@@ -1,0 +1,70 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: opsany-paas-paas
+  namespace: opsany
+spec:
+  selector: 
+    matchLabels:
+      app: opsany-paas-paas
+  replicas: 1
+  revisionHistoryLimit: 10
+  strategy:
+    type: IfNotPresent
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: opsany-paas-paas
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+      - image: "{{ .Values.image.repository }}/{{ .Values.image.paas.name }}:{{ .Values.image.paas.tag }}"
+        name: paas
+        ports:
+        - name: paas
+          containerPort: 8001
+          protocol: TCP
+        readinessProbe:
+          tcpSocket:
+            port: 8001
+          initialDelaySeconds: 15
+          periodSeconds: 10
+        livenessProbe:
+          tcpSocket:
+            port: 8001
+          initialDelaySeconds: 15
+          periodSeconds: 10
+
+        volumeMounts:
+        - name: timezone
+          mountPath: /etc/localtime
+        - mountPath: /opt/opsany/paas/paas/conf/settings_production.py
+          name: paas-paas-cm
+          subPath: settings_production.py
+        - name: paas-paas-logs
+          mountPath: /opt/opsany/logs
+    
+      volumes:
+        - name: paas-paas-cm
+          configMap:
+            name: paas-paas-cm
+            items:
+            - key: settings_production.py
+              path: settings_production.py
+        - name: timezone
+          hostPath:
+            path: /etc/localtime
+        - name: paas-paas-logs
+          persistentVolumeClaim:
+            claimName: paas-paas-logs-pvc
+
+      
+

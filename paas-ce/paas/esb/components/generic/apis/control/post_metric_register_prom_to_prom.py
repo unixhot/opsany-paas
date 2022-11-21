@@ -26,6 +26,7 @@ class PostMetricRegisterPromToProm(Component):
     | ----- | ------ | ---- | -------- |
     | prom_id | dict | 是    |Prometheus ID|
     | metric_plugin_code | dict | 是    | 指标插件唯一标识 |
+    | consul_type | str | 是    | 注册还是注销 register or deregister |
     | host_list | dict | 是  | 主机列表或分组列表 |
 
     ### 返回结果示例
@@ -49,10 +50,11 @@ class PostMetricRegisterPromToProm(Component):
         prom_id = forms.Field(required=True)
         metric_plugin_code = forms.CharField(required=True)
         host_list = forms.Field(required=True)
+        consul_type = forms.CharField(required=False)
 
         # clean方法返回的数据可通过组件的form_data属性获取
         def clean(self):
-            return self.get_cleaned_data_when_exist(keys=["prom_id", "metric_plugin_code", "host_list"])
+            return self.get_cleaned_data_when_exist(keys=["prom_id", "metric_plugin_code", "host_list", "consul_type"])
 
     # 组件处理入口
     def handle(self):

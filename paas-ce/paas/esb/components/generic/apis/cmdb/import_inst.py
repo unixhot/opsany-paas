@@ -106,7 +106,7 @@ class ImportInst(Component):
                 'api_code': response['errcode'],
                 'result': False,
                 'message': response['message'],
-                'data': data,
+                'data': response.get("data", None),
             }
 
         # 设置组件返回结果，payload为组件实际返回结果

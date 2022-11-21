@@ -20,8 +20,8 @@
 Host *
   HostKeyAlgorithms ssh-rsa,ssh-dss
   PubkeyAcceptedKeyTypes +ssh-rsa,ssh-dss
-  KexAlgorithms diffie-hellman-group-exchange-sha1,diffie-hellman-group1-sha1
-  Ciphers +aes128-cbc
+# KexAlgorithms diffie-hellman-group-exchange-sha1,diffie-hellman-group1-sha1
+# Ciphers +aes128-cbc
 #   ForwardAgent no
 #   ForwardX11 no
 #   PasswordAuthentication yes

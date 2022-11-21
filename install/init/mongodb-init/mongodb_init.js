@@ -109,3 +109,17 @@ db.createUser({
     },
   ],
 });
+
+//prom
+db = db.getSiblingDB('prom')
+
+db.createUser({
+  user: 'prom',
+  pwd: 'MONGO_PROM_PASSWORD',
+  roles: [
+    {
+      role: 'readWrite',
+      db: 'prom',
+    },
+  ],
+});

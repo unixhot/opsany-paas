@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: opsany-proxy
+spec:
+  template:
+    spec:
+      containers:
+        - name: opsany-proxy
+          readinessProbe:
+            tcpSocket:
+              port: 4505
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 4505
+            initialDelaySeconds: 15
+            periodSeconds: 10

@@ -58,7 +58,7 @@ class OpsAnyApi:
             return False
 
     def get_menu(self, app_code):
-        API = self.paas_domain + "/{}/{}/api/{}/v0_1/get-menu/".format(self.run_env, app_code, app_code)
+        API = self.paas_domain + "/{}/{}/api/{}/v0_1/update-director/".format(self.run_env, app_code, app_code)
         try:
             # 用于初次创建用户
             res = self.session.get(API)

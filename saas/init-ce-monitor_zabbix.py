@@ -461,21 +461,45 @@ class GrafanaBasicApi:
         except:
             return False
 
-    def update_password(self, password):
-        admin_user_data = self.grafana_api_obj.user.get_actual_user()
-        admin_user_id = admin_user_data.get("id")
-        status = self.grafana_api_obj.admin.change_user_password(admin_user_id, password)
-        if status.get("message", "") == "User password updated":
-            return True, status.get("message", "")
-        else:
-            return False, status.get("message", "")
+    def test_ping_v2(self):
+        try:
+            res = self.grafana_api_obj.admin.stats()
+            return True, res
+        except Exception as e:
+            return False, e
 
-    def create_token_key(self):
+    def update_password(self, password):
+        try:
+            admin_user_data = self.grafana_api_obj.user.get_actual_user()
+            admin_user_id = admin_user_data.get("id")
+            status = self.grafana_api_obj.admin.change_user_password(admin_user_id, password)
+            if status.get("message", "") == "User password updated":
+                return True, status.get("message", "")
+            else:
+                return False, status.get("message", "")
+        except Exception as e:
+            return False, e
+
+    def create_token_key_old(self):
         # 需要使用requests去做
         try:
             url = "https://{}:{}@{}/api/auth/keys".format(self.username, self.password, self.grafana_url)
             # TEST DATA apikey1 -> opsany
             res = requests.post(url, json={"name": "opsany_monitor", "role": "Admin"}, verify=False)
+            if res.json().get("key"):
+                return True, res.json().get("key")
+            else:
+                return False, res.json().get("message")
+        except Exception as e:
+            return False, str(e)
+
+    def create_token_key(self):
+        # 需要使用requests去做
+        try:
+            url = "https://{}/api/auth/keys".format(self.grafana_url)
+            session = requests.session()
+            session.auth = (self.username, self.password)
+            res = session.post(url, json={"name": "opsany_monitor", "role": "Admin"}, verify=False)
             if res.json().get("key"):
                 return True, res.json().get("key")
             else:

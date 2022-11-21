@@ -1,0 +1,71 @@
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: paas-esb-logs-pv
+spec:
+  capacity:
+    storage: 1Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  mountOptions:
+    - vers=3
+    - nolock
+  nfs:
+    path: /opsany/logs
+    server: "{{ .Values.nfsServer.server }}"
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: paas-esb-logs-pvc
+  namespace: opsany
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: ""
+  volumeMode: Filesystem
+  volumeName: paas-esb-logs-pv
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: paas-esb-apis-pv
+spec:
+  capacity:
+    storage: 1Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  mountOptions:
+    - vers=3
+    - nolock
+  nfs:
+    path: /opsany/esb/apis
+    server: "{{ .Values.nfsServer.server }}"
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: paas-esb-apis-pvc
+  namespace: opsany
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: ""
+  volumeMode: Filesystem
+  volumeName: paas-esb-apis-pv

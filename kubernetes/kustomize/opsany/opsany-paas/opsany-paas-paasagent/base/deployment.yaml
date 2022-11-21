@@ -1,0 +1,112 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: opsany-paas-paasagent
+  namespace: opsany
+spec:
+  selector: 
+    matchLabels:
+      app: opsany-paas-paasagent
+  replicas: 1
+  revisionHistoryLimit: 10
+  strategy:
+    type: IfNotPresent
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: opsany-paas-paasagent
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+      - image: "{{ .Values.image.repository }}/{{ .Values.image.paasagent.name }}:{{ .Values.image.paasagent.tag }}"
+        name: paasagent
+        ports:
+        - name: paasagen
+          containerPort: 4245
+          protocol: TCP
+        - name: paasagent
+          containerPort: 8085
+          protocol: TCP
+        readinessProbe:
+          tcpSocket:
+            port: 8085
+          initialDelaySeconds: 15
+          periodSeconds: 10
+        livenessProbe:
+          tcpSocket:
+            port: 8085
+          initialDelaySeconds: 15
+          periodSeconds: 10
+
+        volumeMounts:
+        - name: timezone
+          mountPath: /etc/localtime
+        - mountPath: /opt/opsany/paas-agent/etc/paas_agent_config.yaml 
+          name: paas-paasagent-config
+          subPath: paas_agent_config.yaml
+        - name: paas-paasagent-conf
+          subPath: paasagent.conf
+          mountPath: /etc/nginx/conf.d/paasagent.conf
+        - name: paas-paasagent-logs
+          mountPath: /opt/opsany/logs
+        - name: paas-paasagent-uploads
+          mountPath: /opt/opsany/uploads
+        - name: paas-paasagent-apps
+          mountPath: /opt/opsany/paas-agent/apps
+        - name: paas-paasagent-saasapp
+          mountPath: /opt/opsany/paas-agent/saasapp
+        - name: paas-paasagent-srv
+          mountPath: /srv/
+        - name: paas-paasagent-salt
+          mountPath: /etc/salt/
+        - name: paas-paasagent-cache
+          mountPath: /var/cache/salt/
+
+      volumes:
+        - name: paas-paasagent-config
+          configMap:
+            name: paas-paasagent-cm
+            items:
+            - key: paas_agent_config.yaml
+              path: paas_agent_config.yaml
+        - name: paas-paasagent-conf
+          configMap:
+            name: paas-paasagent-cm
+            items:
+            - key: paasagent.conf
+              path: paasagent.conf
+        - name: timezone
+          hostPath:
+            path: /etc/localtime
+        - name: paas-paasagent-logs
+          persistentVolumeClaim:
+            claimName: paas-paasagent-logs-pvc
+        - name: paas-paasagent-uploads
+          persistentVolumeClaim:
+            claimName: paas-paasagent-uploads-pvc
+        - name: paas-paasagent-apps
+          persistentVolumeClaim:
+            claimName: paas-paasagent-apps-pvc
+        - name: paas-paasagent-saasapp
+          persistentVolumeClaim:
+            claimName: paas-paasagent-saasapp-pvc
+        - name: paas-paasagent-srv
+          persistentVolumeClaim:
+            claimName: paas-paasagent-srv-pvc
+        - name: paas-paasagent-salt
+          persistentVolumeClaim:
+            claimName: paas-paasagent-salt-pvc
+        - name: paas-paasagent-cache
+          persistentVolumeClaim:
+            claimName: paas-paasagent-cache-pvc
+
+      
+

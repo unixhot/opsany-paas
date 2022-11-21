@@ -304,7 +304,7 @@ paas_start(){
     -v ${INSTALL_PATH}/conf/settings_production.py.websocket.init:/opt/opsany/websocket/config/__init__.py \
     -v /usr/share/zoneinfo:/usr/share/zoneinfo \
     -v /etc/localtime:/etc/localtime:ro \
-    ${PAAS_DOCKER_REG}/opsany-paas-websocket:v3.2.13
+    ${PAAS_DOCKER_REG}/opsany-paas-websocket:v3.2.15
     
     #openresty
     shell_log "Start openresty Service"
@@ -377,12 +377,13 @@ paas_agent_start(){
         exit 2
     fi
 
-    # Truning PaasAgent uwsig
+    # Truning PaasAgent uwsgi
+    docker cp ${INSTALL_PATH}/conf/paas_agent/uwsgi.ini.8g opsany-paas-paasagent:/opt/opsany/paas-agent/etc/templates/uwsgi.ini
     TOTAL_MEM=$(free | awk '/Mem/{print int($2/1000/1000)}')
-    if [ "${TOTAL_MEM}" -le "7" ];then
-        docker cp ${INSTALL_PATH}/conf/paas_agent/uwsgi.ini.8g opsany-paas-paasagent:/opt/opsany/paas-agent/etc/templates/uwsgi.ini
-    elif [ "${TOTAL_MEM}" -ge "15" ];then
+    if [ "${TOTAL_MEM}" -ge "15" ];then
         docker cp ${INSTALL_PATH}/conf/paas_agent/uwsgi.ini.16g opsany-paas-paasagent:/opt/opsany/paas-agent/etc/templates/uwsgi.ini
+    else
+        docker cp ${INSTALL_PATH}/conf/paas_agent/uwsgi.ini.8g opsany-paas-paasagent:/opt/opsany/paas-agent/etc/templates/uwsgi.ini
     fi
 }
 

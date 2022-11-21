@@ -47,3 +47,27 @@ scrape_configs:
       - source_labels: [__meta_consul_service_id]  # 过滤consul自测服务数据 consul 127.0.0.1:8300
         regex: ^(consul)
         action: drop
+      - source_labels: [__meta_consul_service_metadata_endwith]  # 过滤scrape, 此为自定义的exporter
+        regex: ^(scrape)
+        action: drop
+
+  - job_name: consul-prometheus-scrape  # 自定义Exporter 通过参数获取不同实例exporter指标
+    scrape_interval: 15s
+    scrape_timeout: 5s
+    consul_sd_configs:
+      - server: 'PROM_CONSUL_SERVER:8500' # 修改你consul服务所在的ip地址
+        refresh_interval: 15s
+        services: []
+    metrics_path: /scrape # 监控多实例时要把/metrics自定义为/scrape
+    relabel_configs:
+      - regex: __meta_consul_service_metadata_(.+) # 添加meta的重新匹配，Mate数据为Labels标签
+        action: labelmap   #
+      - source_labels: ['__meta_consul_service']
+        regex: "consul"  # 过滤consul自测服务数据 consul 127.0.0.1:8300
+        action: drop
+      - source_labels: ['__meta_consul_service_metadata_endwith']  # 将endwith=scrape匹配出来作为自定义传参配置
+        regex: "scrape"
+        action: keep
+      - source_labels: ['__meta_consul_service_metadata_instance']  # 定义endpoint的参数 target=instance
+        target_label: __param_target
+

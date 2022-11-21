@@ -91,7 +91,7 @@ prometheus_install(){
     -v ${INSTALL_PATH}/prometheus-volume/conf/prometheus.yml:/etc/prometheus/prometheus.yml \
     -v ${INSTALL_PATH}/prometheus-volume/conf/web.yml:/etc/prometheus/web.yml \
     -v /etc/localtime:/etc/localtime:ro \
-    prom/prometheus:v2.35.0 --config.file=/etc/prometheus/prometheus.yml --storage.tsdb.path=/prometheus --web.console.libraries=/usr/share/prometheus/console_libraries --web.console.templates=/usr/share/prometheus/consoles --web.config.file=/etc/prometheus/web.yml
+    prom/prometheus:v2.35.0 --config.file=/etc/prometheus/prometheus.yml --storage.tsdb.path=/prometheus --web.console.libraries=/usr/share/prometheus/console_libraries --web.console.templates=/usr/share/prometheus/consoles --web.config.file=/etc/prometheus/web.yml --web.enable-lifecycle
 
     # Prometheus Node Exporter Release Date: 2021-12-01 https://hub.docker.com/u/prom
     shell_log "======Start Prometheus Node_Exporter======"

@@ -168,11 +168,6 @@ main(){
 	cmp)
 		cmp_update
 		;;
-	devops)
-		devops_update
-        pipeline_update
-        deploy_update
-		;;
     bastion)
         bastion_update
         ;;
@@ -189,8 +184,27 @@ main(){
 		cmp_update
         bastion_update
 		;;
+    devops)
+		devops_update
+        pipeline_update
+        deploy_update
+		;;
+    all)
+        rbac_update
+		workbench_update
+		cmdb_update
+		control_update
+		job_update
+        dashboard_update
+		cmp_update
+        bastion_update
+        devops_update
+        pipeline_update
+        deploy_update
+        monitor_update
+        ;;
 	help|*)
-		echo $"Usage: $0 {base|rbac|workbench|cmdb|control|job|monitor|cmp|devops|bastion|dashboard|help}"
+		echo $"Usage: $0 {[base|devops|monitor|all|rbac|workbench|cmdb|control|job|monitor|cmp|devops|bastion|dashboard|help}"
 	        ;;
 esac
 }

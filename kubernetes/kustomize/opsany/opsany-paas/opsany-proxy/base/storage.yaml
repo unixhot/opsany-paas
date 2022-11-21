@@ -1,0 +1,324 @@
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: paas-proxy-logs-pv
+spec:
+  capacity:
+    storage: 1Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  mountOptions:
+    - vers=3
+    - nolock
+  nfs:
+    path: /opsany/logs
+    server: ""
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: paas-proxy-logs-pvc
+  namespace: opsany
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: ""
+  volumeMode: Filesystem
+  volumeName: paas-proxy-logs-pv
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: paas-proxy-certs-pv
+spec:
+  capacity:
+    storage: 1Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  mountOptions:
+    - vers=3
+    - nolock
+  nfs:
+    path: /opsany/proxy-volume/certs
+    server: ""
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: paas-proxy-certs-pvc
+  namespace: opsany
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: ""
+  volumeMode: Filesystem
+  volumeName: paas-proxy-certs-pv
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: paas-proxy-salt-pv
+spec:
+  capacity:
+    storage: 1Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  mountOptions:
+    - vers=3
+    - nolock
+  nfs:
+    path: /opsany/proxy-volume/etc/salt
+    server: ""
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: paas-proxy-salt-pvc
+  namespace: opsany
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: ""
+  volumeMode: Filesystem
+  volumeName: paas-proxy-salt-pv
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: paas-proxy-cache-pv
+spec:
+  capacity:
+    storage: 1Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  mountOptions:
+    - vers=3
+    - nolock
+  nfs:
+    path: /opsany/proxy-volume/cache
+    server: ""
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: paas-proxy-cache-pvc
+  namespace: opsany
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: ""
+  volumeMode: Filesystem
+  volumeName: paas-proxy-cache-pv
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: paas-proxy-srv-pv
+spec:
+  capacity:
+    storage: 1Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  mountOptions:
+    - vers=3
+    - nolock
+  nfs:
+    path: /opsany/proxy-volume/srv/salt
+    server: ""
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: paas-proxy-srv-pvc
+  namespace: opsany
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: ""
+  volumeMode: Filesystem
+  volumeName: paas-proxy-srv-pv
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: paas-proxy-pillar-pv
+spec:
+  capacity:
+    storage: 1Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  mountOptions:
+    - vers=3
+    - nolock
+  nfs:
+    path: /opsany/proxy-volume/srv/pillar
+    server: ""
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: paas-proxy-pillar-pvc
+  namespace: opsany
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: ""
+  volumeMode: Filesystem
+  volumeName: paas-proxy-pillar-pv
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: paas-proxy-playbook-pv
+spec:
+  capacity:
+    storage: 1Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  mountOptions:
+    - vers=3
+    - nolock
+  nfs:
+    path: /opsany/proxy-volume/srv/playbook
+    server: ""
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: paas-proxy-playbook-pvc
+  namespace: opsany
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: ""
+  volumeMode: Filesystem
+  volumeName: paas-proxy-playbook-pv
+
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: paas-proxy-uploads-pv
+spec:
+  capacity:
+    storage: 1Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  mountOptions:
+    - vers=3
+    - nolock
+  nfs:
+    path: /opsany/uploads
+    server: ""
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: paas-proxy-uploads-pvc
+  namespace: opsany
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: ""
+  volumeMode: Filesystem
+  volumeName: paas-proxy-uploads-pv
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: paas-proxy-pki-pv
+spec:
+  capacity:
+    storage: 1Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  mountOptions:
+    - vers=3
+    - nolock
+  nfs:
+    path: /opsany/proxy-volume/pki
+    server: ""
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: paas-proxy-pki-pvc
+  namespace: opsany
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: ""
+  volumeMode: Filesystem
+  volumeName: paas-proxy-pki-pv

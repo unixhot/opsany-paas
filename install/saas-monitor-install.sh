@@ -123,7 +123,6 @@ mysql_init(){
 copy_logo(){
   cd $CDIR
   /bin/cp -r ../paas-ce/saas/saas-logo/* ${INSTALL_PATH}/uploads/workbench/icon/
-  /bin/cp -r ../paas-ce/saas/saas-logo/* ${INSTALL_PATH}/paas-ce/paas/paas/media/applogo/
 }
 
 # SaaS Deploy
@@ -139,6 +138,8 @@ saas_deploy(){
     python3 deploy.py --domain $DOMAIN_NAME --username admin --password ${ADMIN_PASSWORD} --file_name monitor-opsany-*.tar.gz
     #python3 deploy.py --domain $DOMAIN_NAME --username admin --password ${ADMIN_PASSWORD} --file_name log-opsany-*.tar.gz
     #python3 deploy.py --domain $DOMAIN_NAME --username admin --password ${ADMIN_PASSWORD} --file_name apm-opsany-*.tar.gz
+
+    python3 sync-user-script.py --domain https://${DOMAIN_NAME} --paas_username admin --paas_password ${ADMIN_PASSWORD} --app_code monitor
 }
 
 monitor_init(){

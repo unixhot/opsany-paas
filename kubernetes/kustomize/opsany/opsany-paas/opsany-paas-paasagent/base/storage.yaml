@@ -1,0 +1,252 @@
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: paas-paasagent-logs-pv
+spec:
+  capacity:
+    storage: 1Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  mountOptions:
+    - vers=3
+    - nolock
+  nfs:
+    path: /opsany/logs
+    server: "{{ .Values.nfsServer.server }}"
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: paas-paasagent-logs-pvc
+  namespace: opsany
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: ""
+  volumeMode: Filesystem
+  volumeName: paas-paasagent-logs-pv
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: paas-paasagent-uploads-pv
+spec:
+  capacity:
+    storage: 1Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  mountOptions:
+    - vers=3
+    - nolock
+  nfs:
+    path: /opsany/uploads
+    server: "{{ .Values.nfsServer.server }}"
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: paas-paasagent-uploads-pvc
+  namespace: opsany
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: ""
+  volumeMode: Filesystem
+  volumeName: paas-paasagent-uploads-pv
+
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: paas-paasagent-apps-pv
+spec:
+  capacity:
+    storage: 1Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  mountOptions:
+    - vers=3
+    - nolock
+  nfs:
+    path: /opsany/saas/apps
+    server: "{{ .Values.nfsServer.server }}"
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: paas-paasagent-apps-pvc
+  namespace: opsany
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: ""
+  volumeMode: Filesystem
+  volumeName: paas-paasagent-apps-pv
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: paas-paasagent-saasapp-pv
+spec:
+  capacity:
+    storage: 1Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  mountOptions:
+    - vers=3
+    - nolock
+  nfs:
+    path: /opsany/saas/saasapp
+    server: "{{ .Values.nfsServer.server }}"
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: paas-paasagent-saasapp-pvc
+  namespace: opsany
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: ""
+  volumeMode: Filesystem
+  volumeName: paas-paasagent-saasapp-pv
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: paas-paasagent-srv-pv
+spec:
+  capacity:
+    storage: 1Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  mountOptions:
+    - vers=3
+    - nolock
+  nfs:
+    path: /opsany/proxy-volume/srv/
+    server: "{{ .Values.nfsServer.server }}"
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: paas-paasagent-srv-pvc
+  namespace: opsany
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: ""
+  volumeMode: Filesystem
+  volumeName: paas-paasagent-srv-pv
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: paas-paasagent-salt-pv
+spec:
+  capacity:
+    storage: 1Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  mountOptions:
+    - vers=3
+    - nolock
+  nfs:
+    path: /opsany/proxy-volume/etc/salt
+    server: "{{ .Values.nfsServer.server }}"
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: paas-paasagent-salt-pvc
+  namespace: opsany
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: ""
+  volumeMode: Filesystem
+  volumeName: paas-paasagent-salt-pv
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: paas-paasagent-cache-pv
+spec:
+  capacity:
+    storage: 1Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  mountOptions:
+    - vers=3
+    - nolock
+  nfs:
+    path: /opsany/proxy-volume/cache/
+    server: "{{ .Values.nfsServer.server }}"
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: paas-paasagent-cache-pvc
+  namespace: opsany
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: ""
+  volumeMode: Filesystem
+  volumeName: paas-paasagent-cache-pv
+

@@ -91,7 +91,11 @@ saas_deploy(){
     python3 deploy.py --domain $DOMAIN_NAME --username admin --password $ADMIN_PASSWORD --file_name deploy-opsany-*.tar.gz
     python3 deploy.py --domain $DOMAIN_NAME --username admin --password $ADMIN_PASSWORD --file_name pipeline-opsany-*.tar.gz
     #python3 deploy.py --domain $DOMAIN_NAME --username admin --password admin --file_name repo-opsany-*.tar.gz
+
+    python3 sync-user-script.py --domain https://${DOMAIN_NAME} --paas_username admin --paas_password ${ADMIN_PASSWORD}  --app_code devops
+
     python3 init-ce-devops.py --domain https://${DOMAIN_NAME} --username admin  --password $ADMIN_PASSWORD
+
     shell_log "======OpsAny: Make Ops Perfect======"
 
 }

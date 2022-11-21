@@ -1,0 +1,74 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: opsany-paas-esb
+  namespace: opsany
+spec:
+  selector: 
+    matchLabels:
+      app: opsany-paas-esb
+  replicas: 1
+  revisionHistoryLimit: 10
+  strategy:
+    type: IfNotPresent
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: opsany-paas-esb
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+      - image: "{{ .Values.image.repository }}/{{ .Values.image.esb.name }}:{{ .Values.image.esb.tag }}"
+        name: esb
+        ports:
+        - name: esb
+          containerPort: 8002
+          protocol: TCP
+        readinessProbe:
+          tcpSocket:
+            port: 8002
+          initialDelaySeconds: 15
+          periodSeconds: 10
+        livenessProbe:
+          tcpSocket:
+            port: 8002
+          initialDelaySeconds: 15
+          periodSeconds: 10
+
+        volumeMounts:
+        - name: timezone
+          mountPath: /etc/localtime
+        - mountPath: /opt/opsany/paas/esb/configs/default.py
+          name: paas-esb-cm
+          subPath: default.py
+        - name: paas-esb-logs
+          mountPath: /opt/opsany/logs
+        - name: paas-esb-apis
+          mountPath: /opt/opsany/paas/esb/components/generic/apis
+    
+      volumes:
+        - name: paas-esb-cm
+          configMap:
+            name: paas-esb-cm
+            items:
+            - key: default.py
+              path: default.py
+        - name: timezone
+          hostPath:
+            path: /etc/localtime
+        - name: paas-esb-logs
+          persistentVolumeClaim:
+            claimName: paas-esb-logs-pvc
+        - name: paas-esb-apis
+          persistentVolumeClaim:
+            claimName: paas-esb-apis-pvc
+      
+
