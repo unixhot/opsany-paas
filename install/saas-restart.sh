@@ -10,8 +10,8 @@ docker exec opsany-paas-paasagent rm -f /opt/opsany/paas-agent/apps/projects/cmp
 docker exec opsany-paas-paasagent rm -f /opt/opsany/paas-agent/apps/projects/monitor/run/supervisord.sock
 docker exec opsany-paas-paasagent rm -f /opt/opsany/paas-agent/apps/projects/devops/run/supervisord.sock
 docker exec opsany-paas-paasagent rm -f /opt/opsany/paas-agent/apps/projects/bastion/run/supervisord.sock
-docker exec opsany-paas-paasagent rm -f /opt/opsany/paas-agent/apps/projects/pipeline/run/supervisord.sock
-docker exec opsany-paas-paasagent rm -f /opt/opsany/paas-agent/apps/projects/deploy/run/supervisord.sock
+#docker exec opsany-paas-paasagent rm -f /opt/opsany/paas-agent/apps/projects/pipeline/run/supervisord.sock
+#docker exec opsany-paas-paasagent rm -f /opt/opsany/paas-agent/apps/projects/deploy/run/supervisord.sock
 docker exec opsany-paas-paasagent rm -f /opt/opsany/paas-agent/apps/projects/dashboard/run/supervisord.sock
 
 
@@ -61,14 +61,14 @@ sleep 3
 docker exec opsany-paas-paasagent /usr/bin/supervisorctl -c /opt/opsany/paas-agent/apps/projects/bastion/conf/supervisord.conf status
 
 #start pipeline
-docker exec opsany-paas-paasagent /usr/bin/supervisord -c /opt/opsany/paas-agent/apps/projects/pipeline/conf/supervisord.conf
-sleep 3
-docker exec opsany-paas-paasagent /usr/bin/supervisorctl -c /opt/opsany/paas-agent/apps/projects/pipeline/conf/supervisord.conf status
+#docker exec opsany-paas-paasagent /usr/bin/supervisord -c /opt/opsany/paas-agent/apps/projects/pipeline/conf/supervisord.conf
+#sleep 3
+#docker exec opsany-paas-paasagent /usr/bin/supervisorctl -c /opt/opsany/paas-agent/apps/projects/pipeline/conf/supervisord.conf status
 
 #start deploy
-docker exec opsany-paas-paasagent /usr/bin/supervisord -c /opt/opsany/paas-agent/apps/projects/deploy/conf/supervisord.conf
-sleep 3
-docker exec opsany-paas-paasagent /usr/bin/supervisorctl -c /opt/opsany/paas-agent/apps/projects/deploy/conf/supervisord.conf status
+#docker exec opsany-paas-paasagent /usr/bin/supervisord -c /opt/opsany/paas-agent/apps/projects/deploy/conf/supervisord.conf
+#sleep 3
+#docker exec opsany-paas-paasagent /usr/bin/supervisorctl -c /opt/opsany/paas-agent/apps/projects/deploy/conf/supervisord.conf status
 
 #start dashboard
 docker exec opsany-paas-paasagent /usr/bin/supervisord -c /opt/opsany/paas-agent/apps/projects/dashboard/conf/supervisord.conf

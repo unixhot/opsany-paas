@@ -33,10 +33,12 @@ class CheckGoogleVerifyCode(Component):
     class Form(BaseComponentForm):
         username = forms.CharField(required=True)
         verify_code = forms.CharField(required=True)
+        seven_days_free = forms.CharField(required=False)
+        auth_type = forms.CharField(required=False)
 
         # clean方法返回的数据可通过组件的form_data属性获取
         def clean(self):
-            return self.get_cleaned_data_when_exist(keys=["username", "verify_code"])
+            return self.get_cleaned_data_when_exist(keys=["username", "verify_code", "seven_days_free", "auth_type"])
 
     # 组件处理入口
     def handle(self):

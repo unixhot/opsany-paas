@@ -199,7 +199,7 @@ class Account(AccountSingleton):
             return response
         return None
 
-    def record_login_log(self, request, user, app_id):
+    def record_login_log(self, request, user, app_id, token=None):
         """
         记录用户登录日志
         """
@@ -209,7 +209,11 @@ class Account(AccountSingleton):
         login_ip = request.META.get('HTTP_X_FORWARDED_FOR') or 'REMOTE_ADDR'
 
         Loignlog.objects.record_login(user, login_browser, login_ip, host, app_id)
-
+        auth_object = OpsAnyRbacUserAuth(user.username, "")
+        try:
+            auth_object.update_login_log(token, login_ip, login_browser, host)
+        except Exception as e:
+            print "Login log error: {}".format(str(e))
     def redirect_login(self, request):
         """
         重定向到登录页面.
@@ -261,6 +265,7 @@ class Account(AccountSingleton):
             geetest_validate = data.pop("geetest_validate", None)
             mfa = data.pop("mfa", None)
             verify_code = data.pop("verify_code", None)
+            seven_days_free = data.pop("seven_days_free", 0)
             domain = data.pop("domain", None)
             form = authentication_form(request, data=request.POST)
             if domain:
@@ -270,11 +275,11 @@ class Account(AccountSingleton):
                     return render(request, "login/login.html", {"data": 1, "app_id": app_id, "next": next, "IMG_URL": settings.IMG_URL, "SITE_URL": settings.SITE_URL, "tab_key": tab_key})
             auth_object = OpsAnyRbacUserAuth(username, password)
             google_auth_status = auth_object.get_user_google_auth_status()
-            return_data = {"app_id": app_id, "next": next, "IMG_URL": settings.IMG_URL, "SITE_URL": settings.SITE_URL}
+            return_data = {"app_id": app_id, "next": next, "IMG_URL": settings.IMG_URL, "SITE_URL": settings.SITE_URL, "tab_key": tab_key}
             if "@" not in username:
                 if form.is_valid():
                     # if google_auth_status == "1":
-                    if google_auth_status in ["1", "3", "4", "5"]:
+                    if google_auth_status in ["1", "3", "4", "5", "7"]:
                         if google_auth_status in ["3"]:
                             if google_auth_url:
                                 return_data["google_auth_url"] = google_auth_url
@@ -295,6 +300,7 @@ class Account(AccountSingleton):
                                 return_data["domain"] = domain
                                 return_data["c_url"] = c_url
                                 return_data["verfiy_code"] = verify_code
+                                return_data["seven_days_free"] = seven_days_free
                                 return_data["google_auth_status"] = google_auth_status
                                 return_data["geetest_challenge"] = geetest_challenge
                                 return_data["geetest_seccode"] = geetest_seccode
@@ -302,7 +308,7 @@ class Account(AccountSingleton):
                                 return render(request, "login/login.html", return_data)
                 	mfa = "start" if not mfa else mfa
                     if mfa == "start":
-                        check_status = auth_object.check_google_verify_code(verify_code)
+                        check_status = auth_object.check_google_verify_code(verify_code, seven_days_free)
                         if check_status:
                             return self.login_success_response(request, form, redirect_to, app_id)
                         else:
@@ -312,6 +318,7 @@ class Account(AccountSingleton):
                             return_data["domain"] = domain
                             return_data["c_url"] = c_url
                             return_data["verfiy_code"] = ""
+                            return_data["seven_days_free"] = seven_days_free
                             return_data["google_auth_status"] = google_auth_status
                             return_data["geetest_challenge"] = geetest_challenge
                             return_data["geetest_seccode"] = geetest_seccode
@@ -350,6 +357,7 @@ class Account(AccountSingleton):
                                 return_data["domain"] = domain
                                 return_data["c_url"] = c_url
                                 return_data["verfiy_code"] = verify_code
+                                return_data["seven_days_free"] = seven_days_free
                                 return_data["google_auth_status"] = google_auth_status
                                 return_data["geetest_challenge"] = geetest_challenge
                                 return_data["geetest_seccode"] = geetest_seccode
@@ -357,7 +365,7 @@ class Account(AccountSingleton):
                                 return render(request, "login/login.html", return_data)
                 	mfa = "start" if not mfa else mfa
                     if mfa == "start":
-                        check_status = auth_object.check_google_verify_code(verify_code)
+                        check_status = auth_object.check_google_verify_code(verify_code, seven_days_free)
                         if check_status:
                             return self.login_success_response(request, user, redirect_to, app_id)
                         else:
@@ -367,6 +375,7 @@ class Account(AccountSingleton):
                             return_data["domain"] = domain
                             return_data["c_url"] = c_url
                             return_data["verfiy_code"] = ""
+                            return_data["seven_days_free"] = seven_days_free
                             return_data["google_auth_status"] = google_auth_status
                             return_data["geetest_challenge"] = geetest_challenge
                             return_data["geetest_seccode"] = geetest_seccode
@@ -387,11 +396,9 @@ class Account(AccountSingleton):
             if auth_type in ["3", "6"]:
                 if auth_type == "6":
                     auth_obj = OpsAnyRbacUserAuth(code=code, domain=domain)
-                    print 'test'
                 else:
                     auth_obj = OpsAnyRbacUserAuth(code=code, app_id=appid)
                 status, res = auth_obj.check_users()
-                print status, res
                 if status and res.get("auth_status") and res.get("domain_status") and res.get("have_user"):
                     user_info = res.get("user_info")
                     user = self.get_user(res, user_info.get("username"))
@@ -524,13 +531,13 @@ class Account(AccountSingleton):
             user.backend = "django.contrib.auth.backends.ModelBackend"
             auth_login(request, user)
         # 记录登录日志
-        self.record_login_log(request, user, app_id)
         bk_token, expire_time = self.get_bk_token(username)
         response = HttpResponseRedirect(redirect_to)
         response.set_cookie(self.BK_COOKIE_NAME, bk_token,
                             expires=expire_time,
                             domain=settings.BK_COOKIE_DOMAIN,
                             httponly=True)
+        self.record_login_log(request, user, app_id, bk_token)
         # NOTE: DO NOT SET THE LANGUAGE COOKIE HERE BEFORE I18N is AVAILABLE
         # set cookie for app or platform
         # bk_user_info, is_created = UserInfo.objects.get_or_create(user=user)
@@ -558,6 +565,8 @@ class Account(AccountSingleton):
                             expires=expire_time,
                             domain=settings.BK_COOKIE_DOMAIN,
                             httponly=True)
+        user = BkUser.objects.filter(username=username).first()
+        self.record_login_log(request, user, "", bk_token)
         return response
 
     def login_api(self, request):
@@ -566,6 +575,7 @@ class Account(AccountSingleton):
         password = data.get("password", "").strip()
         domain = data.get("domain", "").strip()
         verify_code = data.get("verify_code", "").strip()
+        seven_days_free = data.get("seven_days_free", 0)
         if domain:
             username = username + "@" + domain
         auth_object = OpsAnyRbacUserAuth(username, password)
@@ -580,8 +590,8 @@ class Account(AccountSingleton):
             res = auth_object.get_user_google_auth_status()
             if res in ["0", "2"]:
                 return self._login_success(request, username)
-            elif res in ["1", "3", "4", "5"]:
-                res = auth_object.check_google_verify_code(verify_code)
+            elif res in ["1", "3", "4", "5", "7"]:
+                res = auth_object.check_google_verify_code(verify_code, seven_days_free)
                 if res:
                     return self._login_success(request, username)
                 return JsonResponse({"code": 401, "error_code": 40101, "message": "MFA验证码错误"})

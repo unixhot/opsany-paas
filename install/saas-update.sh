@@ -13,7 +13,7 @@ CTIME=$(date "+%Y-%m-%d-%H-%M")
 CDIR=$(pwd)
 SHELL_NAME="saas-install.sh"
 SHELL_LOG="${SHELL_NAME}.log"
-ADMIN_PASSWORD=admin
+ADMIN_PASSWORD=""
 
 # Install Inspection
 if [ ! -f ./install.config ];then
@@ -186,8 +186,8 @@ main(){
 		;;
     devops)
 		devops_update
-        pipeline_update
-        deploy_update
+        #pipeline_update
+        #deploy_update
 		;;
     all)
         rbac_update
@@ -199,8 +199,8 @@ main(){
 		cmp_update
         bastion_update
         devops_update
-        pipeline_update
-        deploy_update
+        #pipeline_update
+        #deploy_update
         monitor_update
         ;;
 	help|*)

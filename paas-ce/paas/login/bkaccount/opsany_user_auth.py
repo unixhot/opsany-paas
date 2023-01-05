@@ -42,7 +42,8 @@ class OpsAnyRbacUserAuth(object):
             "bk_app_code": self.APP_CODE,
             "bk_app_secret": self.APP_SECRET,
             "bk_access_token": self.ACCESS_TOKEN,
-            "username": self.username
+            "username": self.username,
+            "auth_type": "login"
         }
         url = self.BK_URL + API
         response = requests.get(url, params=req, headers={"Cookie": "bk_token=None"}, verify=False)
@@ -51,6 +52,27 @@ class OpsAnyRbacUserAuth(object):
             end_data = end_data.get("data")
             return end_data
         return "6"
+
+    def update_login_log(self, bk_token, address, user_agent, host_name, data=None):
+        API = "/api/c/compapi/rbac/post_login_log/"
+        req = {
+            "bk_app_code": self.APP_CODE,
+            "bk_app_secret": self.APP_SECRET,
+            "bk_access_token": self.ACCESS_TOKEN,
+            "token": bk_token,
+            "username": self.username,
+            "address": address,
+            "user_agent": user_agent,
+            "host_name": host_name,
+            "data": data if not data else {}
+        }
+        url = self.BK_URL + API
+        response = requests.get(url, params=req, headers={"Cookie": "bk_token={}".format(bk_token)}, timeout=3, verify=False)
+        end_data = json.loads(response.text)
+        if end_data.get("result"):
+            end_data = end_data.get("data")
+            return end_data
+        return "Failed"
         
     def get_google_auth(self):
         API = "/api/c/compapi/workbench/get_google_auth/"
@@ -85,14 +107,16 @@ class OpsAnyRbacUserAuth(object):
         end_data = json.loads(response.text)
         return end_data
 
-    def check_google_verify_code(self, verify_code):
+    def check_google_verify_code(self, verify_code, seven_days_free=0):
         API = "/api/c/compapi/rbac/check_google_verify_code/"
         req = {
             "bk_app_code": self.APP_CODE,
             "bk_app_secret": self.APP_SECRET,
             "bk_access_token": self.ACCESS_TOKEN,
             "username": self.username,
-            "verify_code": verify_code
+            "verify_code": verify_code,
+            "seven_days_free": seven_days_free,
+            "auth_type": "login"
         }
         url = self.BK_URL + API
         response = requests.post(url, data=req, headers={"Cookie": "bk_token=None"}, verify=False)
@@ -134,3 +158,7 @@ class OpsAnyRbacUserAuth(object):
             end_data = end_data.get("data")
             return True, end_data
         return False, end_data.get("message")
+
+
+if __name__ == '__main__':
+    api = OpsAnyRbacUserAuth("huxingqi").update_login_log("mpsyFAZx4AMwUWRUjFU9xrw8rsNtDc4xyIknF08bzxY", "127.1.1.1", "Mert", "dev.opsany.cn")

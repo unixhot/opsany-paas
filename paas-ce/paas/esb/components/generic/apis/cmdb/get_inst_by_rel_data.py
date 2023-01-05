@@ -53,12 +53,14 @@ class GetInstByRelData(Component):
         inst_model_code = forms.Field()
         field_code = forms.Field()
         search = forms.Field(required=False)
+        search_type = forms.Field(required=False)
+        search_data = forms.Field(required=False)
         current = forms.Field()
         pageSize = forms.Field()
         # pass
         # clean方法返回的数据可通过组件的form_data属性获取
         def clean(self):
-            return self.get_cleaned_data_when_exist(keys=["model_code_name", "inst_model_code", "field_code", "search", "current", "pageSize"])
+            return self.get_cleaned_data_when_exist(keys=["model_code_name", "inst_model_code", "field_code", "search", "current", "pageSize", "search_type", "search_data"])
 
     # 组件处理入口
     def handle(self):

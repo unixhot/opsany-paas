@@ -96,16 +96,13 @@ class PostMenuTree(Component):
         #params = {"operator":str(self.current_user.username)}
 
         # 请求系统接口
-        try:
-            response = self.outgoing.http_client.post(
-                host = configs.host,
-                path = configs.base_api_url + 'auth/tree/',
-                data = data,
-                params=params,
-                cookies=self.request.wsgi_request.COOKIES,
-            )
-        except:
-            pass
+        response = self.outgoing.http_client.post(
+            host = configs.host,
+            path = configs.base_api_url + 'auth/tree/',
+            data = data,
+            params=params,
+            cookies=self.request.wsgi_request.COOKIES,
+        )
 
         # 对结果进行解析
         code = response.get('code') if response.get('code') else response.get('status_code')

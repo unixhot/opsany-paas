@@ -15,7 +15,7 @@ class ImportServerFromControl(Component):
 
     ### 功能描述
 
-    导入Grains信息
+    从管控导入主机信息
 
     ### 请求参数
     {{ common_args_desc }}

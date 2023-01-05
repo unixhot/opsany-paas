@@ -96,7 +96,7 @@ main(){
     NEW_DOMAIN_NAME=$2
 
     if [ -z "${OLD_DOMAIN_NAME}" -o -z "${NEW_DOMAIN_NAME}" ];then
-        shell_warning_log "Please enter domain name"
+        shell_warning_log "./paas-change-domain.sh old_domanin_name new_domain_name"
         exit 1
     fi
     replace_domain;

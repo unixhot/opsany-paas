@@ -11,6 +11,11 @@
         <link href="{{STATIC_URL}}css/login.{{CSS_SUFFIX}}?v={{STATIC_VERSION}}" rel="stylesheet" type="text/css" />
         <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}modal/icon/iconfont.css">
   	   <link rel="stylesheet" type="text/css" href="{{STATIC_URL}}modal/modal.css">
+  	   <style>
+  	     .geetest_holder.geetest_wind .geetest_logo, .geetest_holder.geetest_wind .geetest_success_logo{
+  	   		display:none;
+  	   	}
+  	   </style>
         <title>{% trans '登录 | OpsAny' %}</title>
     </head>
     <body>
@@ -270,26 +275,42 @@
                         <img src="{{STATIC_URL}}img/ldap-icon.png" />
                     </div>
                     <div class="ldap-box">
+                    	   
                             <div class="ldap-title">账号保护已开启，请根据提示完成以下操作</div>
+                            {% if google_auth_status != "7" %}
                             <div class="ldap-step">
                                 <div class="ldap-step-num">第一步：</div>
                                 <div class="ldap-step-desc">请打开手机中Google Authenticator（身份验证器）</div>
                             </div>
-                        <div class="ldap-step">
+                            <div class="ldap-step">
                                 <div class="ldap-step-num">第二步：</div>
                                 <div class="ldap-step-desc">请输入6位动态码</div>
                             </div>
+                            {% endif %}
                             <div class="form-login" style="padding: 0;margin-bottom:20px">
                                 <div class="user group-control" style="margin-bottom: 8%;width:100%">
-                                <input style="padding-left:10px" type="number" name="verify_code" placeholder="请输入6位动态码" />
+                                
+                                {% if google_auth_status == "7" %}
+                                <div style="text-align:center;margin-top:90px">您已开启7天免认证登录，请点击确定按钮直接登录！</div>
+                                <input hidden type="number" name="verify_code" value="123123" placeholder="请输入6位动态码" />
+                                
+                                {% else %}
+                                	<input style="padding-left:10px" type="number" name="verify_code" placeholder="请输入6位动态码" />
+                                {% endif %}
+                                
                                 {% if check_status == False %}
                                     <span style="color:red;font-size:13px;display:inline-block;margin:5px 0">{% trans '请确认您的验证码是否正确' %}</span>
                                 {% endif %}
-                            </div>
-                            <div class="btn-content clearfix" style=";padding-top: 20px">
+                               </div>
+                            	{% if google_auth_status != "7" %}
+                              <div>
+                            	  <input name="seven_days_free" type="checkbox" value="1" /> 7天内免验证
+                              </div>
+                              {% endif %}
+                              <div class="btn-content clearfix" style=";padding-top: 20px">
                                 <button class="login-btn" style="width: 100%;border-radius: 22px">{% trans '确定' %}</button>
-                            </div>
-                            <div style="color:grey;font-size:12px;padding-top:10px">如无法提供安全码，请联系管理员解除双因素验证后继续操作。</div>
+                              </div>
+                              <div style="color:grey;font-size:12px;padding-top:10px">如无法提供安全码，请联系管理员解除双因素验证后继续操作。</div>
                             </div>
                             <input type="hidden" name="next" value="{{ next }}" />
                             <input type="hidden" name="app_id" value="{{ app_id }}">
@@ -332,7 +353,7 @@
     </body>
     <!-- js 国际化 -->
     <script type="text/javascript" src="{{SITE_URL}}jsi18n/i18n/"></script>
-    <script src="{{STATIC_URL}}assets/jquery-1.10.2.min.js"></script>
+    <script src="{{STATIC_URL}}assets/jquery-3.6.1.min.js"></script>
     <script src="{{STATIC_URL}}assets/gt.js"></script>
     <script src="{{STATIC_URL}}js/login.{{JS_SUFFIX}}?v={{STATIC_VERSION}}"></script>
 	<!-- 企业微信-->

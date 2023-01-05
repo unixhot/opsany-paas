@@ -55,7 +55,7 @@ install_check(){
 # Install Initialize
 install_init(){
     shell_log "Start: Install Init"
-    mkdir -p ${INSTALL_PATH}/{uploads,conf,logs,prometheus-volume/conf,prometheus-volume/data,consul-volume/data,consul-volume/config}
+    mkdir -p ${INSTALL_PATH}/{uploads,conf,logs,prometheus-volume/conf,prometheus-volume/data,consul-volume/data,consul-volume/config,uploads/prometheus-config/rules}
     cd $CDIR
     /bin/cp -r ./conf/prometheus/* ${INSTALL_PATH}/prometheus-volume/conf/
     pip3 install requests==2.25.1 grafana-api==1.0.3 mysql-connector==2.2.9 SQLAlchemy==1.4.22 bcrypt==3.2.2 \
@@ -88,6 +88,7 @@ prometheus_install(){
     docker run -d --restart=always --name opsany-prometheus-server \
     -p 9090:9090 \
     -v ${INSTALL_PATH}/prometheus-volume/data/:/var/lib/prometheus \
+    -v ${INSTALL_PATH}/uploads/prometheus-config/rules/:/var/lib/prometheus-config/rules \
     -v ${INSTALL_PATH}/prometheus-volume/conf/prometheus.yml:/etc/prometheus/prometheus.yml \
     -v ${INSTALL_PATH}/prometheus-volume/conf/web.yml:/etc/prometheus/web.yml \
     -v /etc/localtime:/etc/localtime:ro \

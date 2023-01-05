@@ -15,7 +15,7 @@ class GetInfoForWorkbench(Component):
 
     ### 功能描述
 
-    获取Agent的文件状态信息
+    获取资源平台基础聚合信息
 
     ### 请求参数
     {{ common_args_desc }}
