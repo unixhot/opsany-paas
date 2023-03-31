@@ -54,8 +54,10 @@ uninstall_paas(){
     rm -rf ${INSTALL_PATH}
     rm -f /opt/opsany-paas/saas/*.tar.gz
     
-    echo "===Autl remove the configuration content from /etc/rc.local==="
-    sed -i '/saas-restart/d' /etc/rc.local
+    if [ -f /etc/redhat-release ];then
+      echo "===Autl remove the configuration content from /etc/rc.local==="
+      sed -i '/saas-restart/d' /etc/rc.local
+    fi
 }
 
 

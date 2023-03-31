@@ -68,7 +68,7 @@ class OpsAnyApi:
             raise Exception(res.json().get("message"))
         except Exception as e:
             print("Api error, error info: {}, api url: {}.".format(str(e), API))
-            sys.exit(1)
+            # sys.exit(1)
 
 
 def run(options):
@@ -104,3 +104,6 @@ if __name__ == '__main__':
     options = parameter.parse_args()
     run(options)
 
+"""
+python3 sync-user-script.py --domain https://${DOMAIN_NAME} --paas_username admin --paas_password ${ADMIN_PASSWORD} --app_code auto event k8s prom kbase
+"""

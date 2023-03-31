@@ -40,7 +40,9 @@ if [ ! -f ./install.config ];then
 else
     grep '^[A-Z]' install.config > install.env
     source ./install.env && rm -f install.env
-    setenforce 0
+    if [ -f /etc/redhat-release ];then
+      setenforce 0
+    fi
 fi
 
 # Check Install requirement
@@ -71,7 +73,7 @@ consul_install(){
            -p 8500:8500 \
            -v ${INSTALL_PATH}/consul-volume/config:/consul/config \
            -v ${INSTALL_PATH}/consul-volume/data:/consul/data \
-           consul:1.12.3
+           ${PAAS_DOCKER_REG}/consul:1.12.3
 
     shell_log "End: Consule Installed"
 }
@@ -92,21 +94,19 @@ prometheus_install(){
     -v ${INSTALL_PATH}/prometheus-volume/conf/prometheus.yml:/etc/prometheus/prometheus.yml \
     -v ${INSTALL_PATH}/prometheus-volume/conf/web.yml:/etc/prometheus/web.yml \
     -v /etc/localtime:/etc/localtime:ro \
-    prom/prometheus:v2.35.0 --config.file=/etc/prometheus/prometheus.yml --storage.tsdb.path=/prometheus --web.console.libraries=/usr/share/prometheus/console_libraries --web.console.templates=/usr/share/prometheus/consoles --web.config.file=/etc/prometheus/web.yml --web.enable-lifecycle
+    ${PAAS_DOCKER_REG}/prometheus:v2.35.0 --config.file=/etc/prometheus/prometheus.yml --storage.tsdb.path=/prometheus --web.console.libraries=/usr/share/prometheus/console_libraries --web.console.templates=/usr/share/prometheus/consoles --web.config.file=/etc/prometheus/web.yml --web.enable-lifecycle
 
     # Prometheus Node Exporter Release Date: 2021-12-01 https://hub.docker.com/u/prom
-    shell_log "======Start Prometheus Node_Exporter======"
-    docker run -d --restart=always --name opsany-prometheus-node_exporter \
-    -p 9100:9100 \
-    -v /etc/localtime:/etc/localtime:ro \
-    prom/node-exporter:v1.3.1
+    #shell_log "======Start Prometheus Node_Exporter======"
+    #docker run -d --restart=always --name opsany-prometheus-node_exporter \
+    #-p 9100:9100 \
+    #-v /etc/localtime:/etc/localtime:ro \
+    #${PAAS_DOCKER_REG}/node-exporter:v1.3.1
 }
 
 prometheus_uninstall(){
     docker stop opsany-prometheus-server
-    docker stop opsany-prometheus-node_exporter
     docker rm opsany-prometheus-server
-    docker rm opsany-prometheus-node_exporter
     docker stop opsany-consul
     docker rm opsany-consul
     rm -rf ${INSTALL_PATH}/prometheus-volume/*

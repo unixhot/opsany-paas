@@ -53,7 +53,7 @@ mysql_init(){
 # workbench nav icon, app list icon
 copy_logo(){
   cd $CDIR
-  /bin/cp -r ../paas-ce/saas/saas-logo/* /opt/opsany/uploads/workbench/icon/
+  /bin/cp -r ../paas-ce/saas/saas-logo/* ${INSTALL_PATH}/uploads/workbench/icon/
   /bin/cp -r ../paas-ce/saas/saas-logo/* /opt/opsany-paas/paas-ce/paas/paas/media/applogo/
 }
 
@@ -78,9 +78,6 @@ saas_deploy(){
         echo "Please Download SAAS first" && exit
     fi
     python3 deploy.py --domain $DOMAIN_NAME --username admin --password $ADMIN_PASSWORD --file_name devops-opsany-*.tar.gz
-    #python3 deploy.py --domain $DOMAIN_NAME --username admin --password $ADMIN_PASSWORD --file_name deploy-opsany-*.tar.gz
-    #python3 deploy.py --domain $DOMAIN_NAME --username admin --password $ADMIN_PASSWORD --file_name pipeline-opsany-*.tar.gz
-    #python3 deploy.py --domain $DOMAIN_NAME --username admin --password admin --file_name repo-opsany-*.tar.gz
 
     python3 sync-user-script.py --domain https://${DOMAIN_NAME} --paas_username admin --paas_password ${ADMIN_PASSWORD}  --app_code devops
 

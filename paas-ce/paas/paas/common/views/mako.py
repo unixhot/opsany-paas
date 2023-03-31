@@ -61,11 +61,11 @@ class MakoTemplateView(MakoTemplateResponseMixin, ContextMixin, View):
         if "platform" in request.path_info:
             workbench_platform = SaaSApp.objects.filter(code="workbench")
             if workbench_platform:
-                return HttpResponseRedirect("/o/workbench/")
+                return HttpResponseRedirect("/o/workbench/?login=1")
             
             dev_workbench_platform = App.objects.filter(code="workbench", is_saas=False)
             if dev_workbench_platform:
-                return HttpResponseRedirect("/t/workbench/")
+                return HttpResponseRedirect("/t/workbench/?login=1")
         
         context = self.get_context_data(**kwargs)
         return self.render_to_response(context)

@@ -8,7 +8,7 @@ from components.component import Component
 from .toolkit import configs
 from .toolkit.tools import base_api_url
 
-class EventTpyeCount(Component):
+class EventTypeCount(Component):
     """
     apiMethod GET
 

@@ -49,11 +49,12 @@ class GetLinkModelDataV2(Component):
         inst_model_code = forms.Field(required=True)
         model_code_name_list = forms.Field(required=True)
         field_code_list = forms.Field(required=True)
+        data_from = forms.Field(required=False)
         # group_list = forms.ListField(required=True)
         pass
         # clean方法返回的数据可通过组件的form_data属性获取
         def clean(self):
-            return self.get_cleaned_data_when_exist(keys=["inst_model_code", "model_code_name_list", "field_code_list"])
+            return self.get_cleaned_data_when_exist(keys=["inst_model_code", "model_code_name_list", "field_code_list", "data_from"])
 
     # 组件处理入口
     def handle(self):

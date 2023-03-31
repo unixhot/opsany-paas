@@ -248,6 +248,7 @@ class Account(AccountSingleton):
         app_id = request.POST.get('app_id', request.GET.get('app_id', ''))
         c_url = request.POST.get('c_url', request.GET.get('c_url', '/'))
         tab_key = request.POST.get('tab_key', request.GET.get('tab_key', 0))
+        #print("tab_key", tab_key)
         error_message = ""
         if request.method == 'POST':
             # 改写request中密码内容
@@ -270,12 +271,20 @@ class Account(AccountSingleton):
             form = authentication_form(request, data=request.POST)
             if domain:
                 username = username + "@" + domain
+
+            return_data = {"app_id": app_id, "next": next, "IMG_URL": settings.IMG_URL, "SITE_URL": settings.SITE_URL, "tab_key": tab_key}
             if data.has_key("next") and data.has_key("app_id"):
                 if not geetest_challenge or not geetest_seccode or not geetest_validate:
-                    return render(request, "login/login.html", {"data": 1, "app_id": app_id, "next": next, "IMG_URL": settings.IMG_URL, "SITE_URL": settings.SITE_URL, "tab_key": tab_key})
+                    return_data.update(**{"data": "1"})
+                    return render(request, "login/login.html", return_data)
             auth_object = OpsAnyRbacUserAuth(username, password)
             google_auth_status = auth_object.get_user_google_auth_status()
-            return_data = {"app_id": app_id, "next": next, "IMG_URL": settings.IMG_URL, "SITE_URL": settings.SITE_URL, "tab_key": tab_key}
+            #print("google_auth_status", google_auth_status, username)
+
+            if google_auth_status in ["8", "9"]:
+                return_data.update(**{"data": "2"})
+                return render(request, "login/login.html", return_data)
+
             if "@" not in username:
                 if form.is_valid():
                     # if google_auth_status == "1":
@@ -333,9 +342,11 @@ class Account(AccountSingleton):
             else:
                 res, data = auth_object.check_users()
                 user = self.get_user(data, username)
+                #print("get_user", res, data, user)
+
                 if res:
                     # if google_auth_status == "1":
-                    if google_auth_status in ["1", "3", "4", "5"]:
+                    if google_auth_status in ["1", "3", "4", "5", "7"]:
                         if google_auth_status in ["3"]:
                             if google_auth_url:
                                 return_data["google_auth_url"] = google_auth_url
@@ -387,17 +398,26 @@ class Account(AccountSingleton):
                             return render(request, "login/login.html", return_data)
                     else:
                         return self.login_success_response(request, user, redirect_to, app_id)
-        elif request.method == 'GET' and request.GET.get("code") and request.GET.get("auth_type"):
+        #elif request.method == 'GET' and request.GET.get("code") and request.GET.get("auth_type"):
+        elif request.method == 'GET' and request.GET.get("code") and (request.GET.get("auth_type") or request.GET.get("domain") or (request.GET.get("appid"))):
+
             appid = request.GET.get("appid")
             code = request.GET.get("code")
             domain = request.GET.get("domain")
+            ad_domain = request.GET.get("ad_domain")
             auth_type = request.GET.get("auth_type")
-            return_data = {"app_id": "", "next": "", "IMG_URL": settings.IMG_URL, "SITE_URL": settings.SITE_URL}
-            if auth_type in ["3", "6"]:
-                if auth_type == "6":
-                    auth_obj = OpsAnyRbacUserAuth(code=code, domain=domain)
-                else:
-                    auth_obj = OpsAnyRbacUserAuth(code=code, app_id=appid)
+            return_data = {"tab_key": tab_key, "app_id": "", "next": "", "IMG_URL": settings.IMG_URL, "SITE_URL": settings.SITE_URL}
+            #if auth_type in ["3", "6"]:
+            #    if auth_type == "6":
+            #        auth_obj = OpsAnyRbacUserAuth(code=code, domain=domain)
+            #    else:
+            #        auth_obj = OpsAnyRbacUserAuth(code=code, app_id=appid)
+            auth_obj = None
+            if code and domain:
+                auth_obj = OpsAnyRbacUserAuth(code=code, domain=domain, ad_domain=ad_domain)
+            elif auth_type in ["3", "6"]:
+                auth_obj = OpsAnyRbacUserAuth(code=code, app_id=appid, ad_domain=ad_domain)
+            if auth_obj:
                 status, res = auth_obj.check_users()
                 if status and res.get("auth_status") and res.get("domain_status") and res.get("have_user"):
                     user_info = res.get("user_info")
@@ -411,7 +431,7 @@ class Account(AccountSingleton):
             else:
                 return_data["message"] = "Unsupported auth type."
                 form = authentication_form(request)
-                error_message = res.get("message")
+                error_message = "Unsupported auth type."
         else:
             form = authentication_form(request)
         current_site = get_current_site(request)

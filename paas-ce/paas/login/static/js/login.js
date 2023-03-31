@@ -53,4 +53,5 @@ $(document).ready(function(){
     } else {
         $('.is-chrome').hide();
     }
+
 });

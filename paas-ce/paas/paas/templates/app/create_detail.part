@@ -1,4 +1,3 @@
-
 <div class="row">
     <div class="col-md-12">
         <div class="panel-body" style="margin-left: -60px;margin-bottom: -30px;">
@@ -104,17 +103,6 @@
                 </div>
               </div>
               <!--版本控制 end-->
-              <!--开发信息 start-->
-              <hr style="margin-left: 50px;margin-top: 10px;">
-              <div class="form-group">
-                <label class="control-label" for="language">开发语言</label>
-                <div class="controls">
-                  <span>Python（Django 1.11）</span>
-                  <span class="help-block">推荐基于蓝鲸智云应用开发框架开发; 并按照<a  target="_blank" href="${SITE_URL}guide/newbie/#step3"> 提示 </a>修改配置</span>
-
-                </div>
-              </div>
-              <!--开发信息 end-->
               <!-- form end-->
             </div>
         </div>

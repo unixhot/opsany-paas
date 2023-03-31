@@ -1,0 +1,81 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "opsany-paas-esb.fullname" . }}
+  labels:
+    {{- include "opsany-paas-esb.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "opsany-paas-esb.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "opsany-paas-esb.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          volumeMounts:
+            - name: opsany-paas-esb-config
+              mountPath: /opt/opsany/paas/esb/configs/default.py
+              subPath: default.py
+            - name: opsany-paas-esb-logs
+              mountPath: /opt/opsany/logs
+            - name: opsany-paas-esb-code
+              mountPath: /opt/opsany/paas/esb/components/generic/
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8002
+              protocol: TCP
+              #          livenessProbe:
+              # httpGet:
+              #path: /
+              #port: http
+              #readinessProbe:
+              #httpGet:
+              #path: /
+              #port: http
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+        - name: opsany-paas-esb-config
+          secret:
+            secretName: opsany-paas-esb
+            items:
+            - key: settings_production.py.esb
+              path: default.py
+        - name: opsany-paas-esb-logs
+          persistentVolumeClaim:
+            claimName: opsany-paas-esb-logs
+        - name: opsany-paas-esb-code
+          persistentVolumeClaim:
+            claimName: opsany-paas-esb-code

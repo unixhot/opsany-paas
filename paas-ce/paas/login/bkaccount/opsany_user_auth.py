@@ -10,12 +10,13 @@ class OpsAnyRbacUserAuth(object):
     BK_URL = "{}://{}".format(settings.HTTP_SCHEMA, settings.PAAS_INNER_DOMAIN)
     ACCESS_TOKEN = "opsany-esb-auth-token-9e8083137204"
 
-    def __init__(self, username="", password="", code="", app_id="", domain=""):
+    def __init__(self, username="", password="", code="", app_id="", domain="", ad_domain=""):
         self.username = username
         self.password = password
         self.code = code
         self.app_id = app_id
         self.domain = domain
+        self.ad_domain = ad_domain
 
     def check_users(self):
         API = "/api/c/compapi/rbac/user_auth/"
@@ -28,7 +29,8 @@ class OpsAnyRbacUserAuth(object):
             "password": self.password,
             "code": self.code,
             "appid": self.app_id,
-            "domain": self.domain
+            "domain": self.domain,
+            "ad_domain": self.ad_domain
         }
         res = requests.post(url, json=req, headers={"Cookie": "bk_token=None"}, verify=False)
         data = res.json().get("data")

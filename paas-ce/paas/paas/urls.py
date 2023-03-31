@@ -28,11 +28,21 @@ from django.contrib import admin
 from django.http import HttpResponse
 from django.views.generic import RedirectView
 from django.views.i18n import javascript_catalog
+# from account.decorators import login_exempt
+
+
+# wx_verify_code = "UijoHCddBrZiTBvU"
+# wx_verify_code_url = "WW_verify_UijoHCddBrZiTBvU.txt"
+
+# @login_exempt
+# def wx_verify(request):
+#     return HttpResponse(content=wx_verify_code)
 
 
 urlpatterns = [
     # 首页, 重定向到首页, pattern => /platform/  permanent => 301
     url(r'^$', RedirectView.as_view(pattern_name="platform", permanent=True)),
+    # url(wx_verify_code_url, wx_verify),
     # url(r'^$', RedirectView.as_view(url='/o/workbench/', permanent=True)),
     
     # 首页

@@ -55,7 +55,7 @@ shell_warning_log(){
 
 shell_error_log(){
     LOG_INFO=$1
-    echo -e "\031[32m---------------- $CTIME ${SHELL_NAME} : ${LOG_INFO} ----------------\033[0m"
+    echo -e "\033[31m---------------- $CTIME ${SHELL_NAME} : ${LOG_INFO} ----------------\033[0m"
     echo "$CTIME ${SHELL_NAME} : ${LOG_INFO}" >> ${SHELL_LOG}
 }
 
@@ -77,7 +77,7 @@ proxy_install(){
         -v ${INSTALL_PATH}/conf/proxy/invscript_proxy.py:/opt/opsany-proxy/invscript_proxy.py \
         -v ${INSTALL_PATH}/proxy-volume/pki:/opt/opsany/pki \
         -v /etc/localtime:/etc/localtime:ro \
-        ${PAAS_DOCKER_REG}/opsany-proxy:1.2.17
+        ${PAAS_DOCKER_REG}/opsany-proxy:1.2.18
 }
 
 # SaaS DB Initialize
@@ -181,12 +181,13 @@ saas_deploy(){
     python3 deploy.py --domain $DOMAIN_NAME --username admin --password ${ADMIN_PASSWORD} --file_name control-opsany-*.tar.gz
     python3 deploy.py --domain $DOMAIN_NAME --username admin --password ${ADMIN_PASSWORD} --file_name job-opsany-*.tar.gz
     python3 deploy.py --domain $DOMAIN_NAME --username admin --password ${ADMIN_PASSWORD} --file_name cmp-opsany-*.tar.gz
-    python3 deploy.py --domain $DOMAIN_NAME --username admin --password ${ADMIN_PASSWORD} --file_name bastion-opsany-*.tar.gz
     python3 deploy.py --domain $DOMAIN_NAME --username admin --password ${ADMIN_PASSWORD} --file_name dashboard-opsany-*.tar.gz
-    
-    python3 sync-user-script.py --domain https://${DOMAIN_NAME} --paas_username admin --paas_password ${ADMIN_PASSWORD} --app_code workbench cmdb control job cmp bastion dashboard
-    shell_log "======OpsAny Data Initialize======"
+    python3 deploy.py --domain $DOMAIN_NAME --username admin --password ${ADMIN_PASSWORD} --file_name bastion-opsany-*.tar.gz
+    shell_log "======OpsAny SaaS Install Complete======"
 
+    shell_log "======OpsAny Data Initialize======"
+    sleep 3
+    python3 sync-user-script.py --domain https://${DOMAIN_NAME} --paas_username admin --paas_password ${ADMIN_PASSWORD} --app_code workbench cmdb control job cmp bastion dashboard
     # OpsAny Database Init
     docker exec -e OPS_ANY_ENV=production \
         opsany-proxy /bin/sh -c "/usr/local/bin/python3 /opt/opsany-proxy/manage.py makemigrations && /usr/local/bin/python3 /opt/opsany-proxy/manage.py migrate"
@@ -206,12 +207,11 @@ saas_deploy(){
 --target_type task --target_path ./job-task
 
     
-
-    chmod +x /etc/rc.d/rc.local
-    echo "sleep 60 && /bin/bash ${INSTALL_PATH}/saas-restart.sh" >> /etc/rc.d/rc.local
-    shell_warning_log "======OpsAny: Make Ops Perfect======"
-
-    
+    if [ -f /etc/redhat-release ];then
+      chmod +x /etc/rc.d/rc.local
+      echo "sleep 60 && /bin/bash ${INSTALL_PATH}/saas-restart.sh" >> /etc/rc.d/rc.local
+    fi
+    shell_warning_log "======OpsAny: Make Ops Perfect======" 
 }
 
 admin_password_init(){
@@ -222,9 +222,7 @@ admin_password_init(){
     echo "ADMIN_PASSWORD=$ADMIN_PASSWORD" > ${INSTALL_PATH}/conf/.passwd_env
     cd ${CDIR}
     python3 password-init.py --paas_domain https://$DOMAIN_NAME --username admin --password admin --new_password $ADMIN_PASSWORD
-    shell_warning_log "Login admin password: $ADMIN_PASSWORD"
-
-   
+    shell_error_log "Web: https://$DOMAIN_NAME Username: admin Password: $ADMIN_PASSWORD"
 }
 
 # Main

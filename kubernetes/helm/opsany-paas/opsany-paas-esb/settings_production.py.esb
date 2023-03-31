@@ -1,0 +1,51 @@
+# -*- coding: utf-8 -*-
+"""
+ESB生产配置
+""" # noqa
+
+# Generic Django project settings
+DEBUG = False
+
+# Database
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'opsany_paas',
+        'USER': 'opsany',
+        'PASSWORD': 'OpsAny@2023',
+        'HOST': 'opsany-mysql',
+        'PORT': '3306',
+    }
+}
+
+
+# Log settings
+LOG_LEVEL = 'INFO'
+
+# esb app_token
+ESB_TOKEN = '41f076b7-afce-46eb-9e85-dab245eb0931'
+
+# Third party system host
+
+# paas host
+PAAS_HOST = 'http://opsany-paas-paas:8001'
+
+# Third party system host
+# host for bk login
+HOST_BK_LOGIN = 'http://opsany-paas-login:8003'
+
+# host for cc
+HOST_CC = ''
+
+# host for cc v3
+HOST_CC_V3 = ''
+
+# host for fta
+HOST_FTA = ''
+
+# Redis config
+USE_SENTINEL = False
+REDIS_HOST = 'opsany-redis'
+REDIS_PORT = 6379
+REDIS_PASSWORD = 'OpsAny2023'
+REDIS_MASTER_NAME = ''

@@ -1,0 +1,107 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "opsany-paas-openresty.fullname" . }}
+  labels:
+    {{- include "opsany-paas-openresty.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "opsany-paas-openresty.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "opsany-paas-openresty.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          volumeMounts:
+            - name: opsany-paas-openresty-nginx
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf
+            - name: opsany-paas-openresty-paas
+              mountPath: /etc/nginx/conf.d/nginx_paas.conf
+              subPath: nginx_paas.conf
+              #- name: opsany-paas-openresty-proxy
+              #mountPath: /etc/nginx/conf.d/nginx_proxy.conf
+              #subPath: nginx_proxy.conf
+            - name: opsany-paas-openresty-ssl
+              mountPath: /etc/nginx/conf.d/ssl
+            - name: opsany-paas-openresty-logs
+              mountPath: /opt/opsany/logs
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+              #          livenessProbe:
+              # httpGet:
+              #path: /
+              #port: http
+              #readinessProbe:
+              #httpGet:
+              #path: /
+              #port: http
+            - name: https
+              containerPort: 443
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+        - name: opsany-paas-openresty-nginx
+          configMap:
+            name: opsany-paas-openresty-nginx
+            items:
+            - key: nginx.conf
+              path: nginx.conf
+        - name: opsany-paas-openresty-paas
+          configMap:
+            name: opsany-paas-openresty-paas
+            items:
+            - key: nginx_paas.conf
+              path: nginx_paas.conf
+        - name: opsany-paas-openresty-proxy
+          configMap:
+            name: opsany-paas-openresty-proxy
+            items:
+            - key: nginx_proxy.conf
+              path: nginx_proxy.conf
+        - name: opsany-paas-openresty-ssl
+          configMap:
+            name: opsany-paas-openresty-ssl
+            items:
+            - key: test.opsany.cn.pem
+              path: test.opsany.cn.pem
+            - key: test.opsany.cn.key
+              path: test.opsany.cn.key
+        - name: opsany-paas-openresty-logs
+          persistentVolumeClaim:
+            claimName: opsany-paas-openresty-logs

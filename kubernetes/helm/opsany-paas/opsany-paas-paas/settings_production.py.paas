@@ -1,0 +1,50 @@
+# -*- coding: utf-8 -*-
+"""
+生产环境配置
+""" # noqa
+
+
+DEBUG = False
+
+# use the static root 'static' in production envs
+if not DEBUG:
+    STATIC_ROOT = 'static'
+
+# 数据库配置信息
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'opsany_paas',
+        'USER': 'opsany',
+        'PASSWORD': 'OpsAny@2023',
+        'HOST': 'opsany-mysql',
+        'PORT': '3306',
+    }
+}
+
+# domain
+PAAS_DOMAIN = 'test.opsany.cn'
+# 注意生产环境使用nginx反向代理不需要配置LOGIN_DOMAIN变量(删除即可)
+
+# inner domain, use consul domain,  for api
+PAAS_INNER_DOMAIN = 'opsany-paas-openresty'
+HTTP_SCHEMA = 'https'
+
+
+# cookie 名称
+BK_COOKIE_NAME = 'bk_token'
+# cookie有效期
+BK_COOKIE_AGE = 60 * 60 * 24
+# cookie访问域
+BK_COOKIE_DOMAIN = 'test.opsany.cn'
+
+# 控制台地址
+ENGINE_HOST = "http://opsany-paas-appengine:8000"
+
+# 登陆服务地址
+LOGIN_HOST = "http://opsany-paas-login:8003"
+
+SECRET_KEY = 'XEz7VLlQNdIq9iFl1t6LtWobQEcG4ayoPa2esHwatkHZxiuDf0'
+
+# ESB Token
+ESB_TOKEN = '41f076b7-afce-46eb-9e85-dab245eb0931'

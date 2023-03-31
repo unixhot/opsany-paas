@@ -155,7 +155,7 @@ margin-left: 200px;
 
 .drop_down {
             display: inline-block;
-            width: 80px;
+            width: 120px;
             position: relative;
         }
 
@@ -181,7 +181,8 @@ margin-left: 200px;
 
         .drop_down ul li {
             list-style: none;
-
+		  display: flex;
+		  align-items:center;
         }
         .drop_down ul li a {
             display: inline-block;
@@ -191,6 +192,11 @@ margin-left: 200px;
             cursor: pointer;
             padding: 0 5px 0 5px;
             color: #666
+        }
+        .drop_down ul li img {
+            width: 20px;
+            height:20px;
+            margin:0px 0 0 10px;
         }
         .drop_down ul li:hover {
             background: #cce3d5;
@@ -755,15 +761,21 @@ p_down {
 	padding:20px;
 	color:#000;
 	border-bottom:1px solid #e8e8e8;
+	display:flex;
+	align-items:center;
 }
 .mfa_setting_box .info{
 	background:rgba(234, 243, 253, 1);
 	padding:5px;
 	color:#000;
 	font-size:12px;
+	display:flex;
+	align-items:center;
 }
 .mfa_setting_box>h4 .info span{
 	font-size:12px;	
+	max-width:500px;
+	display:inline-block;
 }
 .mfa_setting_content .step{
 	font-weight:1000;
@@ -806,7 +818,8 @@ p_down {
     	text-align: center;
     	color: #fff;
     	cursor: pointer;
-  	width:120px;
+/*  	width:120px;*/
+	padding:0 20px;
   	height:32px;
     	border-radius:5px;
     	float:right;

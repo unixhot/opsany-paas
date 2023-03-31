@@ -1,0 +1,69 @@
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: opsany-paas-esb-logs
+spec:
+  capacity:
+    storage: 1Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  mountOptions:
+    - vers=3
+    - nolock
+  nfs:
+    path: {{ .Values.volume.path }}
+    server: {{ .Values.volume.server }}
+---
+# Source: paas-install/templates/paas-paas-storage.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: opsany-paas-esb-logs
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: ""
+  volumeMode: Filesystem
+  volumeName: opsany-paas-esb-logs
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: opsany-paas-esb-code
+spec:
+  capacity:
+    storage: 1Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  mountOptions:
+    - vers=3
+    - nolock
+  nfs:
+    path: {{ .Values.volume.codePath }}
+    server: {{ .Values.volume.server }}
+---
+# Source: paas-install/templates/paas-paas-storage.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: opsany-paas-esb-code
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: ""
+  volumeMode: Filesystem
+  volumeName: opsany-paas-esb-code

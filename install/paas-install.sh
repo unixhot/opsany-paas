@@ -29,7 +29,7 @@ shell_warning_log(){
 
 shell_error_log(){
     LOG_INFO=$1
-    echo -e "\031[32m---------------- $CTIME ${SHELL_NAME} : ${LOG_INFO} ----------------\033[0m"
+    echo -e "\033[31m---------------- $CTIME ${SHELL_NAME} : ${LOG_INFO} ----------------\033[0m"
     echo "$CTIME ${SHELL_NAME} : ${LOG_INFO}" >> ${SHELL_LOG}
 }
 
@@ -73,7 +73,9 @@ ssl_make(){
 # Check Install requirement
 install_check(){
   shell_warning_log "The beginning is the first step to success"
-  setenforce 0
+  if [ -f /etc/redhat-release ];then
+      setenforce 0
+  fi
   DOCKER_PID=$(ps aux | grep '/usr/bin/containerd' | grep -v 'grep' | wc -l)
   if [ ${DOCKER_PID} -lt 1 ];then
       shell_error_log "Please install and start docker first!!!"
@@ -141,7 +143,8 @@ paas_install(){
     -e MONGO_INITDB_ROOT_PASSWORD="$MONGO_INITDB_ROOT_PASSWORD" \
     -p 27017:27017 -v ${INSTALL_PATH}/mongodb-volume:/data/db \
     -v /etc/localtime:/etc/localtime:ro \
-    ${PAAS_DOCKER_REG}/mongo:5.0.3
+    ${PAAS_DOCKER_REG}/mongo:4.4.1-bionic
+    #${PAAS_DOCKER_REG}/mongo:5.0.3
     
     # Guacd
     shell_log "Start Guacd"
@@ -179,24 +182,36 @@ mysql_init(){
 # ESB Initialize
 esb_init(){
     shell_log "ESB Initialize"
+    #cmdb
     sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/cmdb/toolkit/configs.py
     sed -i "s#/t/cmdb#/o/cmdb#g" ${INSTALL_PATH}/esb/apis/cmdb/toolkit/tools.py
+    #control
     sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/control/toolkit/configs.py
     sed -i "s#/t/control#/o/control#g" ${INSTALL_PATH}/esb/apis/control/toolkit/tools.py
+    #rbac
     sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/rbac/toolkit/configs.py
     sed -i "s#/t/rbac#/o/rbac#g" ${INSTALL_PATH}/esb/apis/rbac/toolkit/configs.py
+    #job
     sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/task/toolkit/configs.py
     sed -i "s#/t/job#/o/job#g" ${INSTALL_PATH}/esb/apis/task/toolkit/tools.py
+    #workbench
     sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/workbench/toolkit/configs.py
     sed -i "s#/t/workbench#/o/workbench#g" ${INSTALL_PATH}/esb/apis/workbench/toolkit/tools.py
+    #monitor
     sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/monitor/toolkit/configs.py
     sed -i "s#/t/monitor#/o/monitor#g" ${INSTALL_PATH}/esb/apis/monitor/toolkit/tools.py
+    #cmp
     sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/cmp/toolkit/configs.py
     sed -i "s#/t/cmp#/o/cmp#g" ${INSTALL_PATH}/esb/apis/cmp/toolkit/tools.py
+    #devops
     sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/devops/toolkit/configs.py
     sed -i "s#/t/devops#/o/devops#g" ${INSTALL_PATH}/esb/apis/devops/toolkit/tools.py
+    #bastion
     sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/bastion/toolkit/configs.py
     sed -i "s#/t/bastion#/o/bastion#g" ${INSTALL_PATH}/esb/apis/bastion/toolkit/configs.py
+    #dashboard
+    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/dashboard/toolkit/configs.py
+    sed -i "s#/t/dashboard#/o/dashboard#g" ${INSTALL_PATH}/esb/apis/dashboard/toolkit/tools.py
 }
 
 # PaaS Configuration
@@ -276,7 +291,7 @@ paas_start(){
     -p 8003:8003 -v ${INSTALL_PATH}/logs:/opt/opsany/logs \
     -v ${INSTALL_PATH}/conf/settings_production.py.login:/opt/opsany/paas/login/conf/settings_production.py \
     -v /etc/localtime:/etc/localtime:ro \
-    ${PAAS_DOCKER_REG}/opsany-paas-login:v3.2.17
+    ${PAAS_DOCKER_REG}/opsany-paas-login:v3.2.19
     
     #esb
     shell_log "Start esb Service"
@@ -378,12 +393,11 @@ paas_agent_start(){
     fi
 
     # Truning PaasAgent uwsgi
+    docker cp ${INSTALL_PATH}/conf/paas_agent/supervisord.conf opsany-paas-paasagent:/opt/opsany/paas-agent/etc/templates/supervisord.conf
     docker cp ${INSTALL_PATH}/conf/paas_agent/uwsgi.ini.8g opsany-paas-paasagent:/opt/opsany/paas-agent/etc/templates/uwsgi.ini
     TOTAL_MEM=$(free | awk '/Mem/{print int($2/1000/1000)}')
     if [ "${TOTAL_MEM}" -ge "15" ];then
         docker cp ${INSTALL_PATH}/conf/paas_agent/uwsgi.ini.16g opsany-paas-paasagent:/opt/opsany/paas-agent/etc/templates/uwsgi.ini
-    else
-        docker cp ${INSTALL_PATH}/conf/paas_agent/uwsgi.ini.8g opsany-paas-paasagent:/opt/opsany/paas-agent/etc/templates/uwsgi.ini
     fi
 }
 
@@ -403,20 +417,34 @@ rabbitmq_active(){
 main(){
     case "$1" in
 	install)
-        install_check
-        ssl_make
-        opsany_init
-        paas_install
-        sleep 10
-        mysql_init
-        esb_init
-        paas_config
-        paas_start
-        paas_agent_start
-        rabbitmq_active
-		;;
+          install_check
+          ssl_make
+          opsany_init
+          paas_install
+          sleep 10
+          mysql_init
+          esb_init
+          paas_config
+          paas_start
+          paas_agent_start
+          rabbitmq_active
+	  ;;
+        base)
+          install_check
+          ssl_make
+          opsany_init
+          paas_install
+          ;;
+        paas)
+          mysql_init
+          esb_init
+          paas_config
+          paas_start
+          paas_agent_start
+          rabbitmq_active
+          ;;
 	help|*)
-		echo $"Usage: $0 {install|help}"
+		echo $"Usage: $0 {install|base|paas|help}"
 	        ;;
     esac
 }

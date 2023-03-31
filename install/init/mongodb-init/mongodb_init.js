@@ -123,3 +123,17 @@ db.createUser({
     },
   ],
 });
+
+//kbase
+db = db.getSiblingDB('kbase')
+
+db.createUser({
+  user: 'kbase',
+  pwd: 'MONGO_KBASE_PASSWORD',
+  roles: [
+    {
+      role: 'readWrite',
+      db: 'kbase',
+    },
+  ],
+});

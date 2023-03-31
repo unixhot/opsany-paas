@@ -173,8 +173,21 @@ main(){
         es_install
         monitor_with_zabbix_init
         ;;
+    prometheus)
+        /bin/bash ./prom-install.sh install	
+	;;
+    all)
+	saas_init
+        mysql_init
+        zabbix_install
+        copy_logo
+        saas_deploy
+        es_install
+        monitor_with_zabbix_init
+	/bin/bash ./prom-install.sh install
+	;;
 	help|*)
-		echo $"Usage: $0 {only|zabbix|help}"
+		echo $"Usage: $0 {only|zabbix|prometheus|all|help}"
 	        ;;
 esac
 }
