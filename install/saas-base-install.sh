@@ -77,7 +77,7 @@ proxy_install(){
         -v ${INSTALL_PATH}/conf/proxy/invscript_proxy.py:/opt/opsany-proxy/invscript_proxy.py \
         -v ${INSTALL_PATH}/proxy-volume/pki:/opt/opsany/pki \
         -v /etc/localtime:/etc/localtime:ro \
-        ${PAAS_DOCKER_REG}/opsany-proxy:1.2.18
+        ${PAAS_DOCKER_REG}/opsany-proxy:1.2.19
 }
 
 # SaaS DB Initialize
@@ -185,9 +185,11 @@ saas_deploy(){
     python3 deploy.py --domain $DOMAIN_NAME --username admin --password ${ADMIN_PASSWORD} --file_name bastion-opsany-*.tar.gz
     shell_log "======OpsAny SaaS Install Complete======"
 
-    shell_log "======OpsAny Data Initialize======"
+    shell_log "======OpsAny User Initialize======"
     sleep 3
     python3 sync-user-script.py --domain https://${DOMAIN_NAME} --paas_username admin --paas_password ${ADMIN_PASSWORD} --app_code workbench cmdb control job cmp bastion dashboard
+
+    shell_log "======OpsAny Proxy Initialize======"
     # OpsAny Database Init
     docker exec -e OPS_ANY_ENV=production \
         opsany-proxy /bin/sh -c "/usr/local/bin/python3 /opt/opsany-proxy/manage.py makemigrations && /usr/local/bin/python3 /opt/opsany-proxy/manage.py migrate"
@@ -198,6 +200,7 @@ saas_deploy(){
 
     python3 init-ce-base.py --domain $DOMAIN_NAME --private_ip $LOCAL_IP --paas_username admin --paas_password ${ADMIN_PASSWORD} --grafana_password admin --grafana_change_password $GRAFANA_ADMIN_PASSWORD --proxy_url https://${PROXY_LOCAL_IP}:8011 --proxy_public_url https://${PROXY_PUBLIC_IP}:8011 --proxy_token $PROXY_TOKEN
 
+    shell_log "======OpsAny Job Initialize======"
     # Init Script Job
     cd $CDIR/init/
     python3 import_script.py --domain https://${DOMAIN_NAME} --paas_username admin --paas_password ${ADMIN_PASSWORD} \
