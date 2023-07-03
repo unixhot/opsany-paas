@@ -7,6 +7,8 @@ RUN_MODE = 'PRODUCT'
 
 DEBUG = False
 
+CONTROL_SECRET_KEY = "099f6e6f-9ad8-43d7-b487-7f655519598d"
+
 # MySQL数据库设置
 DATABASES = {
     'default': {
