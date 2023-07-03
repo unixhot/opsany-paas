@@ -77,6 +77,9 @@ esb_update(){
     #k8s
     sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/k8s/toolkit/configs.py
     sed -i "s#/t/k8s#/o/k8s#g" ${INSTALL_PATH}/esb/apis/k8s/toolkit/tools.py
+    #log
+    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/log/toolkit/configs.py
+    sed -i "s#/t/k8s#/o/k8s#g" ${INSTALL_PATH}/esb/apis/log/toolkit/tools.py
 }
 
 esb_restart(){

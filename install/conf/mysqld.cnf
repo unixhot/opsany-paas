@@ -37,4 +37,10 @@ default-storage-engine = innodb
 innodb_file_per_table = on
 collation-server = utf8_general_ci
 character-set-server = utf8
-max_connections = 4096
+max_connections = 1024
+
+# Memory Truning
+innodb_buffer_pool_size=128M
+innodb_log_buffer_size=32M
+key_buffer_size=64M
+query_cache_size=64M

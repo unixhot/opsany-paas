@@ -39,11 +39,12 @@ class UpdateAllCloudHost(Component):
 
     # Form处理参数校验
     class Form(BaseComponentForm):
-        pass
-
+        is_delete = forms.Field(required=False)
+        delete_data = forms.Field(required=False)
+    
         # clean方法返回的数据可通过组件的form_data属性获取
         def clean(self):
-            return self.get_cleaned_data_when_exist(keys=[])
+            return self.get_cleaned_data_when_exist(keys=["is_delete", "delete_data"])
 
     # 组件处理入口
     def handle(self):
@@ -57,7 +58,7 @@ class UpdateAllCloudHost(Component):
         response = self.outgoing.http_client.post(
             host=configs.host,
             path='{}update-all-cloud-host/'.format(base_api_url),
-            data=params,
+            data=json.dumps(params),
             cookies=self.request.wsgi_request.COOKIES,
         )
 

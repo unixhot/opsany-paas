@@ -59,6 +59,9 @@ replace_domain(){
     sed -i "s/${OLD_DOMAIN_NAME}/${NEW_DOMAIN_NAME}/g" ${INSTALL_PATH}/conf/proxy/settings_production.py.proxy
     shell_log "替换nginx域名，替换后如无法访问，请自行检查nginx配置"
     sed -i "s/${OLD_DOMAIN_NAME}/${NEW_DOMAIN_NAME}/g" ${INSTALL_PATH}/conf/nginx-conf.d/nginx_paas.conf
+    cd ${INSTALL_PATH}/conf/nginx-conf.d/ssl/
+    /bin/cp ${OLD_DOMAIN_NAME}.key ${NEW_DOMAIN_NAME}.key
+    /bin/cp ${OLD_DOMAIN_NAME}.pem ${NEW_DOMAIN_NAME}.pem
 
 
     shell_log "Replace SaaS config files"

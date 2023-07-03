@@ -1,7 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-Copyright © 2012-2017 Tencent BlueKing. All Rights Reserved. 蓝鲸智云 版权所有
-"""
 import json
 
 from django import forms
@@ -12,13 +9,13 @@ from .toolkit import configs
 from .toolkit.tools import base_api_url
 
 
-class GetAllHostV2(Component):
+class PostSecurityConfig(Component):
     """
-    apiMethod GET
+    apiMethod POST
 
     ### 功能描述
 
-    获取所有主机v2(资源授权认证)
+    同步安全配置信息
 
     ### 请求参数
     {{ common_args_desc }}
@@ -27,22 +24,29 @@ class GetAllHostV2(Component):
 
     | 字段    | 类型     | 必选   | 描述       |
     | ----- | ------ | ---- | -------- |
-    | model_code | str | 否   | 模型code |
-    | model_code_list | str | 否   | "主机模型code" |
-    | search_type | str | 否   | 筛选字段 |
-    | search_data | str | 否   | 筛选数据 |
+    | security_config | dict | 是  | 安全配置 |
+
+    ### 请求参数示例
+
+    ```python
+    {
+        "bk_app_code": "esb-test-app",
+        "bk_app_secret": "xxx",
+        "bk_token": "xxx-xxx-xxx-xxx-xxx",
+        "security_config": {
+        }
+    }
+    ```
 
     ### 返回结果示例
 
     ```python
     {
         "code": 200,
-        "apicode": 20007,
+        "apicode": 20003,
         "result": true,
         "request_id": xxxxxxxxxxxxxxxxxxxxxxxx,
-        "message": "相关信息获取成功",
-        "data": {
-        }
+        "message": "信息修改成功"
     }
     ```
     """
@@ -52,29 +56,25 @@ class GetAllHostV2(Component):
 
     # Form处理参数校验
     class Form(BaseComponentForm):
-        model_code = forms.Field()
-        model_code_list = forms.Field(required=False)
-        search_type = forms.Field(required=False)
-        search_data = forms.Field(required=False)
+        security_config = forms.Field(required=True)
 
         # clean方法返回的数据可通过组件的form_data属性获取
         def clean(self):
-            return self.get_cleaned_data_when_exist(keys=['model_code', 'search_type', 'search_data', 'model_code_list'])
+            return self.get_cleaned_data_when_exist(keys=["security_config"])
 
     # 组件处理入口
-    def handle(self):
-        # 获取Form clean处理后的数据
-        params = self.form_data
+    def handle(self):  # 获取Form clean处理后的数据
+        data = self.form_data
 
         # 设置当前操作者
-        params['operator'] = self.current_user.username
+        # data['operator'] = self.current_user.username
 
         # 请求系统接口
-        response = self.outgoing.http_client.get(
+        response = self.outgoing.http_client.post(
             host=configs.host,
-            path='{}get-all-host-v2/'.format(base_api_url),
-            params=params,
-            data=None,
+            path='{}security-config/'.format(base_api_url),
+            params=None,
+            data=json.dumps(data),
             cookies=self.request.wsgi_request.COOKIES,
         )
 
@@ -86,7 +86,7 @@ class GetAllHostV2(Component):
                 'api_code': response['successcode'],
                 'message': response['message'],
                 'result': True,
-                'data': response['data'],       # 在这里处理返回的数据，可以处理让用户不想看到的内容
+                # 'data': response['data'],
             }
         else:
             result = {
@@ -97,3 +97,4 @@ class GetAllHostV2(Component):
 
         # 设置组件返回结果，payload为组件实际返回结果
         self.response.payload = result
+

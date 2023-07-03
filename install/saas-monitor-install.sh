@@ -161,7 +161,7 @@ main(){
         mysql_init
         copy_logo
         saas_deploy
-        es_install
+        #es_install
         monitor_init
 		;;
     zabbix)
@@ -170,7 +170,7 @@ main(){
         zabbix_install
         copy_logo
         saas_deploy
-        es_install
+        #es_install
         monitor_with_zabbix_init
         ;;
     prometheus)

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from config import RUN_VER
+from config import RUN_VER, MFA_TIME_OUT
 
 if RUN_VER == 'open':
     from blueapps.patch.settings_open_saas import *  # noqa
@@ -39,6 +39,10 @@ DATABASES.update(
             'PASSWORD': os.getenv("MYSQL_PASSWORD", "MYSQL_OPSANY_PASSWORD"),  # 数据库密码
             'HOST': os.getenv("MYSQL_HOST", "MYSQL_SERVER_IP"),  # 数据库主机
             'PORT': int(os.getenv("MYSQL_PORT", "3306")),  # 数据库端口
+            'OPTIONS': {
+                "init_command": "SET default_storage_engine=INNODB",
+            }
+
         },
     }
 )
@@ -62,6 +66,16 @@ CACHES.update(
         "cache": {
             "BACKEND": "django_redis.cache.RedisCache",
             "LOCATION": "redis://{REDIS_HOST}:{REDIS_PORT}/9".format(REDIS_HOST=REDIS_HOST, REDIS_PORT=REDIS_PORT),
+            'TIMEOUT': 1800,
+            "OPTIONS": {
+                "CLIENT_CLASS": "django_redis.client.DefaultClient",
+                "CONNECTION_POOL_KWARGS": {"max_connections": 1000},
+                "PASSWORD": REDIS_PASSWORD,
+            }
+        },
+        "mfa": {
+            "BACKEND": "django_redis.cache.RedisCache",
+            "LOCATION": "redis://{REDIS_HOST}:{REDIS_PORT}/8".format(REDIS_HOST=REDIS_HOST, REDIS_PORT=REDIS_PORT),
             'TIMEOUT': 1800,
             "OPTIONS": {
                 "CLIENT_CLASS": "django_redis.client.DefaultClient",

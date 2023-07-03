@@ -27,7 +27,7 @@ Python 2.7.15
 [root@ops ~]# which python
 
 # 安装 virtualenv 及 预装包
-[root@ops ~]# pip install -r /opt/dev-paas/paas-ce/paasagent/etc/build/packages/requirements.txt
+[root@ops ~]# pip install -r /opt/opsany-paas/paas-ce/paasagent/etc/build/packages/requirements.txt
 [root@ops ~]# pip install virtualenv virtualenvwrapper supervisor==3.3.3
 ```
 
@@ -55,7 +55,7 @@ Python 3.6.8
 构建目录及新建用户
 ```
 # 构建app的部署路径，用户可自定义
-[root@ops ~]# export AGENT_ROOT=/opt/dev-paas/paas-agent/
+[root@ops ~]# export AGENT_ROOT=/opt/opsany-paas/paas-agent/
 [root@ops ~]# mkdir -p $AGENT_ROOT
 
 # 创建app进程的执行账户apps

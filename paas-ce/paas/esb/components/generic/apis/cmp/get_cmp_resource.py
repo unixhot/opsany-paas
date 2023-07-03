@@ -1,7 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-Copyright © 2012-2017 Tencent BlueKing. All Rights Reserved. 蓝鲸智云 版权所有
-"""
 import json
 
 from django import forms
@@ -12,37 +9,31 @@ from .toolkit import configs
 from .toolkit.tools import base_api_url
 
 
-class GetAllHostV2(Component):
+class GetCmpResource(Component):
     """
     apiMethod GET
 
     ### 功能描述
 
-    获取所有主机v2(资源授权认证)
+    获取云管相关数据
 
     ### 请求参数
     {{ common_args_desc }}
 
-    #### 接口参数
 
     | 字段    | 类型     | 必选   | 描述       |
     | ----- | ------ | ---- | -------- |
-    | model_code | str | 否   | 模型code |
-    | model_code_list | str | 否   | "主机模型code" |
-    | search_type | str | 否   | 筛选字段 |
-    | search_data | str | 否   | 筛选数据 |
+    | resource_type | string | 是  | 资源类型 |
 
     ### 返回结果示例
 
     ```python
     {
         "code": 200,
-        "apicode": 20007,
+        "apicode": 20012,
         "result": true,
         "request_id": xxxxxxxxxxxxxxxxxxxxxxxx,
-        "message": "相关信息获取成功",
-        "data": {
-        }
+        "message": "获取相关信息成功"
     }
     ```
     """
@@ -52,14 +43,11 @@ class GetAllHostV2(Component):
 
     # Form处理参数校验
     class Form(BaseComponentForm):
-        model_code = forms.Field()
-        model_code_list = forms.Field(required=False)
-        search_type = forms.Field(required=False)
-        search_data = forms.Field(required=False)
+        resource_type = forms.CharField(required=True)
 
         # clean方法返回的数据可通过组件的form_data属性获取
         def clean(self):
-            return self.get_cleaned_data_when_exist(keys=['model_code', 'search_type', 'search_data', 'model_code_list'])
+            return self.get_cleaned_data_when_exist(keys=["resource_type"])
 
     # 组件处理入口
     def handle(self):
@@ -72,7 +60,7 @@ class GetAllHostV2(Component):
         # 请求系统接口
         response = self.outgoing.http_client.get(
             host=configs.host,
-            path='{}get-all-host-v2/'.format(base_api_url),
+            path='{}get-resource-for-cmdb/'.format(base_api_url),
             params=params,
             data=None,
             cookies=self.request.wsgi_request.COOKIES,
@@ -86,7 +74,7 @@ class GetAllHostV2(Component):
                 'api_code': response['successcode'],
                 'message': response['message'],
                 'result': True,
-                'data': response['data'],       # 在这里处理返回的数据，可以处理让用户不想看到的内容
+                'data': response.get("data", None),
             }
         else:
             result = {

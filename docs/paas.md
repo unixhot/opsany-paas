@@ -1,10 +1,12 @@
-# 开发环境部署文档
+# 本地开发环境部署文档
+
+本文档适合开发者在本地开发主机部署开发环境，有一些共享服务需要部署在专用的开发环境主机。
 
 ## 系统要求
 
 - 数据库: MySQL、MongoDB、Redis、Elasticsearch
 - 消息队列：RabbitMQ、Redis
-- Python版本: python2.7 (务必使用python2.7, 推荐2.7.15)
+- Python版本: python2.7 (务必使用python2.7, 推荐2.7.15，目前PaaS采用Python2.7编写)
 
 1. 部署说明
 

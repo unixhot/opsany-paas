@@ -1,36 +1,43 @@
 # StackStorm in Docker Compose
 
-## 部署ST2
+1. 准备安装包 
 
-1. 配置ST2
+```
+# cd /opt/opsany-paas/install/
+# cp -r opsany-st2/ /opt/opsany/
+# cd /opt/opsany/opsany-st2/
+```
 
-请根据实际情况修改Redis、RabbitMQ、MongoDB配置。
+2. 安装docker-compose
+```
+yum install -y docker-compose
+```
+
+3. 配置st2
+
+可以使用OpsAny已经部署的RabbitMQ、Redis和MongoDB，请修改为正确的地址和用户名与密码。
 
 ```
 vim files/st2.docker.conf
-[messaging]
-url = amqp://opsany:OpsAny@2020@192.168.56.11:5672
 
+# 修改以下配置，可以配置为OpsAny的RabbitMQ
+[messaging]
+url = amqp://opsany:OpsAny@2020@127.0.0.1:5672/
+
+# 修改以下配置，可以配置为OpsAny的Redis，注意Redis密码不要带@
+[coordination]
+url = redis://:123456.coM@127.0.0.1:6379
+
+#增加下面配置，默认没有。
 [database]
-host = 192.168.56.11
+host = 127.0.0.1
 port = 27017
 db_name = event
 username = event
 password = OpsAny@2020
-
-[coordination]
-url = redis://:OpsAny2020@192.168.56.11:6379
 ```
 
-2. 启动ST2
-
-- 安装docker-compose
-
-```
-# yum install -y docker-compose
-```
-
-- 启动ST2
+4. 启动ST2
 
 ```shell
 export ST2_VERSION="3.8.0"
@@ -39,119 +46,41 @@ export ST2_EXPOSE_HTTP="0.0.0.0:8005"
 docker-compose up -d
 ```
 
-3. 测试st2
+5. 测试st2
 
 ```shell
 cd /opt/opsany/opsany-st2/
 docker-compose exec st2client bash  # this gives you access to the st2 command line
 ```
 
-3. 访问ST2
+6. 访问ST2
 Open http://localhost:8005
 
 默认帐号： st2admin/OpsAny@2023
 
-## ST2 日常管理
 
-- 获取ST2 API Key
+### 进行初始化
 
-```shell
-cd /opt/opsany/opsany-st2/
-docker-compose exec st2client st2 login st2admin -p OpsAny@2023
-docker-compose exec st2client st2 apikey create -k -m '{"used_by": "OpsAny"}'
+
+1. 下载OpsAny核心st2的Pack。
+
+> 需在安装stackstorm的服务器上面执行以下命令。切记。
+
+```
+mkdir -p /opt/stackstorm-packs && cd /opt/stackstorm-packs
+git clone https://gitee.com/opsany/opsany_core.git
+git clone https://gitee.com/opsany/opsany_workflow.git
 ```
 
-- 关闭ST2 
+2. 执行初始化
+   
+> 需在安装OpsAny的服务器上执行以下命令。请修改对应的地址和密码,用户名不要修改。
 
-```shell
-cd /opt/opsany/opsany-st2/
-docker-compose down
 ```
-
-
-- 直接运行ST2命令
-
-```shell
-cd /opt/opsany/opsany-st2/
-docker-compose exec st2client st2 <st2 command>
-```
-
-- 进入容器运行ST2命令
-
-```shell
-cd /opt/opsany/opsany-st2/
-docker exec -it opsanyst2_st2client_1 /bin/bash
-```
-
-## Pack Configuration
-
-Pack configs will be in `/opt/stackstorm/configs/$PACKNAME`, which is a docker volume shared between st2api, st2actionrunner, and st2sensorcontainer. You can use the `st2 pack config <packname>` in the st2client container in order to configure a pack.
-
-### Use st2 pack config
-
-```shell
-$ docker-compose exec st2client st2 pack config git
-repositories[0].url: https://github.com/StackStorm/st2-dockerfiles.git
-repositories[0].branch [master]:
-~~~ Would you like to add another item to  "repositories" array / list? [y]: n
----
-Do you want to preview the config in an editor before saving? [y]: n
----
-Do you want me to save it? [y]: y
-+----------+--------------------------------------------------------------+
-| Property | Value                                                        |
-+----------+--------------------------------------------------------------+
-| id       | 5eb3164f566aa824ea88f536                                     |
-| pack     | git                                                          |
-| values   | {                                                            |
-|          |     "repositories": [                                        |
-|          |         {                                                    |
-|          |             "url":                                           |
-|          | "https://github.com/StackStorm/st2-dockerfiles.git",         |
-|          |             "branch": "master"                               |
-|          |         }                                                    |
-|          |     ]                                                        |
-|          | }                                                            |
-+----------+--------------------------------------------------------------+
-```
-
-### Copy a config file into a container
-
-First, find the actual container name of st2api by running `docker-compose ps st2api`.
-
-```shell
-$ docker-compose ps st2api
-      Name                    Command               State    Ports
---------------------------------------------------------------------
-compose_st2api_1   /opt/stackstorm/st2/bin/st ...   Up      9101/tcp
-```
-
-Next, use `docker cp` to copy your file into place.
-
-```shell
-docker cp git.yaml compose_st2api_1:/opt/stackstorm/configs/git.yaml
-```
-
-## Register the pack config
-
-If you used `docker cp` to copy the config in, you will need to manually load that configuration. The st2client service does not need access to the configs directory, as it will talk to st2api.
-
-```shell
-$ docker-compose exec st2client st2 run packs.load packs=git register=configs
-.
-id: 5eb3171c566aa824ea88f538
-action.ref: packs.load
-context.user: st2admin
-parameters:
-  packs:
-  - git
-  register: configs
-status: succeeded
-start_timestamp: Wed, 06 May 2020 19:59:24 UTC
-end_timestamp: Wed, 06 May 2020 19:59:25 UTC
-result:
-  exit_code: 0
-  result:
-    configs: 1
-  stdout: ''
+cd /opt/opsany-paas/saas/
+python3 init-ce-st2.py --domain https://www.opsany.com --username admin  --password PASSWORD --st2_url https://www.opsany.com:8005  --st2_username st2admin --st2_password ST2_PASSWORD
+[SUCCESS] init devops st2 success.
+Downloading the OpsAny core package is expected to take 60 seconds...
+[SUCCESS] init st2 pack success.
+[SUCCESS] config core pack success.
 ```

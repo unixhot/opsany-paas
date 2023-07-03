@@ -114,7 +114,7 @@ paas_install(){
     docker run -d --restart=always --name opsany-rabbitmq \
     -e RABBITMQ_DEFAULT_USER="$RABBITMQ_DEFAULT_USER" \
     -e RABBITMQ_DEFAULT_PASS="$RABBITMQ_DEFAULT_PASS" \
-    -p 15672:15672 -p 5672:5672 \
+    -p 15672:15672 -p 5672:5672 -p 15692:15692 \
     -v /etc/localtime:/etc/localtime:ro \
     ${PAAS_DOCKER_REG}/rabbitmq:3.8.9-management-alpine
     
@@ -152,7 +152,7 @@ paas_install(){
     -p 4822:4822 \
     -v ${INSTALL_PATH}/uploads/guacamole:/srv/guacamole \
     -v /etc/localtime:/etc/localtime:ro \
-    ${PAAS_DOCKER_REG}/guacd:1.2.0
+    ${PAAS_DOCKER_REG}/guacd:1.5.0
 
     # Grafana
     shell_log "Start Grafana"
@@ -319,7 +319,7 @@ paas_start(){
     -v ${INSTALL_PATH}/conf/settings_production.py.websocket.init:/opt/opsany/websocket/config/__init__.py \
     -v /usr/share/zoneinfo:/usr/share/zoneinfo \
     -v /etc/localtime:/etc/localtime:ro \
-    ${PAAS_DOCKER_REG}/opsany-paas-websocket:v3.2.15
+    ${PAAS_DOCKER_REG}/opsany-paas-websocket:v3.2.21
     
     #openresty
     shell_log "Start openresty Service"

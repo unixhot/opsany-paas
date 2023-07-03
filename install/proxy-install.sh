@@ -147,7 +147,7 @@ proxy_start(){
         -v ${INSTALL_PATH}/conf/proxy/invscript_proxy.py:/opt/opsany-proxy/invscript_proxy.py \
         -v ${INSTALL_PATH}/proxy-volume/pki:/opt/opsany/pki \
         -v /etc/localtime:/etc/localtime:ro \
-        ${PAAS_DOCKER_REG}/opsany-proxy:1.2.17
+        ${PAAS_DOCKER_REG}/opsany-proxy:1.2.19
 
     #openresty
     shell_log "======Start openresty Service======"
