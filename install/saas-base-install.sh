@@ -77,7 +77,7 @@ proxy_install(){
         -v ${INSTALL_PATH}/conf/proxy/invscript_proxy.py:/opt/opsany-proxy/invscript_proxy.py \
         -v ${INSTALL_PATH}/proxy-volume/pki:/opt/opsany/pki \
         -v /etc/localtime:/etc/localtime:ro \
-        ${PAAS_DOCKER_REG}/opsany-proxy:1.2.20
+        ${PAAS_DOCKER_REG}/opsany-proxy:1.2.21
 }
 
 # SaaS DB Initialize
