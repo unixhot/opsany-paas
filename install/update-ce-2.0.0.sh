@@ -42,6 +42,9 @@ if [ ! -f ./install.config ];then
       shell_error_log "Please Change Directory to ${INSTALL_PATH}/install"
       exit
 else
+    echo 'MYSQL_SERVER_PORT="3306"' >> install.config
+    echo 'MONGO_SERVER_PORT="27017"' >> install.config
+    echo 'REDIS_SERVER_PORT="6379"' >> install.config
     grep '^[A-Z]' install.config > install.env
     source ./install.env && rm -f install.env
     if [ -z "$ADMIN_PASSWORD" ];then
@@ -53,10 +56,6 @@ fi
 update_init(){
     shell_log "======Update init======"
     #SaaS Log Directory
-    echo 'MYSQL_SERVER_PORT="3306"' >> install.config
-    echo 'MONGO_SERVER_PORT="27017"' >> install.config
-    echo 'REDIS_SERVER_PORT="6379"' >> install.config
-
     mkdir -p ${INSTALL_PATH}/logs/{rbac,workbench,cmdb,control,job,monitor,cmp,bastion,dashboard,devops}
     /bin/cp -r conf/opsany-saas/ ${INSTALL_PATH}/conf/
     echo 'a5168d38-fc09-11ea-a87d-00163e105ceb' > ${INSTALL_PATH}/conf/.rbac_secret_key
@@ -100,9 +99,11 @@ saas_esb_update(){
     ${PAAS_DOCKER_REG}/opsany-paas-esb:v3.2.7
 }
 
-saas_websocket_udpate(){
+saas_websocket_update(){
     shell_log "======Update Websocket======"
     BASTION_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.bastion_secret_key)
+    /bin/cp conf/settings_production.py.websocket ${INSTALL_PATH}/conf/
+    /bin/cp conf/settings_production.py.websocket.init ${INSTALL_PATH}/conf/
     sed -i "s/BASTION_SECRET_KEY/${BASTION_SECRET_KEY}/g" ${INSTALL_PATH}/conf/settings_production.py.websocket.init
     sed -i "s/WEBSOCKET_GUACD_HOST/${WEBSOCKET_GUACD_HOST}/g" ${INSTALL_PATH}/conf/settings_production.py.websocket
     sed -i "s/REDIS_SERVER_IP/${REDIS_SERVER_IP}/g" ${INSTALL_PATH}/conf/settings_production.py.websocket
@@ -569,8 +570,20 @@ saas_devops_init(){
 # Main
 main(){
     case "$1" in
+    login)
+        saas_login_update
+        ;;
+    esb)
+        saas_esb_update
+        ;;
+    websocket)
+        saas_websocket_update
+        ;;
 	base)
         update_init
+        saas_login_update
+        saas_esb_update
+        saas_websocket_update
         openresty_update
         proxy_update
 	    saas_rbac_deploy
@@ -593,6 +606,9 @@ main(){
 	    ;;
     all)
         update_init
+        saas_login_update
+        saas_esb_update
+        saas_websocket_update
         openresty_update
         proxy_update
 	    saas_rbac_deploy
