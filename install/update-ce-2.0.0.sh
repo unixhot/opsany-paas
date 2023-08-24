@@ -165,7 +165,7 @@ proxy_update(){
 
     shell_log "======Start Proxy======"
     docker stop opsany-proxy && docker rm opsany-proxy
-    docker stop opsany-paas-proxy && docker rm opsany-paas-proxy
+    #docker stop opsany-paas-proxy && docker rm opsany-paas-proxy
     docker run --restart=always --name opsany-paas-proxy -d \
         -p 4505:4505 -p 4506:4506 -p 8010:8010 \
         -v ${INSTALL_PATH}/logs:${INSTALL_PATH}/logs \
@@ -207,7 +207,7 @@ saas_rbac_deploy(){
 
     # Starter container
     docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-rbac:2.0.0
-    docker stop opsany-saas-ce-rbac && docker rm opsany-saas-ce-rbac
+    #docker stop opsany-saas-ce-rbac && docker rm opsany-saas-ce-rbac
     docker run -d --restart=always --name opsany-saas-ce-rbac \
        -p 7001:80 \
        -v ${INSTALL_PATH}/conf/opsany-saas/rbac/rbac-supervisor.ini:/etc/supervisord.d/rbac.ini \
@@ -245,7 +245,7 @@ saas_workbench_deploy(){
 
     # Starter container
     docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-workbench:2.0.0
-    docker stop opsany-saas-ce-workbench && docker rm opsany-saas-ce-workbench
+    #docker stop opsany-saas-ce-workbench && docker rm opsany-saas-ce-workbench
     docker run -d --restart=always --name opsany-saas-ce-workbench \
        -p 7002:80 \
        -v ${INSTALL_PATH}/conf/opsany-saas/workbench/workbench-supervisor.ini:/etc/supervisord.d/workbench.ini \
@@ -282,7 +282,7 @@ saas_cmdb_deploy(){
 
     # Starter container
     docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-cmdb:2.0.0
-    docker stop opsany-saas-ce-cmdb && docker rm opsany-saas-ce-cmdb
+    #docker stop opsany-saas-ce-cmdb && docker rm opsany-saas-ce-cmdb
     docker run -d --restart=always --name opsany-saas-ce-cmdb \
        -p 7003:80 \
        -v ${INSTALL_PATH}/conf/opsany-saas/cmdb/cmdb-supervisor.ini:/etc/supervisord.d/cmdb.ini \
@@ -316,7 +316,7 @@ saas_control_deploy(){
 
     # Starter container
     docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-control:2.0.0
-    docker stop opsany-saas-ce-control && docker rm opsany-saas-ce-control
+    #docker stop opsany-saas-ce-control && docker rm opsany-saas-ce-control
     docker run -d --restart=always --name opsany-saas-ce-control \
        -p 7004:80 \
        -v ${INSTALL_PATH}/conf/opsany-saas/control/control-supervisor.ini:/etc/supervisord.d/control.ini \
@@ -354,7 +354,7 @@ saas_job_deploy(){
 
     # Starter container
     docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-job:2.0.0
-    docker stop opsany-saas-ce-job && docker rm opsany-saas-ce-job
+    #docker stop opsany-saas-ce-job && docker rm opsany-saas-ce-job
     docker run -d --restart=always --name opsany-saas-ce-job \
        -p 7005:80 \
        -v ${INSTALL_PATH}/conf/opsany-saas/job/job-supervisor.ini:/etc/supervisord.d/job.ini \
@@ -392,7 +392,7 @@ saas_monitor_deploy(){
     
     # Starter container
     docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-monitor:2.0.0
-    docker stop opsany-saas-ce-monitor && docker rm opsany-saas-ce-monitor
+    #docker stop opsany-saas-ce-monitor && docker rm opsany-saas-ce-monitor
     docker run -d --restart=always --name opsany-saas-ce-monitor \
        -p 7006:80 \
        -v ${INSTALL_PATH}/conf/opsany-saas/monitor/monitor-supervisor.ini:/etc/supervisord.d/monitor.ini \
@@ -430,7 +430,7 @@ saas_cmp_deploy(){
     
     # Starter container
     docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-cmp:2.0.0
-    docker stop opsany-saas-ce-cmp && docker rm opsany-saas-ce-cmp
+    #docker stop opsany-saas-ce-cmp && docker rm opsany-saas-ce-cmp
     docker run -d --restart=always --name opsany-saas-ce-cmp \
        -p 7007:80 \
        -v ${INSTALL_PATH}/conf/opsany-saas/cmp/cmp-supervisor.ini:/etc/supervisord.d/cmp.ini \
@@ -465,7 +465,7 @@ saas_bastion_deploy(){
     
     # Starter container
     docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-bastion:2.0.0
-    docker stop opsany-saas-ce-bastion && docker rm opsany-saas-ce-bastion
+    #docker stop opsany-saas-ce-bastion && docker rm opsany-saas-ce-bastion
     docker run -d --restart=always --name opsany-saas-ce-bastion \
        -p 7008:80 \
        -v ${INSTALL_PATH}/conf/opsany-saas/bastion/bastion-supervisor.ini:/etc/supervisord.d/bastion.ini \
@@ -503,7 +503,7 @@ saas_devops_deploy(){
     
     # Starter container   
     docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-devops:2.0.0
-    docker stop opsany-saas-ce-devops && docker rm opsany-saas-ce-devops
+    #docker stop opsany-saas-ce-devops && docker rm opsany-saas-ce-devops
     docker run -d --restart=always --name opsany-saas-ce-devops \
        -p 7009:80 \
        -v ${INSTALL_PATH}/conf/opsany-saas/devops/devops-supervisor.ini:/etc/supervisord.d/devops.ini \
@@ -533,7 +533,7 @@ saas_dashboard_deploy(){
 
     # Starter container
     docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-dashboard:2.0.0
-    docker stop opsany-saas-ce-dashboard && docker rm opsany-saas-ce-dashboard
+    #docker stop opsany-saas-ce-dashboard && docker rm opsany-saas-ce-dashboard
     docker run -d --restart=always --name opsany-saas-ce-dashboard \
        -p 7010:80 \
        -v ${INSTALL_PATH}/conf/opsany-saas/dashboard/dashboard-supervisor.ini:/etc/supervisord.d/dashboard.ini \
