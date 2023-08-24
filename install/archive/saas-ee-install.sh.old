@@ -1,0 +1,176 @@
+#!/bin/bash
+#******************************************
+# Author:       Jason Zhao
+# Email:        zhaoshundong@opsany.com
+# Organization: OpsAny https://www.opsany.com/
+# Description:  OpsAny Enterprise edition SAAS Install Script
+#******************************************
+
+# Data/Time
+CTIME=$(date "+%Y-%m-%d-%H-%M")
+
+# Shell Envionment Variables
+CDIR=$(pwd)
+SHELL_NAME="saas-ee-install.sh"
+SHELL_LOG="${SHELL_NAME}.log"
+ADMIN_PASSWORD=""
+
+# Check SAAS Package
+if [ ! -d ../../opsany-saas-ee ];then
+    echo "======Download the Enterprise SAAS package first======"
+    exit;
+fi
+
+# Install Inspection
+if [ ! -f ./install.config ];then
+      echo "Please Change Directory to ${INSTALL_PATH}/install"
+      exit
+else
+    grep '^[A-Z]' install.config > install.env
+    source ./install.env && rm -f install.env
+    if [ -z "$ADMIN_PASSWORD" ];then
+        source ${INSTALL_PATH}/conf/.passwd_env
+    fi
+fi
+
+#Configuration file write to DB
+saas_add_env(){
+    cd $CDIR 
+    cd ../saas/
+    python3 add_ee_env.py
+}
+
+
+# Shell Log Record
+shell_log(){
+    LOG_INFO=$1
+    echo "----------------$CTIME ${SHELL_NAME} : ${LOG_INFO}----------------"
+    echo "$CTIME ${SHELL_NAME} : ${LOG_INFO}" >> ${SHELL_LOG}
+}
+
+# SaaS DB Initialize
+saas_db_init(){
+    shell_log "======MySQL Initialize======"
+    #deploy
+    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "create database deploy DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
+    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "grant all on deploy.* to devops@'%' identified by "\"${MYSQL_OPSANY_DEVOPS_PASSWORD}\"";"
+    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "grant all on deploy.* to opsany@'%' identified by "\"${MYSQL_OPSANY_PASSWORD}\"";"
+    
+    #pipeline
+    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "create database pipeline DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
+    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "grant all on pipeline.* to devops@'%' identified by "\"${MYSQL_OPSANY_DEVOPS_PASSWORD}\"";"
+    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "grant all on pipeline.* to opsany@'%' identified by "\"${MYSQL_OPSANY_PASSWORD}\"";"
+
+    #repo
+    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "create database repo DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
+    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "grant all on repo.* to devops@'%' identified by "\"${MYSQL_OPSANY_DEVOPS_PASSWORD}\"";"
+    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "grant all on repo.* to opsany@'%' identified by "\"${MYSQL_OPSANY_PASSWORD}\"";"
+
+    #event
+    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "create database event DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
+    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "grant all on event.* to event@'%' identified by "\"${MYSQL_OPSANY_EVENT_PASSWORD}\"";"
+    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "grant all on event.* to opsany@'%' identified by "\"${MYSQL_OPSANY_PASSWORD}\"";" 
+    
+    #auto
+    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "create database auto DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
+    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "grant all on auto.* to auto@'%' identified by "\"${MYSQL_OPSANY_AUTO_PASSWORD}\"";"
+    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "grant all on auto.* to opsany@'%' identified by "\"${MYSQL_OPSANY_PASSWORD}\"";" 
+
+    #k8s
+    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "create database k8s DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
+    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "grant all on k8s.* to k8s@'%' identified by "\"${MYSQL_OPSANY_K8S_PASSWORD}\"";"
+    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "grant all on k8s.* to opsany@'%' identified by "\"${MYSQL_OPSANY_PASSWORD}\"";" 
+
+    #prom
+    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "create database prom DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
+    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "grant all on prom.* to prom@'%' identified by "\"${MYSQL_OPSANY_PROM_PASSWORD}\"";"
+    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "grant all on prom.* to opsany@'%' identified by "\"${MYSQL_OPSANY_PASSWORD}\"";"
+
+    #kbase
+    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "create database kbase DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
+    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "grant all on kbase.* to kbase@'%' identified by "\"${MYSQL_OPSANY_KBASE_PASSWORD}\"";"
+    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "grant all on kbase.* to opsany@'%' identified by "\"${MYSQL_OPSANY_PASSWORD}\"";"
+
+    #log
+    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "create database log DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
+    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "grant all on log.* to log@'%' identified by "\"${MYSQL_OPSANY_LOG_PASSWORD}\"";"
+    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "grant all on log.* to opsany@'%' identified by "\"${MYSQL_OPSANY_PASSWORD}\"";"
+}
+
+ee_esb_init(){
+    shell_log "ESB Initialize"
+    #event
+    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/event/toolkit/configs.py
+    sed -i "s#/t/event#/o/event#g" ${INSTALL_PATH}/esb/apis/event/toolkit/tools.py
+    #k8s
+    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/k8s/toolkit/configs.py
+    sed -i "s#/t/k8s#/o/k8s#g" ${INSTALL_PATH}/esb/apis/k8s/toolkit/tools.py
+    #kbase
+    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/kbase/toolkit/configs.py
+    sed -i "s#/t/kbase#/o/kbase#g" ${INSTALL_PATH}/esb/apis/kbase/toolkit/tools.py
+    #prom
+    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/prom/toolkit/configs.py
+    sed -i "s#/t/prom#/o/prom#g" ${INSTALL_PATH}/esb/apis/prom/toolkit/configs.py
+    #auto
+    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/auto/toolkit/configs.py
+    sed -i "s#/t/auto#/o/auto#g" ${INSTALL_PATH}/esb/apis/auto/toolkit/tools.py
+    #log
+    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/log/toolkit/configs.py
+    sed -i "s#/t/log#/o/log#g" ${INSTALL_PATH}/esb/apis/log/toolkit/tools.py
+}
+
+# SaaS Deploy
+saas_deploy(){
+    cd $CDIR
+    cd ../../opsany-saas-ee/
+    /bin/cp *.tar.gz ../opsany-paas/saas/
+    cd $CDIR
+    cd ../saas/ && ls *.tar.gz
+    if [ $? -ne 0 ];then
+        echo "Please Download SAAS first" && exit
+    fi
+    python3 deploy.py --domain $DOMAIN_NAME --username admin --password $ADMIN_PASSWORD --file_name pipeline-opsany-*.tar.gz
+    python3 deploy.py --domain $DOMAIN_NAME --username admin --password $ADMIN_PASSWORD --file_name deploy-opsany-*.tar.gz
+    #python3 deploy.py --domain $DOMAIN_NAME --username admin --password $ADMIN_PASSWORD --file_name repo-opsany-*.tar.gz
+    python3 deploy.py --domain $DOMAIN_NAME --username admin --password $ADMIN_PASSWORD --file_name auto-opsany-*.tar.gz
+    python3 deploy.py --domain $DOMAIN_NAME --username admin --password $ADMIN_PASSWORD --file_name event-opsany-*.tar.gz
+    python3 deploy.py --domain $DOMAIN_NAME --username admin --password $ADMIN_PASSWORD --file_name k8s-opsany-*.tar.gz
+    python3 deploy.py --domain $DOMAIN_NAME --username admin --password $ADMIN_PASSWORD --file_name prom-opsany-*.tar.gz
+    python3 deploy.py --domain $DOMAIN_NAME --username admin --password $ADMIN_PASSWORD --file_name kbase-opsany-*.tar.gz
+    python3 deploy.py --domain $DOMAIN_NAME --username admin --password $ADMIN_PASSWORD --file_name log-opsany-*.tar.gz
+    #python3 deploy.py --domain $DOMAIN_NAME --username admin --password $ADMIN_PASSWORD --file_name hostsec-opsany-*.tar.gz
+    #python3 deploy.py --domain $DOMAIN_NAME --username admin --password $ADMIN_PASSWORD --file_name redis-opsany-*.tar.gz
+    #python3 deploy.py --domain $DOMAIN_NAME --username admin --password $ADMIN_PASSWORD --file_name mysql-opsany-*.tar.gz
+    #python3 deploy.py --domain $DOMAIN_NAME --username admin --password $ADMIN_PASSWORD --file_name mongodb-opsany-*.tar.gz
+    #python3 deploy.py --domain $DOMAIN_NAME --username admin --password $ADMIN_PASSWORD --file_name host-opsany-*.tar.gz
+
+    python3 sync-user-script.py --domain https://${DOMAIN_NAME} --paas_username admin --paas_password ${ADMIN_PASSWORD} --app_code auto event k8s prom kbase log
+    shell_log "======OpsAny: Make Ops Perfect======"
+
+}
+
+
+ee_saas_init(){
+    shell_log "======OpsAny: Enterprise Edition Init======"
+    #cd $CDIR && cd ../saas/ 
+    #python3 saas-ee-init.py --domain https://${DOMAIN_NAME} --username admin  --password ${ADMIN_PASSWORD} --st2_url https://st2_url/  --st2_username st2admin --st2_password st2_password  
+    python3 saas-ee-init.py --domain https://${DOMAIN_NAME} --username admin  --password ${ADMIN_PASSWORD} --init_type menu,nav,temp
+}
+
+# Main
+main(){
+    case "$1" in
+	install)
+        saas_add_env
+        saas_db_init
+        ee_esb_init
+        saas_deploy
+        ee_saas_init
+		;;
+	help|*)
+		echo $"Usage: $0 {install|help}"
+	        ;;
+    esac
+}
+
+main $1

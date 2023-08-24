@@ -38,7 +38,7 @@ spec:
             - name: opsany-paas-esb-logs
               mountPath: /opt/opsany/logs
             - name: opsany-paas-esb-code
-              mountPath: /opt/opsany/paas/esb/components/generic/
+              mountPath: /opt/opsany/paas/esb/components/generic/apis/
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http

@@ -73,3 +73,6 @@ PILLAR_ROOT = os.getenv("PILLAR_ROOT", "/srv/pillar/")
 # 用于Agent从Proxy获取文件
 PROXY_URL = "http://local-proxy.opsany.com:8012"
 PROXY_PUBLIC_URL = "http://public-proxy.opsany.com:8012"
+
+# 告警规则路径---该路径需要挂载到与Prometheus配置文件规则挂载路径一致，通过在Proxy目录写入规则方式使Prometheus能读取到该告警目录
+PROM_ALERT_RULE_PATH = os.getenv("PROM_ALERT_RULE_PATH" ,"/opt/opsany/uploads/prometheus-config/rules")

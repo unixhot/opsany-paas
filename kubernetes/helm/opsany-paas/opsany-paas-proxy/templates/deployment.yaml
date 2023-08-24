@@ -1,16 +1,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "opsany-proxy.fullname" . }}
+  name: {{ include "opsany-paas-proxy.fullname" . }}
   labels:
-    {{- include "opsany-proxy.labels" . | nindent 4 }}
+    {{- include "opsany-paas-proxy.labels" . | nindent 4 }}
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
   {{- end }}
   selector:
     matchLabels:
-      {{- include "opsany-proxy.selectorLabels" . | nindent 6 }}
+      {{- include "opsany-paas-proxy.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -18,13 +18,12 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "opsany-proxy.selectorLabels" . | nindent 8 }}
+        {{- include "opsany-paas-proxy.selectorLabels" . | nindent 8 }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "opsany-proxy.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
@@ -32,19 +31,30 @@ spec:
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          volumeMounts:
+            - name: opsany-paas-proxy-config
+              mountPath: /opt/opsany-proxy/conf/prod.py
+              subPath: settings_production.py.proxy
+            - name: opsany-paas-proxy-ansible
+              mountPath: /opt/opsany-proxy/invscript_proxy.py
+              subPath: invscript_proxy.py
+            - name: opsany-paas-proxy-logs
+              mountPath: /opt/opsany/logs
+            - name: opsany-paas-uploads
+              mountPath: /opt/opsany/uploads
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
-              containerPort: 80
+              containerPort: 8001
               protocol: TCP
-          livenessProbe:
-            httpGet:
-              path: /
-              port: http
-          readinessProbe:
-            httpGet:
-              path: /
-              port: http
+              #          livenessProbe:
+              # httpGet:
+              #path: /
+              #port: http
+              #readinessProbe:
+              #httpGet:
+              #path: /
+              #port: http
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
@@ -59,3 +69,21 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      volumes:
+        - name: opsany-paas-proxy-config
+          secret:
+            secretName: opsany-paas-proxy-config
+            items:
+            - key: settings_production.py.proxy
+              path: prod.py
+        - name: opsany-paas-proxy-ansible
+          secret:
+            secretName: opsany-paas-proxy-ansible
+            items:
+            - key: invscript_proxy.py
+              path: invscript_proxy.py
+        - name: opsany-paas-proxy-logs
+          persistentVolumeClaim:
+            claimName: opsany-paas-proxy-logs
+          persistentVolumeClaim:
+            claimName: opsany-paas-uploads

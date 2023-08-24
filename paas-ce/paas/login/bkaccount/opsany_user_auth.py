@@ -6,17 +6,20 @@ import json
 
 class OpsAnyRbacUserAuth(object):
     APP_CODE = "rbac"
-    APP_SECRET = "8a628f06-ed28-4d60-8ce8-458ae52efb6a"
+    APP_SECRET = settings.RBAC_APP_SECRET
     BK_URL = "{}://{}".format(settings.HTTP_SCHEMA, settings.PAAS_INNER_DOMAIN)
     ACCESS_TOKEN = "opsany-esb-auth-token-9e8083137204"
 
-    def __init__(self, username="", password="", code="", app_id="", domain="", ad_domain=""):
+    def __init__(self, username="", password="", code="", app_id="", domain="", ad_domain="", sso_code="", sso_sign="", auth_type=""):
         self.username = username
         self.password = password
         self.code = code
         self.app_id = app_id
         self.domain = domain
         self.ad_domain = ad_domain
+        self.sso_code = sso_code
+        self.sso_sign = sso_sign
+        self.auth_type = auth_type
 
     def check_users(self):
         API = "/api/c/compapi/rbac/user_auth/"
@@ -30,7 +33,10 @@ class OpsAnyRbacUserAuth(object):
             "code": self.code,
             "appid": self.app_id,
             "domain": self.domain,
-            "ad_domain": self.ad_domain
+            "ad_domain": self.ad_domain,
+            "sso_code": self.sso_code,
+            "sso_sign": self.sso_sign,
+            "auth_type": self.auth_type,
         }
         res = requests.post(url, json=req, headers={"Cookie": "bk_token=None"}, verify=False)
         data = res.json().get("data")

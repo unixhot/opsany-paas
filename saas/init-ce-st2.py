@@ -244,6 +244,33 @@ class OpsAnyApi:
         except Exception as e:
             return False, str(e)
 
+    def init_control_st2(self):
+        """init devops st2 server"""
+        try:
+            CONTROL_API = "/o/control//api/control/v0_1/stackstorm/"
+            CONTRO_URL = self.paas_domain + CONTROL_API
+            metadata = {"name": "OpsAny-Control", "used_by": "OpsAny-Control",
+                        "why": "OpsAny Control StackStorm Service Login header (st2-api-key) Can Not Delete."}
+            status, api_token = self.st2_api.create_api_key(metadata=metadata, enabled=True)
+            # status, api_token = True, {"key": "NzliYTgyMzdlNjM0MjcyYTBiMzY4OWMwMDM2ODdhYTExMDc5MTI3ZmJmMDMzYmQzZjQ4YjRhZTgxYzhlY2YzYg1"}
+            if not status:
+                return False, api_token
+            data = {
+                "url": self.st2_url,
+                "api_key": api_token.get("key", ""),
+            }
+            response = self.session.put(url=CONTRO_URL, data=json.dumps(data), verify=False)
+            if response.status_code == 200:
+                return True, response.json()
+            else:
+                res = {"code": 500, "message": "error", "data": response.status_code}
+            if res.get("code") == 200:
+                return True, res.get("data") or res.get("message")
+            else:
+                return False, res.get("data") or res.get("errors") or res.get("message")
+        except Exception as e:
+            return False, str(e)
+
     def init_st2_pack(self, opsany_core_pack_source_dict, st2_pack_install_type="file"):
         """install opsany_core and opsany_workflow"""
         if st2_pack_install_type in ["git", "gitee"]:
@@ -307,7 +334,8 @@ def start(paas_domain, username, password, st2_url, st2_username, st2_password, 
     access_token = "opsany-esb-auth-token-9e8083137204"
 
     # 1. 初始化应用平台初始化StackStorm服务
-    st2_status, st2_message = run_obj.init_devops_st2()
+    # st2_status, st2_message = run_obj.init_devops_st2()
+    st2_status, st2_message = run_obj.init_control_st2()
     print("[SUCCESS] init devops st2 success.") if st2_status else print(
         "[ERROR] init devops st2 error, error info: {}".format(str(st2_message)))
 

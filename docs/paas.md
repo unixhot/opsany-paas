@@ -104,7 +104,56 @@ requirepass 123456.coM
 [root@linux-node1 ~]# systemctl enable --now redis
 ```
 
-6. 克隆代码
+6. 部署RabbitMQ消息队列
+
+- 安装RabbitMQ
+
+```
+[root@linux-node1 ~]# yum install -y rabbitmq-server
+```
+
+- 设置开启启动，并启动RabbitMQ
+
+```
+[root@linux-node1 ~]# systemctl enable rabbitmq-server.service
+[root@linux-node1 ~]# systemctl start rabbitmq-server.service
+```
+
+- 添加用户。
+
+创建一个opsany用户，密码为123456.coM。注意实际使用中进行密码修改，这里设置的用户名和密码在后面配置OpenStack组件的时候需要在配置文件里面设置。
+```
+[root@linux-node1 ~]# rabbitmqctl add_user opsany 123456.coM
+Creating user "opsany" ...
+```
+
+- 给刚才创建的openstack用户，创建权限。
+
+```
+[root@linux-node1 ~]# rabbitmqctl set_permissions opsany ".*" ".*" ".*"
+Setting permissions for user "opsany" in vhost "/" ...
+```
+
+- 启用Web监控插件
+
+RabbitMQ自带了一个Web监控插件，可以通过Web界面监控RabbitMQ的运行状态。同时也提供了HTTP API。可以方便的集成到Nagios、Zabbix等监控平台上。
+Web监控插件启用后就可以通过http://IP:15672/来访问web管理界面。
+
+```
+[root@linux-node1 ~]# rabbitmq-plugins list
+[root@linux-node1 ~]# rabbitmq-plugins enable rabbitmq_management
+[root@linux-node1 ~]# systemctl restart rabbitmq-server
+（注：如果主机名不能解析，rabbitMQ将无法启动。在生产应用时建议设置为集群模式，建议三个节点。1个硬盘节点、两个内存节点。）
+[root@linux-node1 ~]# lsof -i:15672
+COMMAND  PID     USER   FD   TYPE DEVICE SIZE/OFF NODE NAME
+beam    2620 rabbitmq   15u  IPv4  16805      0t0  TCP *:15672 (LISTEN)
+```
+默认情况下RabbitMQ服务使用5672端口，而Web管理插件监听15672端口，直接在浏览器输入http://192.168.56.11:15672
+
+> RabbitMQ默认的用户名和密码均为guest。之前创建的openstack的用户是无法通过Web界面登录的。
+
+
+7. 克隆代码
 
 ```
 [root@linux-node1 ~]# cd /opt

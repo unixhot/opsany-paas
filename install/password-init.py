@@ -46,7 +46,7 @@ class BkApi:
         resp = self.session.post(URL, data=login_form, verify=False)
         if resp.status_code == 200 and resp.json().get("code") == 200:
             return True, ""
-        return False, ""
+        return False, resp.json().get("message")
 
     def set_new_password(self, password):
         API = "/login/accounts/user/password/"
@@ -88,7 +88,7 @@ if __name__ == '__main__':
     verify_code = options.verify_code if options.verify_code else ""
     bk_api = BkApi(paas_domain, username, password)
     status, res = bk_api.login(verify_code)
-    print(status, res)
+    # print(status, res)
     if status:
         res, status = bk_api.set_new_password(new_password)
         if status:
@@ -96,4 +96,4 @@ if __name__ == '__main__':
         else:
             print("Set new password error, error info: {}".format(res))
     else:
-        print("Login error, please check your username or password")
+        print("Login ERROR: {}".format(res))

@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "opsany-saas-cmp.fullname" . }}
+  labels:
+    {{- include "opsany-saas-cmp.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "opsany-saas-cmp.selectorLabels" . | nindent 4 }}

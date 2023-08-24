@@ -33,7 +33,7 @@ service:
 
 volume:
   path: /data/k8s-nfs/opsany-logs
-  server: 10.60.37.218
+  server: 192.168.56.11
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious

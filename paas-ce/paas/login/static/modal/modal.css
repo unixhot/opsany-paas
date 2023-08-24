@@ -187,7 +187,6 @@ button {
  align-items:center;
  justify-content:space-between;
  margin-top:15px;
- cursor:pointer;
 }
 .qywxbox>div{
  display:flex;
@@ -214,28 +213,34 @@ button {
 }
 
 
-.oauth_box{
+.oauth_box,.sso_box{
   position:relative;
 }
-.oauth_box:hover>.oauth_box_content{
+.oauth_box:hover>.auth_select_box{
 	opacity:1;
 	z-index:10;
 	top:20px;
 }
-.oauth_box_content{
+.sso_box:hover>.auth_select_box{
+	opacity:1;
+	z-index:10;
+	top:20px;
+}
+.auth_select_box{
 	position:absolute;
 	top:10px;
 	left:0;
 	box-shadow:0px 0px 6px 0px rgba(12, 34, 65, 0.2);
 	background:#ffffff;
-	width:120px;
+	min-width:100px;
+	max-width:130px;
 	z-index:-10;
 	border-radius:2px;
 	transition:all .2s;
 	opacity:0;
 	
 }
-.oauth_box_content>div{
+.auth_select_box>div{
 	padding:5px 10px;
 	transition:all .3s;
 	display:flex;
@@ -246,24 +251,24 @@ button {
 	text-overflow: ellipsis;	
 	color:#333333;
 }
-.oauth_box_content>div>img{
+.auth_select_box>div>img{
 	width:20px;
 	padding-right:3px;
 }
-.oauth_box_content>div>span{
+.auth_select_box>div>span{
 	overflow: hidden;
 	white-space: nowrap;
 	text-overflow: ellipsis;	
 }
-.oauth_box_content>div:hover{
+.auth_select_box>div:hover{
 	background:#cce3d5;
 	color:#0ba360;
 }
-.oauth_box_content>.disabled_auth:hover{
+.auth_select_box>.disabled_auth:hover{
 	color:#888888;
 	cursor:not-allowed;
 	background:#ffffff;
 }
-.oauth_box_content>.disabled_auth{
+.auth_select_box>.disabled_auth{
 	color:#888888;
 }

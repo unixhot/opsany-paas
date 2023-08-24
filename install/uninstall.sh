@@ -43,21 +43,37 @@ else
 fi
 
 uninstall_paas(){
-    echo "===Stop all containers==="
-    docker stop $(docker ps -qa)
-
-    echo "===Remove all containers==="
-    docker rm -f $(docker ps -qa)
-    docker volume rm $(docker volume ls -q)
-    
-    echo "===Remove Install file==="
+    echo "===Stop and remove PaaS Service==="
+    docker stop opsany-paas-paas && docker rm -f opsany-paas-paas
+    docker stop opsany-paas-login && docker rm -f opsany-paas-login
+    docker stop opsany-paas-esb && docker rm -f opsany-paas-esb
+    docker stop opsany-paas-appengine && docker rm -f opsany-paas-appengine
+    #docker stop opsany-paas-paasagent && docker rm -f opsany-paas-paasagent
+    docker stop opsany-base-openresty && docker rm -f opsany-base-openresty
+    docker stop opsany-paas-websocket && docker rm -f opsany-paas-websocket
+    docker stop opsany-base-mysql && docker rm -f opsany-base-mysql
+    docker stop opsany-base-redis && docker rm -f opsany-base-redis
+    #docker stop opsany-base-rabbitmq && docker rm -f opsany-base-rabbitmq
+    docker stop opsany-base-guacd && docker rm -f opsany-base-guacd
+    docker stop opsany-base-mongodb && docker rm -f opsany-base-mongodb
     rm -rf ${INSTALL_PATH}
     rm -f /opt/opsany-paas/saas/*.tar.gz
-    
-    if [ -f /etc/redhat-release ];then
-      echo "===Autl remove the configuration content from /etc/rc.local==="
-      sed -i '/saas-restart/d' /etc/rc.local
-    fi
+}
+
+uninstall_saas(){
+    echo "===Stop and remove SaaS Service==="
+    docker stop opsany-paas-proxy && docker rm -f opsany-paas-proxy
+    docker stop opsany-saas-ce-rbac && docker rm -f opsany-saas-ce-rbac
+    docker stop opsany-saas-ce-workbench && docker rm -f opsany-saas-ce-workbench
+    docker stop opsany-saas-ce-cmdb && docker rm -f opsany-saas-ce-cmdb 
+    docker stop opsany-saas-ce-control && docker rm -f opsany-saas-ce-control 
+    docker stop opsany-saas-ce-job && docker rm -f opsany-saas-ce-job
+    docker stop opsany-saas-ce-cmp && docker rm -f opsany-saas-ce-cmp
+    docker stop opsany-saas-ce-bastion && docker rm -f opsany-saas-ce-bastion 
+    docker stop opsany-saas-ce-dashboard && docker rm -f opsany-saas-ce-dashboard
+    docker stop opsany-saas-ce-monitor && docker rm -f opsany-saas-ce-monitor
+    docker stop opsany-base-grafana && docker rm -f opsany-base-grafana
+    docker stop opsany-saas-ce-devops && docker rm -f opsany-saas-ce-devops
 }
 
 
@@ -66,9 +82,16 @@ main(){
     case "$1" in
 	uninstall)
         uninstall_paas
+        uninstall_saas
 		;;
+    paas)
+        uninstall_paas
+        ;;
+    saas)
+        uninstall_saas
+        ;;
 	help|*)
-		echo $"Usage: $0 {uninstall|help}"
+		echo $"Usage: $0 {uninstall|saas|paas|help}"
 	        ;;
     esac
 }

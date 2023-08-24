@@ -17,7 +17,7 @@ DATABASES = {
         'NAME': 'opsany_paas',
         'USER': 'opsany',
         'PASSWORD': 'OpsAny@2023',
-        'HOST': 'opsany-mysql',
+        'HOST': 'opsany-base-mysql',
         'PORT': '3306',
     }
 }

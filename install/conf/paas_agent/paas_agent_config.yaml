@@ -3,7 +3,7 @@ auth:
   token: BK_PAASAGENT_TOKEN
 settings:
   CONTROLLER_SERVER_URL: 'http://LOCAL_IP:8000' # App Engine地址
-  PAAS_SERVER_URL: 'https://LOCAL_IP' # App Engine地址
+  PAAS_SERVER_URL: 'http://LOCAL_IP:8001' # PaaS地址，用于下载SaaS包。
   BASE_PATH: '/opt/opsany/paas-agent/' # eg. /data/paas
   BASE_APP_PATH: '/opt/opsany/paas-agent'
   USE_PYPI: 'true'

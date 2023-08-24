@@ -16,7 +16,7 @@ DB_HOST = "LOCALHOST"
 DB_NAME = "opsany_proxy"
 DB_PASSWORD = "PROXY_PASSWORD"
 DB_USERNAME = "opsany"
-SECRET_KEY = "099f6e6f-9ad8-43d7-b487-7f655519598d"
+SECRET_KEY = "CONTROL_SECRET_KEY"
 
 
 class PasswordEncryption(object):

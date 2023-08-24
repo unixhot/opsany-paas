@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "opsany-saas-job.fullname" . }}-test-connection"
+  labels:
+    {{- include "opsany-saas-job.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: ['{{ include "opsany-saas-job.fullname" . }}:{{ .Values.service.port }}']
+  restartPolicy: Never

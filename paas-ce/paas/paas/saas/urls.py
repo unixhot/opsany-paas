@@ -58,4 +58,5 @@ urlpatterns = [
     # saas/upload,
     url(r'^release/online/(?P<saas_app_version_id>\d+)/$', views.OnlineView.as_view()),
     url(r'^upload/(?P<app_code>' + SAAS_CODE_REGEX + ')/$', views.UploadView.as_view()),
+    url(r'^register-online-saas-app/$', views.UploadAndRegisterView.as_view()),
 ]

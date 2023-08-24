@@ -1024,7 +1024,7 @@ CREATE TABLE `esb_function_controller` (
 
 LOCK TABLES `esb_function_controller` WRITE;
 /*!40000 ALTER TABLE `esb_function_controller` DISABLE KEYS */;
-INSERT INTO `esb_function_controller` VALUES (1,'user_auth::skip_user_auth','是否跳过用户身份验证',1,'bk_paas_log_alert','','2020-11-06 08:42:55');
+INSERT INTO `esb_function_controller` VALUES (1,'user_auth::skip_user_auth','是否跳过用户身份验证',1,'bk_paas_log_alert,dashboard,bastion,devops,cmp,rbac,workbench,monitor,job,control,cmdb,proxy,websocket,login,esb,paas,log,kbase,k8s,prom,dashboard,pipeline,deploy,bastion,auto,event,','','2020-11-06 08:42:55');
 /*!40000 ALTER TABLE `esb_function_controller` ENABLE KEYS */;
 UNLOCK TABLES;
 

@@ -112,9 +112,13 @@
 <!--	                            	<div title="飞书登录暂未开放" class="qywxbox_disabled" data-auth_type="5">-->
 <!--	                            		<img src="{{STATIC_URL}}img/feishu.png" alt="飞书" data-auth_type="5" />  <span data-auth_type="5">飞书</span>-->
 <!--	                            	</div>-->
-	                            	<div title="OAuth登录" class="qywxbox_enable oauth_box" data-auth_type="6">
-	                            		<img src="{{STATIC_URL}}img/oauth.png" alt="OAuth" data-auth_type="6" />  <span data-auth_type="5" i18n="OAuth">OAuth登录</span>
-	                            		<div class="oauth_box_content" ></div>
+	                            	<div title="SSO" class="qywxbox_enable sso_box" data-auth_type="8">
+	                            		<img src="{{STATIC_URL}}img/SSO.png" alt="SSO" data-auth_type="8" />  <span data-auth_type="8" i18n="SSO">SSO</span>
+	                            		<div class="sso_box_content auth_select_box" ></div>
+	                            	</div>
+	                            	<div title="OAuth" class="qywxbox_enable oauth_box" data-auth_type="6">
+	                            		<img src="{{STATIC_URL}}img/oauth.png" alt="OAuth" data-auth_type="6" />  <span data-auth_type="6" i18n="OAuth">OAuth</span>
+	                            		<div class="oauth_box_content auth_select_box" ></div>
 	                            	</div>
 	                            </div>
 	                        </div>
@@ -185,10 +189,14 @@
 <!--	                            	</div>-->
 <!--	                            	<div title="飞书登录暂未开放" class="qywxbox_disabled" data-auth_type="5">-->
 <!--	                            		<img src="{{STATIC_URL}}img/feishu.png" alt="飞书" data-auth_type="5" />  <span data-auth_type="5">飞书</span>-->
-<!--	                            	</div>-->
-	                            	<div title="OAuth登录" class="qywxbox_enable oauth_box" data-auth_type="6" >
-	                            		<img src="{{STATIC_URL}}img/oauth.png" alt="OAuth" data-auth_type="6" />  <span data-auth_type="5"  i18n="OAuth">OAuth登录</span>
-	                            		<div class="oauth_box_content" ></div>
+<!--	                            	</div>-->	                  
+	                            	<div title="SSO" class="qywxbox_enable sso_box" data-auth_type="8">
+	                            		<img src="{{STATIC_URL}}img/SSO.png" alt="SSO" data-auth_type="8" />  <span data-auth_type="8" i18n="SSO">SSO</span>
+	                            		<div class="sso_box_content auth_select_box" ></div>
+	                            	</div>
+	                            	<div title="OAuth" class="qywxbox_enable oauth_box" data-auth_type="6">
+	                            		<img src="{{STATIC_URL}}img/oauth.png" alt="OAuth" data-auth_type="6" />  <span data-auth_type="6" i18n="OAuth">OAuth</span>
+	                            		<div class="oauth_box_content auth_select_box" ></div>
 	                            	</div>
 	                            </div>
 	                        </div>
@@ -370,6 +378,7 @@
 <script>
 	let key = $('#tab_key').val() || 0
 	let OAuthList = []
+	let SSOList =[]
 	//控制展示和隐藏哪个tab里面的内容
 	function showTabItem(){
 		for(let item of showItem){
@@ -414,10 +423,10 @@
 				let html = ''
 				res.data.data.forEach(item=>{
 					let origin = window.location.origin
-					html+=`<div title="${item.enable?item.name:'当前认证未启用'}" class="${item.enable?'auth_item':'disabled_auth'}" data-key="${item.id}"> <img src="${origin}/${item.auth_icon.url}"></img> <span>${item.name}</span></div>`
+					html+=`<div title="${item.enable?item.name:'当前认证未启用'}" class="${item.enable?'oauth_auth_item':'disabled_auth'}" data-key="${item.id}"> <img src="${origin}/${item.auth_icon.url}"></img> <span>${item.name}</span></div>`
 				})
 				$('.oauth_box_content').html(html)
-				$('.auth_item').on('click',function(e){
+				$('.oauth_auth_item').on('click',function(e){
 			    		let key = $(e.currentTarget).data('key')
 			    		const activeAuth = OAuthList.find(item=>item.id == key)
 			    		const url = activeAuth.auth_login_url+`?response_type=accessCode&client_id=${activeAuth.app_id}&redirect_uri=${window.location.origin}${window.location.pathname}?domain=${activeAuth.domain}%26auth_type=6`
@@ -439,6 +448,48 @@
         error:function(e){
         	$('.oauth_box').attr('title','暂未开启OAuth登录')
         	$('.oauth_box').addClass('qywxbox_disabled')
+        },
+    });
+   }
+
+   //获取SSO列表
+   function getSSOList(){
+   	$.ajax({
+        url: "accounts/get_auth_config/?auth_type=8",
+        type: "get",
+        dataType: "json",
+        success: function (res) {
+		if(res.code == '00' && res.result){
+			SSOList = res.data.data || []
+			if(res.data.data.length){
+				let html = ''
+				res.data.data.forEach(item=>{
+					let origin = window.location.origin
+					html+=`<div title="${item.enable?item.name:'当前认证未启用'}" class="${item.enable?'sso_auth_item':'disabled_auth'}" data-key="${item.id}"> <img src="${origin}/${item.auth_icon.url}"></img> <span>${item.name}</span></div>`
+				})
+				$('.sso_box_content').html(html)
+				$('.sso_auth_item').on('click',function(e){
+			    		let key = $(e.currentTarget).data('key')
+			    		const activeAuth = SSOList.find(item=>item.id == key)
+			    		const url = activeAuth.auth_login_url+`?callback=${window.location.origin}${window.location.pathname}?domain=${activeAuth.domain}%26auth_type=8`
+			    		window.location.href=url
+			    	})
+				
+			}
+
+			else {
+				$('.sso_box').attr('title','暂未开启SSO登录')
+				$('.sso_box').addClass('qywxbox_disabled')
+				
+			}
+		}else{
+			$('.sso_box').attr('title','暂未开启SSO登录')
+			$('.sso_box').addClass('qywxbox_disabled')
+		}
+        },
+        error:function(e){
+        	$('.sso_box').attr('title','暂未开启SSO登录')
+        	$('.sso_box').addClass('qywxbox_disabled')
         },
     });
    }
@@ -501,6 +552,7 @@
 
     showTabItem()
     getOAuthList()
+    getSSOList()
     $('.login-form-title-box-btn').click(e=>{
 		$('.login-form-title-box-btn').each((index,item)=>{
 			$(item).removeClass('login-form-title-box-btn-check')

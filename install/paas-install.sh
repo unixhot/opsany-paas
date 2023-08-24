@@ -96,10 +96,10 @@ opsany_init(){
 
     ## init for esb
     /bin/cp -r ../paas-ce/paas/esb/components/generic/apis/ ${INSTALL_PATH}/esb/
+    
     ## init for saltstack 
     /bin/cp -a ${CDIR}/../install/conf/salt ${INSTALL_PATH}/proxy-volume/etc/
     /bin/cp -a ${CDIR}/../install/conf/salt/certs/* ${INSTALL_PATH}/proxy-volume/certs/
-    /bin/cp saas-restart.sh $INSTALL_PATH/
 
     # init for redis
     /bin/cp ${CDIR}/../install/conf/redis/redis.conf ${INSTALL_PATH}/redis-volume/
@@ -107,79 +107,6 @@ opsany_init(){
     shell_log "End: Install Init"
 }
 
-# PaaS Share Service Start
-paas_install(){
-    # RabbitMQ
-    shell_log "Start RabbitMQ"
-    docker run -d --restart=always --name opsany-rabbitmq \
-    -e RABBITMQ_DEFAULT_USER="$RABBITMQ_DEFAULT_USER" \
-    -e RABBITMQ_DEFAULT_PASS="$RABBITMQ_DEFAULT_PASS" \
-    -p 15672:15672 -p 5672:5672 -p 15692:15692 \
-    -v /etc/localtime:/etc/localtime:ro \
-    ${PAAS_DOCKER_REG}/rabbitmq:3.8.9-management-alpine
-    
-    # Redis
-    shell_log "Start Redis"
-    docker run -d --restart=always --name opsany-redis \
-    -p 6379:6379 -v ${INSTALL_PATH}/redis-volume:/data \
-    -v ${INSTALL_PATH}/redis-volume/redis.conf:/data/redis.conf \
-    -v /etc/localtime:/etc/localtime:ro \
-    ${PAAS_DOCKER_REG}/redis:6.0.9-alpine redis-server /data/redis.conf
-    
-    # MySQL
-    shell_log "Start MySQL"
-    docker run -d --restart=always --name opsany-mysql \
-    -e MYSQL_ROOT_PASSWORD="$MYSQL_ROOT_PASSWORD" \
-    -p 3306:3306 -v ${INSTALL_PATH}/mysql-volume:/var/lib/mysql \
-    -v ${INSTALL_PATH}/conf/mysqld.cnf:/etc/mysql/mysql.conf.d/mysqld.cnf \
-    -v ${INSTALL_PATH}/logs:/var/log/mysql \
-    -v /etc/localtime:/etc/localtime:ro \
-    ${PAAS_DOCKER_REG}/mysql:5.6.50 --character-set-server=utf8 --collation-server=utf8_general_ci
-    
-    # MongoDB
-    shell_log "Start MongoDB"
-    docker run -d --restart=always --name opsany-mongodb \
-    -e MONGO_INITDB_ROOT_USERNAME="$MONGO_INITDB_ROOT_USERNAME" \
-    -e MONGO_INITDB_ROOT_PASSWORD="$MONGO_INITDB_ROOT_PASSWORD" \
-    -p 27017:27017 -v ${INSTALL_PATH}/mongodb-volume:/data/db \
-    -v /etc/localtime:/etc/localtime:ro \
-    ${PAAS_DOCKER_REG}/mongo:4.4.1-bionic
-    #${PAAS_DOCKER_REG}/mongo:5.0.3
-    
-    # Guacd
-    shell_log "Start Guacd"
-    docker run -d --restart=always --name opsany-guacd \
-    -p 4822:4822 \
-    -v ${INSTALL_PATH}/uploads/guacamole:/srv/guacamole \
-    -v /etc/localtime:/etc/localtime:ro \
-    ${PAAS_DOCKER_REG}/guacd:1.5.0
-
-    # Grafana
-    shell_log "Start Grafana"
-    docker run -d --restart=always --name opsany-grafana --user root \
-    -v ${INSTALL_PATH}/conf/grafana/grafana.ini:/etc/grafana/grafana.ini \
-    -v ${INSTALL_PATH}/conf/grafana/grafana.key:/etc/grafana/grafana.key \
-    -v ${INSTALL_PATH}/conf/grafana/grafana.pem:/etc/grafana/grafana.pem \
-    -v /etc/localtime:/etc/localtime:ro \
-    -v ${INSTALL_PATH}/grafana-volume/data:/var/lib/grafana \
-    -p 8007:3000 \
-    ${PAAS_DOCKER_REG}/opsany-grafana:9.0.2
-}
-
-# MySQL Initialize
-mysql_init(){
-    shell_log "MySQL Initialize"
-    sleep 10
-    cd ${CDIR}/../install/
-    export MYSQL_PWD=${MYSQL_ROOT_PASSWORD}
-    mysql -h "${MYSQL_SERVER_IP}" -u root  -e "CREATE DATABASE IF NOT EXISTS opsany_paas DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
-    mysql -h "${MYSQL_SERVER_IP}" -u root  -e "grant all on opsany_paas.* to opsany@'%' identified by "\"${MYSQL_OPSANY_PASSWORD}\"";" 
-    mysql -h "${MYSQL_SERVER_IP}" -u root  -e "CREATE DATABASE IF NOT EXISTS opsany_proxy DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
-    mysql -h "${MYSQL_SERVER_IP}" -u root  -e "grant all on opsany_proxy.* to opsany@'%' identified by "\"${MYSQL_OPSANY_PASSWORD}\"";" 
-    mysql -h "${MYSQL_SERVER_IP}" -u root  opsany_paas < init/opsany-paas.sql
-}
-
-# ESB Initialize
 esb_init(){
     shell_log "ESB Initialize"
     #cmdb
@@ -214,9 +141,75 @@ esb_init(){
     sed -i "s#/t/dashboard#/o/dashboard#g" ${INSTALL_PATH}/esb/apis/dashboard/toolkit/tools.py
 }
 
-# PaaS Configuration
-paas_config(){
-    shell_log "PAAS Configuration"
+
+# PaaS Share Service Start
+paas_install(){
+    # RabbitMQ
+    #shell_log "Start RabbitMQ"
+    #docker run -d --restart=always --name opsany-base-rabbitmq \
+    #-e RABBITMQ_DEFAULT_USER="$RABBITMQ_DEFAULT_USER" \
+    #-e RABBITMQ_DEFAULT_PASS="$RABBITMQ_DEFAULT_PASS" \
+    #-p 15672:15672 -p 5672:5672 -p 15692:15692 \
+    #-v /etc/localtime:/etc/localtime:ro \
+    #${PAAS_DOCKER_REG}/rabbitmq:3.8.9-management-alpine
+    
+    # Redis
+    shell_log "Start Redis"
+    docker run -d --restart=always --name opsany-base-redis \
+    -p 6379:6379 -v ${INSTALL_PATH}/redis-volume:/data \
+    -v ${INSTALL_PATH}/redis-volume/redis.conf:/data/redis.conf \
+    -v /etc/localtime:/etc/localtime:ro \
+    ${PAAS_DOCKER_REG}/redis:6.0.9-alpine redis-server /data/redis.conf
+    
+    # MySQL
+    shell_log "Start MySQL"
+    docker run -d --restart=always --name opsany-base-mysql \
+    -e MYSQL_ROOT_PASSWORD="$MYSQL_ROOT_PASSWORD" \
+    -p 3306:3306 -v ${INSTALL_PATH}/mysql-volume:/var/lib/mysql \
+    -v ${INSTALL_PATH}/conf/mysqld.cnf:/etc/mysql/mysql.conf.d/mysqld.cnf \
+    -v ${INSTALL_PATH}/logs:/var/log/mysql \
+    -v /etc/localtime:/etc/localtime:ro \
+    ${PAAS_DOCKER_REG}/mysql:5.6.50 --character-set-server=utf8 --collation-server=utf8_general_ci
+    
+    # MongoDB
+    shell_log "Start MongoDB"
+    docker run -d --restart=always --name opsany-base-mongodb \
+    -e MONGO_INITDB_ROOT_USERNAME="$MONGO_INITDB_ROOT_USERNAME" \
+    -e MONGO_INITDB_ROOT_PASSWORD="$MONGO_INITDB_ROOT_PASSWORD" \
+    -p 27017:27017 -v ${INSTALL_PATH}/mongodb-volume:/data/db \
+    -v /etc/localtime:/etc/localtime:ro \
+    ${PAAS_DOCKER_REG}/mongo:4.4.1-bionic
+    #${PAAS_DOCKER_REG}/mongo:5.0.3
+    
+    # Guacd
+    shell_log "Start Guacd"
+    docker run -d --restart=always --name opsany-base-guacd \
+    -p 4822:4822 \
+    -v ${INSTALL_PATH}/uploads/guacamole:/srv/guacamole \
+    -v /etc/localtime:/etc/localtime:ro \
+    ${PAAS_DOCKER_REG}/guacd:1.5.0
+}
+
+# MySQL Initialize
+mysql_init(){
+    shell_log "MySQL Initialize"
+    sleep 10
+    cd ${CDIR}/../install/
+    export MYSQL_PWD=${MYSQL_ROOT_PASSWORD}
+    mysql -h "${MYSQL_SERVER_IP}" -u root  -e "CREATE DATABASE IF NOT EXISTS opsany_paas DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
+    mysql -h "${MYSQL_SERVER_IP}" -u root  -e "grant all on opsany_paas.* to opsany@'%' identified by "\"${MYSQL_OPSANY_PASSWORD}\"";" 
+    mysql -h "${MYSQL_SERVER_IP}" -u root  -e "CREATE DATABASE IF NOT EXISTS opsany_proxy DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
+    mysql -h "${MYSQL_SERVER_IP}" -u root  -e "grant all on opsany_proxy.* to opsany@'%' identified by "\"${MYSQL_OPSANY_PASSWORD}\"";" 
+    mysql -h "${MYSQL_SERVER_IP}" -u root  opsany_paas < init/opsany-paas.sql
+    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" opsany_paas < ./init/esb-init/esb_api_doc.sql
+    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" opsany_paas < ./init/esb-init/esb_channel.sql
+    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" opsany_paas < ./init/esb-init/esb_component_system.sql
+}
+
+# PaaS Service Start
+paas_start(){
+    #paas
+    shell_log "Start paas Service"
     # PaaS Config
     sed -i "s/PAAS_LOGIN_IP/${PAAS_LOGIN_IP}/g" ${INSTALL_PATH}/conf/settings_production.py.paas
     sed -i "s/PAAS_APPENGINE_IP/${PAAS_APPENGINE_IP}/g" ${INSTALL_PATH}/conf/settings_production.py.paas
@@ -224,17 +217,35 @@ paas_config(){
     sed -i "s/LOCAL_IP/${LOCAL_IP}/g" ${INSTALL_PATH}/conf/settings_production.py.paas
     sed -i "s/MYSQL_SERVER_IP/${MYSQL_SERVER_IP}/g" ${INSTALL_PATH}/conf/settings_production.py.paas
     sed -i "s/MYSQL_OPSANY_PASSWORD/${MYSQL_OPSANY_PASSWORD}/g" ${INSTALL_PATH}/conf/settings_production.py.paas
+
+    docker run -d --restart=always --name opsany-paas-paas \
+    -p 8001:8001 -v ${INSTALL_PATH}/logs:/opt/opsany/logs \
+    -v ${INSTALL_PATH}/conf/settings_production.py.paas:/opt/opsany/paas/paas/conf/settings_production.py \
+    -v /etc/localtime:/etc/localtime:ro \
+    ${PAAS_DOCKER_REG}/opsany-paas-paas:v3.2.7
     
+    #login
+    shell_log "Start login Service"
+
+    # RBAC secret key for login
+    RBAC_SECRET_KEY=$(uuid -v4)
+    echo $RBAC_SECRET_KEY > ${INSTALL_PATH}/conf/.rbac_secret_key
+
     #Login Config
+    sed -i "s/RBAC_SECRET_KEY/${RBAC_SECRET_KEY}/g" ${INSTALL_PATH}/conf/settings_production.py.login
     sed -i "s/DOMAIN_NAME/${DOMAIN_NAME}/g" ${INSTALL_PATH}/conf/settings_production.py.login
     sed -i "s/LOCAL_IP/${LOCAL_IP}/g" ${INSTALL_PATH}/conf/settings_production.py.login
     sed -i "s/MYSQL_SERVER_IP/${MYSQL_SERVER_IP}/g" ${INSTALL_PATH}/conf/settings_production.py.login
     sed -i "s/MYSQL_OPSANY_PASSWORD/${MYSQL_OPSANY_PASSWORD}/g" ${INSTALL_PATH}/conf/settings_production.py.login
+
+    docker run -d --restart=always --name opsany-paas-login \
+    -p 8003:8003 -v ${INSTALL_PATH}/logs:/opt/opsany/logs \
+    -v ${INSTALL_PATH}/conf/settings_production.py.login:/opt/opsany/paas/login/conf/settings_production.py \
+    -v /etc/localtime:/etc/localtime:ro \
+    ${PAAS_DOCKER_REG}/opsany-paas-login:v3.2.22
     
-    # App Engine Config
-    sed -i "s/MYSQL_SERVER_IP/${MYSQL_SERVER_IP}/g" ${INSTALL_PATH}/conf/settings_production.py.appengine
-    sed -i "s/MYSQL_OPSANY_PASSWORD/${MYSQL_OPSANY_PASSWORD}/g" ${INSTALL_PATH}/conf/settings_production.py.appengine
-    
+    #esb
+    shell_log "Start esb Service"
     # ESB Config
     sed -i "s/PAAS_LOGIN_IP/${PAAS_LOGIN_IP}/g" ${INSTALL_PATH}/conf/settings_production.py.esb
     sed -i "s/PAAS_PAAS_IP/${PAAS_PAAS_IP}/g" ${INSTALL_PATH}/conf/settings_production.py.esb
@@ -242,67 +253,17 @@ paas_config(){
     sed -i "s/REDIS_SERVER_PASSWORD/${REDIS_SERVER_PASSWORD}/g" ${INSTALL_PATH}/conf/settings_production.py.esb
     sed -i "s/MYSQL_SERVER_IP/${MYSQL_SERVER_IP}/g" ${INSTALL_PATH}/conf/settings_production.py.esb
     sed -i "s/MYSQL_OPSANY_PASSWORD/${MYSQL_OPSANY_PASSWORD}/g" ${INSTALL_PATH}/conf/settings_production.py.esb
-    
-    # Websocket
-    sed -i "s/WEBSOCKET_GUACD_HOST/${WEBSOCKET_GUACD_HOST}/g" ${INSTALL_PATH}/conf/settings_production.py.websocket
-    sed -i "s/REDIS_SERVER_IP/${REDIS_SERVER_IP}/g" ${INSTALL_PATH}/conf/settings_production.py.websocket
-    sed -i "s/REDIS_SERVER_PASSWORD/${REDIS_SERVER_PASSWORD}/g" ${INSTALL_PATH}/conf/settings_production.py.websocket
-    sed -i "s/MYSQL_SERVER_IP/${MYSQL_SERVER_IP}/g" ${INSTALL_PATH}/conf/settings_production.py.websocket
-    sed -i "s/MYSQL_OPSANY_PASSWORD/${MYSQL_OPSANY_PASSWORD}/g" ${INSTALL_PATH}/conf/settings_production.py.websocket
-    sed -i "s/PAAS_PAAS_IP/${PAAS_PAAS_IP}/g" ${INSTALL_PATH}/conf/settings_production.py.websocket.init
-    
-    # OpenResty
-    sed -i "s/DOMAIN_NAME/${DOMAIN_NAME}/g" ${INSTALL_PATH}/conf/nginx-conf.d/nginx_paas.conf
-    sed -i "s/LOCAL_IP/${LOCAL_IP}/g" ${INSTALL_PATH}/conf/nginx-conf.d/nginx_paas.conf
-    sed -i "s/DOMAIN_NAME/${DOMAIN_NAME}/g" ${INSTALL_PATH}/conf/nginx-conf.d/nginx_proxy.conf
-    sed -i "s/LOCAL_IP/${LOCAL_IP}/g" ${INSTALL_PATH}/conf/nginx-conf.d/nginx_proxy.conf
-
-    # Heartbeat
-    sed -i "s/ES_SERVER_IP/${ES_SERVER_IP}/g" ${INSTALL_PATH}/conf/heartbeat.yml
-    sed -i "s/ES_PASSWORD/${ES_PASSWORD}/g" ${INSTALL_PATH}/conf/heartbeat.yml
-
-    # Proxy
-    sed -i "s/REDIS_SERVER_IP/${REDIS_SERVER_IP}/g" ${INSTALL_PATH}/conf/proxy/settings_production.py.proxy
-    sed -i "s/REDIS_SERVER_PASSWORD/${REDIS_SERVER_PASSWORD}/g" ${INSTALL_PATH}/conf/proxy/settings_production.py.proxy
-    sed -i "s/MYSQL_SERVER_IP/${MYSQL_SERVER_IP}/g" ${INSTALL_PATH}/conf/proxy/settings_production.py.proxy
-    sed -i "s/MYSQL_OPSANY_PASSWORD/${MYSQL_OPSANY_PASSWORD}/g" ${INSTALL_PATH}/conf/proxy/settings_production.py.proxy
-    sed -i "s/local-proxy.opsany.com/${PROXY_LOCAL_IP}/g" ${INSTALL_PATH}/conf/proxy/settings_production.py.proxy
-    sed -i "s/public-proxy.opsany.com/${PROXY_PUBLIC_IP}/g" ${INSTALL_PATH}/conf/proxy/settings_production.py.proxy
-    sed -i "s/LOCAL_IP/${PROXY_PUBLIC_IP} ${PROXY_LOCAL_IP}/g" ${INSTALL_PATH}/conf/proxy/nginx-conf.d/nginx_proxy.conf
-    sed -i "s/DOMAIN_NAME/${PROXY_PUBLIC_IP} ${PROXY_LOCAL_IP}/g" ${INSTALL_PATH}/conf/proxy/nginx-conf.d/nginx_proxy.conf
-    sed -i "s/RABBIT_SERVER_IP/${RABBIT_SERVER_IP}/g" ${INSTALL_PATH}/conf/proxy/settings_production.py.proxy
-    sed -i "s/RABBITMQ_DEFAULT_USER/${RABBITMQ_DEFAULT_USER}/g" ${INSTALL_PATH}/conf/proxy/settings_production.py.proxy
-    sed -i "s/RABBITMQ_DEFAULT_PASS/${RABBITMQ_DEFAULT_PASS}/g" ${INSTALL_PATH}/conf/proxy/settings_production.py.proxy
-}
-
-# PaaS Service Start
-paas_start(){
-    #paas
-    shell_log "Start paas Service"
-    docker run -d --restart=always --name opsany-paas-paas \
-    -p 8001:8001 -v ${INSTALL_PATH}/logs:/opt/opsany/logs \
-    -v ${INSTALL_PATH}/conf/settings_production.py.paas:/opt/opsany/paas/paas/conf/settings_production.py \
-    -v /etc/localtime:/etc/localtime:ro \
-    ${PAAS_DOCKER_REG}/opsany-paas-paas:v3.2.6
-    
-    #login
-    shell_log "Start login Service"
-    docker run -d --restart=always --name opsany-paas-login \
-    -p 8003:8003 -v ${INSTALL_PATH}/logs:/opt/opsany/logs \
-    -v ${INSTALL_PATH}/conf/settings_production.py.login:/opt/opsany/paas/login/conf/settings_production.py \
-    -v /etc/localtime:/etc/localtime:ro \
-    ${PAAS_DOCKER_REG}/opsany-paas-login:v3.2.19
-    
-    #esb
-    shell_log "Start esb Service"
     docker run -d --restart=always --name opsany-paas-esb \
     -p 8002:8002 -v ${INSTALL_PATH}/logs:/opt/opsany/logs \
     -v ${INSTALL_PATH}/esb/apis:/opt/opsany/paas/esb/components/generic/apis \
     -v ${INSTALL_PATH}/conf/settings_production.py.esb:/opt/opsany/paas/esb/configs/default.py \
     -v /etc/localtime:/etc/localtime:ro \
-    ${PAAS_DOCKER_REG}/opsany-paas-esb:v3.2.6
+    ${PAAS_DOCKER_REG}/opsany-paas-esb:v3.2.7
     
     #appengine
+    # App Engine Config
+    sed -i "s/MYSQL_SERVER_IP/${MYSQL_SERVER_IP}/g" ${INSTALL_PATH}/conf/settings_production.py.appengine
+    sed -i "s/MYSQL_OPSANY_PASSWORD/${MYSQL_OPSANY_PASSWORD}/g" ${INSTALL_PATH}/conf/settings_production.py.appengine
     shell_log "Start appengine Service"
     docker run -d --restart=always --name opsany-paas-appengine \
     -p 8000:8000 -v ${INSTALL_PATH}/logs:/opt/opsany/logs \
@@ -312,6 +273,19 @@ paas_start(){
     
     #websocket
     shell_log "Start websocket Service"
+    BASTION_SECRET_KEY=$(uuid -v4)
+    echo $BASTION_SECRET_KEY > ${INSTALL_PATH}/conf/.bastion_secret_key   
+    # Websocket
+    sed -i "s/BASTION_SECRET_KEY/${BASTION_SECRET_KEY}/g" ${INSTALL_PATH}/conf/settings_production.py.websocket.init
+    sed -i "s/WEBSOCKET_GUACD_HOST/${WEBSOCKET_GUACD_HOST}/g" ${INSTALL_PATH}/conf/settings_production.py.websocket
+    sed -i "s/REDIS_SERVER_IP/${REDIS_SERVER_IP}/g" ${INSTALL_PATH}/conf/settings_production.py.websocket
+    sed -i "s/REDIS_SERVER_USER/${REDIS_SERVER_USER}/g" ${INSTALL_PATH}/conf/settings_production.py.websocket
+    sed -i "s/REDIS_SERVER_PORT/${REDIS_SERVER_PORT}/g" ${INSTALL_PATH}/conf/settings_production.py.websocket
+    sed -i "s/REDIS_SERVER_PASSWORD/${REDIS_SERVER_PASSWORD}/g" ${INSTALL_PATH}/conf/settings_production.py.websocket
+    sed -i "s/MYSQL_SERVER_IP/${MYSQL_SERVER_IP}/g" ${INSTALL_PATH}/conf/settings_production.py.websocket
+    sed -i "s/MYSQL_SERVER_PORT/${MYSQL_SERVER_PORT}/g" ${INSTALL_PATH}/conf/settings_production.py.websocket
+    sed -i "s/MYSQL_OPSANY_PASSWORD/${MYSQL_OPSANY_PASSWORD}/g" ${INSTALL_PATH}/conf/settings_production.py.websocket
+    sed -i "s/PAAS_PAAS_IP/${PAAS_PAAS_IP}/g" ${INSTALL_PATH}/conf/settings_production.py.websocket.init
     docker run -d --restart=always --name opsany-paas-websocket \
     -p 8004:8004 -v ${INSTALL_PATH}/logs:/opt/opsany/logs \
     -v ${INSTALL_PATH}/uploads:/opt/opsany/uploads \
@@ -319,11 +293,16 @@ paas_start(){
     -v ${INSTALL_PATH}/conf/settings_production.py.websocket.init:/opt/opsany/websocket/config/__init__.py \
     -v /usr/share/zoneinfo:/usr/share/zoneinfo \
     -v /etc/localtime:/etc/localtime:ro \
-    ${PAAS_DOCKER_REG}/opsany-paas-websocket:v3.2.23
+    ${PAAS_DOCKER_REG}/opsany-paas-websocket:1.7.0
     
     #openresty
     shell_log "Start openresty Service"
-    docker run -d --restart=always --name opsany-openresty \
+    # OpenResty
+    sed -i "s/DOMAIN_NAME/${DOMAIN_NAME}/g" ${INSTALL_PATH}/conf/nginx-conf.d/opsany_paas.conf
+    sed -i "s/LOCAL_IP/${LOCAL_IP}/g" ${INSTALL_PATH}/conf/nginx-conf.d/opsany_paas.conf
+    sed -i "s/DOMAIN_NAME/${DOMAIN_NAME}/g" ${INSTALL_PATH}/conf/nginx-conf.d/opsany_proxy.conf
+    sed -i "s/LOCAL_IP/${LOCAL_IP}/g" ${INSTALL_PATH}/conf/nginx-conf.d/opsany_proxy.conf
+    docker run -d --restart=always --name opsany-base-openresty \
     -p 80:80 -p 443:443 -p 8011:8011 -p 8012:8012 \
     -v ${INSTALL_PATH}/logs:/opt/opsany/logs \
     -v ${INSTALL_PATH}/conf/nginx-conf.d:/etc/nginx/conf.d \
@@ -391,14 +370,6 @@ paas_agent_start(){
         shell_error_log "Activate PaaSAgent($MODE): $BIND_ADDR:$BK_PAASAGENT_SERVER_PORT Faild [$resp]" >&2
         exit 2
     fi
-
-    # Truning PaasAgent uwsgi
-    docker cp ${INSTALL_PATH}/conf/paas_agent/supervisord.conf opsany-paas-paasagent:/opt/opsany/paas-agent/etc/templates/supervisord.conf
-    docker cp ${INSTALL_PATH}/conf/paas_agent/uwsgi.ini.8g opsany-paas-paasagent:/opt/opsany/paas-agent/etc/templates/uwsgi.ini
-    TOTAL_MEM=$(free | awk '/Mem/{print int($2/1000/1000)}')
-    if [ "${TOTAL_MEM}" -ge "15" ];then
-        docker cp ${INSTALL_PATH}/conf/paas_agent/uwsgi.ini.16g opsany-paas-paasagent:/opt/opsany/paas-agent/etc/templates/uwsgi.ini
-    fi
 }
 
 # Active RabbitMQ
@@ -420,31 +391,16 @@ main(){
           install_check
           ssl_make
           opsany_init
+          esb_init
           paas_install
           sleep 10
           mysql_init
-          esb_init
-          paas_config
           paas_start
-          paas_agent_start
-          rabbitmq_active
+          #paas_agent_start
+          #rabbitmq_active
 	  ;;
-        base)
-          install_check
-          ssl_make
-          opsany_init
-          paas_install
-          ;;
-        paas)
-          mysql_init
-          esb_init
-          paas_config
-          paas_start
-          paas_agent_start
-          rabbitmq_active
-          ;;
 	help|*)
-		echo $"Usage: $0 {install|base|paas|help}"
+		echo $"Usage: $0 {install|help}"
 	        ;;
     esac
 }

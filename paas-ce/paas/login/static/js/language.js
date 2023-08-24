@@ -20,8 +20,8 @@ const i18n_language = {
         LDAP_login_placeholder3: "请输入密码",
 
         WeChat_Work:"企业微信",
-        OAuth:"OAuth登录",
-
+        OAuth:"OAuth",
+	   SSO:"SSO",
         back_btn:"返回",
 	   MFABing_title:"绑定 MFA 设备",
         MFABing_message1:"管理员已开启强制所有用户绑定MFA功能，请完成以下操作以免影响使用。",
@@ -74,8 +74,8 @@ const i18n_language = {
         LDAP_login_placeholder3: "請輸入密碼",
 
         WeChat_Work:"企業微信",
-        OAuth:"OAuth登錄",
-
+        OAuth:"OAuth",
+	   SSO:"SSO",
         back_btn:"返回",
         MFABing_title:"綁定 MFA 設備",
         MFABing_message1:"管理員已開啟強製所有用戶綁定MFA功能，請完成以下操作以免影響使用。",
@@ -129,7 +129,7 @@ const i18n_language = {
 
         WeChat_Work:"WeChat Work",
         OAuth:"OAuth",
-
+	   SSO:"SSO",
         back_btn:"Back",
         MFABing_title:"Bind MFA device",
         MFABing_message1:"The administrator has enabled the function of forcing all users to bind MFA. Please complete the following operations to avoid affecting the use.",

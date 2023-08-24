@@ -60,6 +60,7 @@ install_init(){
     mkdir -p ${INSTALL_PATH}/{uploads,conf,logs,prometheus-volume/conf,prometheus-volume/data,consul-volume/data,consul-volume/config,uploads/prometheus-config/rules}
     cd $CDIR
     /bin/cp -r ./conf/prometheus/* ${INSTALL_PATH}/prometheus-volume/conf/
+    /bin/cp conf/consul.hcl ${INSTALL_PATH}/consul-volume/config/
     pip3 install requests==2.25.1 grafana-api==1.0.3 mysql-connector==2.2.9 SQLAlchemy==1.4.22 bcrypt==3.2.2 \
              -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
     shell_log "End: Install Init"
@@ -67,15 +68,17 @@ install_init(){
 
 consul_install(){
     shell_log "Start: Consul Install..."
-    
+    CONSUL_TOKEN=$(uuid -v4)
+    echo $CONSUL_TOKEN > ${INSTALL_PATH}/conf/.consul_token
     sed -i "s#PROM_CONSUL_SERVER#$PROXY_LOCAL_IP#g" ${INSTALL_PATH}/prometheus-volume/conf/prometheus.yml
-    docker run --name opsany-consul -d --restart=always --privileged \
+    sed -i "s#CONSUL_TOKEN#$CONSUL_TOKEN#g" ${INSTALL_PATH}/prometheus-volume/conf/prometheus.yml
+    sed -i "s#CONSUL_TOKEN#$CONSUL_TOKEN#g" ${INSTALL_PATH}/consul-volume/config/consul.hcl
+    docker run --name opsany-base-consul -d --restart=always --privileged \
            -p 8500:8500 \
            -v ${INSTALL_PATH}/consul-volume/config:/consul/config \
            -v ${INSTALL_PATH}/consul-volume/data:/consul/data \
            ${PAAS_DOCKER_REG}/consul:1.12.3
-
-    shell_log "End: Consule Installed"
+    shell_log "======Consul Token: ${CONSUL_TOKEN}======"
 }
 
 prometheus_install(){
@@ -87,7 +90,7 @@ prometheus_install(){
 
     # Prometheus Release Date: 2022-04-21 https://hub.docker.com/u/prom
     shell_log "======Start Prometheus Server======"
-    docker run -d --restart=always --name opsany-prometheus-server \
+    docker run -d --restart=always --name opsany-base-prometheus-server \
     -p 9090:9090 \
     -v ${INSTALL_PATH}/prometheus-volume/data/:/var/lib/prometheus \
     -v ${INSTALL_PATH}/uploads/prometheus-config/rules/:/var/lib/prometheus-config/rules \
@@ -105,10 +108,10 @@ prometheus_install(){
 }
 
 prometheus_uninstall(){
-    docker stop opsany-prometheus-server
-    docker rm opsany-prometheus-server
-    docker stop opsany-consul
-    docker rm opsany-consul
+    docker stop opsany-base-prometheus-server
+    docker rm opsany-base-prometheus-server
+    docker stop opsany-base-consul
+    docker rm opsany-base-consul
     rm -rf ${INSTALL_PATH}/prometheus-volume/*
 }
 

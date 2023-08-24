@@ -10,6 +10,6 @@ spec:
     - port: {{ .Values.service.port }}
       targetPort: http
       protocol: TCP
-      name: http
+      name: opsany-paas-paas
   selector:
     {{- include "opsany-paas-paas.selectorLabels" . | nindent 4 }}

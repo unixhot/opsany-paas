@@ -32,4 +32,3 @@ spec:
   storageClassName: ""
   volumeMode: Filesystem
   volumeName: opsany-paas-paas-logs
-

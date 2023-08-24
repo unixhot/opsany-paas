@@ -39,7 +39,6 @@ if [ ! -f ./install.config ];then
 else
     grep '^[A-Z]' install.config > install.env
     source ./install.env && rm -f install.env
-    setenforce 0
 fi
 
 replace_domain(){
@@ -58,7 +57,8 @@ replace_domain(){
     sed -i "s/${OLD_DOMAIN_NAME}/${NEW_DOMAIN_NAME}/g" ${INSTALL_PATH}/conf/settings_production.py.login
     sed -i "s/${OLD_DOMAIN_NAME}/${NEW_DOMAIN_NAME}/g" ${INSTALL_PATH}/conf/proxy/settings_production.py.proxy
     shell_log "替换nginx域名，替换后如无法访问，请自行检查nginx配置"
-    sed -i "s/${OLD_DOMAIN_NAME}/${NEW_DOMAIN_NAME}/g" ${INSTALL_PATH}/conf/nginx-conf.d/nginx_paas.conf
+    sed -i "s/${OLD_DOMAIN_NAME}/${NEW_DOMAIN_NAME}/g" ${INSTALL_PATH}/conf/nginx-conf.d/opsany_paas.conf
+    sed -i "s/${OLD_DOMAIN_NAME}/${NEW_DOMAIN_NAME}/g" ${INSTALL_PATH}/conf/nginx-conf.d/opsany_proxy.conf
     cd ${INSTALL_PATH}/conf/nginx-conf.d/ssl/
     /bin/cp ${OLD_DOMAIN_NAME}.key ${NEW_DOMAIN_NAME}.key
     /bin/cp ${OLD_DOMAIN_NAME}.pem ${NEW_DOMAIN_NAME}.pem
@@ -66,29 +66,30 @@ replace_domain(){
 
     shell_log "Replace SaaS config files"
     # 替换已经安装的saas服务域名（可采用重新部署）
-    sed -i "s/${OLD_DOMAIN_NAME}/${NEW_DOMAIN_NAME}/g"  ${INSTALL_PATH}/saas/apps/projects/rbac/conf/supervisord.conf
-    sed -i "s/${OLD_DOMAIN_NAME}/${NEW_DOMAIN_NAME}/g"  ${INSTALL_PATH}/saas/apps/projects/workbench/conf/supervisord.conf
-    sed -i "s/${OLD_DOMAIN_NAME}/${NEW_DOMAIN_NAME}/g"  ${INSTALL_PATH}/saas/apps/projects/cmdb/conf/supervisord.conf
-    sed -i "s/${OLD_DOMAIN_NAME}/${NEW_DOMAIN_NAME}/g"  ${INSTALL_PATH}/saas/apps/projects/control/conf/supervisord.conf
-    sed -i "s/${OLD_DOMAIN_NAME}/${NEW_DOMAIN_NAME}/g"  ${INSTALL_PATH}/saas/apps/projects/job/conf/supervisord.conf
-    sed -i "s/${OLD_DOMAIN_NAME}/${NEW_DOMAIN_NAME}/g"  ${INSTALL_PATH}/saas/apps/projects/cmp/conf/supervisord.conf
-    sed -i "s/${OLD_DOMAIN_NAME}/${NEW_DOMAIN_NAME}/g"  ${INSTALL_PATH}/saas/apps/projects/devops/conf/supervisord.conf
-    sed -i "s/${OLD_DOMAIN_NAME}/${NEW_DOMAIN_NAME}/g"  ${INSTALL_PATH}/saas/apps/projects/monitor/conf/supervisord.conf
-    sed -i "s/${OLD_DOMAIN_NAME}/${NEW_DOMAIN_NAME}/g"  ${INSTALL_PATH}/saas/apps/projects/bastion/conf/supervisord.conf
-    sed -i "s/${OLD_DOMAIN_NAME}/${NEW_DOMAIN_NAME}/g"  ${INSTALL_PATH}/saas/apps/projects/pipeline/conf/supervisord.conf
-    sed -i "s/${OLD_DOMAIN_NAME}/${NEW_DOMAIN_NAME}/g"  ${INSTALL_PATH}/saas/apps/projects/deploy/conf/supervisord.conf
+    sed -i "s/${OLD_DOMAIN_NAME}/${NEW_DOMAIN_NAME}/g"  ${INSTALL_PATH}/conf/opsany-saas/rbac/rbac-init.py
+    sed -i "s/${OLD_DOMAIN_NAME}/${NEW_DOMAIN_NAME}/g"  ${INSTALL_PATH}/conf/opsany-saas/workbench/workbench-init.py
+    sed -i "s/${OLD_DOMAIN_NAME}/${NEW_DOMAIN_NAME}/g"  ${INSTALL_PATH}/conf/opsany-saas/cmdb/cmdb-init.py
+    sed -i "s/${OLD_DOMAIN_NAME}/${NEW_DOMAIN_NAME}/g"  ${INSTALL_PATH}/conf/opsany-saas/control/control-init.py
+    sed -i "s/${OLD_DOMAIN_NAME}/${NEW_DOMAIN_NAME}/g"  ${INSTALL_PATH}/conf/opsany-saas/job/job-init.py
+    sed -i "s/${OLD_DOMAIN_NAME}/${NEW_DOMAIN_NAME}/g"  ${INSTALL_PATH}/conf/opsany-saas/cmp/cmp-init.py
+    sed -i "s/${OLD_DOMAIN_NAME}/${NEW_DOMAIN_NAME}/g"  ${INSTALL_PATH}/conf/opsany-saas/devops/devops-init.py
+    sed -i "s/${OLD_DOMAIN_NAME}/${NEW_DOMAIN_NAME}/g"  ${INSTALL_PATH}/conf/opsany-saas/monitor/monitor-init.py
+    sed -i "s/${OLD_DOMAIN_NAME}/${NEW_DOMAIN_NAME}/g"  ${INSTALL_PATH}/conf/opsany-saas/bastion/bastion-init.py
+    sed -i "s/${OLD_DOMAIN_NAME}/${NEW_DOMAIN_NAME}/g"  ${INSTALL_PATH}/conf/opsany-saas/dashboard/dashboard-init.py
 
 }
 
 restart_paas(){
-    service_list='opsany-paas-paas opsany-paas-login opsany-paas-esb opsany-paas-appengine opsany-paas-websocket opsany-paas-paasagent'
+    service_list='opsany-paas-paas opsany-paas-login opsany-paas-esb opsany-paas-appengine opsany-paas-websocket opsany-paas-proxy'
     for service in $service_list;do
         shell_log "Restart $service" && docker restart $service;
     done
 }
-
 restart_saas(){
-    cd /opt/opsany-paas/install && /bin/bash ./saas-restart.sh 
+    service_list='opsany-saas-ce-rbac opsany-saas-ce-workbench opsany-saas-ce-cmdb opsany-saas-ce-control opsany-saas-ce-job opsany-saas-ce-monitor opsany-saas-ce-devops opsany-saas-ce-cmp opsany-saas-ce-bastion opsany-saas-ce-dashboard'
+    for service in $service_list;do
+        shell_log "Restart $service" && docker restart $service;
+    done
 }
 
 main(){

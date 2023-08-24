@@ -40,6 +40,7 @@ scrape_configs:
   - job_name: 'consul-prometheus'  # 从consul读取主机信息
     consul_sd_configs:
     - server: 'PROM_CONSUL_SERVER:8500'  # 配置consul服务，PROM_CONSUL_SERVER只需填入域名或IP地址
+      token: CONSUL_TOKEN
       services: []
     relabel_configs:
       - regex: __meta_consul_service_metadata_(.+) # 添加meta的重新匹配，Mate数据为Labels标签
@@ -56,6 +57,7 @@ scrape_configs:
     scrape_timeout: 5s
     consul_sd_configs:
       - server: 'PROM_CONSUL_SERVER:8500' # 修改你consul服务所在的ip地址
+        token: CONSUL_TOKEN
         refresh_interval: 15s
         services: []
     metrics_path: /scrape # 监控多实例时要把/metrics自定义为/scrape

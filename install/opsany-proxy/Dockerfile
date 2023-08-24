@@ -18,7 +18,7 @@ ADD supervisord.conf /etc/supervisord.conf
 ADD saltmaster.ini /etc/supervisord.d/saltmaster.ini
 ADD saltapi.ini /etc/supervisord.d/saltapi.ini
 ADD proxy.ini /etc/supervisord.d/proxy.ini
-ADD ssh_config /etc/ssh/ssh_config
+#ADD ssh_config /etc/ssh/ssh_config
 
 ENV ANSIBLE_HOST_KEY_CHECKING=False
 ENV OPS_ANY_ENV=production

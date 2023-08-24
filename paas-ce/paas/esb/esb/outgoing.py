@@ -268,8 +268,21 @@ class HttpClient(BasicHttpClient):
 
     def prepare_bk_header(self, headers={}):
         if self.component.request:
+            from exdb.bkpaas import AppSecureInfo
+            app_token = ""
+            app_code = str(self.component.sys_name).lower()
+            try:
+                app_info = AppSecureInfo.get_by_app_code(app_code)
+                if app_info:
+                    app_token_list = app_info.get("secure_key_list", [])
+                    if app_token_list:
+                        app_token = app_token_list[0]
+            except Exception, e:
+                print "prepare_bk_header_error", str(e)
             bkapi_headers = {
                 'X-Bkapi-Request-Id': self.component.request.request_id,
+                'X-APP-CODE': app_code,
+                'X-APP-TOKEN': app_token,
             }
         else:
             bkapi_headers = {}

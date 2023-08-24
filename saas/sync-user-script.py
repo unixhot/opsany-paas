@@ -62,6 +62,11 @@ class OpsAnyApi:
         try:
             # 用于初次创建用户
             res = self.session.get(API)
+            try:
+                res.json()
+            except:
+                print("更新用户失败app_code: ", app_code)
+                Exception(res.content.decode())
             if res.status_code == 200 and res.json().get("code") == 200:
                 print("Update {} director success.".format(app_code))
                 return True

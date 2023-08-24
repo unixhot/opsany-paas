@@ -45,6 +45,8 @@ spec:
               mountPath: /etc/nginx/conf.d/ssl
             - name: opsany-paas-openresty-logs
               mountPath: /opt/opsany/logs
+            - name: opsany-paas-uploads
+              mountPath: /opt/opsany/uploads
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
@@ -102,6 +104,9 @@ spec:
               path: test.opsany.cn.pem
             - key: test.opsany.cn.key
               path: test.opsany.cn.key
+        - name: opsany-paas-uploads
+          persistentVolumeClaim:
+            claimName: opsany-paas-uploads
         - name: opsany-paas-openresty-logs
           persistentVolumeClaim:
             claimName: opsany-paas-openresty-logs

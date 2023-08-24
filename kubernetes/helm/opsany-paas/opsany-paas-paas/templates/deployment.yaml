@@ -39,7 +39,7 @@ spec:
               mountPath: /opt/opsany/logs
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - name: http
+            - name: opsany-paas-paas
               containerPort: 8001
               protocol: TCP
               #          livenessProbe:

@@ -1,0 +1,44 @@
+---
+# rbac-init.py
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ce-rbac-init
+data:
+{{ (.Files.Glob "rbac-init.py").AsConfig | indent 2 }}
+
+---
+# rbac-prod.py
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ce-rbac-prod
+data:
+{{ (.Files.Glob "rbac-prod.py").AsConfig | indent 2 }}
+
+---
+# rbac-nginx.conf
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ce-rbac-nginx
+data:
+{{ (.Files.Glob "rbac-nginx.conf").AsConfig | indent 2 }}
+
+---
+# rbac-supervisor.ini
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ce-rbac-supervisor
+data:
+{{ (.Files.Glob "rbac-supervisor.ini").AsConfig | indent 2 }}
+
+---
+# rbac-uwsgi.ini
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ce-rbac-uwsgi
+data:
+{{ (.Files.Glob "rbac-uwsgi.ini").AsConfig | indent 2 }}

@@ -65,7 +65,6 @@ class SendMail(Component):
         subject = forms.Field(required=True)
         operator = forms.Field(required=True)
         text = forms.Field(required=True)
-        operator = forms.Field(required=True)
         text_type = forms.Field(required=True)
 
         # clean方法返回的数据可通过组件的form_data属性获取
@@ -99,7 +98,7 @@ class SendMail(Component):
                 'api_code': response['successcode'],
                 'message': response['message'],
                 'result': True,
-                # 'data': response['data'],
+                'data': response.get('data'),
             }
         else:
             result = {

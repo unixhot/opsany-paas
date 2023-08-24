@@ -50,7 +50,7 @@ class GetUserAuthApi(Component):
     class Form(BaseComponentForm):
         platform_code = forms.CharField(required=True)
         username = forms.CharField(required=True)
-        access_token = forms.CharField(required=True)
+        access_token = forms.CharField(required=False)
 
         # clean方法返回的数据可通过组件的form_data属性获取
         def clean(self):

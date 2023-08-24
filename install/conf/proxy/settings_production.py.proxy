@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # 正式环境
 import os
+from urllib import parse
 from config.default import *
 
 RUN_MODE = 'PRODUCT'
@@ -8,7 +9,7 @@ RUN_MODE = 'PRODUCT'
 DEBUG = False
 USE_TZ=True
 
-CONTROL_SECRET_KEY = "099f6e6f-9ad8-43d7-b487-7f655519598d"
+CONTROL_SECRET_KEY = "CONTROL_SECRET_KEY_PROXY"
 
 # MySQL数据库设置
 DATABASES = {
@@ -28,30 +29,33 @@ DATABASES = {
 # Redis缓存设置
 REDIS_HOST = os.getenv("REDIS_HOST", "REDIS_SERVER_IP")
 REDIS_PORT = os.getenv("REDIS_PORT", "6379")
-REDIS_PASSWORD = os.getenv("REDIS_PASSWORD", "REDIS_SERVER_PASSWORD")
+REDIS_USERNAME = parse.quote(os.getenv("REDIS_USERNAME", "REDIS_USERNAME"))  # 用户名编译，防止出现@登封特殊符号，设置为空，防止没有配置用户名出现None情况
+REDIS_PASSWORD = parse.quote(os.getenv("REDIS_PASSWORD", "REDIS_SERVER_PASSWORD"))  # 密码URL编译，防止出现@等符号
+if REDIS_USERNAME == "REDIS_USERNAME":  # 当该变量没有被替换时设置为空，防止与密码直接拼入
+    REDIS_USERNAME = ""
 
-#BROKER_URL = "redis://:{PASSWORD}@{HOST}:{PORT}/8".format(PASSWORD=REDIS_PASSWORD, HOST=REDIS_HOST, PORT=REDIS_PORT)
+BROKER_URL = "redis://{USER}:{PASSWORD}@{HOST}:{PORT}/0".format(USER=REDIS_USERNAME, PASSWORD=REDIS_PASSWORD, HOST=REDIS_HOST, PORT=REDIS_PORT)
 
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://{REDIS_HOST}:{REDIS_PORT}/1".format(REDIS_HOST=REDIS_HOST, REDIS_PORT=REDIS_PORT),
+        "LOCATION": "redis://{}:{}@{}:{}/0".format(REDIS_USERNAME, REDIS_PASSWORD, REDIS_HOST, REDIS_PORT),
         'TIMEOUT': 86400,  # 1天
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
             "CONNECTION_POOL_KWARGS": {"max_connections": 1000},
-            "PASSWORD": REDIS_PASSWORD,
+            # "PASSWORD": REDIS_PASSWORD,
         }
     },
 }
 
 # RabbitMQ 消息队列设置
-MQ_USER = os.getenv("MQ_USER", "RABBITMQ_DEFAULT_USER")
-MQ_PASSWORD = os.getenv("MQ_PASSWORD", "RABBITMQ_DEFAULT_PASS")
-MQ_HOST = os.getenv("MQ_HOST", "RABBIT_SERVER_IP")
-MQ_PORT = os.getenv("MQ_PORT", "5672")
+#MQ_USER = os.getenv("MQ_USER", "RABBITMQ_DEFAULT_USER")
+#MQ_PASSWORD = os.getenv("MQ_PASSWORD", "RABBITMQ_DEFAULT_PASS")
+#MQ_HOST = os.getenv("MQ_HOST", "RABBIT_SERVER_IP")
+#MQ_PORT = os.getenv("MQ_PORT", "5672")
 
-BROKER_URL = 'amqp://{MQ_USER}:{MQ_PASSWORD}@{MQ_HOST}:{MQ_PORT}//'.format(MQ_USER=MQ_USER, MQ_PASSWORD=MQ_PASSWORD,MQ_HOST=MQ_HOST, MQ_PORT=MQ_PORT)
+#BROKER_URL = 'amqp://{MQ_USER}:{MQ_PASSWORD}@{MQ_HOST}:{MQ_PORT}//'.format(MQ_USER=MQ_USER, MQ_PASSWORD=MQ_PASSWORD,MQ_HOST=MQ_HOST, MQ_PORT=MQ_PORT)
 
 
 # ansible数据源脚本: 脚本文件在proxy/utils/下
@@ -75,3 +79,5 @@ PILLAR_ROOT = os.getenv("PILLAR_ROOT", "/srv/pillar/")
 PROXY_URL = "http://local-proxy.opsany.com:8012"
 PROXY_PUBLIC_URL = "http://public-proxy.opsany.com:8012"
 
+# 告警规则路径---该路径需要挂载到与Prometheus配置文件规则挂载路径一致，通过在Proxy目录写入规则方式使Prometheus能读取到该告警目录
+PROM_ALERT_RULE_PATH = os.getenv("PROM_ALERT_RULE_PATH" ,"/opt/opsany/uploads/prometheus-config/rules")

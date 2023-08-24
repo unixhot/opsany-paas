@@ -9,8 +9,13 @@ Unless required by applicable law or agreed to in writing, software distributed 
 
 from __future__ import unicode_literals
 
+import datetime
+import json
+import uuid
+
 import yaml
 from django.conf import settings
+from django.db import transaction
 from django.http import HttpResponseRedirect, JsonResponse
 from django.views.generic import View
 
@@ -22,9 +27,10 @@ from common.mymako import render_mako_context, render_mako_tostring_context
 from common.responses import FailJsonResponse, OKJsonResponse
 from common.views.mako import MakoTemplateView
 from common.utils import first_error_message, md5_for_file
-from release.utils import sync_app_state
-from saas.models import SaaSApp, SaaSUploadFile
-from saas.forms import UploadFileForm
+from app.models import App, SecureInfo, DesktopSettings
+from engine.models import BkApp, BkAppToken
+from release.models import Record
+from saas.models import SaaSApp, SaaSUploadFile, SaaSAppVersion
 from saas.utils import (delete_saas_app, extract_logo_file, saas_online_task,
                         save_saas_app_info, upload_response_tpl,
                         validate_and_extract_tar_file)
@@ -202,6 +208,175 @@ class RecordView(SaaSAdminMixin, MakoTemplateView):
         context.update({'app_code': app_code, 'app_state': app_state})
         return context
 
+
+class UploadAndRegisterView(SuperuserRequiredMixin, View):
+    # @transaction.atomic
+    def get(self, request):
+        data = request.GET.dict()
+        saas_file_name = data.get("saas_file_name")
+        app_code = data.get("saas_app_code")
+        app_name = data.get("saas_app_name")
+        version = data.get("saas_app_version")
+        secret_key = data.get("saas_app_secret_key")
+        result = True
+        message = "Success"
+        saas_app = SaaSApp.objects.filter(code=app_code).first()
+        if request.user.username != "admin":
+            result = False
+            message = "无权操作"
+        elif not all([saas_file_name, app_code, app_name, version, secret_key]):
+            result = False
+            message = "缺失参数"
+        elif saas_app:
+            result = False
+            message = "该应用已存在: {}".format(app_code)
+        else:
+            saas_upload_file = self._save_saas_upload_file(saas_file_name)  # 创建上传记录
+            saas_app = self._save_saas_app(app_code, app_name)  # saas基础表
+            saas_app_version = self._save_saas_app_version(saas_app, version, saas_upload_file, secret_key)  # saas版本表
+            bk_app = self._save_bk_app(saas_app)  # appengine表 app信息
+            bk_app_token = self._save_bk_app_token(bk_app, secret_key)  # appengine表 app token 信息
+            app = self._save_app(saas_app, secret_key)  # app基本信息表 包含开发中心列表页信息
+            secure_info = self._save_secure_info(app_code)  # 数据库信息
+            desktop_setting = self._save_desktop_setting(app_code)  # 桌面配置
+            record = self._save_record(app_code, version)  # 日志
+            
+        result = {"result": result, "message": message}
+        result.update(data)
+        return JsonResponse(result)
+        
+    def _save_saas_upload_file(self, saas_file_name):
+        saas_upload_file = SaaSUploadFile.objects.create(
+            name=saas_file_name,
+            size=20971520,
+            md5=str(uuid.uuid4()),
+            file=saas_file_name,
+        )
+        return saas_upload_file
+
+    def _save_saas_app(self, app_code, app_name):
+        saas_app = SaaSApp.objects.filter(code=app_code).first()
+        if not saas_app:
+            saas_app = SaaSApp()
+        saas_app.code = app_code
+        saas_app.name = app_name
+        saas_app.save()
+        return saas_app
+    
+    def _save_saas_app_version(self, saas_app, version, upload_file, secret_key):
+        version_settings = {
+            'app_code': saas_app.code,
+            'app_name': saas_app.name,
+            'app_version': version,
+            'secret_key': secret_key,
+            'language': "Python",
+            'author': "OpsAny",
+            'introduction': "OpsAny{}".format(saas_app.name),
+            'category': "OpsAny",
+            'language_support': "Python3.6",
+            'date': "2020-03-20 20:20:55",
+            'desktop': {"width": 1300, "is_max": True, "height": 720},
+            'env': None
+        }
+        saas_app_version = SaaSAppVersion.objects.filter(version=version, saas_app=saas_app).first()
+        if not saas_app_version:
+            saas_app_version = SaaSAppVersion()
+        saas_app_version.version = version
+        saas_app_version.saas_app = saas_app
+        saas_app_version.upload_file = upload_file
+        saas_app_version.settings = json.dumps(version_settings)
+        saas_app_version.save()
+        saas_app.current_version = saas_app_version
+        saas_app.online_version = saas_app_version
+        saas_app.save()
+        return saas_app_version
+    
+    def _save_bk_app(self, saas_app):
+        bk_app = BkApp.objects.filter(app_code=saas_app.code).first()
+        if not bk_app:
+            bk_app = BkApp()
+        bk_app.name = saas_app.name
+        bk_app.app_code = saas_app.code
+        bk_app.version = saas_app.version
+        bk_app.app_lang = "Python"
+        bk_app.save()
+        return bk_app
+    
+    def _save_bk_app_token(self, bk_app, secret_key):
+        bk_app_token = BkAppToken.objects.filter(bk_app=bk_app).first()
+        if not bk_app_token:
+            bk_app_token = BkAppToken()
+            bk_app_token.key = secret_key
+        bk_app_token.bk_app = bk_app
+        bk_app_token.save()
+
+    def _save_app(self, saas_app, secret_key):
+        app_code = saas_app.code
+        app_name = saas_app.name
+        app = App.objects.filter(code=app_code).first()
+        if not app:
+            app = App()
+            app.auth_token = secret_key
+        app.name = app_name
+        app.code = app_code
+        app.introduction = "OpsAny{}".format(app_name)
+        app.creater = "admin"
+        app.name = app_name
+        app.state = 4
+        app.is_already_test = 0
+        app.is_already_online = 1
+        app.first_test_time = None
+        app.first_online_time = datetime.datetime.now()
+        app.language = "Python"
+        app.is_use_celery = False
+        app.is_use_celery_beat = False
+        app.is_saas = True
+        app.save()
+        saas_app.app = app
+        saas_app.save()
+        return app
+
+    def _save_secure_info(self, app_code):
+        secure_info = SecureInfo.objects.filter(app_code=app_code).first()
+        if not secure_info:
+            secure_info = SecureInfo()
+        secure_info.app_code = app_code
+        secure_info.vcs_type = 0
+        secure_info.db_type = "mysql"
+        secure_info.db_name = "app_code"
+        secure_info.save()
+        return secure_info
+
+    def _save_desktop_setting(self, app_code):
+        desktop_setting = DesktopSettings.objects.filter(app_code=app_code).first()
+        if not desktop_setting:
+            desktop_setting = DesktopSettings()
+        desktop_setting.app_code = app_code
+        desktop_setting.is_display = 1
+        desktop_setting.save()
+        # AppEnvVar.objects.add_env_vars(code, env)
+
+        return desktop_setting
+
+    def _save_record(self, app_code, version):
+        record = Record.objects.filter(app_code=app_code).first()
+        if not record:
+            record = Record()
+        message = "手动部署成功"
+        record.app_code = app_code
+        record.operate_id = 1
+        record.operate_user = "admin"
+        record.app_old_state = 0
+        record.operate_time = datetime.datetime.now()
+        record.is_success = True
+        record.is_tips = True
+        record.is_version = False
+        record.version = version
+        record.message = message
+        record.extra_data = message
+        record.event_id = str(uuid.uuid4())
+        record.save()
+        return record
 
 class UploadView(SuperuserRequiredMixin, View):
     """

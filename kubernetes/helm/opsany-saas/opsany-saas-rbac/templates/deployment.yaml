@@ -32,17 +32,33 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          volumeMounts:
+            - name: opsany-saas-ce-rbac-init
+              mountPath: /opt/opsany/rbac/config/__init__.py
+              subPath: rbac-init.py
+            - name: opsany-saas-ce-rbac-prod
+              mountPath: /opt/opsany/rbac/config/prod.py
+              subPath: rbac-prod.py
+            - name: opsany-saas-ce-rbac-supervisor
+              mountPath: /etc/supervisord.d/rbac.ini
+              subPath: rbac-supervisor.ini
+            - name: opsany-saas-ce-rbac-nginx
+              mountPath: /etc/nginx/http.d/default.conf
+              subPath: rbac-nginx.conf
+            - name: opsany-saas-ce-rbac-uwsgi
+              mountPath: /opt/opsany/uwsgi/rbac.ini
+              subPath: rbac-uwsgi.ini
           ports:
             - name: http
               containerPort: 80
               protocol: TCP
           livenessProbe:
             httpGet:
-              path: /
+              path: /o/rbac/healthz/
               port: http
           readinessProbe:
             httpGet:
-              path: /
+              path: /o/rbac/healthz/
               port: http
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
@@ -58,3 +74,41 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      volumes:
+        - name: opsany-saas-ce-rbac-init
+          configMap:
+            name: opsany-saas-ce-rbac-init
+            items:
+            - key: rbac-init.py
+              path: rbac-init.py
+        - name: opsany-saas-ce-rbac-prod
+          configMap:
+            name: opsany-saas-ce-rbac-prod
+            items:
+            - key: rbac-prod.py
+              path: rbac-prod.py
+        - name: opsany-saas-ce-rbac-nginx
+          configMap:
+            name: opsany-saas-ce-rbac-nginx
+            items:
+            - key: rbac-nginx.conf
+              path: rbac-nginx.conf
+        - name: opsany-saas-ce-rbac-uwsgi
+          configMap:
+            name: opsany-saas-ce-rbac-uwsgi
+            items:
+            - key: rbac-uwsgi.ini
+              path: rbac-uwsgi.ini
+        - name: opsany-saas-ce-rbac-nginx
+          configMap:
+            name: opsany-saas-ce-rbac-supervisor
+            items:
+            - key: rbac-supervisor.ini
+              path: rbac-supervisor.ini
+        - name: opsany-paas-uploads
+          persistentVolumeClaim:
+            claimName: opsany-paas-uploads
+        - name: opsany-saas-logs
+          persistentVolumeClaim:
+            claimName: opsany-saas-logs
+
