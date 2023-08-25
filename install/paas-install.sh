@@ -315,6 +315,7 @@ paas_start(){
     -v ${INSTALL_PATH}/uploads:/opt/opsany/uploads \
     -v /etc/localtime:/etc/localtime:ro \
     ${PAAS_DOCKER_REG}/openresty:1.17.8.2-alpine
+    shell_warning_log "======The end is the beginning.======"
 }
 
 # Start PaasAgent
