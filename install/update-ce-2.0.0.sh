@@ -144,6 +144,7 @@ proxy_update(){
     shell_log "======Update Proxy======"
     # Proxy config
     CONTROL_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.control_secret_key)
+    CONTROL_SECRET_KEY_PROXY=$(cat ${INSTALL_PATH}/conf/.control_secret_key)
     /bin/cp conf/proxy/settings_production.py.proxy ${INSTALL_PATH}/conf/proxy/
     /bin/cp conf/proxy/nginx-conf.d/nginx_proxy.conf ${INSTALL_PATH}/conf/proxy/nginx-conf.d/
     sed -i "s/REDIS_SERVER_IP/${REDIS_SERVER_IP}/g" ${INSTALL_PATH}/conf/proxy/settings_production.py.proxy
