@@ -59,6 +59,27 @@ install_check(){
   fi
 }
 
+rabbitmq_install(){
+    # RabbitMQ
+    shell_log "Start RabbitMQ"
+    docker run -d --restart=always --name opsany-base-rabbitmq \
+    -e RABBITMQ_DEFAULT_USER="$RABBITMQ_DEFAULT_USER" \
+    -e RABBITMQ_DEFAULT_PASS="$RABBITMQ_DEFAULT_PASS" \
+    -p 15672:15672 -p 5672:5672 -p 15692:15692 \
+    -v /etc/localtime:/etc/localtime:ro \
+    ${PAAS_DOCKER_REG}/rabbitmq:3.8.9-management-alpine
+
+    shell_log "Activate RabbitMQ"
+    curl -k --connect-timeout 10 \
+            -H 'Content-Type:application/x-www-form-urlencoded' \
+            -X POST \
+            -d "mq_ip=$RABBIT_SERVER_IP&username=$RABBITMQ_DEFAULT_USER&password=$RABBITMQ_DEFAULT_PASS" \
+            "https://$BK_PAAS_PRIVATE_ADDR/v1/rabbitmq/init/"
+    echo ""
+    shell_warning_log "======The end is the beginning.======"
+}
+
+
 paas_agent_add(){
     shell_log "Register paas-agent Service"
     cd $CDIR && cd ../saas/
@@ -121,6 +142,7 @@ main(){
           install_check
           paas_agent_add
           paas_agent_start
+          rabbitmq_install
 	  ;;
 	help|*)
 		echo $"Usage: $0 {install|help}"
