@@ -15,5 +15,13 @@ spec:
       targetPort: 443
       protocol: TCP
       name: https
+    - port: 8011
+      targetPort: 8011
+      protocol: TCP
+      name: proxy-https
+    - port: 8012
+      targetPort: 8012
+      protocol: TCP
+      name: proxy-http
   selector:
     {{- include "opsany-paas-openresty.selectorLabels" . | nindent 4 }}

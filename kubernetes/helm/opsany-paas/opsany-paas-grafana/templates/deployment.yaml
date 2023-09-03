@@ -1,0 +1,99 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "opsany-paas-grafana.fullname" . }}
+  labels:
+    {{- include "opsany-paas-grafana.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "opsany-paas-grafana.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "opsany-paas-grafana.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          volumeMounts:
+            - name: opsany-paas-grafana-config
+              mountPath: /etc/grafana/grafana.ini
+              subPath: grafana.ini
+            - name: opsany-paas-grafana-key
+              mountPath: /etc/grafana/grafana.key
+              subPath: grafana.key
+            - name: opsany-paas-grafana-pem
+              mountPath: /etc/grafana/grafana.pem
+              subPath: grafana.pem
+            - name: opsany-logs
+              mountPath: /opt/opsany/logs
+            - name: opsany-paas-grafana-data
+              mountPath: /var/lib/grafana
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: grafana
+              containerPort: 3000
+              protocol: TCP
+              #  livenessProbe:
+              #httpGet:
+              #path: /healthz/
+              #port: 8001
+              #readinessProbe:
+              # httpGet:
+              #path: /healthz/
+              #port: 8001
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+        - name: opsany-paas-grafana-config
+          configMap:
+            name: opsany-paas-grafana-config
+            items:
+            - key: grafana.ini
+              path: grafana.ini
+        - name: opsany-paas-grafana-key
+          configMap:
+            name: opsany-paas-grafana-key
+            items:
+            - key: grafana.key
+              path: grafana.key
+        - name: opsany-paas-grafana-pem
+          configMap:
+            name: opsany-paas-grafana-pem
+            items:
+            - key: grafana.pem
+              path: grafana.pem
+        - name: opsany-logs
+          persistentVolumeClaim:
+            claimName: opsany-logs
+        - name: opsany-paas-grafana-data
+          persistentVolumeClaim:
+            claimName: opsany-paas-grafana-data

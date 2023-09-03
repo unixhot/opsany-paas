@@ -1,0 +1,44 @@
+---
+# cmp-init.py
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ce-cmp-init
+data:
+{{ (.Files.Glob "cmp-init.py").AsConfig | indent 2 }}
+
+---
+# cmp-prod.py
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ce-cmp-prod
+data:
+{{ (.Files.Glob "cmp-prod.py").AsConfig | indent 2 }}
+
+---
+# cmp-nginx.conf
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ce-cmp-nginx
+data:
+{{ (.Files.Glob "cmp-nginx.conf").AsConfig | indent 2 }}
+
+---
+# cmp-supervisor.ini
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ce-cmp-supervisor
+data:
+{{ (.Files.Glob "cmp-supervisor.ini").AsConfig | indent 2 }}
+
+---
+# cmp-uwsgi.ini
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ce-cmp-uwsgi
+data:
+{{ (.Files.Glob "cmp-uwsgi.ini").AsConfig | indent 2 }}

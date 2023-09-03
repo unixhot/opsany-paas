@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "opsany-paas-guacd.fullname" . }}
+  labels:
+    {{- include "opsany-paas-guacd.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: 4822
+      protocol: TCP
+      name: guacd
+  selector:
+    {{- include "opsany-paas-guacd.selectorLabels" . | nindent 4 }}

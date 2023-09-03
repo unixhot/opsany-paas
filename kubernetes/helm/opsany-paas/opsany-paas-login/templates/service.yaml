@@ -8,8 +8,8 @@ spec:
   type: {{ .Values.service.type }}
   ports:
     - port: {{ .Values.service.port }}
-      targetPort: http
+      targetPort: 8003
       protocol: TCP
-      name: http
+      name: paas-login
   selector:
     {{- include "opsany-paas-login.selectorLabels" . | nindent 4 }}

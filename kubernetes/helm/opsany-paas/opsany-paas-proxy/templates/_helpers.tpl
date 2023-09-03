@@ -1,7 +1,7 @@
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "opsany-proxy.name" -}}
+{{- define "opsany-paas-proxy.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
@@ -10,7 +10,7 @@ Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 If release name contains chart name it will be used as a full name.
 */}}
-{{- define "opsany-proxy.fullname" -}}
+{{- define "opsany-paas-proxy.fullname" -}}
 {{- if .Values.fullnameOverride }}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- else }}
@@ -26,16 +26,16 @@ If release name contains chart name it will be used as a full name.
 {{/*
 Create chart name and version as used by the chart label.
 */}}
-{{- define "opsany-proxy.chart" -}}
+{{- define "opsany-paas-proxy.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
 Common labels
 */}}
-{{- define "opsany-proxy.labels" -}}
-helm.sh/chart: {{ include "opsany-proxy.chart" . }}
-{{ include "opsany-proxy.selectorLabels" . }}
+{{- define "opsany-paas-proxy.labels" -}}
+helm.sh/chart: {{ include "opsany-paas-proxy.chart" . }}
+{{ include "opsany-paas-proxy.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -45,17 +45,17 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{/*
 Selector labels
 */}}
-{{- define "opsany-proxy.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "opsany-proxy.name" . }}
+{{- define "opsany-paas-proxy.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "opsany-paas-proxy.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
 Create the name of the service account to use
 */}}
-{{- define "opsany-proxy.serviceAccountName" -}}
+{{- define "opsany-paas-proxy.serviceAccountName" -}}
 {{- if .Values.serviceAccount.create }}
-{{- default (include "opsany-proxy.fullname" .) .Values.serviceAccount.name }}
+{{- default (include "opsany-paas-proxy.fullname" .) .Values.serviceAccount.name }}
 {{- else }}
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}

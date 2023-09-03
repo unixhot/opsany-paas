@@ -1,0 +1,44 @@
+---
+# cmdb-init.py
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ce-cmdb-init
+data:
+{{ (.Files.Glob "cmdb-init.py").AsConfig | indent 2 }}
+
+---
+# cmdb-prod.py
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ce-cmdb-prod
+data:
+{{ (.Files.Glob "cmdb-prod.py").AsConfig | indent 2 }}
+
+---
+# cmdb-nginx.conf
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ce-cmdb-nginx
+data:
+{{ (.Files.Glob "cmdb-nginx.conf").AsConfig | indent 2 }}
+
+---
+# cmdb-supervisor.ini
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ce-cmdb-supervisor
+data:
+{{ (.Files.Glob "cmdb-supervisor.ini").AsConfig | indent 2 }}
+
+---
+# cmdb-uwsgi.ini
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ce-cmdb-uwsgi
+data:
+{{ (.Files.Glob "cmdb-uwsgi.ini").AsConfig | indent 2 }}

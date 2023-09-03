@@ -217,7 +217,7 @@ saas_workbench_deploy(){
     sed -i "s#/t/workbench#/o/workbench#g" ${INSTALL_PATH}/esb/apis/workbench/toolkit/tools.py
 
     # Starter container
-    docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-workbench:2.0.0
+    docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-workbench:2.0.1
     docker run -d --restart=always --name opsany-saas-ce-workbench \
        -p 7002:80 \
        -v ${INSTALL_PATH}/conf/opsany-saas/workbench/workbench-supervisor.ini:/etc/supervisord.d/workbench.ini \
@@ -228,7 +228,7 @@ saas_workbench_deploy(){
        -v ${INSTALL_PATH}/logs/workbench:/opt/opsany/logs/workbench \
        -v ${INSTALL_PATH}/uploads:/opt/opsany/uploads \
        -v /etc/localtime:/etc/localtime:ro \
-       ${PAAS_DOCKER_REG}/opsany-saas-ce-workbench:2.0.0
+       ${PAAS_DOCKER_REG}/opsany-saas-ce-workbench:2.0.1
     # Django migrate
     docker exec -e BK_ENV="production" opsany-saas-ce-workbench /bin/sh -c \
     "python /opt/opsany/workbench/manage.py migrate --noinput && python /opt/opsany/workbench/manage.py createcachetable django_cache > /dev/null" >> ${SHELL_LOG}
@@ -312,7 +312,7 @@ saas_control_deploy(){
     sed -i "s#/t/control#/o/control#g" ${INSTALL_PATH}/esb/apis/control/toolkit/tools.py
 
     # Starter container
-    docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-control:2.0.0
+    docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-control:2.0.1
     docker run -d --restart=always --name opsany-saas-ce-control \
        -p 7004:80 \
        -v ${INSTALL_PATH}/conf/opsany-saas/control/control-supervisor.ini:/etc/supervisord.d/control.ini \
@@ -323,7 +323,7 @@ saas_control_deploy(){
        -v ${INSTALL_PATH}/logs:/opt/opsany/logs \
        -v ${INSTALL_PATH}/uploads:/opt/opsany/uploads \
        -v /etc/localtime:/etc/localtime:ro \
-       ${PAAS_DOCKER_REG}/opsany-saas-ce-control:2.0.0
+       ${PAAS_DOCKER_REG}/opsany-saas-ce-control:2.0.1
     
     # Django migrate
     docker exec -e BK_ENV="production" opsany-saas-ce-control /bin/sh -c \

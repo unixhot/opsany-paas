@@ -35,21 +35,21 @@ spec:
             - name: opsany-paas-login-config
               mountPath: /opt/opsany/paas/login/conf/settings_production.py
               subPath: settings_production.py
-            - name: opsany-paas-login-logs
+            - name: opsany-logs
               mountPath: /opt/opsany/logs
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - name: http
+            - name: paas-login
               containerPort: 8003
               protocol: TCP
-              #          livenessProbe:
-              # httpGet:
-              #path: /
-              #port: http
-              #readinessProbe:
-              #httpGet:
-              #path: /
-              #port: http
+          livenessProbe:
+            httpGet:
+              path: /healthz/
+              port: 8003
+          readinessProbe:
+            httpGet:
+              path: /healthz/
+              port: 8003
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
@@ -71,6 +71,6 @@ spec:
             items:
             - key: settings_production.py.login
               path: settings_production.py
-        - name: opsany-paas-login-logs
+        - name: opsany-logs
           persistentVolumeClaim:
-            claimName: opsany-paas-login-logs
+            claimName: opsany-logs

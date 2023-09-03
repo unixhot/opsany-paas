@@ -1,0 +1,44 @@
+---
+# dashboard-init.py
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ce-dashboard-init
+data:
+{{ (.Files.Glob "dashboard-init.py").AsConfig | indent 2 }}
+
+---
+# dashboard-prod.py
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ce-dashboard-prod
+data:
+{{ (.Files.Glob "dashboard-prod.py").AsConfig | indent 2 }}
+
+---
+# dashboard-nginx.conf
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ce-dashboard-nginx
+data:
+{{ (.Files.Glob "dashboard-nginx.conf").AsConfig | indent 2 }}
+
+---
+# dashboard-supervisor.ini
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ce-dashboard-supervisor
+data:
+{{ (.Files.Glob "dashboard-supervisor.ini").AsConfig | indent 2 }}
+
+---
+# dashboard-uwsgi.ini
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ce-dashboard-uwsgi
+data:
+{{ (.Files.Glob "dashboard-uwsgi.ini").AsConfig | indent 2 }}

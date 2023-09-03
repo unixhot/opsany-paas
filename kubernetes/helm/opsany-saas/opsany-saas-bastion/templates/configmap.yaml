@@ -1,0 +1,44 @@
+---
+# bastion-init.py
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ce-bastion-init
+data:
+{{ (.Files.Glob "bastion-init.py").AsConfig | indent 2 }}
+
+---
+# bastion-prod.py
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ce-bastion-prod
+data:
+{{ (.Files.Glob "bastion-prod.py").AsConfig | indent 2 }}
+
+---
+# bastion-nginx.conf
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ce-bastion-nginx
+data:
+{{ (.Files.Glob "bastion-nginx.conf").AsConfig | indent 2 }}
+
+---
+# bastion-supervisor.ini
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ce-bastion-supervisor
+data:
+{{ (.Files.Glob "bastion-supervisor.ini").AsConfig | indent 2 }}
+
+---
+# bastion-uwsgi.ini
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ce-bastion-uwsgi
+data:
+{{ (.Files.Glob "bastion-uwsgi.ini").AsConfig | indent 2 }}

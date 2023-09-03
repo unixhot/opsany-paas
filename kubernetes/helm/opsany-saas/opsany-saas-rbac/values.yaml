@@ -5,7 +5,7 @@
 replicaCount: 1
 
 image:
-  repository: registry.cn-beijing.aliyuncs.com/opsany
+  repository: registry.cn-beijing.aliyuncs.com/opsany/opsany-saas-ce-rbac
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
@@ -30,6 +30,10 @@ securityContext: {}
 service:
   type: ClusterIP
   port: 7001
+
+volume:
+  path: /data/k8s-nfs/opsany-logs
+  server: 10.60.37.218
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious

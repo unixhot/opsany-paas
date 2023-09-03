@@ -1,0 +1,134 @@
+# config file for opsany -- https://www.opsany.com/
+# =================================================
+
+[defaults]
+# Install Path
+INSTALL_PATH="/opt/opsany"
+
+# Network
+DOMAIN_NAME="demo.opsany.com"
+LOCAL_IP="opsany-paas-openresty"
+PROXY_PUBLIC_IP="opsany-paas-proxy"
+PROXY_LOCAL_IP="opsany-paas-openresty"
+
+# For Docker Hub
+#PAAS_DOCKER_REG="opsany"
+
+#For Aliyun
+PAAS_DOCKER_REG="registry.cn-beijing.aliyuncs.com/opsany"
+#PAAS_DOCKER_REG="registry-vpc.cn-beijing.aliyuncs.com/opsany"
+
+[opsany_paas]
+# PAAS Config
+PAAS_PAAS_IP="opsany-paas-paas"
+PAAS_LOGIN_IP="opsany-paas-login"
+PAAS_APPENGINE_IP="opsany-paas-appengine"
+PAAS_ESB_IP="opsany-paas-esb"
+
+[opsany_saas]
+# Please Do not modify
+UPLOAD_PATH="/opt/opsany/"
+FILE_ROOT="/srv/salt/"
+PILLAR_ROOT="/srv/pillar/"
+ROSTER_FILE_URL="/etc/salt/roster"
+SALT_SSH_FILE_URL="/etc/salt/pki/master/ssh"
+ANSIBLE_HOST_KEY_CHECKING="False"
+
+[mysql]
+# MySQL
+MYSQL_SERVER_IP="opsany-base-mysql"
+MYSQL_ROOT_PASSWORD="OpsAny@2020"
+MYSQL_OPSANY_PASSWORD="OpsAny@2020"
+MYSQL_PORT="3306"
+MYSQL_SERVER_PORT="3306"
+# SAAS MySQL Password
+MYSQL_OPSANY_RBAC_PASSWORD="OpsAny@2020"
+MYSQL_OPSANY_WORKBENCH_PASSWORD="OpsAny@2020"
+MYSQL_OPSANY_CMDB_PASSWORD="OpsAny@2020"
+MYSQL_OPSANY_CONTROL_PASSWORD="OpsAny@2020"
+MYSQL_OPSANY_JOB_PASSWORD="OpsAny@2020"
+MYSQL_OPSANY_MONITOR_PASSWORD="OpsAny@2020"
+MYSQL_OPSANY_CMP_PASSWORD="OpsAny@2020"
+MYSQL_OPSANY_DEVOPS_PASSWORD="OpsAny@2020"
+MYSQL_OPSANY_BASTION_PASSWORD="OpsAny@2020"
+MYSQL_OPSANY_DASHBOARD_PASSWORD="OpsAny@2020"
+
+[mongodb]
+# SAAS MongoDB Password
+MONGO_SERVER_IP="opsany-base-mongodb"
+MONGO_PORT="27017"
+MONGO_SERVER_PORT="27017"
+MONGO_INITDB_ROOT_USERNAME="root"
+MONGO_INITDB_ROOT_PASSWORD="OpsAny@2020"
+MONGO_CMDB_PASSWORD="OpsAny@2020"
+MONGO_JOB_PASSWORD="OpsAny@2020"
+MONGO_CMP_PASSWORD="OpsAny@2020"
+MONGO_WORKBENCH_PASSWORD="OpsAny@2020"
+MONGO_MONITOR_PASSWORD="OpsAny@2020"
+MONGO_DEVOPS_PASSWORD="OpsAny@2020"
+MONGO_CONTROL_PASSWORD="OpsAny@2020"
+
+[redis]
+# Redis Password
+REDIS_SERVER_IP="opsany-base-redis-master"
+# redis username can be empty
+REDIS_SERVER_USERNAME=""
+REDIS_SERVER_PASSWORD="OpsAny2020"
+REDIS_PORT="6379"
+REDIS_SERVER_PORT="6379"
+TERMINAL_TIMEOUT="1800"
+
+
+[websocket]
+# Websocket
+WEBSOCKET_GUACD_HOST="opsany-base-guacd"
+
+[zabbix]
+# Zabbix
+ZABBIX_DB_NAME="zabbix"
+ZABBIX_DB_USER="opsany"
+ZABBIX_DB_PASSWORD="OpsAny@2020"
+ZABBIX_API_PASSWORD="OpsAny@2020"
+ZABBIX_ADMIN_PASSWORD="OpsAny@2020"
+GRAFANA_ADMIN_PASSWORD="OpsAny@2020"
+
+[prometheus]
+# Prometheus
+PROM_SERVER_PASSWD="OpsAny@2020"
+
+[elasticsearch]
+# ElasticSearch
+ES_SERVER_IP="opsany-base-elasticsearch"
+ES_PASSWORD="OpsAny@2020"
+ELASTIC_PORT="9200"
+ELASTIC_SEARCH_INDEX="heartbeat-7.13.*"
+ELASTIC_SEARCH_USERNAME="elastic"
+
+[enterprise]
+# pipeline
+MYSQL_OPSANY_PIPELINE_PASSWORD="OpsAny@2020"
+
+# deploy
+MYSQL_OPSANY_DEPLOY_PASSWORD="OpsAny@2020"
+
+#event
+MYSQL_OPSANY_EVENT_PASSWORD="OpsAny@2020"
+MONGO_EVENT_PASSWORD="OpsAny@2020"
+
+#auto
+MYSQL_OPSANY_AUTO_PASSWORD="OpsAny@2020"
+MONGO_AUTO_PASSWORD="OpsAny@2020"
+
+# prom
+MYSQL_OPSANY_PROM_PASSWORD="OpsAny@2020"
+MONGO_PROM_PASSWORD="OpsAny@2020"
+
+# kbase
+MYSQL_OPSANY_KBASE_PASSWORD="OpsAny@2020"
+MONGO_KBASE_PASSWORD="OpsAny@2020"
+
+# k8s
+MYSQL_OPSANY_K8S_PASSWORD="OpsAny@2020"
+
+# log
+MYSQL_OPSANY_LOG_PASSWORD="OpsAny@2020"

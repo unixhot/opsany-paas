@@ -14,7 +14,7 @@ global:
   ##   - myRegistryKeySecretName
   ##
   imagePullSecrets: []
-  storageClass: ""
+  storageClass: "nfs-sc-opsany"
 
 ## @section Common parameters
 
@@ -74,6 +74,7 @@ image:
   registry: docker.io
   repository: bitnami/mysql
   tag: 8.0.31-debian-11-r10
+
   digest: ""
   ## Specify a imagePullPolicy
   ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
@@ -100,22 +101,22 @@ auth:
   ## @param auth.rootPassword Password for the `root` user. Ignored if existing secret is provided
   ## ref: https://github.com/bitnami/containers/tree/main/bitnami/mysql#setting-the-root-password-on-first-run
   ##
-  rootPassword: "OpsAny@2023"
+  rootPassword: "MYSQL_ROOT_PASSWORD"
   ## @param auth.createDatabase Wheter to create the .Values.auth.database or not
   ## ref: https://github.com/bitnami/containers/tree/main/bitnami/mysql#creating-a-database-on-first-run
   ##
-  createDatabase: true
+  createDatabase: false
   ## @param auth.database Name for a custom database to create
   ## ref: https://github.com/bitnami/containers/tree/main/bitnami/mysql#creating-a-database-on-first-run
   ##
-  database: "opsany_paas"
+  database: ""
   ## @param auth.username Name for a custom user to create
   ## ref: https://github.com/bitnami/containers/tree/main/bitnami/mysql#creating-a-database-user-on-first-run
   ##
-  username: "opsany"
+  username: ""
   ## @param auth.password Password for the new user. Ignored if existing secret is provided
   ##
-  password: "OpsAny@2023"
+  password: ""
   ## @param auth.replicationUser MySQL replication user
   ## ref: https://github.com/bitnami/containers/tree/main/bitnami/mysql#setting-up-a-replication-cluster
   ##

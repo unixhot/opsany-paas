@@ -48,18 +48,23 @@ spec:
             - name: opsany-saas-ce-rbac-uwsgi
               mountPath: /opt/opsany/uwsgi/rbac.ini
               subPath: rbac-uwsgi.ini
+            - name: opsany-logs
+              mountPath: /opt/opsany/logs
+            - name: opsany-uploads
+              mountPath: /opt/opsany/uploads
+
           ports:
             - name: http
               containerPort: 80
               protocol: TCP
-          livenessProbe:
-            httpGet:
-              path: /o/rbac/healthz/
-              port: http
-          readinessProbe:
-            httpGet:
-              path: /o/rbac/healthz/
-              port: http
+#          livenessProbe:
+#            httpGet:
+#              path: /o/rbac/healthz/
+#              port: http
+#          readinessProbe:
+#            httpGet:
+#              path: /o/rbac/healthz/
+#              port: http
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
@@ -99,16 +104,16 @@ spec:
             items:
             - key: rbac-uwsgi.ini
               path: rbac-uwsgi.ini
-        - name: opsany-saas-ce-rbac-nginx
+        - name: opsany-saas-ce-rbac-supervisor
           configMap:
             name: opsany-saas-ce-rbac-supervisor
             items:
             - key: rbac-supervisor.ini
               path: rbac-supervisor.ini
-        - name: opsany-paas-uploads
+        - name: opsany-uploads
           persistentVolumeClaim:
-            claimName: opsany-paas-uploads
-        - name: opsany-saas-logs
+            claimName: opsany-uploads
+        - name: opsany-logs
           persistentVolumeClaim:
-            claimName: opsany-saas-logs
+            claimName: opsany-logs
 

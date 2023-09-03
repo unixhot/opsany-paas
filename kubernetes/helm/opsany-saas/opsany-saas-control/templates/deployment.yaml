@@ -24,7 +24,6 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "opsany-saas-control.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
@@ -33,18 +32,39 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          volumeMounts:
+            - name: opsany-saas-ce-control-init
+              mountPath: /opt/opsany/control/config/__init__.py
+              subPath: control-init.py
+            - name: opsany-saas-ce-control-prod
+              mountPath: /opt/opsany/control/config/prod.py
+              subPath: control-prod.py
+            - name: opsany-saas-ce-control-supervisor
+              mountPath: /etc/supervisord.d/control.ini
+              subPath: control-supervisor.ini
+            - name: opsany-saas-ce-control-nginx
+              mountPath: /etc/nginx/http.d/default.conf
+              subPath: control-nginx.conf
+            - name: opsany-saas-ce-control-uwsgi
+              mountPath: /opt/opsany/uwsgi/control.ini
+              subPath: control-uwsgi.ini
+            - name: opsany-logs
+              mountPath: /opt/opsany/logs
+            - name: opsany-uploads
+              mountPath: /opt/opsany/uploads
+
           ports:
             - name: http
               containerPort: 80
               protocol: TCP
-          livenessProbe:
-            httpGet:
-              path: /
-              port: http
-          readinessProbe:
-            httpGet:
-              path: /
-              port: http
+#          livenessProbe:
+#            httpGet:
+#              path: /o/control/healthz/
+#              port: http
+#          readinessProbe:
+#            httpGet:
+#              path: /o/control/healthz/
+#              port: http
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
@@ -59,3 +79,41 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      volumes:
+        - name: opsany-saas-ce-control-init
+          configMap:
+            name: opsany-saas-ce-control-init
+            items:
+            - key: control-init.py
+              path: control-init.py
+        - name: opsany-saas-ce-control-prod
+          configMap:
+            name: opsany-saas-ce-control-prod
+            items:
+            - key: control-prod.py
+              path: control-prod.py
+        - name: opsany-saas-ce-control-nginx
+          configMap:
+            name: opsany-saas-ce-control-nginx
+            items:
+            - key: control-nginx.conf
+              path: control-nginx.conf
+        - name: opsany-saas-ce-control-uwsgi
+          configMap:
+            name: opsany-saas-ce-control-uwsgi
+            items:
+            - key: control-uwsgi.ini
+              path: control-uwsgi.ini
+        - name: opsany-saas-ce-control-supervisor
+          configMap:
+            name: opsany-saas-ce-control-supervisor
+            items:
+            - key: control-supervisor.ini
+              path: control-supervisor.ini
+        - name: opsany-uploads
+          persistentVolumeClaim:
+            claimName: opsany-uploads
+        - name: opsany-logs
+          persistentVolumeClaim:
+            claimName: opsany-logs
+

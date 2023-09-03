@@ -33,15 +33,6 @@ shell_error_log(){
     echo "$CTIME ${SHELL_NAME} : ${LOG_INFO}" >> ${SHELL_LOG}
 }
 
-# Install Inspection
-if [ ! -f ./install.config ];then
-      shell_error_log "Please Copy install.config and Change: cp install.config.example install.config"
-      exit
-else
-    grep '^[A-Z]' install.config > install.env
-    source ./install.env && rm -f install.env
-fi
-
 uninstall_paas(){
     echo "===Stop and remove PaaS Service==="
     docker stop opsany-paas-paas && docker rm -f opsany-paas-paas
@@ -56,6 +47,8 @@ uninstall_paas(){
     #docker stop opsany-base-rabbitmq && docker rm -f opsany-base-rabbitmq
     docker stop opsany-base-guacd && docker rm -f opsany-base-guacd
     docker stop opsany-base-mongodb && docker rm -f opsany-base-mongodb
+    grep '^[A-Z]' install.config > install.env
+    source ./install.env && rm -f install.env
     rm -rf ${INSTALL_PATH}
     rm -f /opt/opsany-paas/saas/*.tar.gz
 }
@@ -76,6 +69,48 @@ uninstall_saas(){
     docker stop opsany-saas-ce-devops && docker rm -f opsany-saas-ce-devops
 }
 
+uninstall_k8s(){
+    grep '^[A-Z]' install-k8s.config > install.env
+    helm uninstall opsany-paas-paas -n opsany
+    helm uninstall opsany-paas-login -n opsany
+    helm uninstall opsany-paas-esb -n opsany
+    helm uninstall opsany-paas-appengine -n opsany
+    helm uninstall opsany-paas-openresty -n opsany
+    helm uninstall opsany-paas-proxy -n opsany
+    helm uninstall opsany-paas-websocket -n opsany
+    helm uninstall opsany-saas-rbac -n opsany
+    helm uninstall opsany-saas-workbench -n opsany
+    helm uninstall opsany-saas-cmdb -n opsany
+    helm uninstall opsany-saas-control -n opsany
+    helm uninstall opsany-saas-job -n opsany
+    helm uninstall opsany-saas-monitor -n opsany
+    helm uninstall opsany-saas-cmp -n opsany
+    helm uninstall opsany-saas-bastion -n opsany
+    helm uninstall opsany-saas-devops -n opsany
+    helm uninstall opsany-saas-dashboard -n opsany
+    helm uninstall opsany-base-mysql -n opsany
+    helm uninstall opsany-base-mongodb -n opsany
+    helm uninstall opsany-base-redis -n opsany
+    helm uninstall opsany-paas-grafana -n opsany
+    helm uninstall opsany-paas-guacd -n opsany
+    helm uninstall nfs-provisioner -n opsany
+    kubectl delete pvc opsany-paas-grafana-data -n opsany
+    kubectl delete pvc opsany-paas-esb-code -n opsany
+    kubectl delete pvc opsany-uploads -n opsany
+    kubectl delete pvc opsany-logs -n opsany
+    kubectl delete sc nfs-sc-opsany
+    source ./install.env && rm -f install.env
+    kubectl delete -f ${INSTALL_PATH}/kubernetes/helm/opsany-paas/opsany-nfs.yaml -n opsany
+    kubectl delete ns opsany
+    rm -rf ${INSTALL_PATH}
+    rm -rf /data/k8s-nfs/opsany-esb-code/*
+    rm -rf /data/k8s-nfs/opsany-grafana-data/*
+    rm -rf /data/k8s-nfs/opsany-logs/*
+    rm -rf /data/k8s-nfs/opsany-proxy/*
+    rm -rf /data/k8s-nfs/opsany-uploads/*
+    echo "===I'll See You Again==="
+}
+
 
 # Main
 main(){
@@ -90,8 +125,11 @@ main(){
     saas)
         uninstall_saas
         ;;
+    k8s)
+        uninstall_k8s
+        ;;
 	help|*)
-		echo $"Usage: $0 {uninstall|saas|paas|help}"
+		echo $"Usage: $0 {uninstall|saas|paas|k8s|help}"
 	        ;;
     esac
 }

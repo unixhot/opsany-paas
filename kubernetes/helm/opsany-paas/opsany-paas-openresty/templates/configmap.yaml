@@ -14,7 +14,7 @@ kind: ConfigMap
 metadata:
   name: opsany-paas-openresty-paas
 data:
-{{ (.Files.Glob "nginx_paas.conf").AsConfig | indent 2 }}
+{{ (.Files.Glob "opsany_paas.conf").AsConfig | indent 2 }}
 
 ---
 # nginx_proxy.conf
@@ -23,13 +23,5 @@ kind: ConfigMap
 metadata:
   name: opsany-paas-openresty-proxy
 data:
-{{ (.Files.Glob "nginx_proxy.conf").AsConfig | indent 2 }}
+{{ (.Files.Glob "opsany_proxy.conf").AsConfig | indent 2 }}
 
----
-# ssl
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: opsany-paas-openresty-ssl
-data:
-{{ (.Files.Glob "ssl/*").AsConfig | indent 2 }}

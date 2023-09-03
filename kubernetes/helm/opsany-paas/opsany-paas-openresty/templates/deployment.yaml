@@ -36,16 +36,16 @@ spec:
               mountPath: /etc/nginx/nginx.conf
               subPath: nginx.conf
             - name: opsany-paas-openresty-paas
-              mountPath: /etc/nginx/conf.d/nginx_paas.conf
-              subPath: nginx_paas.conf
+              mountPath: /etc/nginx/conf.d/opsany_paas.conf
+              subPath: opsany_paas.conf
               #- name: opsany-paas-openresty-proxy
               #mountPath: /etc/nginx/conf.d/nginx_proxy.conf
               #subPath: nginx_proxy.conf
             - name: opsany-paas-openresty-ssl
               mountPath: /etc/nginx/conf.d/ssl
-            - name: opsany-paas-openresty-logs
+            - name: opsany-logs
               mountPath: /opt/opsany/logs
-            - name: opsany-paas-uploads
+            - name: opsany-uploads
               mountPath: /opt/opsany/uploads
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
@@ -62,6 +62,12 @@ spec:
               #port: http
             - name: https
               containerPort: 443
+              protocol: TCP
+            - name: proxy-https
+              containerPort: 8011
+              protocol: TCP
+            - name: proxy-http
+              containerPort: 8012
               protocol: TCP
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
@@ -88,25 +94,25 @@ spec:
           configMap:
             name: opsany-paas-openresty-paas
             items:
-            - key: nginx_paas.conf
-              path: nginx_paas.conf
+            - key: opsany_paas.conf
+              path: opsany_paas.conf
         - name: opsany-paas-openresty-proxy
           configMap:
             name: opsany-paas-openresty-proxy
             items:
-            - key: nginx_proxy.conf
-              path: nginx_proxy.conf
+            - key: opsany_proxy.conf
+              path: opsany_proxy.conf
         - name: opsany-paas-openresty-ssl
-          configMap:
-            name: opsany-paas-openresty-ssl
+          secret:
+            secretName: opsany-paas-openresty-ssl
             items:
-            - key: test.opsany.cn.pem
-              path: test.opsany.cn.pem
-            - key: test.opsany.cn.key
-              path: test.opsany.cn.key
-        - name: opsany-paas-uploads
+            - key: DOMAIN_NAME.pem
+              path: DOMAIN_NAME.pem
+            - key: DOMAIN_NAME.key
+              path: DOMAIN_NAME.key
+        - name: opsany-uploads
           persistentVolumeClaim:
-            claimName: opsany-paas-uploads
-        - name: opsany-paas-openresty-logs
+            claimName: opsany-uploads
+        - name: opsany-logs
           persistentVolumeClaim:
-            claimName: opsany-paas-openresty-logs
+            claimName: opsany-logs

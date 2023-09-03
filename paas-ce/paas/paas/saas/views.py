@@ -249,7 +249,7 @@ class UploadAndRegisterView(SuperuserRequiredMixin, View):
         saas_upload_file = SaaSUploadFile.objects.create(
             name=saas_file_name,
             size=20971520,
-            md5=str(uuid.uuid4()),
+            md5=str(uuid.uuid4())[:18],
             file=saas_file_name,
         )
         return saas_upload_file

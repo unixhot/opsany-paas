@@ -8,8 +8,8 @@ spec:
   type: {{ .Values.service.type }}
   ports:
     - port: {{ .Values.service.port }}
-      targetPort: http
+      targetPort: 8002
       protocol: TCP
-      name: http
+      name: paas-esb
   selector:
     {{- include "opsany-paas-esb.selectorLabels" . | nindent 4 }}

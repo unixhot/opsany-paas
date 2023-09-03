@@ -24,7 +24,6 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "opsany-saas-job.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
@@ -33,18 +32,39 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          volumeMounts:
+            - name: opsany-saas-ce-job-init
+              mountPath: /opt/opsany/job/config/__init__.py
+              subPath: job-init.py
+            - name: opsany-saas-ce-job-prod
+              mountPath: /opt/opsany/job/config/prod.py
+              subPath: job-prod.py
+            - name: opsany-saas-ce-job-supervisor
+              mountPath: /etc/supervisord.d/job.ini
+              subPath: job-supervisor.ini
+            - name: opsany-saas-ce-job-nginx
+              mountPath: /etc/nginx/http.d/default.conf
+              subPath: job-nginx.conf
+            - name: opsany-saas-ce-job-uwsgi
+              mountPath: /opt/opsany/uwsgi/job.ini
+              subPath: job-uwsgi.ini
+            - name: opsany-logs
+              mountPath: /opt/opsany/logs
+            - name: opsany-uploads
+              mountPath: /opt/opsany/uploads
+
           ports:
             - name: http
               containerPort: 80
               protocol: TCP
-          livenessProbe:
-            httpGet:
-              path: /
-              port: http
-          readinessProbe:
-            httpGet:
-              path: /
-              port: http
+#          livenessProbe:
+#            httpGet:
+#              path: /o/job/healthz/
+#              port: http
+#          readinessProbe:
+#            httpGet:
+#              path: /o/job/healthz/
+#              port: http
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
@@ -59,3 +79,41 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      volumes:
+        - name: opsany-saas-ce-job-init
+          configMap:
+            name: opsany-saas-ce-job-init
+            items:
+            - key: job-init.py
+              path: job-init.py
+        - name: opsany-saas-ce-job-prod
+          configMap:
+            name: opsany-saas-ce-job-prod
+            items:
+            - key: job-prod.py
+              path: job-prod.py
+        - name: opsany-saas-ce-job-nginx
+          configMap:
+            name: opsany-saas-ce-job-nginx
+            items:
+            - key: job-nginx.conf
+              path: job-nginx.conf
+        - name: opsany-saas-ce-job-uwsgi
+          configMap:
+            name: opsany-saas-ce-job-uwsgi
+            items:
+            - key: job-uwsgi.ini
+              path: job-uwsgi.ini
+        - name: opsany-saas-ce-job-supervisor
+          configMap:
+            name: opsany-saas-ce-job-supervisor
+            items:
+            - key: job-supervisor.ini
+              path: job-supervisor.ini
+        - name: opsany-uploads
+          persistentVolumeClaim:
+            claimName: opsany-uploads
+        - name: opsany-logs
+          persistentVolumeClaim:
+            claimName: opsany-logs
+

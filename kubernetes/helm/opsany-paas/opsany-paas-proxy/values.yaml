@@ -1,11 +1,11 @@
-# Default values for opsany-proxy.
+# Default values for opsany-paas-proxy.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
 replicaCount: 1
 
 image:
-  repository: nginx
+  repository: registry.cn-beijing.aliyuncs.com/opsany/opsany-paas-proxy
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
@@ -13,15 +13,6 @@ image:
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
-
-serviceAccount:
-  # Specifies whether a service account should be created
-  create: true
-  # Annotations to add to the service account
-  annotations: {}
-  # The name of the service account to use.
-  # If not set and create is true, a name is generated using the fullname template
-  name: ""
 
 podAnnotations: {}
 
@@ -38,23 +29,11 @@ securityContext: {}
 
 service:
   type: ClusterIP
-  port: 80
+  port: 8011
 
-ingress:
-  enabled: false
-  className: ""
-  annotations: {}
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
-  hosts:
-    - host: chart-example.local
-      paths:
-        - path: /
-          pathType: ImplementationSpecific
-  tls: []
-  #  - secretName: chart-example-tls
-  #    hosts:
-  #      - chart-example.local
+volume:
+  path: /data/k8s-nfs/opsany-proxy
+  server: 10.60.37.218
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious

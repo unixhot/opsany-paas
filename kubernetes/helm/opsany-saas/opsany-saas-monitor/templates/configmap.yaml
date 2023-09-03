@@ -1,0 +1,44 @@
+---
+# monitor-init.py
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ce-monitor-init
+data:
+{{ (.Files.Glob "monitor-init.py").AsConfig | indent 2 }}
+
+---
+# monitor-prod.py
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ce-monitor-prod
+data:
+{{ (.Files.Glob "monitor-prod.py").AsConfig | indent 2 }}
+
+---
+# monitor-nginx.conf
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ce-monitor-nginx
+data:
+{{ (.Files.Glob "monitor-nginx.conf").AsConfig | indent 2 }}
+
+---
+# monitor-supervisor.ini
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ce-monitor-supervisor
+data:
+{{ (.Files.Glob "monitor-supervisor.ini").AsConfig | indent 2 }}
+
+---
+# monitor-uwsgi.ini
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ce-monitor-uwsgi
+data:
+{{ (.Files.Glob "monitor-uwsgi.ini").AsConfig | indent 2 }}

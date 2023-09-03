@@ -133,7 +133,7 @@ schedulerName: ""
 architecture: standalone
 ## @param useStatefulSet Set to true to use a StatefulSet instead of a Deployment (only when `architecture=standalone`)
 ##
-useStatefulSet: false
+useStatefulSet: true
 ## MongoDB(&reg;) Authentication parameters
 ##
 auth:
@@ -147,7 +147,7 @@ auth:
   ## @param auth.rootPassword MongoDB(&reg;) root password
   ## ref: https://github.com/bitnami/containers/tree/main/bitnami/mongodb#setting-the-root-user-and-password-on-first-run
   ##
-  rootPassword: ""
+  rootPassword: "MONGO_INITDB_ROOT_PASSWORD"
   ## MongoDB(&reg;) custom users and databases
   ## ref: https://github.com/bitnami/containers/tree/main/bitnami/mongodb#creating-a-user-and-database-on-first-run
   ## @param auth.usernames List of custom users to be created during the initialization

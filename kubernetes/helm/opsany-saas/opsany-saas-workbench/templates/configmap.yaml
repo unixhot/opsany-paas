@@ -1,0 +1,44 @@
+---
+# workbench-init.py
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ce-workbench-init
+data:
+{{ (.Files.Glob "workbench-init.py").AsConfig | indent 2 }}
+
+---
+# workbench-prod.py
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ce-workbench-prod
+data:
+{{ (.Files.Glob "workbench-prod.py").AsConfig | indent 2 }}
+
+---
+# workbench-nginx.conf
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ce-workbench-nginx
+data:
+{{ (.Files.Glob "workbench-nginx.conf").AsConfig | indent 2 }}
+
+---
+# workbench-supervisor.ini
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ce-workbench-supervisor
+data:
+{{ (.Files.Glob "workbench-supervisor.ini").AsConfig | indent 2 }}
+
+---
+# workbench-uwsgi.ini
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ce-workbench-uwsgi
+data:
+{{ (.Files.Glob "workbench-uwsgi.ini").AsConfig | indent 2 }}

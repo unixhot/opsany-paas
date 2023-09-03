@@ -1,0 +1,24 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-paas-grafana-config
+data:
+{{ (.Files.Glob "grafana.ini").AsConfig | indent 2 }}
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-paas-grafana-key
+data:
+{{ (.Files.Glob "grafana.key").AsConfig | indent 2 }}
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-paas-grafana-pem
+data:
+{{ (.Files.Glob "grafana.pem").AsConfig | indent 2 }}
+

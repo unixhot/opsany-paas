@@ -1,0 +1,44 @@
+---
+# devops-init.py
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ce-devops-init
+data:
+{{ (.Files.Glob "devops-init.py").AsConfig | indent 2 }}
+
+---
+# devops-prod.py
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ce-devops-prod
+data:
+{{ (.Files.Glob "devops-prod.py").AsConfig | indent 2 }}
+
+---
+# devops-nginx.conf
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ce-devops-nginx
+data:
+{{ (.Files.Glob "devops-nginx.conf").AsConfig | indent 2 }}
+
+---
+# devops-supervisor.ini
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ce-devops-supervisor
+data:
+{{ (.Files.Glob "devops-supervisor.ini").AsConfig | indent 2 }}
+
+---
+# devops-uwsgi.ini
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ce-devops-uwsgi
+data:
+{{ (.Files.Glob "devops-uwsgi.ini").AsConfig | indent 2 }}

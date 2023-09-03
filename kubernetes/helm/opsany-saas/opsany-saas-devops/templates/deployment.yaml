@@ -24,7 +24,6 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "opsany-saas-devops.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
@@ -33,18 +32,39 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          volumeMounts:
+            - name: opsany-saas-ce-devops-init
+              mountPath: /opt/opsany/devops/config/__init__.py
+              subPath: devops-init.py
+            - name: opsany-saas-ce-devops-prod
+              mountPath: /opt/opsany/devops/config/prod.py
+              subPath: devops-prod.py
+            - name: opsany-saas-ce-devops-supervisor
+              mountPath: /etc/supervisord.d/devops.ini
+              subPath: devops-supervisor.ini
+            - name: opsany-saas-ce-devops-nginx
+              mountPath: /etc/nginx/http.d/default.conf
+              subPath: devops-nginx.conf
+            - name: opsany-saas-ce-devops-uwsgi
+              mountPath: /opt/opsany/uwsgi/devops.ini
+              subPath: devops-uwsgi.ini
+            - name: opsany-logs
+              mountPath: /opt/opsany/logs
+            - name: opsany-uploads
+              mountPath: /opt/opsany/uploads
+
           ports:
             - name: http
               containerPort: 80
               protocol: TCP
-          livenessProbe:
-            httpGet:
-              path: /
-              port: http
-          readinessProbe:
-            httpGet:
-              path: /
-              port: http
+#          livenessProbe:
+#            httpGet:
+#              path: /o/devops/healthz/
+#              port: http
+#          readinessProbe:
+#            httpGet:
+#              path: /o/devops/healthz/
+#              port: http
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
@@ -59,3 +79,41 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      volumes:
+        - name: opsany-saas-ce-devops-init
+          configMap:
+            name: opsany-saas-ce-devops-init
+            items:
+            - key: devops-init.py
+              path: devops-init.py
+        - name: opsany-saas-ce-devops-prod
+          configMap:
+            name: opsany-saas-ce-devops-prod
+            items:
+            - key: devops-prod.py
+              path: devops-prod.py
+        - name: opsany-saas-ce-devops-nginx
+          configMap:
+            name: opsany-saas-ce-devops-nginx
+            items:
+            - key: devops-nginx.conf
+              path: devops-nginx.conf
+        - name: opsany-saas-ce-devops-uwsgi
+          configMap:
+            name: opsany-saas-ce-devops-uwsgi
+            items:
+            - key: devops-uwsgi.ini
+              path: devops-uwsgi.ini
+        - name: opsany-saas-ce-devops-supervisor
+          configMap:
+            name: opsany-saas-ce-devops-supervisor
+            items:
+            - key: devops-supervisor.ini
+              path: devops-supervisor.ini
+        - name: opsany-uploads
+          persistentVolumeClaim:
+            claimName: opsany-uploads
+        - name: opsany-logs
+          persistentVolumeClaim:
+            claimName: opsany-logs
+

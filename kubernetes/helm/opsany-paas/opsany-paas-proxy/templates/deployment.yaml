@@ -33,28 +33,34 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           volumeMounts:
             - name: opsany-paas-proxy-config
-              mountPath: /opt/opsany-proxy/conf/prod.py
-              subPath: settings_production.py.proxy
-            - name: opsany-paas-proxy-ansible
+              mountPath: /opt/opsany-proxy/config/prod.py
+              subPath: prod.py
+            - name: opsany-paas-proxy-invscript
               mountPath: /opt/opsany-proxy/invscript_proxy.py
               subPath: invscript_proxy.py
-            - name: opsany-paas-proxy-logs
+            - name: opsany-logs
               mountPath: /opt/opsany/logs
-            - name: opsany-paas-uploads
+            - name: opsany-uploads
               mountPath: /opt/opsany/uploads
+            - name: opsany-paas-proxy-salt-certs
+              mountPath: /etc/pki/tls/certs
+            - name: opsany-paas-proxy-salt-etc
+              mountPath: /etc/salt/
+            - name: opsany-paas-proxy-salt-cache
+              mountPath: /var/cache/salt
+            - name: opsany-paas-proxy-salt-srv
+              mountPath: /srv/salt
+            - name: opsany-paas-proxy-salt-pillar
+              mountPath: /srv/pillar
+            - name: opsany-paas-proxy-ansible-playbook
+              mountPath: /srv/playbook
+            - name: opsany-paas-proxy-ansible-pki
+              mountPath: /opt/opsany/pki
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - name: http
-              containerPort: 8001
+            - name: paas-proxy
+              containerPort: 8010
               protocol: TCP
-              #          livenessProbe:
-              # httpGet:
-              #path: /
-              #port: http
-              #readinessProbe:
-              #httpGet:
-              #path: /
-              #port: http
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
@@ -76,14 +82,37 @@ spec:
             items:
             - key: settings_production.py.proxy
               path: prod.py
-        - name: opsany-paas-proxy-ansible
+        - name: opsany-paas-proxy-invscript
           secret:
-            secretName: opsany-paas-proxy-ansible
+            secretName: opsany-paas-proxy-invscript
             items:
             - key: invscript_proxy.py
               path: invscript_proxy.py
-        - name: opsany-paas-proxy-logs
+        - name: opsany-logs
           persistentVolumeClaim:
-            claimName: opsany-paas-proxy-logs
+            claimName: opsany-logs
+        - name: opsany-uploads
           persistentVolumeClaim:
-            claimName: opsany-paas-uploads
+            claimName: opsany-uploads
+        - name: opsany-paas-proxy-salt-certs
+          persistentVolumeClaim:
+            claimName: opsany-paas-proxy-salt-certs
+        - name: opsany-paas-proxy-salt-etc
+          persistentVolumeClaim:
+            claimName: opsany-paas-proxy-salt-etc
+        - name: opsany-paas-proxy-salt-cache
+          persistentVolumeClaim:
+            claimName: opsany-paas-proxy-salt-cache
+        - name: opsany-paas-proxy-salt-srv
+          persistentVolumeClaim:
+            claimName: opsany-paas-proxy-salt-srv
+        - name: opsany-paas-proxy-salt-pillar
+          persistentVolumeClaim:
+            claimName: opsany-paas-proxy-salt-pillar
+        - name: opsany-paas-proxy-ansible-playbook
+          persistentVolumeClaim:
+            claimName: opsany-paas-proxy-ansible-playbook
+        - name: opsany-paas-proxy-ansible-pki
+          persistentVolumeClaim:
+            claimName: opsany-paas-proxy-ansible-pki
+

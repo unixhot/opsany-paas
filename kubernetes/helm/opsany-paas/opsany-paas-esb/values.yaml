@@ -8,7 +8,7 @@ image:
   repository: opsany/opsany-paas-esb
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "v3.2.6"
+  tag: ""
 
 imagePullSecrets: []
 nameOverride: ""
@@ -34,7 +34,7 @@ service:
 volume:
   path: /data/k8s-nfs/opsany-logs
   codePath: /data/k8s-nfs/opsany-esb-code
-  server: 192.168.56.11
+  server: 10.60.37.218
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious

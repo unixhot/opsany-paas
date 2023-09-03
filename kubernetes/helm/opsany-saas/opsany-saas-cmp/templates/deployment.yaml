@@ -24,7 +24,6 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "opsany-saas-cmp.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
@@ -33,18 +32,39 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          volumeMounts:
+            - name: opsany-saas-ce-cmp-init
+              mountPath: /opt/opsany/cmp/config/__init__.py
+              subPath: cmp-init.py
+            - name: opsany-saas-ce-cmp-prod
+              mountPath: /opt/opsany/cmp/config/prod.py
+              subPath: cmp-prod.py
+            - name: opsany-saas-ce-cmp-supervisor
+              mountPath: /etc/supervisord.d/cmp.ini
+              subPath: cmp-supervisor.ini
+            - name: opsany-saas-ce-cmp-nginx
+              mountPath: /etc/nginx/http.d/default.conf
+              subPath: cmp-nginx.conf
+            - name: opsany-saas-ce-cmp-uwsgi
+              mountPath: /opt/opsany/uwsgi/cmp.ini
+              subPath: cmp-uwsgi.ini
+            - name: opsany-logs
+              mountPath: /opt/opsany/logs
+            - name: opsany-uploads
+              mountPath: /opt/opsany/uploads
+
           ports:
             - name: http
               containerPort: 80
               protocol: TCP
-          livenessProbe:
-            httpGet:
-              path: /
-              port: http
-          readinessProbe:
-            httpGet:
-              path: /
-              port: http
+#          livenessProbe:
+#            httpGet:
+#              path: /o/cmp/healthz/
+#              port: http
+#          readinessProbe:
+#            httpGet:
+#              path: /o/cmp/healthz/
+#              port: http
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
@@ -59,3 +79,41 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      volumes:
+        - name: opsany-saas-ce-cmp-init
+          configMap:
+            name: opsany-saas-ce-cmp-init
+            items:
+            - key: cmp-init.py
+              path: cmp-init.py
+        - name: opsany-saas-ce-cmp-prod
+          configMap:
+            name: opsany-saas-ce-cmp-prod
+            items:
+            - key: cmp-prod.py
+              path: cmp-prod.py
+        - name: opsany-saas-ce-cmp-nginx
+          configMap:
+            name: opsany-saas-ce-cmp-nginx
+            items:
+            - key: cmp-nginx.conf
+              path: cmp-nginx.conf
+        - name: opsany-saas-ce-cmp-uwsgi
+          configMap:
+            name: opsany-saas-ce-cmp-uwsgi
+            items:
+            - key: cmp-uwsgi.ini
+              path: cmp-uwsgi.ini
+        - name: opsany-saas-ce-cmp-supervisor
+          configMap:
+            name: opsany-saas-ce-cmp-supervisor
+            items:
+            - key: cmp-supervisor.ini
+              path: cmp-supervisor.ini
+        - name: opsany-uploads
+          persistentVolumeClaim:
+            claimName: opsany-uploads
+        - name: opsany-logs
+          persistentVolumeClaim:
+            claimName: opsany-logs
+

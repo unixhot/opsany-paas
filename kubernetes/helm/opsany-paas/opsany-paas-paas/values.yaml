@@ -8,7 +8,7 @@ image:
   repository: opsany/opsany-paas-paas
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "v3.2.6"
+  tag: ""
 
 imagePullSecrets: []
 nameOverride: ""

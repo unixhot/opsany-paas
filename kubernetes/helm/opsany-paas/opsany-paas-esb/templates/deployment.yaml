@@ -35,23 +35,23 @@ spec:
             - name: opsany-paas-esb-config
               mountPath: /opt/opsany/paas/esb/configs/default.py
               subPath: default.py
-            - name: opsany-paas-esb-logs
+            - name: opsany-logs
               mountPath: /opt/opsany/logs
             - name: opsany-paas-esb-code
               mountPath: /opt/opsany/paas/esb/components/generic/apis/
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - name: http
+            - name: paas-esb
               containerPort: 8002
               protocol: TCP
-              #          livenessProbe:
-              # httpGet:
-              #path: /
-              #port: http
-              #readinessProbe:
-              #httpGet:
-              #path: /
-              #port: http
+          livenessProbe:
+            httpGet:
+              path: /healthz/
+              port: 8002
+          readinessProbe:
+            httpGet:
+              path: /healthz/
+              port: 8002
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
@@ -73,9 +73,9 @@ spec:
             items:
             - key: settings_production.py.esb
               path: default.py
-        - name: opsany-paas-esb-logs
+        - name: opsany-logs
           persistentVolumeClaim:
-            claimName: opsany-paas-esb-logs
+            claimName: opsany-logs
         - name: opsany-paas-esb-code
           persistentVolumeClaim:
             claimName: opsany-paas-esb-code

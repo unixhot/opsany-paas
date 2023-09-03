@@ -1,0 +1,44 @@
+---
+# control-init.py
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ce-control-init
+data:
+{{ (.Files.Glob "control-init.py").AsConfig | indent 2 }}
+
+---
+# control-prod.py
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ce-control-prod
+data:
+{{ (.Files.Glob "control-prod.py").AsConfig | indent 2 }}
+
+---
+# control-nginx.conf
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ce-control-nginx
+data:
+{{ (.Files.Glob "control-nginx.conf").AsConfig | indent 2 }}
+
+---
+# control-supervisor.ini
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ce-control-supervisor
+data:
+{{ (.Files.Glob "control-supervisor.ini").AsConfig | indent 2 }}
+
+---
+# control-uwsgi.ini
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ce-control-uwsgi
+data:
+{{ (.Files.Glob "control-uwsgi.ini").AsConfig | indent 2 }}

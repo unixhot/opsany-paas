@@ -1,0 +1,231 @@
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: opsany-paas-proxy-salt-certs
+spec:
+  capacity:
+    storage: 1Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  mountOptions:
+    - vers=3
+    - nolock
+  nfs:
+    path: /data/k8s-nfs/opsany-proxy/salt-certs
+    server: LOCAL_IP
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: opsany-paas-proxy-salt-certs
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: ""
+  volumeMode: Filesystem
+  volumeName: opsany-paas-proxy-salt-certs
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: opsany-paas-proxy-salt-etc
+spec:
+  capacity:
+    storage: 1Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  mountOptions:
+    - vers=3
+    - nolock
+  nfs:
+    path: /data/k8s-nfs/opsany-proxy/salt-etc
+    server: LOCAL_IP
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: opsany-paas-proxy-salt-etc
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: ""
+  volumeMode: Filesystem
+  volumeName: opsany-paas-proxy-salt-etc
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: opsany-paas-proxy-salt-cache
+spec:
+  capacity:
+    storage: 1Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  mountOptions:
+    - vers=3
+    - nolock
+  nfs:
+    path: /data/k8s-nfs/opsany-proxy/salt-cache
+    server: LOCAL_IP
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: opsany-paas-proxy-salt-cache
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: ""
+  volumeMode: Filesystem
+  volumeName: opsany-paas-proxy-salt-cache
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: opsany-paas-proxy-salt-srv
+spec:
+  capacity:
+    storage: 1Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  mountOptions:
+    - vers=3
+    - nolock
+  nfs:
+    path: /data/k8s-nfs/opsany-proxy/salt-srv
+    server: LOCAL_IP
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: opsany-paas-proxy-salt-srv
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: ""
+  volumeMode: Filesystem
+  volumeName: opsany-paas-proxy-salt-srv
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: opsany-paas-proxy-salt-pillar
+spec:
+  capacity:
+    storage: 1Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  mountOptions:
+    - vers=3
+    - nolock
+  nfs:
+    path: /data/k8s-nfs/opsany-proxy/salt-pillar
+    server: LOCAL_IP
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: opsany-paas-proxy-salt-pillar
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: ""
+  volumeMode: Filesystem
+  volumeName: opsany-paas-proxy-salt-pillar
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: opsany-paas-proxy-ansible-pki
+spec:
+  capacity:
+    storage: 1Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  mountOptions:
+    - vers=3
+    - nolock
+  nfs:
+    path: /data/k8s-nfs/opsany-proxy/ansible-pki
+    server: LOCAL_IP
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: opsany-paas-proxy-ansible-pki
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: ""
+  volumeMode: Filesystem
+  volumeName: opsany-paas-proxy-ansible-pki
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: opsany-paas-proxy-ansible-playbook
+spec:
+  capacity:
+    storage: 1Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  mountOptions:
+    - vers=3
+    - nolock
+  nfs:
+    path: /data/k8s-nfs/opsany-proxy/ansible-playbook
+    server: LOCAL_IP
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: opsany-paas-proxy-ansible-playbook
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: ""
+  volumeMode: Filesystem
+  volumeName: opsany-paas-proxy-ansible-playbook

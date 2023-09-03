@@ -8,8 +8,8 @@ spec:
   type: {{ .Values.service.type }}
   ports:
     - port: {{ .Values.service.port }}
-      targetPort: http
+      targetPort: 8004
       protocol: TCP
-      name: http
+      name: websocket
   selector:
     {{- include "opsany-paas-websocket.selectorLabels" . | nindent 4 }}
