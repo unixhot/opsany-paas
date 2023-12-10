@@ -113,6 +113,8 @@ prometheus_uninstall(){
     docker stop opsany-base-consul
     docker rm opsany-base-consul
     rm -rf ${INSTALL_PATH}/prometheus-volume/*
+    rm -rf ${INSTALL_PATH}/consul-volume/*
+
 }
 
 # Main

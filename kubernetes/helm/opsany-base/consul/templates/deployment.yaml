@@ -1,16 +1,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "consul.fullname" . }}
+  name: {{ include "opsany-consul.fullname" . }}
   labels:
-    {{- include "consul.labels" . | nindent 4 }}
+    {{- include "opsany-consul.labels" . | nindent 4 }}
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
   {{- end }}
   selector:
     matchLabels:
-      {{- include "consul.selectorLabels" . | nindent 6 }}
+      {{- include "opsany-consul.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -18,13 +18,12 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "consul.selectorLabels" . | nindent 8 }}
+        {{- include "opsany-consul.selectorLabels" . | nindent 8 }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "consul.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
@@ -32,19 +31,17 @@ spec:
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          volumeMounts:
+            - name: opsany-consul-config
+              mountPath: /consul/config/consul.hcl
+              subPath: consul.hcl
+            - name: opsany-consul-data
+              mountPath: /consul/data
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - name: http
-              containerPort: 80
+            - name: consul
+              containerPort: 8500
               protocol: TCP
-          livenessProbe:
-            httpGet:
-              path: /
-              port: http
-          readinessProbe:
-            httpGet:
-              path: /
-              port: http
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
@@ -59,3 +56,14 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      volumes:
+        - name: opsany-consul-config
+          secret:
+            secretName: opsany-consul-config
+            items:
+            - key: consul.hcl
+              path: consul.hcl
+        - name: opsany-consul-data
+          persistentVolumeClaim:
+            claimName: opsany-consul-data
+

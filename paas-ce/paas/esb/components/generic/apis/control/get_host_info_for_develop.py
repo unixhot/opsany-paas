@@ -18,7 +18,19 @@ class GetHostInfoForDevelop(Component):
     获取主机组下的主机（应用平台）
 
     ### 请求参数
+    
     {{ common_args_desc }}
+    
+    #### 接口参数
+
+    | 字段    | 类型     | 必选   | 描述       |
+    | ----- | ------ | ---- | -------- |
+    | page | int | 是    |  页码 |
+    | pageSize | int | 是    |  页码 |
+    | token_data | str | 是    |  token |
+    | app_name_list | list or str | 是    |  应用唯一标识 |
+    | filters | dict | 否    | 筛选 |
+    | order_by | dict | 否    | 排序 |
 
     ### 返回结果示例
 
@@ -43,10 +55,11 @@ class GetHostInfoForDevelop(Component):
         token_data = forms.Field(required=True)
         app_name_list = forms.Field(required=True)
         filters = forms.Field(required=False)
+        order_by = forms.Field(required=False)
 
         # clean方法返回的数据可通过组件的form_data属性获取
         def clean(self):
-            return self.get_cleaned_data_when_exist(keys=["app_name_list", "page", "pageSize", "filters", "token_data"])
+            return self.get_cleaned_data_when_exist(keys=["app_name_list", "page", "pageSize", "filters", "token_data", "order_by"])
 
     # 组件处理入口
     def handle(self):

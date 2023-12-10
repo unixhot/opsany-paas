@@ -32,18 +32,21 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          volumeMounts:
+            - name: opsany-logs
+              mountPath: /opt/opsany/logs
+            - name: opsany-uploads
+              mountPath: /opt/opsany/uploads
+            - name: opsany-paas-websocket-config
+              mountPath: /opt/opsany/websocket/config/prod.py
+              subPath: prod.py
+            - name: opsany-paas-websocket-init
+              mountPath: /opt/opsany/websocket/__init__.py
+              subPath: __init__.py
           ports:
             - name: websocket
               containerPort: 8004
               protocol: TCP
-              #          livenessProbe:
-              #httpGet:
-              #path: /
-              #port: http
-              #readinessProbe:
-              #httpGet:
-              #path: /
-              #port: http
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
@@ -58,3 +61,23 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      volumes:
+        - name: opsany-paas-websocket-config
+          configMap:
+            name: opsany-paas-websocket-config
+            items:
+            - key: settings_production.py.websocket
+              path: prod.py
+        - name: opsany-paas-websocket-init
+          configMap:
+            name: opsany-paas-websocket-init
+            items:
+            - key: settings_production.py.websocket.init
+              path: __init__.py
+        - name: opsany-logs
+          persistentVolumeClaim:
+            claimName: opsany-logs
+        - name: opsany-uploads
+          persistentVolumeClaim:
+            claimName: opsany-uploads
+

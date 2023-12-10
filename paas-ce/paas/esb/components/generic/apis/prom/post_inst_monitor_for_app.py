@@ -27,6 +27,7 @@ class PostInstMonitorForApp(Component):
     | app_name_list | list or str | 是    |  应用唯一标识 |
     | output | list or str | 否   | 输出字段 |
     | filters | dict | 否    | 筛选 |
+    | order_by | dict | 否    | 排序 |
 
     ### 返回结果示例
 
@@ -49,10 +50,11 @@ class PostInstMonitorForApp(Component):
         app_name_list = forms.Field(required=True)
         output = forms.Field(required=False)
         filters = forms.Field(required=False)
+        order_by = forms.Field(required=False)
 
         # clean方法返回的数据可通过组件的form_data属性获取
         def clean(self):
-            return self.get_cleaned_data_when_exist(keys=["app_name_list", "output", "filters"])
+            return self.get_cleaned_data_when_exist(keys=["app_name_list", "output", "filters", "order_by"])
 
     # 组件处理入口
     def handle(self):

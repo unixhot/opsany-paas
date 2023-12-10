@@ -1,16 +1,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "prometheus.fullname" . }}
+  name: {{ include "opsany-prometheus.fullname" . }}
   labels:
-    {{- include "prometheus.labels" . | nindent 4 }}
+    {{- include "opsany-prometheus.labels" . | nindent 4 }}
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
   {{- end }}
   selector:
     matchLabels:
-      {{- include "prometheus.selectorLabels" . | nindent 6 }}
+      {{- include "opsany-prometheus.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -18,13 +18,12 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "prometheus.selectorLabels" . | nindent 8 }}
+        {{- include "opsany-prometheus.selectorLabels" . | nindent 8 }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "prometheus.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
@@ -32,19 +31,29 @@ spec:
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          args: 
+          - --config.file=/etc/prometheus/prometheus.yml
+          - --storage.tsdb.path=/prometheus
+          - --web.console.libraries=/usr/share/prometheus/console_libraries 
+          - --web.console.templates=/usr/share/prometheus/consoles
+          - --web.config.file=/etc/prometheus/web.yml
+          - --web.enable-lifecycle
+          volumeMounts:
+            - name: opsany-prometheus-config
+              mountPath: /etc/prometheus/prometheus.yml
+              subPath: prometheus.yml
+            - name: opsany-prometheus-web-config
+              mountPath: /etc/prometheus/web.yml
+              subPath: web.yml
+            - name: opsany-prometheus-data
+              mountPath: /var/lib/prometheus
+            - name: opsany-prometheus-rules
+              mountPath: /var/lib/prometheus-config/rules
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - name: http
-              containerPort: 80
+            - name: consul
+              containerPort: 9090
               protocol: TCP
-          livenessProbe:
-            httpGet:
-              path: /
-              port: http
-          readinessProbe:
-            httpGet:
-              path: /
-              port: http
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
@@ -59,3 +68,22 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      volumes:
+        - name: opsany-prometheus-config
+          secret:
+            secretName: opsany-prometheus-config
+            items:
+            - key: prometheus.yml
+              path: prometheus.yml
+        - name: opsany-prometheus-web-config
+          secret:
+            secretName: opsany-prometheus-web-config
+            items:
+            - key: web.yml
+              path: web.yml
+        - name: opsany-prometheus-data
+          persistentVolumeClaim:
+            claimName: opsany-prometheus-data
+        - name: opsany-prometheus-rules
+          persistentVolumeClaim:
+            claimName: opsany-prometheus-rules

@@ -1,0 +1,119 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "opsany-saas-log.fullname" . }}
+  labels:
+    {{- include "opsany-saas-log.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "opsany-saas-log.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "opsany-saas-log.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          volumeMounts:
+            - name: opsany-saas-ee-log-init
+              mountPath: /opt/opsany/log/config/__init__.py
+              subPath: log-init.py
+            - name: opsany-saas-ee-log-prod
+              mountPath: /opt/opsany/log/config/prod.py
+              subPath: log-prod.py
+            - name: opsany-saas-ee-log-supervisor
+              mountPath: /etc/supervisord.d/log.ini
+              subPath: log-supervisor.ini
+            - name: opsany-saas-ee-log-nginx
+              mountPath: /etc/nginx/http.d/default.conf
+              subPath: log-nginx.conf
+            - name: opsany-saas-ee-log-uwsgi
+              mountPath: /opt/opsany/uwsgi/log.ini
+              subPath: log-uwsgi.ini
+            - name: opsany-logs
+              mountPath: /opt/opsany/logs
+            - name: opsany-uploads
+              mountPath: /opt/opsany/uploads
+
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+#          livenessProbe:
+#            httpGet:
+#              path: /o/log/healthz/
+#              port: http
+#          readinessProbe:
+#            httpGet:
+#              path: /o/log/healthz/
+#              port: http
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+        - name: opsany-saas-ee-log-init
+          configMap:
+            name: opsany-saas-ee-log-init
+            items:
+            - key: log-init.py
+              path: log-init.py
+        - name: opsany-saas-ee-log-prod
+          configMap:
+            name: opsany-saas-ee-log-prod
+            items:
+            - key: log-prod.py
+              path: log-prod.py
+        - name: opsany-saas-ee-log-nginx
+          configMap:
+            name: opsany-saas-ee-log-nginx
+            items:
+            - key: log-nginx.conf
+              path: log-nginx.conf
+        - name: opsany-saas-ee-log-uwsgi
+          configMap:
+            name: opsany-saas-ee-log-uwsgi
+            items:
+            - key: log-uwsgi.ini
+              path: log-uwsgi.ini
+        - name: opsany-saas-ee-log-supervisor
+          configMap:
+            name: opsany-saas-ee-log-supervisor
+            items:
+            - key: log-supervisor.ini
+              path: log-supervisor.ini
+        - name: opsany-uploads
+          persistentVolumeClaim:
+            claimName: opsany-uploads
+        - name: opsany-logs
+          persistentVolumeClaim:
+            claimName: opsany-logs
+

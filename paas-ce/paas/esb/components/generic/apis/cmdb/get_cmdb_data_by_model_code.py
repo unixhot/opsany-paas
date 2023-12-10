@@ -32,7 +32,7 @@ class GetCmdbDataByModelCode(Component):
         "message": "获取相关信息成功"
     }
     ```
-    """#
+    """
 
     # 组件所属系统的系统名
     sys_name = configs.SYSTEM_NAME
@@ -40,10 +40,13 @@ class GetCmdbDataByModelCode(Component):
     # Form处理参数校验
     class Form(BaseComponentForm):
         model_code = forms.Field()
+        field_list = forms.Field(required=False)
+        is_link = forms.Field(required=False)
+        auth_username = forms.Field(required=False)
 
         # clean方法返回的数据可通过组件的form_data属性获取
         def clean(self):
-            return self.get_cleaned_data_when_exist(keys=['model_code'])
+            return self.get_cleaned_data_when_exist(keys=['model_code', 'field_list', 'is_link', 'auth_username'])
 
     # 组件处理入口
     def handle(self):
@@ -56,7 +59,7 @@ class GetCmdbDataByModelCode(Component):
         # 请求系统接口
         response = self.outgoing.http_client.get(
             host=configs.host,
-            path='{}import/'.format(base_api_url),
+            path='{}get-data-by-model-code/'.format(base_api_url),
             params=params,
             data=None,
             cookies=self.request.wsgi_request.COOKIES,

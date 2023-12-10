@@ -1,0 +1,216 @@
+version: '3'
+
+services:
+  st2web:
+    image: ${ST2_IMAGE_REPO:-stackstorm/}st2web:${ST2_VERSION:-latest}
+    restart: on-failure
+    environment:
+      ST2_AUTH_URL: ${ST2_AUTH_URL:-http://st2auth:9100/}
+      ST2_API_URL: ${ST2_API_URL:-http://st2api:9101/}
+      ST2_STREAM_URL: ${ST2_STREAM_URL:-http://st2stream:9102/}
+      ST2WEB_HTTPS: ${ST2WEB_HTTPS:-0}
+    depends_on:
+      - st2auth
+      - st2api
+      - st2stream
+    #healthcheck:
+    #  test: ["CMD", "/st2web-healthcheck.sh"]
+    #  interval: 30s
+    #  timeout: 1s
+    #  retries: 1
+    #volumes:
+    #  - ./scripts/st2web-healthcheck.sh:/st2web-healthcheck.sh
+      # If you want to use a custom st2web config, edit ./files/config.js accordingly and
+      # uncomment the line below
+      #- ./files/config.js:/opt/stackstorm/static/webui/config.js:ro
+    ports:
+      - "${ST2_EXPOSE_HTTP:-0.0.0.0:8005}:80"
+      # - "${ST2_EXPOSE_HTTPS:-127.0.0.1:443}:443"
+      # more work would be needed with certificate generate to make https work.
+    networks:
+      - private
+      - public
+  st2makesecrets:
+    image: ${ST2_IMAGE_REPO:-stackstorm/}st2actionrunner:${ST2_VERSION:-latest}
+    restart: on-failure
+    networks:
+      - private
+    volumes:
+      - ./scripts/makesecrets.sh:/makesecrets.sh
+      - stackstorm-keys:/etc/st2/keys:rw
+    command: /makesecrets.sh
+  st2api:
+    image: ${ST2_IMAGE_REPO:-stackstorm/}st2api:${ST2_VERSION:-latest}
+    restart: on-failure
+    depends_on:
+      - st2makesecrets
+    networks:
+      - private
+    environment:
+      ST2_AUTH_URL: ${ST2_AUTH_URL:-http://st2auth:9100/}
+      ST2_API_URL: ${ST2_API_URL:-http://st2api:9101/}
+      ST2_STREAM_URL: ${ST2_STREAM_URL:-http://st2stream:9102/}
+    volumes:
+      - ./files/st2.docker.conf:/etc/st2/st2.docker.conf:ro
+      - ./files/st2.user.conf:/etc/st2/st2.user.conf:ro
+      - stackstorm-keys:/etc/st2/keys:ro
+      - stackstorm-packs-configs:/opt/stackstorm/configs:rw
+      - stackstorm-packs:/opt/stackstorm/packs:rw
+      - ./files/rbac:/opt/stackstorm/rbac:rw
+      - ${ST2_PACKS_DEV:-./packs.dev}:/opt/stackstorm/packs.dev:rw
+  st2stream:
+    image: ${ST2_IMAGE_REPO:-stackstorm/}st2stream:${ST2_VERSION:-latest}
+    restart: on-failure
+    depends_on:
+      - st2api
+    networks:
+      - private
+    volumes:
+      - ./files/st2.docker.conf:/etc/st2/st2.docker.conf:ro
+      - ./files/st2.user.conf:/etc/st2/st2.user.conf:ro
+  st2scheduler:
+    image: ${ST2_IMAGE_REPO:-stackstorm/}st2scheduler:${ST2_VERSION:-latest}
+    restart: on-failure
+    depends_on:
+      - st2api
+    networks:
+      - private
+    volumes:
+      - ./files/st2.docker.conf:/etc/st2/st2.docker.conf:ro
+      - ./files/st2.user.conf:/etc/st2/st2.user.conf:ro
+  st2workflowengine:
+    image: ${ST2_IMAGE_REPO:-stackstorm/}st2workflowengine:${ST2_VERSION:-latest}
+    restart: on-failure
+    depends_on:
+      - st2api
+    networks:
+      - private
+    volumes:
+      - ./files/st2.docker.conf:/etc/st2/st2.docker.conf:ro
+      - ./files/st2.user.conf:/etc/st2/st2.user.conf:ro
+      - stackstorm-keys:/etc/st2/keys:ro
+  st2auth:
+    image: ${ST2_IMAGE_REPO:-stackstorm/}st2auth:${ST2_VERSION:-latest}
+    restart: on-failure
+    depends_on:
+      - st2api
+    networks:
+      - private
+    volumes:
+      - ./files/st2.docker.conf:/etc/st2/st2.docker.conf:ro
+      - ./files/st2.user.conf:/etc/st2/st2.user.conf:ro
+      - ./files/htpasswd:/etc/st2/htpasswd:ro
+  st2actionrunner:
+    image: ${ST2_IMAGE_REPO:-stackstorm/}st2actionrunner:${ST2_VERSION:-latest}
+    restart: on-failure
+    depends_on:
+      - st2api
+    networks:
+      - private
+    volumes:
+      - ./files/st2.docker.conf:/etc/st2/st2.docker.conf:ro
+      - ./files/st2.user.conf:/etc/st2/st2.user.conf:ro
+      - stackstorm-packs-configs:/opt/stackstorm/configs:rw
+      - stackstorm-packs:/opt/stackstorm/packs:rw
+      - ${ST2_PACKS_DEV:-./packs.dev}:/opt/stackstorm/packs.dev:rw
+      - stackstorm-virtualenvs:/opt/stackstorm/virtualenvs:rw
+      - stackstorm-ssh:/home/stanley/.ssh
+      # Action runner needs access to keys since action definitions (Jinja
+      # templates) can reference secrets
+      - stackstorm-keys:/etc/st2/keys:ro
+  st2garbagecollector:
+    image: ${ST2_IMAGE_REPO:-stackstorm/}st2garbagecollector:${ST2_VERSION:-latest}
+    restart: on-failure
+    depends_on:
+      - st2api
+    networks:
+      - private
+    volumes:
+      - ./files/st2.docker.conf:/etc/st2/st2.docker.conf:ro
+      - ./files/st2.user.conf:/etc/st2/st2.user.conf:ro
+  st2notifier:
+    image: ${ST2_IMAGE_REPO:-stackstorm/}st2notifier:${ST2_VERSION:-latest}
+    restart: on-failure
+    depends_on:
+      - st2api
+    networks:
+      - private
+    volumes:
+      - ./files/st2.docker.conf:/etc/st2/st2.docker.conf:ro
+      - ./files/st2.user.conf:/etc/st2/st2.user.conf:ro
+  st2rulesengine:
+    image: ${ST2_IMAGE_REPO:-stackstorm/}st2rulesengine:${ST2_VERSION:-latest}
+    restart: on-failure
+    depends_on:
+      - st2api
+    networks:
+      - private
+    volumes:
+      - ./files/st2.docker.conf:/etc/st2/st2.docker.conf:ro
+      - ./files/st2.user.conf:/etc/st2/st2.user.conf:ro
+  st2sensorcontainer:
+    image: ${ST2_IMAGE_REPO:-stackstorm/}st2sensorcontainer:${ST2_VERSION:-latest}
+    restart: on-failure
+    depends_on:
+      - st2api
+    networks:
+      - private
+    volumes:
+      - ./files/st2.docker.conf:/etc/st2/st2.docker.conf:ro
+      - ./files/st2.user.conf:/etc/st2/st2.user.conf:ro
+      - stackstorm-virtualenvs:/opt/stackstorm/virtualenvs:ro
+      - stackstorm-packs:/opt/stackstorm/packs:ro
+      - stackstorm-packs-configs:/opt/stackstorm/configs:ro
+      - ${ST2_PACKS_DEV:-./packs.dev}:/opt/stackstorm/packs.dev:ro
+  st2timersengine:
+    image: ${ST2_IMAGE_REPO:-stackstorm/}st2timersengine:${ST2_VERSION:-latest}
+    restart: on-failure
+    depends_on:
+      - st2api
+    networks:
+      - private
+    volumes:
+      - ./files/st2.docker.conf:/etc/st2/st2.docker.conf:ro
+  st2client:
+    image: ${ST2_IMAGE_REPO:-stackstorm/}st2actionrunner:${ST2_VERSION:-latest}
+    restart: on-failure
+    depends_on:
+      - st2auth
+      - st2api
+      - st2stream
+    command: /st2client-startup.sh
+    networks:
+      - private
+    environment:
+      ST2CLIENT: 1
+      ST2_AUTH_URL: ${ST2_AUTH_URL:-http://st2auth:9100/}
+      ST2_API_URL: ${ST2_API_URL:-http://st2api:9101/}
+      ST2_STREAM_URL: ${ST2_STREAM_URL:-http://st2stream:9102/}
+      TZ: ${TZ:-UTC}
+    volumes:
+      - ./files/st2.docker.conf:/etc/st2/st2.docker.conf:ro
+      - ./files/st2.user.conf:/etc/st2/st2.user.conf:ro
+      # Technically, client container doesn't need or should have access to the
+      # keys in prod setup, but here we make it available to end user for
+      # testing and transparency reasons since this setup is primarily mean to
+      # be used for testing and development.
+      - stackstorm-keys:/etc/st2/keys:ro
+      - stackstorm-packs-configs:/opt/stackstorm/configs:rw
+      - stackstorm-packs:/opt/stackstorm/packs:rw
+      - ./files/rbac:/opt/stackstorm/rbac:rw
+      - ${ST2_PACKS_DEV:-./packs.dev}:/opt/stackstorm/packs.dev:rw
+      - ./files/st2-cli.conf:/root/.st2/config
+      - ./scripts/st2client-startup.sh:/st2client-startup.sh
+
+volumes:
+    stackstorm-packs:
+    stackstorm-packs-configs:
+    stackstorm-keys:
+    stackstorm-virtualenvs:
+    stackstorm-ssh:
+
+networks:
+  public:
+    driver: bridge
+  private:
+    driver: bridge

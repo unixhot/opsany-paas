@@ -27,6 +27,7 @@ class PostInfoToUser(Component):
     | temp_id | int | 是  | 信息模板ID |
     | parameter | string | 是  | 参数 |
     | subscribe_type | list | 否  | 发送类型 |
+    | alert_info | dict | 否  | 告警内容 |
 
     ### 请求参数示例
 
@@ -63,25 +64,25 @@ class PostInfoToUser(Component):
         parameter = forms.Field(required=True)
         operator = forms.Field(required=True)
         subscribe_type = forms.Field(required=False)
+        alert_info = forms.Field(required=False)
 
         # clean方法返回的数据可通过组件的form_data属性获取
         def clean(self):
-            return self.get_cleaned_data_when_exist(keys=["temp_id", "parameter", "operator", "subscribe_type"])
+            return self.get_cleaned_data_when_exist(keys=["temp_id", "parameter", "operator", "subscribe_type", "alert_info"])
 
     # 组件处理入口
     def handle(self):
         # 获取Form clean处理后的数据
-        data = self.form_data
+        params = self.form_data
 
         # 设置当前操作者
-        # data['operator'] = self.current_user.username
-
+        params['operator'] = self.current_user.username
         # 请求系统接口
         response = self.outgoing.http_client.post(
             host=configs.host,
             path='{}user-message/'.format(base_api_url),
             params=None,
-            data=json.dumps(data),
+            data=json.dumps(params),
             cookies=self.request.wsgi_request.COOKIES,
         )
 

@@ -1,7 +1,7 @@
 # config file for opsany -- https://www.opsany.com/
 # =================================================
 
-[defaults]
+###defaults
 # Install Path
 INSTALL_PATH="/opt/opsany"
 
@@ -18,14 +18,14 @@ PROXY_LOCAL_IP="opsany-paas-openresty"
 PAAS_DOCKER_REG="registry.cn-beijing.aliyuncs.com/opsany"
 #PAAS_DOCKER_REG="registry-vpc.cn-beijing.aliyuncs.com/opsany"
 
-[opsany_paas]
+###opsany_paas
 # PAAS Config
 PAAS_PAAS_IP="opsany-paas-paas"
 PAAS_LOGIN_IP="opsany-paas-login"
 PAAS_APPENGINE_IP="opsany-paas-appengine"
 PAAS_ESB_IP="opsany-paas-esb"
 
-[opsany_saas]
+###opsany_saas
 # Please Do not modify
 UPLOAD_PATH="/opt/opsany/"
 FILE_ROOT="/srv/salt/"
@@ -34,7 +34,7 @@ ROSTER_FILE_URL="/etc/salt/roster"
 SALT_SSH_FILE_URL="/etc/salt/pki/master/ssh"
 ANSIBLE_HOST_KEY_CHECKING="False"
 
-[mysql]
+###mysql
 # MySQL
 MYSQL_SERVER_IP="opsany-base-mysql"
 MYSQL_ROOT_PASSWORD="OpsAny@2020"
@@ -53,7 +53,7 @@ MYSQL_OPSANY_DEVOPS_PASSWORD="OpsAny@2020"
 MYSQL_OPSANY_BASTION_PASSWORD="OpsAny@2020"
 MYSQL_OPSANY_DASHBOARD_PASSWORD="OpsAny@2020"
 
-[mongodb]
+###mongodb
 # SAAS MongoDB Password
 MONGO_SERVER_IP="opsany-base-mongodb"
 MONGO_PORT="27017"
@@ -68,7 +68,7 @@ MONGO_MONITOR_PASSWORD="OpsAny@2020"
 MONGO_DEVOPS_PASSWORD="OpsAny@2020"
 MONGO_CONTROL_PASSWORD="OpsAny@2020"
 
-[redis]
+###redis
 # Redis Password
 REDIS_SERVER_IP="opsany-base-redis-master"
 # redis username can be empty
@@ -79,24 +79,26 @@ REDIS_SERVER_PORT="6379"
 TERMINAL_TIMEOUT="1800"
 
 
-[websocket]
+###websocket
 # Websocket
 WEBSOCKET_GUACD_HOST="opsany-base-guacd"
 
-[zabbix]
+###zabbix
 # Zabbix
 ZABBIX_DB_NAME="zabbix"
 ZABBIX_DB_USER="opsany"
 ZABBIX_DB_PASSWORD="OpsAny@2020"
 ZABBIX_API_PASSWORD="OpsAny@2020"
 ZABBIX_ADMIN_PASSWORD="OpsAny@2020"
+ZABBIX_SERVER_HOST="opsany-zabbix-server"
 GRAFANA_ADMIN_PASSWORD="OpsAny@2020"
 
-[prometheus]
+###prometheus
 # Prometheus
 PROM_SERVER_PASSWD="OpsAny@2020"
+CONSUL_SERVER_IP="opsany-consul"
 
-[elasticsearch]
+###elasticsearch
 # ElasticSearch
 ES_SERVER_IP="opsany-base-elasticsearch"
 ES_PASSWORD="OpsAny@2020"
@@ -104,7 +106,7 @@ ELASTIC_PORT="9200"
 ELASTIC_SEARCH_INDEX="heartbeat-7.13.*"
 ELASTIC_SEARCH_USERNAME="elastic"
 
-[enterprise]
+###enterprise
 # pipeline
 MYSQL_OPSANY_PIPELINE_PASSWORD="OpsAny@2020"
 

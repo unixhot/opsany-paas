@@ -71,7 +71,7 @@ TEST_PING_SCRIPT_PATH = os.path.join(BASE_DIR, "proxy/utils/test_ping_v2.py")
 SALTSTACK_API_URL = "https://127.0.0.1:8005"
 SALTSTACK_API_USERNAME = "saltapi"
 SALTSTACK_API_PASSWORD = "OpsAny@2020"
-CONTROL_KEY = os.getenv("CONTROL_KEY", "099f6e6f-9ad8-43d7-b487-7f655519598d")
+CONTROL_KEY = os.getenv("CONTROL_KEY", "CONTROL_SECRET_KEY_PROXY")
 FILE_ROOT = os.getenv("FILE_ROOT", "/srv/salt/")
 PILLAR_ROOT = os.getenv("PILLAR_ROOT", "/srv/pillar/")
 
@@ -81,3 +81,4 @@ PROXY_PUBLIC_URL = "http://public-proxy.opsany.com:8012"
 
 # 告警规则路径---该路径需要挂载到与Prometheus配置文件规则挂载路径一致，通过在Proxy目录写入规则方式使Prometheus能读取到该告警目录
 PROM_ALERT_RULE_PATH = os.getenv("PROM_ALERT_RULE_PATH" ,"/opt/opsany/uploads/prometheus-config/rules")
+PROM_SERVER_CHECK_PATH = os.getenv("PROM_SERVER_CHECK_PATH" ,"/opt/opsany/uploads/monitor/heartbeat-monitors.d/")

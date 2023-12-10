@@ -53,14 +53,18 @@ class BkApi:
         }
         res = self.session.get(URL, params=req, verify=False)
         try:
-            flag = res.json().get("result")
-            message = res.json().get("message")
+            try:
+                res_data = res.json()
+            except Exception:
+                return False, "PAAS服务异常请联系管理员或查看PAAS日志：".format(str(res.content.decode()))
+            flag = res_data.get("result")
+            message = res_data.get("message")
             if not flag:
-                return message, flag
+                return flag, message
             else:
-                return message, flag
-        except Exception:
-            return "Register Online SAAS error.", False
+                return flag, message
+        except Exception as e:
+            return False, "注册脚本异常请联系管理员：{}".format(str(e))
 
 
 # 增加脚本参数
@@ -93,7 +97,7 @@ if __name__ == '__main__':
     status, res = bk_api.login(verify_code)
     if status:
         # res, status = bk_api.set_new_password(password)
-        res, status = bk_api.register_online_saas(saas_app_code, saas_app_name, saas_app_version, saas_app_secret_key)
+        status, res = bk_api.register_online_saas(saas_app_code, saas_app_name, saas_app_version, saas_app_secret_key)
         if status:
             print("Register Online SAAS SUCCESS: {} ".format(saas_app_code))
         else:

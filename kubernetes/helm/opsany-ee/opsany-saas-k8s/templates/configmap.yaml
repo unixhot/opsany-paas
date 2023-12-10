@@ -1,0 +1,44 @@
+---
+# k8s-init.py
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ee-k8s-init
+data:
+{{ (.Files.Glob "k8s-init.py").AsConfig | indent 2 }}
+
+---
+# k8s-prod.py
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ee-k8s-prod
+data:
+{{ (.Files.Glob "k8s-prod.py").AsConfig | indent 2 }}
+
+---
+# k8s-nginx.conf
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ee-k8s-nginx
+data:
+{{ (.Files.Glob "k8s-nginx.conf").AsConfig | indent 2 }}
+
+---
+# k8s-supervisor.ini
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ee-k8s-supervisor
+data:
+{{ (.Files.Glob "k8s-supervisor.ini").AsConfig | indent 2 }}
+
+---
+# k8s-uwsgi.ini
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ee-k8s-uwsgi
+data:
+{{ (.Files.Glob "k8s-uwsgi.ini").AsConfig | indent 2 }}

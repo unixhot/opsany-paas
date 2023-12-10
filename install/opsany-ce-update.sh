@@ -150,6 +150,7 @@ proxy_update(){
     sed -i "s/RABBIT_SERVER_IP/${RABBIT_SERVER_IP}/g" ${INSTALL_PATH}/conf/proxy/settings_production.py.proxy
     sed -i "s/RABBITMQ_DEFAULT_USER/${RABBITMQ_DEFAULT_USER}/g" ${INSTALL_PATH}/conf/proxy/settings_production.py.proxy
     sed -i "s/RABBITMQ_DEFAULT_PASS/${RABBITMQ_DEFAULT_PASS}/g" ${INSTALL_PATH}/conf/proxy/settings_production.py.proxy
+    sed -i "s/CONTROL_SECRET_KEY_PROXY/${CONTROL_SECRET_KEY_PROXY}/g" ${INSTALL_PATH}/conf/proxy/settings_production.py.proxy
     cp ../saas/invscript_proxy.py ${INSTALL_PATH}/conf/proxy/
     sed -i "s/LOCALHOST/${MYSQL_SERVER_IP}/g" ${INSTALL_PATH}/conf/proxy/invscript_proxy.py
     sed -i "s/PROXY_PASSWORD/${MYSQL_OPSANY_PASSWORD}/g" ${INSTALL_PATH}/conf/proxy/invscript_proxy.py
@@ -207,7 +208,6 @@ websocket_update(){
     ${PAAS_DOCKER_REG}/opsany-paas-websocket:${UPDATE_VERSION}
 }
 
-
 saas_rbac_update(){
     shell_log "======Update RBAC======"
     # Modify configuration
@@ -246,7 +246,6 @@ saas_rbac_update(){
 
 saas_workbench_update(){
     shell_log "======Update workbench======"
-
     # Modify configuration
     UPDATE_VERSION=$1
     WORKBENCH_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.workbench_secret_key)
@@ -289,7 +288,6 @@ saas_workbench_update(){
 
 saas_cmdb_update(){
     shell_log "======Update cmdb======"
-
     # Modify configuration
     UPDATE_VERSION=$1
     CMDB_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.cmdb_secret_key)
@@ -334,7 +332,6 @@ saas_cmdb_update(){
 
 saas_control_update(){
     shell_log "======Update control======"
-   
     # Modify configuration
     UPDATE_VERSION=$1
     CONTROL_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.control_secret_key)
@@ -375,7 +372,6 @@ saas_control_update(){
 
 saas_job_update(){
     shell_log "======Update job======"
-
     # Modify configuration
     UPDATE_VERSION=$1
     JOB_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.job_secret_key)
@@ -611,7 +607,6 @@ main(){
     UPDATE_VERSION=$2
     case "$1" in
 	base)
-        proxy_update $2
 	    saas_rbac_update $2
 	    saas_workbench_update $2
 	    saas_cmdb_update $2
@@ -621,6 +616,21 @@ main(){
 	    saas_bastion_update $2
 	    saas_dashboard_update $2
 		;;
+    paas)
+        paas_update $2
+        ;;
+    login)
+        login_update $2
+        ;;
+    esb)
+        esb_update $2
+        ;;
+    websocket)
+        websocket_update $2
+        ;;
+    appengine)
+        appengine_update $2
+        ;;
     proxy)
         proxy_update $2
         ;;
@@ -641,6 +651,9 @@ main(){
 	    ;;
 	monitor)
 	    saas_monitor_update $2
+	    ;;
+    dashboard)
+	    saas_dashboard_update $2
 	    ;;
 	devops)
 	    saas_devops_update $2
@@ -668,7 +681,7 @@ main(){
         saas_devops_update $2
         ;;
 	help|*)
-	    echo $"Usage: $0 {(base|monitor|devops|all|help) version}"
+	    echo $"Usage: $0 {(paas|login|esb|appengine|proxy|websocket|rbac|workbench|cmdb|control|job|cmp|bastion|base|monitor|dashboard|devops|all|help) version}"
 	    ;;
     esac
 }

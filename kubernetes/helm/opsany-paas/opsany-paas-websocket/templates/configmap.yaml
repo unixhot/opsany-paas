@@ -1,0 +1,17 @@
+---
+# websocket-init.py
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-paas-websocket-init
+data:
+{{ (.Files.Glob "settings_production.py.websocket.init").AsConfig | indent 2 }}
+
+---
+# websocket-prod.py
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-paas-websocket-config
+data:
+{{ (.Files.Glob "settings_production.py.websocket").AsConfig | indent 2 }}

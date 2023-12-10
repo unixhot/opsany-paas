@@ -1,0 +1,44 @@
+---
+# apm-init.py
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ee-apm-init
+data:
+{{ (.Files.Glob "apm-init.py").AsConfig | indent 2 }}
+
+---
+# apm-prod.py
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ee-apm-prod
+data:
+{{ (.Files.Glob "apm-prod.py").AsConfig | indent 2 }}
+
+---
+# apm-nginx.conf
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ee-apm-nginx
+data:
+{{ (.Files.Glob "apm-nginx.conf").AsConfig | indent 2 }}
+
+---
+# apm-supervisor.ini
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ee-apm-supervisor
+data:
+{{ (.Files.Glob "apm-supervisor.ini").AsConfig | indent 2 }}
+
+---
+# apm-uwsgi.ini
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ee-apm-uwsgi
+data:
+{{ (.Files.Glob "apm-uwsgi.ini").AsConfig | indent 2 }}

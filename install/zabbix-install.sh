@@ -79,39 +79,12 @@ zabbix_install(){
       -d ${PAAS_DOCKER_REG}/zabbix-web-nginx-mysql:alpine-5.0-latest
 }
 
-es_install(){
-    #Elasticsearch
-    shell_log "====Start Elasticsearch"
-    docker run -d --restart=always --name opsany-elasticsearch \
-    -e "discovery.type=single-node" \
-    -e "ELASTIC_PASSWORD=${ES_PASSWORD}" \
-    -e "xpack.license.self_generated.type=basic" \
-    -e "xpack.security.enabled=true" \
-    -e "bootstrap.memory_lock=true" \
-    -e "ES_JAVA_OPTS=-Xms512m -Xmx512m" \
-    -v /etc/localtime:/etc/localtime:ro \
-    -v ${INSTALL_PATH}/es-volume:/usr/share/elasticsearch/data/ \
-    -p 9200:9200 -p 9300:9300 \
-    ${PAAS_DOCKER_REG}/elasticsearch:7.16.3
-    
-    #heartbeat
-    shell_log "====Start Heartbeat===="
-    docker run -d --restart=always --name opsany-heartbeat \
-    -v ${INSTALL_PATH}/conf/heartbeat.yml:/etc/heartbeat/heartbeat.yml \
-    -v ${INSTALL_PATH}/uploads/monitor/heartbeat-monitors.d:/etc/heartbeat/monitors.d \
-    -v ${INSTALL_PATH}/logs:/var/log/heartbeat \
-    -v /etc/localtime:/etc/localtime:ro \
-    ${PAAS_DOCKER_REG}/opsany-heartbeat:7.13.2
-}
-
-
 # Main
 main(){
     case "$1" in
     zabbix)
         install_init
         zabbix_install
-        es_install
         ;;
 	help|*)
 		echo $"Usage: $0 {zabbix|help}"

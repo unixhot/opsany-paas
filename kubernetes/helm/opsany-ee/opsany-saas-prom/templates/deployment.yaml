@@ -1,0 +1,119 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "opsany-saas-prom.fullname" . }}
+  labels:
+    {{- include "opsany-saas-prom.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "opsany-saas-prom.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "opsany-saas-prom.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          volumeMounts:
+            - name: opsany-saas-ee-prom-init
+              mountPath: /opt/opsany/prom/config/__init__.py
+              subPath: prom-init.py
+            - name: opsany-saas-ee-prom-prod
+              mountPath: /opt/opsany/prom/config/prod.py
+              subPath: prom-prod.py
+            - name: opsany-saas-ee-prom-supervisor
+              mountPath: /etc/supervisord.d/prom.ini
+              subPath: prom-supervisor.ini
+            - name: opsany-saas-ee-prom-nginx
+              mountPath: /etc/nginx/http.d/default.conf
+              subPath: prom-nginx.conf
+            - name: opsany-saas-ee-prom-uwsgi
+              mountPath: /opt/opsany/uwsgi/prom.ini
+              subPath: prom-uwsgi.ini
+            - name: opsany-logs
+              mountPath: /opt/opsany/logs
+            - name: opsany-uploads
+              mountPath: /opt/opsany/uploads
+
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+#          livenessProbe:
+#            httpGet:
+#              path: /o/prom/healthz/
+#              port: http
+#          readinessProbe:
+#            httpGet:
+#              path: /o/prom/healthz/
+#              port: http
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+        - name: opsany-saas-ee-prom-init
+          configMap:
+            name: opsany-saas-ee-prom-init
+            items:
+            - key: prom-init.py
+              path: prom-init.py
+        - name: opsany-saas-ee-prom-prod
+          configMap:
+            name: opsany-saas-ee-prom-prod
+            items:
+            - key: prom-prod.py
+              path: prom-prod.py
+        - name: opsany-saas-ee-prom-nginx
+          configMap:
+            name: opsany-saas-ee-prom-nginx
+            items:
+            - key: prom-nginx.conf
+              path: prom-nginx.conf
+        - name: opsany-saas-ee-prom-uwsgi
+          configMap:
+            name: opsany-saas-ee-prom-uwsgi
+            items:
+            - key: prom-uwsgi.ini
+              path: prom-uwsgi.ini
+        - name: opsany-saas-ee-prom-supervisor
+          configMap:
+            name: opsany-saas-ee-prom-supervisor
+            items:
+            - key: prom-supervisor.ini
+              path: prom-supervisor.ini
+        - name: opsany-uploads
+          persistentVolumeClaim:
+            claimName: opsany-uploads
+        - name: opsany-logs
+          persistentVolumeClaim:
+            claimName: opsany-logs
+

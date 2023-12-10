@@ -275,11 +275,11 @@ mysql_init(){
     shell_log "MySQL Initialize Begin"
     MYSQL_SERVER_IP=$(kubectl get svc opsany-base-mysql -n opsany | awk -F ' ' '{print $3}' | tail -1)
     export MYSQL_PWD=${MYSQL_ROOT_PASSWORD}
-    mysql -h "${MYSQL_SERVER_IP}" -u root  -e "CREATE DATABASE opsany_paas DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
-    mysql -h "${MYSQL_SERVER_IP}" -u root  -e "CREATE DATABASE opsany_proxy DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
-    mysql -h "${MYSQL_SERVER_IP}" -u root  -e "CREATE USER 'opsany'@'%' identified by "\"${MYSQL_OPSANY_PASSWORD}\"";" 
-    mysql -h "${MYSQL_SERVER_IP}" -u root  -e "grant all on opsany_paas.* to opsany@'%';" 
-    mysql -h "${MYSQL_SERVER_IP}" -u root  -e "grant all on opsany_proxy.* to opsany@'%';" 
+    mysql -h "${MYSQL_SERVER_IP}" -u root  -p"${MYSQL_ROOT_PASSWORD}" -e "CREATE DATABASE opsany_paas DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
+    mysql -h "${MYSQL_SERVER_IP}" -u root  -p"${MYSQL_ROOT_PASSWORD}" -e "CREATE DATABASE opsany_proxy DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
+    mysql -h "${MYSQL_SERVER_IP}" -u root  -p"${MYSQL_ROOT_PASSWORD}" -e "CREATE USER 'opsany'@'%' identified by "\"${MYSQL_OPSANY_PASSWORD}\"";" 
+    mysql -h "${MYSQL_SERVER_IP}" -u root  -p"${MYSQL_ROOT_PASSWORD}" -e "grant all on opsany_paas.* to opsany@'%';" 
+    mysql -h "${MYSQL_SERVER_IP}" -u root  -p"${MYSQL_ROOT_PASSWORD}" -e "grant all on opsany_proxy.* to opsany@'%';" 
     
     #rbac
     mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "create database rbac DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"

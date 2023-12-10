@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "zabbix-server.fullname" . }}
+  labels:
+    {{- include "zabbix-server.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "zabbix-server.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "zabbix-server.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "zabbix-server.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          env:
+          - name: DB_SERVER_HOST
+            value: "${MYSQL_SERVER_IP}"
+          - name: MYSQL_DATABASE
+            value: "${ZABBIX_DB_NAME}"
+          - name: MYSQL_USER
+            value: "${ZABBIX_DB_USER}"
+          - name: MYSQL_PASSWORD
+            value: "${ZABBIX_DB_PASSWORD}"
+          - name: MYSQL_ROOT_PASSWORD
+            value: "${MYSQL_ROOT_PASSWORD}"
+          - name: ZBX_JAVAGATEWAY
+            value: "zabbix-java-gateway"
+          volumeMounts:
+            - name: alertscripts
+              mountPath: /usr/lib/zabbix/alertscripts
+            - name: externalscripts
+              mountPath: /usr/lib/zabbix/externalscripts
+            - name: snmptraps
+              mountPath: /var/lib/zabbix/snmptraps
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+        - name: alertscripts
+          persistentVolumeClaim:
+            claimName: alertscripts
+        - name: externalscripts
+          persistentVolumeClaim:
+            claimName: externalscripts
+        - name: snmptraps
+          persistentVolumeClaim:
+            claimName: snmptraps

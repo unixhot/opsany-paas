@@ -1,11 +1,11 @@
-# Default values for prometheus.
+# Default values for opsany-prometheus.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
 replicaCount: 1
 
 image:
-  repository: nginx
+  repository: registry.cn-beijing.aliyuncs.com/opsany/prometheus
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
@@ -38,7 +38,7 @@ securityContext: {}
 
 service:
   type: ClusterIP
-  port: 80
+  port: 9090
 
 ingress:
   enabled: false

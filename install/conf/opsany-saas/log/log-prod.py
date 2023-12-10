@@ -42,3 +42,13 @@ DATABASES.update(
 
 CORS_ALLOW_CREDENTIALS = True
 
+# Elastic APM
+ELASTIC_APM = {
+  'ENABLED': 'false',
+  'SERVICE_NAME': 'opsany-saas-log',
+  'SECRET_TOKEN': 'APM_SECRET_TOKEN',
+  'SERVER_URL': 'http://APM_SERVER_HOST:8200',
+  'ENVIRONMENT': 'prod',
+}
+
+

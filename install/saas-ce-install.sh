@@ -94,7 +94,7 @@ proxy_install(){
         -v ${INSTALL_PATH}/conf/proxy/settings_production.py.proxy:/opt/opsany-proxy/config/prod.py \
         -v ${INSTALL_PATH}/conf/proxy/invscript_proxy.py:/opt/opsany-proxy/invscript_proxy.py \
         -v /etc/localtime:/etc/localtime:ro \
-        ${PAAS_DOCKER_REG}/opsany-paas-proxy:2.0.0
+        ${PAAS_DOCKER_REG}/opsany-paas-proxy:2.1.0
 
     shell_log "======OpsAny Proxy Initialize======"
     # OpsAny Database Init
@@ -149,7 +149,7 @@ saas_rbac_deploy(){
 
     # Register rbac
     RBAC_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.rbac_secret_key)
-    python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code rbac --saas_app_name 统一权限 --saas_app_version 2.0.0 --saas_app_secret_key ${RBAC_SECRET_KEY}
+    python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code rbac --saas_app_name 统一权限 --saas_app_version 2.1.2 --saas_app_secret_key ${RBAC_SECRET_KEY}
 
     # Modify configuration
     sed -i "s/DOMAIN_NAME/${DOMAIN_NAME}/g" ${INSTALL_PATH}/conf/opsany-saas/rbac/rbac-init.py
@@ -167,7 +167,7 @@ saas_rbac_deploy(){
     sed -i "s#/t/rbac#/o/rbac#g" ${INSTALL_PATH}/esb/apis/rbac/toolkit/configs.py
 
     # Starter container
-    docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-rbac:2.0.0
+    docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-rbac:2.1.2
     docker run -d --restart=always --name opsany-saas-ce-rbac \
        -p 7001:80 \
        -v ${INSTALL_PATH}/conf/opsany-saas/rbac/rbac-supervisor.ini:/etc/supervisord.d/rbac.ini \
@@ -178,7 +178,7 @@ saas_rbac_deploy(){
        -v ${INSTALL_PATH}/logs/rbac:/opt/opsany/logs/rbac \
        -v ${INSTALL_PATH}/uploads:/opt/opsany/uploads \
        -v /etc/localtime:/etc/localtime:ro \
-       ${PAAS_DOCKER_REG}/opsany-saas-ce-rbac:2.0.0
+       ${PAAS_DOCKER_REG}/opsany-saas-ce-rbac:2.1.2
     
     # Django migrate
     docker exec -e BK_ENV="production" opsany-saas-ce-rbac /bin/sh -c \
@@ -195,7 +195,7 @@ saas_workbench_deploy(){
     # Register workbench
     WORKBENCH_SECRET_KEY=$(uuid -v4)
     echo $WORKBENCH_SECRET_KEY > ${INSTALL_PATH}/conf/.workbench_secret_key
-    python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code workbench --saas_app_name 工作台 --saas_app_version 2.0.0 --saas_app_secret_key ${WORKBENCH_SECRET_KEY}
+    python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code workbench --saas_app_name 工作台 --saas_app_version 2.1.2 --saas_app_secret_key ${WORKBENCH_SECRET_KEY}
 
     # Modify configuration
     WORKBENCH_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.workbench_secret_key)
@@ -217,7 +217,7 @@ saas_workbench_deploy(){
     sed -i "s#/t/workbench#/o/workbench#g" ${INSTALL_PATH}/esb/apis/workbench/toolkit/tools.py
 
     # Starter container
-    docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-workbench:2.0.1
+    docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-workbench:2.1.2
     docker run -d --restart=always --name opsany-saas-ce-workbench \
        -p 7002:80 \
        -v ${INSTALL_PATH}/conf/opsany-saas/workbench/workbench-supervisor.ini:/etc/supervisord.d/workbench.ini \
@@ -228,7 +228,7 @@ saas_workbench_deploy(){
        -v ${INSTALL_PATH}/logs/workbench:/opt/opsany/logs/workbench \
        -v ${INSTALL_PATH}/uploads:/opt/opsany/uploads \
        -v /etc/localtime:/etc/localtime:ro \
-       ${PAAS_DOCKER_REG}/opsany-saas-ce-workbench:2.0.1
+       ${PAAS_DOCKER_REG}/opsany-saas-ce-workbench:2.1.2
     # Django migrate
     docker exec -e BK_ENV="production" opsany-saas-ce-workbench /bin/sh -c \
     "python /opt/opsany/workbench/manage.py migrate --noinput && python /opt/opsany/workbench/manage.py createcachetable django_cache > /dev/null" >> ${SHELL_LOG}
@@ -244,7 +244,7 @@ saas_cmdb_deploy(){
     # Register cmdb
     CMDB_SECRET_KEY=$(uuid -v4)
     echo $CMDB_SECRET_KEY > ${INSTALL_PATH}/conf/.cmdb_secret_key
-    python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code cmdb --saas_app_name 资源平台 --saas_app_version 2.0.0 --saas_app_secret_key ${CMDB_SECRET_KEY}
+    python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code cmdb --saas_app_name 资源平台 --saas_app_version 2.1.2 --saas_app_secret_key ${CMDB_SECRET_KEY}
 
     # Modify configuration
     CMDB_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.cmdb_secret_key)
@@ -267,7 +267,7 @@ saas_cmdb_deploy(){
     sed -i "s#/t/cmdb#/o/cmdb#g" ${INSTALL_PATH}/esb/apis/cmdb/toolkit/tools.py
 
     # Starter container
-    docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-cmdb:2.0.0
+    docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-cmdb:2.1.2
     docker run -d --restart=always --name opsany-saas-ce-cmdb \
        -p 7003:80 \
        -v ${INSTALL_PATH}/conf/opsany-saas/cmdb/cmdb-supervisor.ini:/etc/supervisord.d/cmdb.ini \
@@ -278,7 +278,7 @@ saas_cmdb_deploy(){
        -v ${INSTALL_PATH}/logs/cmdb:/opt/opsany/logs/cmdb \
        -v ${INSTALL_PATH}/uploads:/opt/opsany/uploads \
        -v /etc/localtime:/etc/localtime:ro \
-       ${PAAS_DOCKER_REG}/opsany-saas-ce-cmdb:2.0.0
+       ${PAAS_DOCKER_REG}/opsany-saas-ce-cmdb:2.1.2
     
     # Django migrate
     docker exec -e BK_ENV="production" opsany-saas-ce-cmdb /bin/sh -c \
@@ -293,7 +293,7 @@ saas_control_deploy(){
     mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "grant all on control.* to opsany@'%' identified by "\"${MYSQL_OPSANY_PASSWORD}\"";"
 
     # Register control 
-    python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code control --saas_app_name 管控平台 --saas_app_version 2.0.0 --saas_app_secret_key ${CONTROL_SECRET_KEY}
+    python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code control --saas_app_name 管控平台 --saas_app_version 2.1.2 --saas_app_secret_key ${CONTROL_SECRET_KEY}
 
     # Modify configuration
     CONTROL_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.control_secret_key)
@@ -312,7 +312,7 @@ saas_control_deploy(){
     sed -i "s#/t/control#/o/control#g" ${INSTALL_PATH}/esb/apis/control/toolkit/tools.py
 
     # Starter container
-    docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-control:2.0.1
+    docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-control:2.1.2
     docker run -d --restart=always --name opsany-saas-ce-control \
        -p 7004:80 \
        -v ${INSTALL_PATH}/conf/opsany-saas/control/control-supervisor.ini:/etc/supervisord.d/control.ini \
@@ -323,7 +323,7 @@ saas_control_deploy(){
        -v ${INSTALL_PATH}/logs:/opt/opsany/logs \
        -v ${INSTALL_PATH}/uploads:/opt/opsany/uploads \
        -v /etc/localtime:/etc/localtime:ro \
-       ${PAAS_DOCKER_REG}/opsany-saas-ce-control:2.0.1
+       ${PAAS_DOCKER_REG}/opsany-saas-ce-control:2.1.2
     
     # Django migrate
     docker exec -e BK_ENV="production" opsany-saas-ce-control /bin/sh -c \
@@ -340,7 +340,7 @@ saas_job_deploy(){
     # Register job
     JOB_SECRET_KEY=$(uuid -v4)
     echo $JOB_SECRET_KEY > ${INSTALL_PATH}/conf/.job_secret_key
-    python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code job --saas_app_name 作业平台 --saas_app_version 2.0.0 --saas_app_secret_key ${JOB_SECRET_KEY}
+    python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code job --saas_app_name 作业平台 --saas_app_version 2.1.2 --saas_app_secret_key ${JOB_SECRET_KEY}
 
     # Modify configuration
     JOB_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.job_secret_key)
@@ -362,7 +362,7 @@ saas_job_deploy(){
     sed -i "s#/t/job#/o/job#g" ${INSTALL_PATH}/esb/apis/task/toolkit/tools.py
 
     # Starter container
-    docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-job:2.0.0
+    docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-job:2.1.2
     docker run -d --restart=always --name opsany-saas-ce-job \
        -p 7005:80 \
        -v ${INSTALL_PATH}/conf/opsany-saas/job/job-supervisor.ini:/etc/supervisord.d/job.ini \
@@ -373,7 +373,7 @@ saas_job_deploy(){
        -v ${INSTALL_PATH}/logs/job:/opt/opsany/logs/job \
        -v ${INSTALL_PATH}/uploads:/opt/opsany/uploads \
        -v /etc/localtime:/etc/localtime:ro \
-       ${PAAS_DOCKER_REG}/opsany-saas-ce-job:2.0.0
+       ${PAAS_DOCKER_REG}/opsany-saas-ce-job:2.1.2
     
     # Django migrate
     docker exec -e BK_ENV="production" opsany-saas-ce-job /bin/sh -c \
@@ -425,7 +425,7 @@ saas_monitor_deploy(){
     sed -i "s/REDIS_SERVER_PASSWORD/${REDIS_SERVER_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-saas/monitor/monitor-prod.py
     
     # Starter container
-    docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-monitor:2.0.0
+    docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-monitor:2.1.2
     docker run -d --restart=always --name opsany-saas-ce-monitor \
        -p 7006:80 \
        -v ${INSTALL_PATH}/conf/opsany-saas/monitor/monitor-supervisor.ini:/etc/supervisord.d/monitor.ini \
@@ -436,13 +436,13 @@ saas_monitor_deploy(){
        -v ${INSTALL_PATH}/logs/monitor:/opt/opsany/logs/monitor \
        -v ${INSTALL_PATH}/uploads:/opt/opsany/uploads \
        -v /etc/localtime:/etc/localtime:ro \
-       ${PAAS_DOCKER_REG}/opsany-saas-ce-monitor:2.0.0
+       ${PAAS_DOCKER_REG}/opsany-saas-ce-monitor:2.1.2
     
     # Django migrate
     docker exec -e BK_ENV="production" opsany-saas-ce-monitor /bin/sh -c \
     "python /opt/opsany/monitor/manage.py migrate --noinput && python /opt/opsany/monitor/manage.py createcachetable django_cache > /dev/null" >> ${SHELL_LOG}
     sleep 5
-    python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code monitor --saas_app_name 基础监控 --saas_app_version 2.0.0 --saas_app_secret_key ${MONITOR_SECRET_KEY}
+    python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code monitor --saas_app_name 基础监控 --saas_app_version 2.1.2 --saas_app_secret_key ${MONITOR_SECRET_KEY}
 }
 
 saas_cmp_deploy(){
@@ -459,7 +459,7 @@ saas_cmp_deploy(){
     # Register cmp
     CMP_SECRET_KEY=$(uuid -v4)
     echo $CMP_SECRET_KEY > ${INSTALL_PATH}/conf/.cmp_secret_key
-    python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code cmp --saas_app_name 云管平台 --saas_app_version 2.0.0 --saas_app_secret_key ${CMP_SECRET_KEY}
+    python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code cmp --saas_app_name 云管平台 --saas_app_version 2.1.2 --saas_app_secret_key ${CMP_SECRET_KEY}
 
     #CMP Configure
     CMP_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.cmp_secret_key)
@@ -477,7 +477,7 @@ saas_cmp_deploy(){
     sed -i "s/REDIS_SERVER_PASSWORD/${REDIS_SERVER_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-saas/cmp/cmp-prod.py
     
     # Starter container
-    docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-cmp:2.0.0
+    docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-cmp:2.1.2
     docker run -d --restart=always --name opsany-saas-ce-cmp \
        -p 7007:80 \
        -v ${INSTALL_PATH}/conf/opsany-saas/cmp/cmp-supervisor.ini:/etc/supervisord.d/cmp.ini \
@@ -488,7 +488,7 @@ saas_cmp_deploy(){
        -v ${INSTALL_PATH}/logs/cmp:/opt/opsany/logs/cmp \
        -v ${INSTALL_PATH}/uploads:/opt/opsany/uploads \
        -v /etc/localtime:/etc/localtime:ro \
-       ${PAAS_DOCKER_REG}/opsany-saas-ce-cmp:2.0.0
+       ${PAAS_DOCKER_REG}/opsany-saas-ce-cmp:2.1.2
     
     # Django migrate
     docker exec -e BK_ENV="production" opsany-saas-ce-cmp /bin/sh -c \
@@ -508,7 +508,7 @@ saas_bastion_deploy(){
 
     # Register bastion
     BASTION_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.bastion_secret_key)
-    python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code bastion --saas_app_name 堡垒机 --saas_app_version 2.0.0 --saas_app_secret_key ${BASTION_SECRET_KEY}
+    python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code bastion --saas_app_name 堡垒机 --saas_app_version 2.1.2 --saas_app_secret_key ${BASTION_SECRET_KEY}
 
     # Bastion Configure
     sed -i "s/DOMAIN_NAME/${DOMAIN_NAME}/g" ${INSTALL_PATH}/conf/opsany-saas/bastion/bastion-init.py
@@ -522,7 +522,7 @@ saas_bastion_deploy(){
     sed -i "s/REDIS_SERVER_PASSWORD/${REDIS_SERVER_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-saas/bastion/bastion-prod.py
     
     # Starter container
-    docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-bastion:2.0.0
+    docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-bastion:2.1.2
     docker run -d --restart=always --name opsany-saas-ce-bastion \
        -p 7008:80 \
        -v ${INSTALL_PATH}/conf/opsany-saas/bastion/bastion-supervisor.ini:/etc/supervisord.d/bastion.ini \
@@ -533,7 +533,7 @@ saas_bastion_deploy(){
        -v ${INSTALL_PATH}/logs:/opt/opsany/logs \
        -v ${INSTALL_PATH}/uploads:/opt/opsany/uploads \
        -v /etc/localtime:/etc/localtime:ro \
-       ${PAAS_DOCKER_REG}/opsany-saas-ce-bastion:2.0.0
+       ${PAAS_DOCKER_REG}/opsany-saas-ce-bastion:2.1.2
     
     # Django migrate
     docker exec -e BK_ENV="production" opsany-saas-ce-bastion /bin/sh -c \
@@ -557,7 +557,7 @@ saas_devops_deploy(){
     fi
     DEVOPS_SECRET_KEY=$(uuid -v4)
     echo $DEVOPS_SECRET_KEY > ${INSTALL_PATH}/conf/.devops_secret_key
-    python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code devops --saas_app_name 应用平台 --saas_app_version 2.0.0 --saas_app_secret_key ${DEVOPS_SECRET_KEY}
+    python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code devops --saas_app_name 应用平台 --saas_app_version 2.1.2 --saas_app_secret_key ${DEVOPS_SECRET_KEY}
 
     # DevOps Configure
     DEVOPS_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.devops_secret_key)
@@ -575,7 +575,7 @@ saas_devops_deploy(){
     sed -i "s/REDIS_SERVER_PASSWORD/${REDIS_SERVER_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-saas/devops/devops-prod.py
     
     # Starter container   
-    docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-devops:2.0.0
+    docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-devops:2.1.2
     docker run -d --restart=always --name opsany-saas-ce-devops \
        -p 7009:80 \
        -v ${INSTALL_PATH}/conf/opsany-saas/devops/devops-supervisor.ini:/etc/supervisord.d/devops.ini \
@@ -586,7 +586,7 @@ saas_devops_deploy(){
        -v ${INSTALL_PATH}/logs:/opt/opsany/logs \
        -v ${INSTALL_PATH}/uploads:/opt/opsany/uploads \
        -v /etc/localtime:/etc/localtime:ro \
-       ${PAAS_DOCKER_REG}/opsany-saas-ce-devops:2.0.0
+       ${PAAS_DOCKER_REG}/opsany-saas-ce-devops:2.1.2
         # Django migrate
     docker exec -e BK_ENV="production" opsany-saas-ce-devops /bin/sh -c \
     "python /opt/opsany/devops/manage.py migrate --noinput && python /opt/opsany/devops/manage.py createcachetable django_cache > /dev/null" >> ${SHELL_LOG}
@@ -612,7 +612,7 @@ saas_dashboard_deploy(){
     fi
     DASHBOARD_SECRET_KEY=$(uuid -v4)
     echo $DASHBOARD_SECRET_KEY > ${INSTALL_PATH}/conf/.dashboard_secret_key
-    python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code dashboard --saas_app_name 可视化平台 --saas_app_version 2.0.0 --saas_app_secret_key ${DASHBOARD_SECRET_KEY}
+    python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code dashboard --saas_app_name 可视化平台 --saas_app_version 2.1.2 --saas_app_secret_key ${DASHBOARD_SECRET_KEY}
 
     # Dashboard Configure
     DASHBOARD_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.dashboard_secret_key)
@@ -623,7 +623,7 @@ saas_dashboard_deploy(){
     sed -i "s/MYSQL_OPSANY_DASHBOARD_PASSWORD/${MYSQL_OPSANY_DASHBOARD_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-saas/dashboard/dashboard-prod.py
 
     # Starter container
-    docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-dashboard:2.0.0
+    docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-dashboard:2.1.2
     docker run -d --restart=always --name opsany-saas-ce-dashboard \
        -p 7010:80 \
        -v ${INSTALL_PATH}/conf/opsany-saas/dashboard/dashboard-supervisor.ini:/etc/supervisord.d/dashboard.ini \
@@ -634,7 +634,7 @@ saas_dashboard_deploy(){
        -v ${INSTALL_PATH}/logs:/opt/opsany/logs \
        -v ${INSTALL_PATH}/uploads:/opt/opsany/uploads \
        -v /etc/localtime:/etc/localtime:ro \
-       ${PAAS_DOCKER_REG}/opsany-saas-ce-dashboard:2.0.0
+       ${PAAS_DOCKER_REG}/opsany-saas-ce-dashboard:2.1.2
 
     # Django migrate
     docker exec -e BK_ENV="production" opsany-saas-ce-dashboard /bin/sh -c \

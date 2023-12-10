@@ -27,6 +27,7 @@ class GetLinkModelData(Component):
     | inst_model_code | str | 是  | 模型code |
     | model_code_name_list | list | 是  | 当前模型实例列表 |
     | field_code_list | dict | 是  | 关联模型字段code列表 |
+    | data_from | str | 是  | 额外参数 |
 
     ### 返回结果示例
 
@@ -49,11 +50,12 @@ class GetLinkModelData(Component):
         inst_model_code = forms.Field(required=True)
         model_code_name_list = forms.Field(required=True)
         field_code_list = forms.Field(required=True)
+        data_from = forms.Field(required=False)
         # group_list = forms.ListField(required=True)
         pass
         # clean方法返回的数据可通过组件的form_data属性获取
         def clean(self):
-            return self.get_cleaned_data_when_exist(keys=["inst_model_code", "model_code_name_list", "field_code_list"])
+            return self.get_cleaned_data_when_exist(keys=["inst_model_code", "model_code_name_list", "field_code_list", "data_from"])
 
     # 组件处理入口
     def handle(self):

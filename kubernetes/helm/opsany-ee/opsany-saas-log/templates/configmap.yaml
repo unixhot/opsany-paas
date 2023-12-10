@@ -1,0 +1,44 @@
+---
+# log-init.py
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ee-log-init
+data:
+{{ (.Files.Glob "log-init.py").AsConfig | indent 2 }}
+
+---
+# log-prod.py
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ee-log-prod
+data:
+{{ (.Files.Glob "log-prod.py").AsConfig | indent 2 }}
+
+---
+# log-nginx.conf
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ee-log-nginx
+data:
+{{ (.Files.Glob "log-nginx.conf").AsConfig | indent 2 }}
+
+---
+# log-supervisor.ini
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ee-log-supervisor
+data:
+{{ (.Files.Glob "log-supervisor.ini").AsConfig | indent 2 }}
+
+---
+# log-uwsgi.ini
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ee-log-uwsgi
+data:
+{{ (.Files.Glob "log-uwsgi.ini").AsConfig | indent 2 }}

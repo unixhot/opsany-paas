@@ -53,19 +53,46 @@ main(){
         for i in `ls ${INSTALL_PATH}/logs/rbac`;do echo "" > ${INSTALL_PATH}/logs/rbac/$i;done
 	;;
     workbench) 
-        for i in `ls ${INSTALL_PATH}/logs/rbac`;do echo "" > ${INSTALL_PATH}/logs/workbench/$i;done
+        for i in `ls ${INSTALL_PATH}/logs/workbench`;do echo "" > ${INSTALL_PATH}/logs/workbench/$i;done
+	;;
+    job) 
+        for i in `ls ${INSTALL_PATH}/logs/job`;do echo "" > ${INSTALL_PATH}/logs/job/$i;done
+	;;
+    monitor) 
+        for i in `ls ${INSTALL_PATH}/logs/monitor`;do echo "" > ${INSTALL_PATH}/logs/monitor/$i;done
+	;;
+    cmp) 
+        for i in `ls ${INSTALL_PATH}/logs/cmp`;do echo "" > ${INSTALL_PATH}/logs/cmp/$i;done
+	;;
+    cmdb) 
+        for i in `ls ${INSTALL_PATH}/logs/cmdb`;do echo "" > ${INSTALL_PATH}/logs/cmdb/$i;done
+	;;
+    bastion) 
+        for i in `ls ${INSTALL_PATH}/logs/bastion`;do echo "" > ${INSTALL_PATH}/logs/bastion/$i;done
+	;;
+    devops) 
+        for i in `ls ${INSTALL_PATH}/logs/devops`;do echo "" > ${INSTALL_PATH}/logs/devops/$i;done
+	;;
+    dashboard) 
+        for i in `ls ${INSTALL_PATH}/logs/dashboard`;do echo "" > ${INSTALL_PATH}/logs/dashboard/$i;done
+	;;
+    control) 
+        for i in `ls ${INSTALL_PATH}/logs/control`;do echo "" > ${INSTALL_PATH}/logs/control/$i;done
 	;;
     all)
-        install_init
-        mongodb_init
-        proxy_install
-        saas_monitor_deploy
-        saas_devops_deploy
-        saas_base_init
-        admin_password_init
+        for i in `ls ${INSTALL_PATH}/logs/rbac`;do echo "" > ${INSTALL_PATH}/logs/rbac/$i;done
+        for i in `ls ${INSTALL_PATH}/logs/workbench`;do echo "" > ${INSTALL_PATH}/logs/workbench/$i;done
+        for i in `ls ${INSTALL_PATH}/logs/job`;do echo "" > ${INSTALL_PATH}/logs/job/$i;done
+        for i in `ls ${INSTALL_PATH}/logs/monitor`;do echo "" > ${INSTALL_PATH}/logs/monitor/$i;done
+        for i in `ls ${INSTALL_PATH}/logs/cmp`;do echo "" > ${INSTALL_PATH}/logs/cmp/$i;done
+        for i in `ls ${INSTALL_PATH}/logs/cmdb`;do echo "" > ${INSTALL_PATH}/logs/cmdb/$i;done
+        for i in `ls ${INSTALL_PATH}/logs/bastion`;do echo "" > ${INSTALL_PATH}/logs/bastion/$i;done
+        for i in `ls ${INSTALL_PATH}/logs/devops`;do echo "" > ${INSTALL_PATH}/logs/devops/$i;done
+        for i in `ls ${INSTALL_PATH}/logs/dashboard`;do echo "" > ${INSTALL_PATH}/logs/dashboard/$i;done
+        for i in `ls ${INSTALL_PATH}/logs/control`;do echo "" > ${INSTALL_PATH}/logs/control/$i;done
         ;;
 	help|*)
-	    echo $"Usage: $0 {base|monitor|devops|all|help}"
+	    echo $"Usage: $0 {rbac|workbench|cmdb|control|job|monitor|cmp|bastion|devops|dashboard|all|help}"
 	    ;;
     esac
 }

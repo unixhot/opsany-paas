@@ -1,7 +1,3 @@
 1. Get the application URL by running these commands:
-  export SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ include "opsany-paas-esb.fullname" . }} --template "{{"{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}"}}")
-  echo http://$SERVICE_IP:{{ .Values.service.port }}
-  export POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/name={{ include "opsany-paas-esb.name" . }},app.kubernetes.io/instance={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}")
-  export CONTAINER_PORT=$(kubectl get pod --namespace {{ .Release.Namespace }} $POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}")
+  export SERVICE_IP=$(kubectl get svc -n opsany opsany-paas-esb)
   echo "Visit http://127.0.0.1:8002 to use your application"
-  kubectl --namespace {{ .Release.Namespace }} port-forward $POD_NAME 8080:$CONTAINER_PORT

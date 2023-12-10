@@ -65,11 +65,12 @@ class GetModelField(Component):
 
     # Form处理参数校验
     class Form(BaseComponentForm):
-        model_code = forms.Field(required=False) 
+        model_code = forms.Field(required=False)
+        field_list = forms.Field(required=False)
 
         # clean方法返回的数据可通过组件的form_data属性获取
         def clean(self):
-            return self.get_cleaned_data_when_exist(keys=["model_code"])
+            return self.get_cleaned_data_when_exist(keys=["model_code", "field_list"])
 
     # 组件处理入口
     def handle(self):
@@ -86,9 +87,6 @@ class GetModelField(Component):
             params=data,
             headers=self.request.wsgi_request.g.headers
         )
-        print("path", '{}field/'.format(base_api_url))
-        print("to_dict_v2", response)
-        print("params", data)
         # 对结果进行解析
         code = response['code']
         if code == 200:

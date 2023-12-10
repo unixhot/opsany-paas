@@ -1,3 +1,5 @@
+import os
+
 import requests
 import json
 import urllib3
@@ -69,9 +71,7 @@ class OpsAnyApi:
                 'password': self.password
             }
             resp = self.session.post(self.login_url, data=login_form, verify=False)
-            if resp.status_code == 200:
-                return self.session.cookies.get("bk_token")
-            return ""
+            return self.session.cookies.get("bk_token")
         except:
             return False
 
@@ -210,6 +210,7 @@ def start(paas_domain, private_ip, paas_username, paas_password, proxy_url, prox
     update_admin_user_info_status, update_admin_user_info_message = run_obj.update_admin_user()
     print("[SUCCESS] Update admin user info success") if update_admin_user_info_status else \
         print("[ERROR] Update admin user info error, error info: {}".format(update_admin_user_info_message))
+    
     print("[SUCCESS] ALL success")
 
 

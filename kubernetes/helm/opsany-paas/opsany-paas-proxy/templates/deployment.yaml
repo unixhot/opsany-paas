@@ -85,6 +85,7 @@ spec:
         - name: opsany-paas-proxy-invscript
           secret:
             secretName: opsany-paas-proxy-invscript
+            defaultMode: 0777
             items:
             - key: invscript_proxy.py
               path: invscript_proxy.py

@@ -42,10 +42,11 @@ class GetHostInfoForProm(Component):
         pageSize = forms.Field()
         token_data = forms.Field(required=True)
         filter = forms.Field(required=False)
+        filter_dict = forms.Field(required=False)
 
         # clean方法返回的数据可通过组件的form_data属性获取
         def clean(self):
-            return self.get_cleaned_data_when_exist(keys=["page", "pageSize", "filter", "token_data"])
+            return self.get_cleaned_data_when_exist(keys=["page", "pageSize", "filter", "token_data", "filter_dict"])
 
     # 组件处理入口
     def handle(self):
