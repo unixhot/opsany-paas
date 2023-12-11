@@ -614,7 +614,6 @@ main(){
 	    saas_job_update $2
 	    saas_cmp_update $2
 	    saas_bastion_update $2
-	    saas_dashboard_update $2
 		;;
     paas)
         paas_update $2
