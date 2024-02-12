@@ -246,7 +246,7 @@ saas_workbench_deploy(){
     sed -i "s/REDIS_SERVER_PASSWORD/${REDIS_SERVER_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-saas/workbench/workbench-prod.py
 
     # Starter container
-    docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-workbench:2.0.1
+    docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-workbench:2.0.0
     #docker stop opsany-saas-ce-workbench && docker rm opsany-saas-ce-workbench
     docker run -d --restart=always --name opsany-saas-ce-workbench \
        -p 7002:80 \
@@ -258,7 +258,7 @@ saas_workbench_deploy(){
        -v ${INSTALL_PATH}/logs/workbench:/opt/opsany/logs/workbench \
        -v ${INSTALL_PATH}/uploads:/opt/opsany/uploads \
        -v /etc/localtime:/etc/localtime:ro \
-       ${PAAS_DOCKER_REG}/opsany-saas-ce-workbench:2.0.1
+       ${PAAS_DOCKER_REG}/opsany-saas-ce-workbench:2.0.0
     # Django migrate
     docker exec -e BK_ENV="production" opsany-saas-ce-workbench /bin/sh -c \
     "python /opt/opsany/workbench/manage.py migrate --noinput >> ${SHELL_LOG} >> ${SHELL_LOG} && python /opt/opsany/workbench/manage.py createcachetable django_cache > /dev/null"

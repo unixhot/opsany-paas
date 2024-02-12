@@ -103,8 +103,6 @@ cd /opt && sudo git clone https://gitee.com/unixhot/opsany-paas.git
 
 ```
 cd /opt/opsany-paas/install && cp install.config.example install.config
-sed -i 's/192.168.56.11/内网IP/g' install.config
-
 vim /opt/opsany-paas/install/install.config
 
 # 安装OpsAny的本机内网IP地址。请批量查找替换将192.168.56.11修改为部署OpsAny的本机IP地址。
@@ -138,5 +136,5 @@ cd /opt/opsany-paas/install/
 
 安装完毕OpsAny PaaS之后，就可以进行运维开发工作了，不过PaaS仅仅是一个开发平台，并没有任何运维功能。你也可以继续部署OpsAny社区版本，进行日常运维工作，OpsAny社区版是OpsAny产品团队，自主研发的智能运维平台：支持自定义插件，支持用户使用Python、Shell、Powershell编写例如工具脚本、资产采集插件、智能巡检插件、指标采集插件等。
 
-> OpsAny社区版本v1.6.6正式发布 >> [免费下载](https://opsany.com/#/download)
+> OpsAny社区版本v2.1.3正式发布 >> [免费下载](https://opsany.com/#/download)
 

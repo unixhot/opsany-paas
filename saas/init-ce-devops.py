@@ -28,7 +28,28 @@ class InitData:
                 "describe": "应用DevOps平台",
                 "group_name": "应用管理",
                 "icon_name": "devops.png"
-            }
+            },
+            {
+                "nav_name": "流水线",
+                "nav_url": "/o/pipeline/",
+                "describe": "流水线编排",
+                "group_name": "应用管理",
+                "icon_name": "pipeline.png"
+            },
+            {
+                "nav_name": "持续部署",
+                "nav_url": "/o/deploy/",
+                "describe": "部署编排灵活",
+                "group_name": "应用管理",
+                "icon_name": "deploy.png"
+            },
+            {
+                "nav_name": "制品仓库",
+                "nav_url": "/o/repo/",
+                "describe": "应用制品仓库",
+                "group_name": "应用管理",
+                "icon_name": "repo.png"
+            },
         ]
     }
 

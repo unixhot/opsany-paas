@@ -34,7 +34,8 @@ DATABASES.update(
             'HOST': os.getenv("MYSQL_HOST", "MYSQL_SERVER_IP"),  # 数据库主机
             'PORT': int(os.getenv("MYSQL_PORT", "MYSQL_SERVER_PORT")),  # 数据库端口
             'OPTIONS': {
-                "init_command": "SET default_storage_engine=INNODB",
+                "init_command": "SET default_storage_engine=INNODB;\
+                                 SET sql_mode='STRICT_TRANS_TABLES';",
             }
 
         },
@@ -119,12 +120,14 @@ UPLOAD_PATH = os.getenv("UPLOAD_PATH", "/opt/opsany/")
 METRIC_PACKAGE_PATH = os.getenv("METRIC_PACKAGE_PATH", "uploads/agent/prom-exporter/")
 METRIC_LOGO_PATH = "uploads/control/metric/logo/"
 MINION_CACHE_FILE = "uploads/control/minion_cache_file/"
+COLLECT_SCRIPT_PATH = "uploads/control/collect/script/"
 
 # Elastic APM
 ELASTIC_APM = {
   'ENABLED': 'false',
   'SERVICE_NAME': 'opsany-saas-control',
   'SECRET_TOKEN': 'APM_SECRET_TOKEN',
-  'SERVER_URL': 'http://APM_SERVER_HOST:8200',
+  'SERVER_URL': 'https://APM_SERVER_HOST:8200',
+  'VERIFY_SERVER_CERT': 'false',
   'ENVIRONMENT': 'prod',
 }

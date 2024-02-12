@@ -77,7 +77,6 @@ class UpdateHostSignVariableTemplate(Component):
 
         # 设置当前操作者
         params['operator'] = self.current_user.username
-        print("params", params)
         # 请求系统接口
         response = self.outgoing.http_client.post(
             host=configs.host,
@@ -87,7 +86,6 @@ class UpdateHostSignVariableTemplate(Component):
             # json=params,
             cookies=self.request.wsgi_request.COOKIES,
         )
-        print("response", response, response.get("code"))
         
         # 对结果进行解析
         code = response['code']

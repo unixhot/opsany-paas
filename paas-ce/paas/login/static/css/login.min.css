@@ -11,7 +11,7 @@ button {
 	text-decoration: none;
 }
 
-.page-content,
+
 body,
 html {
 	height: 100%;
@@ -158,10 +158,20 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 
 .page-content {
+	position: fixed;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
 	width: 100%;
 	background: url(..img/bg_image.jpg) center no-repeat;
 	margin: 0 auto;
-	background-size: 100% 100%;
+	padding: 0;
+	background-size: contain;
+	background-position: center;
+	background-attachment: fixed;
+	overflow: auto;
+
 }
 
 .page-content .header {
@@ -532,11 +542,12 @@ input[type="number"]::-webkit-outer-spin-button {
 
 .footer {
 	width: 100%;
-	position: absolute;
+	position: fixed;
 	bottom: 3%;
 	color: #bfcbd7;
 	font-size: 12px;
 	text-align: center;
+	z-index: 1;
 }
 
 .footer .logo-qt {
@@ -759,6 +770,7 @@ input[type="number"]::-webkit-outer-spin-button {
 
 
 .mfa_setting_box {
+	width: 600px;
 	position: absolute;
 	top: 100px;
 	right: 200px;
@@ -766,6 +778,7 @@ input[type="number"]::-webkit-outer-spin-button {
 	border: 1px solid #e8e8e8;
 	border-radius: 5px;
 	box-shadow: 0px 2px 30px 0px rgb(12 34 65 / 20%);
+	z-index: 10;
 }
 
 .mfa_setting_box>h4 {
@@ -791,6 +804,10 @@ input[type="number"]::-webkit-outer-spin-button {
 	display: inline-block;
 }
 
+.mfa_setting_content {
+	/* position: relative; */
+}
+
 .mfa_setting_content .step {
 	font-weight: 1000;
 	color: #000;
@@ -804,6 +821,32 @@ input[type="number"]::-webkit-outer-spin-button {
 .mfa_setting_content .step_content>div {
 
 	float: left;
+}
+
+.mfa_setting_content .step_one {
+	width: 85%;
+	margin: 0 auto;
+}
+
+.mfa_setting_content .step_one>.step_one_action {
+	margin-top: 10px;
+}
+
+.mfa_setting_content .step_one>.step_one_action>.step_one_action_title {
+	color: #333333;
+	padding-bottom: 10px;
+}
+
+.mfa_setting_content .step_one>.step_one_action>.step_one_action_box {
+	padding: 10px 14px;
+	background: rgba(244, 247, 249, 1);
+	border-radius: 4px;
+	margin-bottom: 15px;
+}
+
+.mfa_setting_content .step_one>.step_one_action>.step_one_action_box>div {
+	color: #555555;
+	line-height: 24px;
 }
 
 .mfa_setting_content .info {
@@ -820,6 +863,7 @@ input[type="number"]::-webkit-outer-spin-button {
 	width: 230px;
 	padding: 0 10px;
 }
+
 
 .mfa_setting_box footer {
 	border-top: 1px solid #e8e8e8;

@@ -41,7 +41,7 @@ CREATE TABLE `esb_function_controller` (
 
 LOCK TABLES `esb_function_controller` WRITE;
 /*!40000 ALTER TABLE `esb_function_controller` DISABLE KEYS */;
-INSERT INTO `esb_function_controller` VALUES (1,'user_auth::skip_user_auth','是否跳过用户身份验证',1,'bk_paas_log_alert,dashboard,bastion,devops,cmp,rbac,workbench,monitor,job,control,cmdb,proxy,websocket,login,esb,paas,log,kbase,k8s,prom,dashboard,pipeline,deploy,bastion,auto,event','','2020-05-30 17:33:22');
+INSERT INTO `esb_function_controller` VALUES (1,'user_auth::skip_user_auth','是否跳过用户身份验证',1,'bk_paas_log_alert,login,esb,paas,proxy,websocket,zabbix,rbac,cmdb,workbench,control,job,bastion,cmp,dashboard,monitor,devops,pipeline,deploy,repo,k8s,kbase,prom,log,event,auto,apm','','2020-05-30 17:33:22');
 /*!40000 ALTER TABLE `esb_function_controller` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -54,4 +54,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2023-08-04 20:38:33
+-- Dump completed on 2024-01-31 17:33:02

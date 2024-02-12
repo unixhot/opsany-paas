@@ -183,15 +183,15 @@ class BaseChannel(object):
             response = error_codes.REQUEST_BLOCKED.format_prompt(e.message).code.as_dict()
             request.g.component_status = COMPONENT_STATUSES.EXCEPTION
         except Exception:
-            logger.exception('Request exception, request_id=%s, path=%s' % (request.g.request_id, request.path))
-            response = CommonAPIError('Component error, please contact the component developer to handle it.')\
-                .code.as_dict()
-            request.g.component_status = COMPONENT_STATUSES.EXCEPTION
+           logger.exception('Request exception, request_id=%s, path=%s' % (request.g.request_id, request.path))
+           response = CommonAPIError('Component error, please contact the component developer to handle it.')\
+               .code.as_dict()
+           request.g.component_status = COMPONENT_STATUSES.EXCEPTION
         else:
-            if response and isinstance(response, dict) and response.get('result'):
-                request.g.component_status = COMPONENT_STATUSES.SUCCESS
-            else:
-                request.g.component_status = COMPONENT_STATUSES.FAILURE
+           if response and isinstance(response, dict) and response.get('result'):
+               request.g.component_status = COMPONENT_STATUSES.SUCCESS
+           else:
+               request.g.component_status = COMPONENT_STATUSES.FAILURE
 
         self.response = response
         self.request.g.ts_request_end = time.time()

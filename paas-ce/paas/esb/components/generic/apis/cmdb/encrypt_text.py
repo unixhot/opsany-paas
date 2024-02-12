@@ -71,7 +71,6 @@ class EncryptText(Component):
         params['operator'] = self.current_user.username
 
         # 请求系统接口
-        print(self.request.wsgi_request.g.headers)
         response = self.outgoing.http_client.post(
             host=configs.host,
             path='{}encrypt-text/'.format(base_api_url),

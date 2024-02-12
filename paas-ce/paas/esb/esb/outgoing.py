@@ -208,6 +208,12 @@ class BasicHttpClient(object):
 
     def post(self, *args, **kwargs):
         return self.request('POST', *args, **kwargs)
+    
+    def put(self, *args, **kwargs):
+        return self.request('PUT', *args, **kwargs)
+    
+    def delete(self, *args, **kwargs):
+        return self.request('DELETE', *args, **kwargs)
 
     @staticmethod
     def make_url(host, path, use_test_env):

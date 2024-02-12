@@ -926,7 +926,6 @@ class OpsAnyApi:
             response = self.session.post(url=NAV_GROUP_URL, data=data_json, verify=False)
             if response.status_code == 200:
                 res = response.json()
-                print("resres", res)
             else:
                 res = {"code": 500, "message": "error", "data": response.status_code}
             if res.get("code") == 200:

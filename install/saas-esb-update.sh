@@ -59,6 +59,15 @@ esb_update(){
     #devops
     sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/devops/toolkit/configs.py
     sed -i "s#/t/devops#/o/devops#g" ${INSTALL_PATH}/esb/apis/devops/toolkit/tools.py
+    #pipeline
+    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/pipeline/toolkit/configs.py
+    sed -i "s#/t/pipeline#/o/pipeline#g" ${INSTALL_PATH}/esb/apis/pipeline/toolkit/tools.py
+    #deploy
+    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/deploy/toolkit/configs.py
+    sed -i "s#/t/deploy#/o/deploy#g" ${INSTALL_PATH}/esb/apis/deploy/toolkit/tools.py
+    #repo
+    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/repo/toolkit/configs.py
+    sed -i "s#/t/repo#/o/repo#g" ${INSTALL_PATH}/esb/apis/repo/toolkit/tools.py
     #bastion
     sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/bastion/toolkit/configs.py
     sed -i "s#/t/bastion#/o/bastion#g" ${INSTALL_PATH}/esb/apis/bastion/toolkit/configs.py

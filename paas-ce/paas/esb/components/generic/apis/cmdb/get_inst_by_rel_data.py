@@ -70,8 +70,6 @@ class GetInstByRelData(Component):
         # 设置当前操作者
         params['operator'] = self.current_user.username
         
-        print("esb_params", params)
-
        # 请求系统接口
         response = self.outgoing.http_client.get(
             host=configs.host,

@@ -70,11 +70,12 @@ rabbitmq_install(){
     ${PAAS_DOCKER_REG}/rabbitmq:3.8.9-management-alpine
 
     shell_log "Activate RabbitMQ"
+    sleep 10
     curl -k --connect-timeout 10 \
             -H 'Content-Type:application/x-www-form-urlencoded' \
             -X POST \
             -d "mq_ip=$RABBIT_SERVER_IP&username=$RABBITMQ_DEFAULT_USER&password=$RABBITMQ_DEFAULT_PASS" \
-            "https://$BK_PAAS_PRIVATE_ADDR/v1/rabbitmq/init/"
+            "https://$LOCAL_IP/v1/rabbitmq/init/"
     echo ""
     shell_warning_log "======The end is the beginning.======"
 }

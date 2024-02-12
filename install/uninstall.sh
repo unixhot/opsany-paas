@@ -34,7 +34,7 @@ shell_error_log(){
 }
 
 uninstall_paas(){
-    echo "===Stop and remove PaaS Service==="
+    echo -e "\033[32m---------------- Stop and remove PaaS Service ----------------\033[0m"
     docker stop opsany-paas-paas && docker rm -f opsany-paas-paas
     docker stop opsany-paas-login && docker rm -f opsany-paas-login
     docker stop opsany-paas-esb && docker rm -f opsany-paas-esb
@@ -51,10 +51,11 @@ uninstall_paas(){
     source ./install.env && rm -f install.env
     rm -rf ${INSTALL_PATH}
     rm -f /opt/opsany-paas/saas/*.tar.gz
+    echo -e "\033[32m---------------- PaaS Service Uninstall successfully  ----------------\033[0m"
 }
 
 uninstall_saas(){
-    echo "===Stop and remove SaaS Service==="
+    echo -e "\033[32m---------------- Stop and remove SaaS Service ----------------\033[0m"
     docker stop opsany-paas-proxy && docker rm -f opsany-paas-proxy
     docker stop opsany-saas-ce-rbac && docker rm -f opsany-saas-ce-rbac
     docker stop opsany-saas-ce-workbench && docker rm -f opsany-saas-ce-workbench
@@ -67,6 +68,10 @@ uninstall_saas(){
     docker stop opsany-saas-ce-monitor && docker rm -f opsany-saas-ce-monitor
     docker stop opsany-base-grafana && docker rm -f opsany-base-grafana
     docker stop opsany-saas-ce-devops && docker rm -f opsany-saas-ce-devops
+    docker stop opsany-saas-ce-repo && docker rm -f opsany-saas-ce-repo
+    docker stop opsany-saas-ce-pipeline && docker rm -f opsany-saas-ce-pipeline
+    docker stop opsany-saas-ce-deploy && docker rm -f opsany-saas-ce-deploy
+    echo -e "\033[32m---------------- SaaS Service Uninstall successfully  ----------------\033[0m"
 }
 
 uninstall_k8s(){
@@ -108,14 +113,14 @@ uninstall_k8s(){
     rm -rf /data/k8s-nfs/opsany-logs/*
     rm -rf /data/k8s-nfs/opsany-proxy/*
     rm -rf /data/k8s-nfs/opsany-uploads/*
-    echo "===I'll See You Again==="
+    echo -e "\033[32m---------------- I'll See You Again ----------------\033[0m"
 }
 
 
 # Main
 main(){
     case "$1" in
-	uninstall)
+	all)
         uninstall_paas
         uninstall_saas
 		;;
@@ -129,7 +134,7 @@ main(){
         uninstall_k8s
         ;;
 	help|*)
-		echo $"Usage: $0 {uninstall|saas|paas|k8s|help}"
+		echo $"Usage: $0 {all|saas|paas|k8s|help}"
 	        ;;
     esac
 }

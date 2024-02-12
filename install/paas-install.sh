@@ -38,8 +38,12 @@ if [ ! -f ./install.config ];then
       shell_error_log "Please Copy install.config and Change: cp install.config.example install.config"
       exit
 else
-    grep '^[A-Z]' install.config > install.env
-    source ./install.env && rm -f install.env
+    PRESTR='Ops'
+    STR=`head /dev/urandom | tr -dc A-Za-z0-9 | head -c 5`
+    NUM=`echo $RANDOM`
+    NEW_PASSWORD=$PRESTR$STR$NUM
+    sed -i "s/INIT_PASSWORD/${NEW_PASSWORD}/g" install.config
+    source ./install.config
 fi
 
 # Create Self-signed Server Certificate
@@ -133,6 +137,15 @@ esb_init(){
     #devops
     sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/devops/toolkit/configs.py
     sed -i "s#/t/devops#/o/devops#g" ${INSTALL_PATH}/esb/apis/devops/toolkit/tools.py
+    #pipeline
+    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/pipeline/toolkit/configs.py
+    sed -i "s#/t/pipeline#/o/pipeline#g" ${INSTALL_PATH}/esb/apis/pipeline/toolkit/tools.py
+    #deploy
+    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/deploy/toolkit/configs.py
+    sed -i "s#/t/deploy#/o/deploy#g" ${INSTALL_PATH}/esb/apis/deploy/toolkit/tools.py
+    #repo
+    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/repo/toolkit/configs.py
+    sed -i "s#/t/repo#/o/repo#g" ${INSTALL_PATH}/esb/apis/repo/toolkit/tools.py
     #bastion
     sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/bastion/toolkit/configs.py
     sed -i "s#/t/bastion#/o/bastion#g" ${INSTALL_PATH}/esb/apis/bastion/toolkit/configs.py
@@ -255,13 +268,13 @@ paas_start(){
     sed -i "s/REDIS_SERVER_PASSWORD/${REDIS_SERVER_PASSWORD}/g" ${INSTALL_PATH}/conf/settings_production.py.esb
     sed -i "s/MYSQL_SERVER_IP/${MYSQL_SERVER_IP}/g" ${INSTALL_PATH}/conf/settings_production.py.esb
     sed -i "s/MYSQL_OPSANY_PASSWORD/${MYSQL_OPSANY_PASSWORD}/g" ${INSTALL_PATH}/conf/settings_production.py.esb
-    docker pull ${PAAS_DOCKER_REG}/opsany-paas-esb:v3.2.7
+    docker pull ${PAAS_DOCKER_REG}/opsany-paas-esb:v3.2.8
     docker run -d --restart=always --name opsany-paas-esb \
     -p 8002:8002 -v ${INSTALL_PATH}/logs:/opt/opsany/logs \
     -v ${INSTALL_PATH}/esb/apis:/opt/opsany/paas/esb/components/generic/apis \
     -v ${INSTALL_PATH}/conf/settings_production.py.esb:/opt/opsany/paas/esb/configs/default.py \
     -v /etc/localtime:/etc/localtime:ro \
-    ${PAAS_DOCKER_REG}/opsany-paas-esb:v3.2.7
+    ${PAAS_DOCKER_REG}/opsany-paas-esb:v3.2.8
     
     #appengine
     # App Engine Config

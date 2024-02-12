@@ -89,8 +89,6 @@ class BindGoogleAuth(Component):
         )
 
         # 对结果进行解析
-        print response
-        print "qqqqqqqqqqqqqqqqqqqqqqq"
         code = response['code']
         if code == 200:
             result = {

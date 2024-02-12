@@ -99,12 +99,10 @@ class UpdateAgentStateV2(Component):
     def handle(self):
         # 获取Form clean处理后的数据
         params = self.form_data
-        print("params", params)
         # 设置当前操作者
         params['operator'] = self.current_user.username
 
         # 请求系统接口
-        print(self.request.wsgi_request.g.headers)
         response = self.outgoing.http_client.post(
             host=configs.host,
             path='{}update-agent-v2/'.format(base_api_url),

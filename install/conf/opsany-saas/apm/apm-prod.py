@@ -32,23 +32,71 @@ DATABASES.update(
             'HOST': os.getenv("MYSQL_HOST", "MYSQL_SERVER_IP"),  # 数据库主机
             'PORT': int(os.getenv("MYSQL_PORT", "MYSQL_SERVER_PORT")),  # 数据库端口
             'OPTIONS': {
-                "init_command": "SET default_storage_engine=INNODB",
+                "init_command": "SET default_storage_engine=INNODB;\
+                                 SET sql_mode='STRICT_TRANS_TABLES';",
             }
         },
     }
 )
-ES_USERNAME = "ES_USERNAME"
-ES_PASSWORD = "ES_PASSWORD"
-ES_CLUSTER = "ES_CLUSTER"
+KIBANA_ES_USERNAME = "KIBANA_USERNAME"
+KIBANA_ES_PASSWORD = "KIBANA_PASSWORD"
+KIBANA_ES_CLUSTER = "KIBANA_CLUSTER"
+
+ES_USERNAME = "ELASTIC_USERNAME"
+ES_PASSWORD = "ELASTIC_PASSWORD"
+ES_CLUSTER = "ELASTIC_CLUSTER"
+HEART_BEAT_INDEX = os.getenv("ELASTIC_INDEX", "ELASTIC_SEARCH_INDEX")
 CORS_ALLOW_CREDENTIALS = True
+
+
+import mongoengine
+
+# MongoDB Config
+MONGO_CONN = mongoengine.connect(
+    db='prom',  # 需要进行操作的数据库名称
+    alias='default',  # 必须定义一个default数据库
+    host=os.getenv("MONGO_HOST", "MONGO_SERVER_IP"),
+    port=int(os.getenv("MONGO_PORT", "MONGO_SERVER_PORT")),
+    username='prom',
+    password=os.getenv("MONGO_PASSWORD", "MONGO_PROM_PASSWORD"),
+    connect=False
+    # authentication_source="admin",           # 进行身份认证的数据库，通常这个数据库为admin
+)
 
 # Elastic APM
 ELASTIC_APM = {
   'ENABLED': 'false',
   'SERVICE_NAME': 'opsany-saas-apm',
   'SECRET_TOKEN': 'APM_SECRET_TOKEN',
-  'SERVER_URL': 'http://APM_SERVER_HOST:8200',
+  'SERVER_URL': 'https://APM_SERVER_HOST:8200',
+  'VERIFY_SERVER_CERT': 'false',
   'ENVIRONMENT': 'prod',
 }
 
-HOME_PAGE_LAST_HOUR = 1
+# 单位秒
+HOME_PAGE_LAST_TIME = 60 * 15
+
+# Redis Config
+REDIS_HOST = os.getenv("REDIS_HOST", "REDIS_SERVER_IP")
+REDIS_PORT = os.getenv("REDIS_PORT", "REDIS_SERVER_PORT")
+REDIS_USERNAME = parse.quote(os.getenv("REDIS_USERNAME", "REDIS_SERVER_USER") or "")
+REDIS_PASSWORD = parse.quote(os.getenv("REDIS_PASSWORD", "REDIS_SERVER_PASSWORD"))
+
+# Redis Celery AMQP
+BROKER_URL = 'redis://{REDIS_USERNAME}:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}/21'.format(REDIS_USERNAME=REDIS_USERNAME, REDIS_PASSWORD=REDIS_PASSWORD, REDIS_HOST=REDIS_HOST, REDIS_PORT=REDIS_PORT)
+
+# Reids Cache
+CACHES.update(
+    {
+        "default": {
+            "BACKEND": "django_redis.cache.RedisCache",
+            "LOCATION": "redis://{}:{}@{}:{}/21".format(REDIS_USERNAME, REDIS_PASSWORD, REDIS_HOST, REDIS_PORT),
+             # 'TIMEOUT': 86400,  # 1天
+            "OPTIONS": {
+                "CLIENT_CLASS": "django_redis.client.DefaultClient",
+                # "CONNECTION_POOL_KWARGS": {"max_connections": 1000},
+                # "PASSWORD": REDIS_PASSWORD,
+            }
+        }
+    },
+)

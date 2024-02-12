@@ -72,8 +72,17 @@ ELASTIC_APM = {
   'ENABLED': 'false',
   'SERVICE_NAME': 'opsany-saas-rbac',
   'SECRET_TOKEN': 'APM_SECRET_TOKEN',
-  'SERVER_URL': 'http://APM_SERVER_HOST:8200',
+  'SERVER_URL': 'https://APM_SERVER_HOST:8200',
+  'VERIFY_SERVER_CERT': 'false',
   'ENVIRONMENT': 'prod',
 }
 
+# 增加新的saas需要将新平台的组件系统和同步用户组件名录入该配置才可以实现用户的新平台本地同步
+# 1: 平台中文名称
+# 2: 平台code
+# 3: 系统名称（API网关-系统管理-系统名称）
+# 4: 通道名称（API网关-通道管理-组件代号-组件文件名）
+SYNC_USER_INFO_LIST = [
+    # ("演示平台", "demo", "demo", "sync_user_info"),
+]
 

@@ -76,7 +76,8 @@ ELASTIC_APM = {
   'ENABLED': 'false',
   'SERVICE_NAME': 'opsany-saas-devops',
   'SECRET_TOKEN': 'APM_SECRET_TOKEN',
-  'SERVER_URL': 'http://APM_SERVER_HOST:8200',
+  'SERVER_URL': 'https://APM_SERVER_HOST:8200',
+  'VERIFY_SERVER_CERT': 'false',
   'ENVIRONMENT': 'prod',
 }
 

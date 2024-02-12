@@ -31,7 +31,8 @@ DATABASES.update(
             'HOST': os.getenv("MYSQL_HOST", "MYSQL_SERVER_IP"),  # 数据库主机
             'PORT': int(os.getenv("MYSQL_PORT", "MYSQL_SERVER_PORT")),  # 数据库端口
             'OPTIONS': {
-                "init_command": "SET default_storage_engine=INNODB",
+                "init_command": "SET default_storage_engine=INNODB;\
+                                 SET sql_mode='STRICT_TRANS_TABLES';",
             }
         },
     }
@@ -51,6 +52,7 @@ ELASTIC_APM = {
   'ENABLED': 'false',
   'SERVICE_NAME': 'opsany-saas-k8s',
   'SECRET_TOKEN': 'APM_SECRET_TOKEN',
-  'SERVER_URL': 'http://APM_SERVER_HOST:8200',
+  'SERVER_URL': 'https://APM_SERVER_HOST:8200',
+  'VERIFY_SERVER_CERT': 'false',
   'ENVIRONMENT': 'prod',
 }

@@ -66,7 +66,6 @@ class GetUserSshKey(Component):
         params['operator'] = self.current_user.username
 
         # 请求系统接口
-        print self.request.wsgi_request.g.headers
         response = self.outgoing.http_client.get(
             host=configs.host,
             path='{}get-user-ssh-key/'.format(base_api_url),

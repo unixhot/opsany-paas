@@ -33,7 +33,8 @@ DATABASES.update(
             'HOST': os.getenv("MYSQL_HOST", "MYSQL_SERVER_IP"),  # 数据库主机
             'PORT': int(os.getenv("MYSQL_PORT", "MYSQL_SERVER_PORT")),  # 数据库端口
             'OPTIONS': {
-                "init_command": "SET default_storage_engine=INNODB",
+                "init_command": "SET default_storage_engine=INNODB;\
+                                 SET sql_mode='STRICT_TRANS_TABLES';",
             }
 
         },
@@ -54,13 +55,14 @@ MONGO_CONN = mongoengine.connect(
 
 
 ELASTIC_SEARCH = {
-    "USER": os.getenv("ELASTIC_SEARCH_USERNAME", "elastic"),
-    "PASSWORD": os.getenv("ES_PASSWORD", "OpsAny@2020"),
-    "HOST": os.getenv("ES_SERVER_IP", "10.0.0.81"),
-    "PORT": os.getenv("ELASTIC_PORT", "9200"),
+    "USER": os.getenv("ELSTIC_USERNAME", "ELASTIC_SEARCH_USERNAME"),
+    "PASSWORD": os.getenv("ELASTIC_PASSWORD", "ES_PASSWORD"),
+    "HOST": os.getenv("ELSTIC_SERVER_IP", "ES_SERVER_IP"),
+    "PORT": os.getenv("ELASTIC_PORT_ENV", "9200"),
+    "SCHEME": os.getenv("ELASTIC_SCHEME", "https"),  # http https
 }
 
-HEART_BEAT_INDEX = os.getenv("ELASTIC_SEARCH_INDEX", "heartbeat-7.13.*")
+HEART_BEAT_INDEX = os.getenv("ELASTIC_INDEX", "ELASTIC_SEARCH_INDEX")
 HEART_BEAT_MONITOR_D = "{}/uploads/monitor/heartbeat-monitors.d/".format(default.UPLOAD_PATH)
 
 if not os.path.exists(HEART_BEAT_MONITOR_D):
@@ -89,6 +91,7 @@ ELASTIC_APM = {
   'ENABLED': 'false',
   'SERVICE_NAME': 'opsany-saas-prom',
   'SECRET_TOKEN': 'APM_SECRET_TOKEN',
-  'SERVER_URL': 'http://APM_SERVER_HOST:8200',
+  'SERVER_URL': 'https://APM_SERVER_HOST:8200',
+  'VERIFY_SERVER_CERT': 'false',
   'ENVIRONMENT': 'prod',
 }

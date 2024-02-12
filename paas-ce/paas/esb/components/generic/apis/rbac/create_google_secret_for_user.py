@@ -64,8 +64,6 @@ class CreateGoogleSecretForUser(Component):
 
         # 对结果进行解析
         code = response['code']
-        print "fffffffffffff"
-        print response
         if code == 200:
             result = {
                 'code': response['code'],

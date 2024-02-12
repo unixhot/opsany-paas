@@ -69,13 +69,14 @@ paas_update(){
     -p 8001:8001 -v ${INSTALL_PATH}/logs:/opt/opsany/logs \
     -v ${INSTALL_PATH}/conf/settings_production.py.paas:/opt/opsany/paas/paas/conf/settings_production.py \
     -v /etc/localtime:/etc/localtime:ro \
-    ${PAAS_DOCKER_REG}/opsany-paas-paas:v3.2.7
+    ${PAAS_DOCKER_REG}/opsany-paas-paas:${UPDATE_VERSION}
 }
 
 login_update(){
  #login
     shell_log "Start login Service"
     #Login Config
+    UPDATE_VERSION=$1
     RBAC_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.rbac_secret_key)
     /bin/cp conf/settings_production.py.login ${INSTALL_PATH}/conf/settings_production.py.login
     sed -i "s/RBAC_SECRET_KEY/${RBAC_SECRET_KEY}/g" ${INSTALL_PATH}/conf/settings_production.py.login
@@ -90,13 +91,14 @@ login_update(){
     -p 8003:8003 -v ${INSTALL_PATH}/logs:/opt/opsany/logs \
     -v ${INSTALL_PATH}/conf/settings_production.py.login:/opt/opsany/paas/login/conf/settings_production.py \
     -v /etc/localtime:/etc/localtime:ro \
-    ${PAAS_DOCKER_REG}/opsany-paas-login:v3.2.22
+    ${PAAS_DOCKER_REG}/opsany-paas-login:${UPDATE_VERSION}
 }
 
 esb_update(){
 #esb
     shell_log "Start esb Service"
     # ESB Config
+    UPDATE_VERSION=$1
     /bin/cp conf/settings_production.py.esb ${INSTALL_PATH}/conf/settings_production.py.esb
     sed -i "s/PAAS_LOGIN_IP/${PAAS_LOGIN_IP}/g" ${INSTALL_PATH}/conf/settings_production.py.esb
     sed -i "s/PAAS_PAAS_IP/${PAAS_PAAS_IP}/g" ${INSTALL_PATH}/conf/settings_production.py.esb
@@ -112,12 +114,13 @@ esb_update(){
     -v ${INSTALL_PATH}/esb/apis:/opt/opsany/paas/esb/components/generic/apis \
     -v ${INSTALL_PATH}/conf/settings_production.py.esb:/opt/opsany/paas/esb/configs/default.py \
     -v /etc/localtime:/etc/localtime:ro \
-    ${PAAS_DOCKER_REG}/opsany-paas-esb:v3.2.7
+    ${PAAS_DOCKER_REG}/opsany-paas-esb:${UPDATE_VERSION}
 }  
 
 appengine_update(){
  #appengine
     # App Engine Config
+    UPDATE_VERSION=$1
     /bin/cp conf/settings_production.py.appengine ${INSTALL_PATH}/conf/settings_production.py.appengine
     sed -i "s/MYSQL_SERVER_IP/${MYSQL_SERVER_IP}/g" ${INSTALL_PATH}/conf/settings_production.py.appengine
     sed -i "s/MYSQL_OPSANY_PASSWORD/${MYSQL_OPSANY_PASSWORD}/g" ${INSTALL_PATH}/conf/settings_production.py.appengine
@@ -129,7 +132,7 @@ appengine_update(){
     -p 8000:8000 -v ${INSTALL_PATH}/logs:/opt/opsany/logs \
     -v ${INSTALL_PATH}/conf/settings_production.py.appengine:/opt/opsany/paas/appengine/controller/settings.py \
     -v /etc/localtime:/etc/localtime:ro \
-    ${PAAS_DOCKER_REG}/opsany-paas-appengine:v3.2.6
+    ${PAAS_DOCKER_REG}/opsany-paas-appengine:${UPDATE_VERSION}
 }  
 
 # Update Proxy
@@ -569,6 +572,122 @@ saas_devops_update(){
     "python /opt/opsany/devops/manage.py migrate --noinput >> ${SHELL_LOG} && python /opt/opsany/devops/manage.py createcachetable django_cache > /dev/null"
 }
 
+saas_pipeline_update(){
+    shell_log "======Update pipeline======"
+    # Modify configuration
+    /bin/cp -r ./conf/opsany-saas/pipeline/* ${INSTALL_PATH}/conf/opsany-saas/pipeline/
+    PIPELINE_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.pipeline_secret_key)
+    sed -i "s/DOMAIN_NAME/${DOMAIN_NAME}/g" ${INSTALL_PATH}/conf/opsany-saas/pipeline/pipeline-init.py
+    sed -i "s/PIPELINE_SECRET_KEY/${PIPELINE_SECRET_KEY}/g" ${INSTALL_PATH}/conf/opsany-saas/pipeline/pipeline-init.py
+    sed -i "s/MYSQL_SERVER_IP/${MYSQL_SERVER_IP}/g" ${INSTALL_PATH}/conf/opsany-saas/pipeline/pipeline-prod.py
+    sed -i "s/MYSQL_SERVER_PORT/${MYSQL_SERVER_PORT}/g" ${INSTALL_PATH}/conf/opsany-saas/pipeline/pipeline-prod.py
+    sed -i "s/MYSQL_OPSANY_PIPELINE_PASSWORD/${MYSQL_OPSANY_PIPELINE_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-saas/pipeline/pipeline-prod.py
+    sed -i "s/MONGO_SERVER_IP/${MONGO_SERVER_IP}/g" ${INSTALL_PATH}/conf/opsany-saas/pipeline/pipeline-prod.py
+    sed -i "s/MONGO_SERVER_PORT/${MONGO_SERVER_PORT}/g" ${INSTALL_PATH}/conf/opsany-saas/pipeline/pipeline-prod.py
+    sed -i "s/MONGO_DEVOPS_PASSWORD/${MONGO_DEVOPS_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-saas/pipeline/pipeline-prod.py
+    sed -i "s/REDIS_SERVER_IP/${REDIS_SERVER_IP}/g" ${INSTALL_PATH}/conf/opsany-saas/pipeline/pipeline-prod.py
+    sed -i "s/REDIS_SERVER_PORT/${REDIS_SERVER_PORT}/g" ${INSTALL_PATH}/conf/opsany-saas/pipeline/pipeline-prod.py
+    sed -i "s/REDIS_SERVER_USER/${REDIS_SERVER_USER}/g" ${INSTALL_PATH}/conf/opsany-saas/pipeline/pipeline-prod.py
+    sed -i "s/REDIS_SERVER_PASSWORD/${REDIS_SERVER_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-saas/pipeline/pipeline-prod.py
+
+    # Starter container
+    docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-pipeline:${UPDATE_VERSION}
+    docker stop opsany-saas-ce-pipeline && docker rm opsany-saas-ce-pipeline
+    docker run -d --restart=always --name opsany-saas-ce-pipeline \
+       -p 7017:80 \
+       -v ${INSTALL_PATH}/conf/opsany-saas/pipeline/pipeline-supervisor.ini:/etc/supervisord.d/pipeline.ini \
+       -v ${INSTALL_PATH}/conf/opsany-saas/pipeline/pipeline-uwsgi.ini:/opt/opsany/uwsgi/pipeline.ini \
+       -v ${INSTALL_PATH}/conf/opsany-saas/pipeline/pipeline-init.py:/opt/opsany/pipeline/config/__init__.py \
+       -v ${INSTALL_PATH}/conf/opsany-saas/pipeline/pipeline-prod.py:/opt/opsany/pipeline/config/prod.py \
+       -v ${INSTALL_PATH}/conf/opsany-saas/pipeline/pipeline-nginx.conf:/etc/nginx/http.d/default.conf \
+       -v ${INSTALL_PATH}/logs/pipeline:/opt/opsany/logs/pipeline \
+       -v ${INSTALL_PATH}/uploads:/opt/opsany/uploads \
+       -v /etc/localtime:/etc/localtime:ro \
+       ${PAAS_DOCKER_REG}/opsany-saas-ce-pipeline:${UPDATE_VERSION}
+    
+    # Django migrate
+    docker exec -e BK_ENV="production" opsany-saas-ce-pipeline /bin/sh -c \
+    "python /opt/opsany/pipeline/manage.py migrate --noinput >> ${SHELL_LOG} && python /opt/opsany/pipeline/manage.py createcachetable django_cache > /dev/null"
+}
+
+saas_deploy_update(){
+    shell_log "======Update deploy======"
+    # Modify configuration
+    /bin/cp -r ./conf/opsany-saas/deploy/* ${INSTALL_PATH}/conf/opsany-saas/deploy/
+    DEPLOY_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.deploy_secret_key)
+    sed -i "s/DOMAIN_NAME/${DOMAIN_NAME}/g" ${INSTALL_PATH}/conf/opsany-saas/deploy/deploy-init.py
+    sed -i "s/DEPLOY_SECRET_KEY/${DEPLOY_SECRET_KEY}/g" ${INSTALL_PATH}/conf/opsany-saas/deploy/deploy-init.py
+    sed -i "s/MYSQL_SERVER_IP/${MYSQL_SERVER_IP}/g" ${INSTALL_PATH}/conf/opsany-saas/deploy/deploy-prod.py
+    sed -i "s/MYSQL_SERVER_PORT/${MYSQL_SERVER_PORT}/g" ${INSTALL_PATH}/conf/opsany-saas/deploy/deploy-prod.py
+    sed -i "s/MYSQL_OPSANY_DEPLOY_PASSWORD/${MYSQL_OPSANY_DEPLOY_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-saas/deploy/deploy-prod.py
+    sed -i "s/MONGO_SERVER_IP/${MONGO_SERVER_IP}/g" ${INSTALL_PATH}/conf/opsany-saas/deploy/deploy-prod.py
+    sed -i "s/MONGO_SERVER_PORT/${MONGO_SERVER_PORT}/g" ${INSTALL_PATH}/conf/opsany-saas/deploy/deploy-prod.py
+    sed -i "s/MONGO_DEVOPS_PASSWORD/${MONGO_DEVOPS_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-saas/deploy/deploy-prod.py
+    sed -i "s/REDIS_SERVER_IP/${REDIS_SERVER_IP}/g" ${INSTALL_PATH}/conf/opsany-saas/deploy/deploy-prod.py
+    sed -i "s/REDIS_SERVER_PORT/${REDIS_SERVER_PORT}/g" ${INSTALL_PATH}/conf/opsany-saas/deploy/deploy-prod.py
+    sed -i "s/REDIS_SERVER_USER/${REDIS_SERVER_USER}/g" ${INSTALL_PATH}/conf/opsany-saas/deploy/deploy-prod.py
+    sed -i "s/REDIS_SERVER_PASSWORD/${REDIS_SERVER_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-saas/deploy/deploy-prod.py
+
+    # Starter container
+    docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-deploy:${UPDATE_VERSION}
+    docker stop opsany-saas-ce-deploy && docker rm opsany-saas-ce-deploy
+    docker run -d --restart=always --name opsany-saas-ce-deploy \
+       -p 7018:80 \
+       -v ${INSTALL_PATH}/conf/opsany-saas/deploy/deploy-supervisor.ini:/etc/supervisord.d/deploy.ini \
+       -v ${INSTALL_PATH}/conf/opsany-saas/deploy/deploy-uwsgi.ini:/opt/opsany/uwsgi/deploy.ini \
+       -v ${INSTALL_PATH}/conf/opsany-saas/deploy/deploy-init.py:/opt/opsany/deploy/config/__init__.py \
+       -v ${INSTALL_PATH}/conf/opsany-saas/deploy/deploy-prod.py:/opt/opsany/deploy/config/prod.py \
+       -v ${INSTALL_PATH}/conf/opsany-saas/deploy/deploy-nginx.conf:/etc/nginx/http.d/default.conf \
+       -v ${INSTALL_PATH}/logs/deploy:/opt/opsany/logs/deploy \
+       -v ${INSTALL_PATH}/uploads:/opt/opsany/uploads \
+       -v /etc/localtime:/etc/localtime:ro \
+       ${PAAS_DOCKER_REG}/opsany-saas-ce-deploy:${UPDATE_VERSION}
+    
+    # Django migrate
+    docker exec -e BK_ENV="production" opsany-saas-ce-deploy /bin/sh -c \
+    "python /opt/opsany/deploy/manage.py migrate --noinput >> ${SHELL_LOG} && python /opt/opsany/deploy/manage.py createcachetable django_cache > /dev/null"
+}
+
+saas_repo_update(){
+    shell_log "======Update repo======"
+    # Modify configuration
+    /bin/cp -r ./conf/opsany-saas/repo/* ${INSTALL_PATH}/conf/opsany-saas/repo/
+    REPO_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.repo_secret_key)
+    # repo Configure
+    sed -i "s/DOMAIN_NAME/${DOMAIN_NAME}/g" ${INSTALL_PATH}/conf/opsany-saas/repo/repo-init.py
+    sed -i "s/REPO_SECRET_KEY/${REPO_SECRET_KEY}/g" ${INSTALL_PATH}/conf/opsany-saas/repo/repo-init.py
+    sed -i "s/MYSQL_SERVER_IP/${MYSQL_SERVER_IP}/g" ${INSTALL_PATH}/conf/opsany-saas/repo/repo-prod.py
+    sed -i "s/MYSQL_SERVER_PORT/${MYSQL_SERVER_PORT}/g" ${INSTALL_PATH}/conf/opsany-saas/repo/repo-prod.py
+    sed -i "s/MYSQL_OPSANY_REPO_PASSWORD/${MYSQL_OPSANY_REPO_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-saas/repo/repo-prod.py
+    sed -i "s/MONGO_SERVER_IP/${MONGO_SERVER_IP}/g" ${INSTALL_PATH}/conf/opsany-saas/repo/repo-prod.py
+    sed -i "s/MONGO_SERVER_PORT/${MONGO_SERVER_PORT}/g" ${INSTALL_PATH}/conf/opsany-saas/repo/repo-prod.py
+    sed -i "s/MONGO_DEVOPS_PASSWORD/${MONGO_DEVOPS_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-saas/repo/repo-prod.py
+    sed -i "s/REDIS_SERVER_IP/${REDIS_SERVER_IP}/g" ${INSTALL_PATH}/conf/opsany-saas/repo/repo-prod.py
+    sed -i "s/REDIS_SERVER_PORT/${REDIS_SERVER_PORT}/g" ${INSTALL_PATH}/conf/opsany-saas/repo/repo-prod.py
+    sed -i "s/REDIS_SERVER_USER/${REDIS_SERVER_USER}/g" ${INSTALL_PATH}/conf/opsany-saas/repo/repo-prod.py
+    sed -i "s/REDIS_SERVER_PASSWORD/${REDIS_SERVER_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-saas/repo/repo-prod.py
+    
+    # Starter container
+    docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-repo:2.1.3
+    docker stop opsany-saas-ce-repo && docker rm opsany-saas-ce-repo
+    docker run -d --restart=always --name opsany-saas-ce-repo \
+       -p 7020:80 \
+       -v ${INSTALL_PATH}/conf/opsany-saas/repo/repo-supervisor.ini:/etc/supervisord.d/repo.ini \
+       -v ${INSTALL_PATH}/conf/opsany-saas/repo/repo-uwsgi.ini:/opt/opsany/uwsgi/repo.ini \
+       -v ${INSTALL_PATH}/conf/opsany-saas/repo/repo-init.py:/opt/opsany/repo/config/__init__.py \
+       -v ${INSTALL_PATH}/conf/opsany-saas/repo/repo-prod.py:/opt/opsany/repo/config/prod.py \
+       -v ${INSTALL_PATH}/conf/opsany-saas/repo/repo-nginx.conf:/etc/nginx/http.d/default.conf \
+       -v ${INSTALL_PATH}/logs:/opt/opsany/logs \
+       -v ${INSTALL_PATH}/uploads:/opt/opsany/uploads \
+       -v /etc/localtime:/etc/localtime:ro \
+       ${PAAS_DOCKER_REG}/opsany-saas-ce-repo:2.1.3
+    
+    # Django migrate
+    docker exec -e BK_ENV="production" opsany-saas-ce-repo /bin/sh -c \
+    "python /opt/opsany/repo/manage.py migrate --noinput && python /opt/opsany/repo/manage.py createcachetable django_cache > /dev/null" >> ${SHELL_LOG}
+}
+
+
 saas_dashboard_update(){
     shell_log "======Update dashboard======"
 
@@ -657,6 +776,15 @@ main(){
 	devops)
 	    saas_devops_update $2
 	    ;;
+    pipeline)
+	    saas_pipeline_update $2
+	    ;;
+	deploy)
+	    saas_deploy_update $2
+	    ;;
+	repo)
+	    saas_repo_update $2
+	    ;;
     cmp)
         saas_cmp_update $2
 	    ;;
@@ -667,7 +795,6 @@ main(){
         websocket_update $2
         ;;
     all)
-        proxy_update $2
 	    saas_rbac_update $2
 	    saas_workbench_update $2
 	    saas_cmdb_update $2
@@ -678,6 +805,9 @@ main(){
 	    saas_dashboard_update $2
         saas_monitor_update $2
         saas_devops_update $2
+        saas_pipeline_update $2
+        saas_deploy_update $2
+        saas_repo_update $2
         ;;
 	help|*)
 	    echo $"Usage: $0 {(paas|login|esb|appengine|proxy|websocket|rbac|workbench|cmdb|control|job|cmp|bastion|base|monitor|dashboard|devops|all|help) version}"

@@ -82,7 +82,6 @@ class ImportGrainsFromControlV2(Component):
         # 设置当前操作者
         params['operator'] = self.current_user.username
         # print(self.request.wsgi_request.COOKIES)
-        print(self.request.wsgi_request.g.headers)
         # 请求系统接口
         response = self.outgoing.http_client.post(
             host=configs.host,

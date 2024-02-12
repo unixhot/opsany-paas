@@ -7,6 +7,7 @@ requests==2.23.0
 脚本路径 /usr/lib/zabbix/alertscripts(Zabbix配置文件指定脚本目录)
 脚本需要可执行权限
 """
+import json
 import sys
 
 import requests
@@ -22,7 +23,7 @@ class SendAlertToOpsAny:
         self.app_code = app_code
         self.app_secret = app_secret
     
-    def send_out_message(self, parameter, operator, temp_id, subscribe_type=None):
+    def send_out_message(self, parameter, operator, temp_id, subscribe_type=None, alert_info=None):
         API = "/api/c/compapi/workbench/post_info_to_user/"
         req = {
             "bk_app_code": self.app_code,
@@ -31,7 +32,8 @@ class SendAlertToOpsAny:
             "operator": operator,
             "temp_id": temp_id,
             "subscribe_type": subscribe_type,
-            "parameter": parameter
+            "parameter": parameter,
+            "alert_info": json.dumps(alert_info),
         }
         URL = self.opsany_url + API
         response = requests.post(url=URL, data=req, verify=False)
@@ -44,11 +46,15 @@ class SendAlertToOpsAny:
             print("发送状态：{}".format(end_data.get("message")))
             return response.status_code
         else:
-            raise Exception("发送失败，请检查参数是否正确：{}".format(end_data.get("message")))
+            raise Exception("发送失败，请检查参数是否正确：{}".format(end_data))
     
     def send(self, alert_sendto, alert_subject, alert_message):
         parameter = '("""{}""", """{}""")'.format(alert_subject, alert_message)
-        return self.send_out_message(parameter, alert_sendto, 7001)
+        alert_info = {
+            "alert_subject": alert_subject,
+            "alert_message": alert_message,
+        }
+        return self.send_out_message(parameter, alert_sendto, 7001, alert_info=alert_info)
 
 
 def main():

@@ -140,6 +140,7 @@ class OpsAnyRbacUserAuth(object):
             "bk_app_code": self.APP_CODE,
             "bk_app_secret": self.APP_SECRET,
             "bk_access_token": self.ACCESS_TOKEN,
+            "bk_username": "admin",
             "domain": domain
         }
         url = self.BK_URL + API
@@ -169,4 +170,4 @@ class OpsAnyRbacUserAuth(object):
 
 
 if __name__ == '__main__':
-    api = OpsAnyRbacUserAuth("huxingqi").update_login_log("mpsyFAZx4AMwUWRUjFU9xrw8rsNtDc4xyIknF08bzxY", "127.1.1.1", "Mert", "dev.opsany.cn")
+    api = OpsAnyRbacUserAuth("huxingqi").get_vx_work_config()

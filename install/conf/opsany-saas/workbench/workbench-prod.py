@@ -87,7 +87,8 @@ ELASTIC_APM = {
   'ENABLED': 'false',
   'SERVICE_NAME': 'opsany-saas-workbench',
   'SECRET_TOKEN': 'APM_SECRET_TOKEN',
-  'SERVER_URL': 'http://APM_SERVER_HOST:8200',
+  'SERVER_URL': 'https://APM_SERVER_HOST:8200',
+  'VERIFY_SERVER_CERT': 'false',
   'ENVIRONMENT': 'prod',
 }
 
@@ -104,3 +105,6 @@ DING_TALK_OAPI_DOMAIN = "https://oapi.dingtalk.com"
 DING_TALK_API_HEADER_CODE = "hs-code"  # 请求头参数
 DING_TALK_API_HEADER_DATA = "DING_TALK_API_HEADER_DATA"  # 请求头数据-API
 DING_TALK_OAPI_HEADER_DATA = "DING_TALK_OAPI_HEADER_DATA"  # 请求头数据-OAPI
+
+# 工单处理后当前免登录链接过期时间(天)
+WORK_ORDER_FREE_LINK_VALID_TIME = 30
