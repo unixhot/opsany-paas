@@ -153,7 +153,7 @@ proxy_update(){
     sed -i "s/RABBIT_SERVER_IP/${RABBIT_SERVER_IP}/g" ${INSTALL_PATH}/conf/proxy/settings_production.py.proxy
     sed -i "s/RABBITMQ_DEFAULT_USER/${RABBITMQ_DEFAULT_USER}/g" ${INSTALL_PATH}/conf/proxy/settings_production.py.proxy
     sed -i "s/RABBITMQ_DEFAULT_PASS/${RABBITMQ_DEFAULT_PASS}/g" ${INSTALL_PATH}/conf/proxy/settings_production.py.proxy
-    sed -i "s/CONTROL_SECRET_KEY_PROXY/${CONTROL_SECRET_KEY_PROXY}/g" ${INSTALL_PATH}/conf/proxy/settings_production.py.proxy
+    sed -i "s/CONTROL_SECRET_KEY_PROXY/${CONTROL_SECRET_KEY}/g" ${INSTALL_PATH}/conf/proxy/settings_production.py.proxy
     cp ../saas/invscript_proxy.py ${INSTALL_PATH}/conf/proxy/
     sed -i "s/LOCALHOST/${MYSQL_SERVER_IP}/g" ${INSTALL_PATH}/conf/proxy/invscript_proxy.py
     sed -i "s/PROXY_PASSWORD/${MYSQL_OPSANY_PASSWORD}/g" ${INSTALL_PATH}/conf/proxy/invscript_proxy.py
