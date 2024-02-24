@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from config import RUN_VER, default
 from urllib import parse
-import mongoengine
+
 
 if RUN_VER == 'open':
     from blueapps.patch.settings_open_saas import *  # noqa
@@ -40,33 +40,6 @@ DATABASES.update(
 
         },
     }
-)
-
-ELASTIC_SEARCH = {
-    "USER": os.getenv("ELASTIC_SEARCH_USERNAME", "elastic"),
-    "PASSWORD": os.getenv("ES_PASSWORD", "OpsAny@2020"),
-    "HOST": os.getenv("ES_SERVER_IP", "81.69.6.201"),
-    "PORT": os.getenv("ELASTIC_PORT", "9200"),
-}
-
-HEART_BEAT_INDEX = os.getenv("ELASTIC_SEARCH_INDEX", "heartbeat-7.13.*")
-HEART_BEAT_MONITOR_D = "{}/uploads/{}/heartbeat-monitors.d/".format(default.UPLOAD_PATH, APP_CODE)
-if not os.path.exists(HEART_BEAT_MONITOR_D):
-    os.makedirs(HEART_BEAT_MONITOR_D)
-
-# 静态文件
-setattr(default, "HEART_BEAT_MONITOR_D", HEART_BEAT_MONITOR_D)
-
-# MongoDB Config
-MONGO_CONN = mongoengine.connect(
-    db=APP_CODE,  # 需要进行操作的数据库名称
-    alias='default',  # 必须定义一个default数据库
-    host=os.getenv("MONGO_HOST", "MONGO_SERVER_IP"),
-    port=int(os.getenv("MONGO_PORT", "MONGO_SERVER_PORT")),
-    username=APP_CODE,
-    password=os.getenv("MONGO_PASSWORD", "MONGO_MONITOR_PASSWORD"),
-    connect=False
-    # authentication_source="admin",           # 进行身份认证的数据库，通常这个数据库为admin
 )
 
 # Redis Config
