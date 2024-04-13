@@ -47,7 +47,7 @@ else
     if [ -z "$ADMIN_PASSWORD" ];then
         source ${INSTALL_PATH}/conf/.passwd_env
     fi
-    mkdir -p ${INSTALL_PATH}/conf/opsany-paas/{paas,esb,login,appengine}
+    mkdir -p ${INSTALL_PATH}/conf/opsany-paas/{paas,esb,login,appengine,websocket}
 fi
 
 # PaaS Service Update
@@ -205,18 +205,18 @@ websocket_update(){
     UPDATE_VERSION=$1
     BASTION_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.bastion_secret_key)
     /bin/cp conf/opsany-paas/websocket/websocket.ini ${INSTALL_PATH}/conf/opsany-paas/websocket/websocket.ini
-    /bin/cp conf/opsany-paas/websocket/settings_production.py.websocket ${INSTALL_PATH}/conf/settings_production.py.websocket
-    /bin/cp conf/opsany-paas/websocket/settings_production.py.websocket.init ${INSTALL_PATH}/conf/settings_production.py.websocket.init
-    sed -i "s/BASTION_SECRET_KEY/${BASTION_SECRET_KEY}/g" ${INSTALL_PATH}/conf/settings_production.py.websocket.init
-    sed -i "s/WEBSOCKET_GUACD_HOST/${WEBSOCKET_GUACD_HOST}/g" ${INSTALL_PATH}/conf/settings_production.py.websocket
-    sed -i "s/REDIS_SERVER_IP/${REDIS_SERVER_IP}/g" ${INSTALL_PATH}/conf/settings_production.py.websocket
-    sed -i "s/REDIS_SERVER_USER/${REDIS_SERVER_USER}/g" ${INSTALL_PATH}/conf/settings_production.py.websocket
-    sed -i "s/REDIS_SERVER_PORT/${REDIS_SERVER_PORT}/g" ${INSTALL_PATH}/conf/settings_production.py.websocket
-    sed -i "s/REDIS_SERVER_PASSWORD/${REDIS_SERVER_PASSWORD}/g" ${INSTALL_PATH}/conf/settings_production.py.websocket
-    sed -i "s/MYSQL_SERVER_IP/${MYSQL_SERVER_IP}/g" ${INSTALL_PATH}/conf/settings_production.py.websocket
-    sed -i "s/MYSQL_SERVER_PORT/${MYSQL_SERVER_PORT}/g" ${INSTALL_PATH}/conf/settings_production.py.websocket
-    sed -i "s/MYSQL_OPSANY_PASSWORD/${MYSQL_OPSANY_PASSWORD}/g" ${INSTALL_PATH}/conf/settings_production.py.websocket
-    sed -i "s/PAAS_PAAS_IP/${PAAS_PAAS_IP}/g" ${INSTALL_PATH}/conf/settings_production.py.websocket.init
+    /bin/cp conf/opsany-paas/websocket/settings_production.py.websocket ${INSTALL_PATH}/conf/opsany-paas/websocket/settings_production.py.websocket
+    /bin/cp conf/opsany-paas/websocket/settings_production.py.websocket.init ${INSTALL_PATH}/conf/opsany-paas/websocket/settings_production.py.websocket.init
+    sed -i "s/BASTION_SECRET_KEY/${BASTION_SECRET_KEY}/g" ${INSTALL_PATH}/conf/opsany-paas/websocket/settings_production.py.websocket.init
+    sed -i "s/WEBSOCKET_GUACD_HOST/${WEBSOCKET_GUACD_HOST}/g" ${INSTALL_PATH}/conf/opsany-paas/websocket/settings_production.py.websocket
+    sed -i "s/REDIS_SERVER_IP/${REDIS_SERVER_IP}/g" ${INSTALL_PATH}/conf/opsany-paas/websocket/settings_production.py.websocket
+    sed -i "s/REDIS_SERVER_USER/${REDIS_SERVER_USER}/g" ${INSTALL_PATH}/conf/opsany-paas/websocket/settings_production.py.websocket
+    sed -i "s/REDIS_SERVER_PORT/${REDIS_SERVER_PORT}/g" ${INSTALL_PATH}/conf/opsany-paas/websocket/settings_production.py.websocket
+    sed -i "s/REDIS_SERVER_PASSWORD/${REDIS_SERVER_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-paas/websocket/settings_production.py.websocket
+    sed -i "s/MYSQL_SERVER_IP/${MYSQL_SERVER_IP}/g" ${INSTALL_PATH}/conf/opsany-paas/websocket/settings_production.py.websocket
+    sed -i "s/MYSQL_SERVER_PORT/${MYSQL_SERVER_PORT}/g" ${INSTALL_PATH}/conf/opsany-paas/websocket/settings_production.py.websocket
+    sed -i "s/MYSQL_OPSANY_PASSWORD/${MYSQL_OPSANY_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-paas/websocket/settings_production.py.websocket
+    sed -i "s/PAAS_PAAS_IP/${PAAS_PAAS_IP}/g" ${INSTALL_PATH}/conf/opsany-paas/websocket/settings_production.py.websocket.init
     docker stop opsany-paas-websocket && docker rm opsany-paas-websocket
     docker run -d --restart=always --name opsany-paas-websocket \
     -p 8004:8004 -v ${INSTALL_PATH}/logs:/opt/opsany/logs \
