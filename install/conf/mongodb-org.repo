@@ -1,6 +1,0 @@
-[mongodb-org] 
-name=MongoDB Repository
-baseurl=https://mirrors.tuna.tsinghua.edu.cn/mongodb/yum/el$releasever/
-gpgcheck=1
-enabled=1
-gpgkey = https://www.mongodb.org/static/pgp/server-4.4.asc

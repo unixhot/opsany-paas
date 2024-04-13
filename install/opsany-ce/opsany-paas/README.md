@@ -2,4 +2,4 @@
 
 ## 构建镜像
 
-docker build -t opsany/paas-paas:v5.1.5 .
+docker build -t opsany/opsany-paas-paas:3.3.0 .

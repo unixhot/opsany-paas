@@ -32,6 +32,10 @@ TERMINAL_PATH = os.path.join(os.getenv("UPLOAD_PATH", "/opt/opsany/"), "uploads/
 ORI_GUACD_PATH = os.path.join(os.getenv("UPLOAD_PATH", "/opt/opsany/"), "uploads/guacamole")
 TERMINAL_TIMEOUT = int(os.getenv("TERMINAL_TIMEOUT", 1800))
 
+INSTALLED_APPS += (
+    'channels',
+)
+
 DATABASES.update(
     {
         'default': {
@@ -80,6 +84,16 @@ CACHES.update(
         "mfa": {
             "BACKEND": "django_redis.cache.RedisCache",
             "LOCATION": "redis://{}:{}@{}:{}/8".format(REDIS_USERNAME, REDIS_PASSWORD, REDIS_HOST, REDIS_PORT),
+            'TIMEOUT': 1800,
+            "OPTIONS": {
+                "CLIENT_CLASS": "django_redis.client.DefaultClient",
+                "CONNECTION_POOL_KWARGS": {"max_connections": 1000},
+                # "PASSWORD": REDIS_PASSWORD,
+            }
+        },
+        "pod_login": {
+            "BACKEND": "django_redis.cache.RedisCache",
+            "LOCATION": "redis://{}:{}@{}:{}/14".format(REDIS_USERNAME, REDIS_PASSWORD, REDIS_HOST, REDIS_PORT),
             'TIMEOUT': 1800,
             "OPTIONS": {
                 "CLIENT_CLASS": "django_redis.client.DefaultClient",

@@ -219,6 +219,7 @@ class Account(AccountSingleton):
             auth_object.update_login_log(token, login_ip, login_browser, host)
         except Exception as e:
             print "Login log error: {}".format(str(e))
+    
     def redirect_login(self, request):
         """
         重定向到登录页面.
@@ -253,7 +254,8 @@ class Account(AccountSingleton):
         app_id = request.POST.get('app_id', request.GET.get('app_id', ''))
         c_url = request.POST.get('c_url', request.GET.get('c_url', '/'))
         tab_key = request.POST.get('tab_key', request.GET.get('tab_key', 0))
-        #print("tab_key", tab_key)
+        #tab_key = request.POST.get('tab_key', request.GET.get('tab_key', 1))
+        # print("tab_key", tab_key)
         error_message = ""
         if request.method == 'POST':
             # 改写request中密码内容
@@ -265,7 +267,7 @@ class Account(AccountSingleton):
             password = data.get("password", "")
             google_auth_url = data.pop("google_auth_url", {})
             google_auth_type = data.pop("google_auth_type", None)
-            secret = data.pop("secret", "") 
+            secret = data.pop("secret", "")
             geetest_challenge = data.pop("geetest_challenge", None)
             geetest_seccode = data.pop("geetest_seccode", None)
             geetest_validate = data.pop("geetest_validate", None)

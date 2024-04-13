@@ -25,18 +25,6 @@ class InitData:
                     "icon_name": "monitor.png"
                 }
             ],
-        },
-        {
-            "group_name": "平台管理",
-            "nav_list": [
-                {
-                    "nav_name": "可视化平台",
-                    "nav_url": "/o/dashboard/",
-                    "describe": "运维数据可视化",
-                    "group_name": "平台管理",
-                    "icon_name": "dashboard.png"
-                },
-            ],
         }
     ]
     

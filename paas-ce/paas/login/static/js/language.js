@@ -15,7 +15,7 @@ const i18n_language = {
 		password_login_other: "其他登录方式",
 
 		LDAP_login_title: "欢迎使用LDAP登录",
-		LDAP_login_placeholder1: "请输入登陆域",
+		LDAP_login_placeholder1: "请输入登录域",
 		LDAP_login_placeholder2: "请输入LDAP用户名",
 		LDAP_login_placeholder3: "请输入密码",
 

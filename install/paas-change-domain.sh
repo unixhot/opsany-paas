@@ -10,7 +10,7 @@ CTIME=$(date "+%Y-%m-%d-%H-%M")
 
 # Shell Envionment Variables
 CDIR=$(pwd)
-SHELL_NAME="proxy-install.sh"
+SHELL_NAME="paas-change-domain.sh"
 SHELL_LOG="${CDIR}/${SHELL_NAME}.log"
 
 # Shell Log Record
@@ -53,6 +53,9 @@ replace_domain(){
     sed -i "s/${OLD_DOMAIN_NAME}/${NEW_DOMAIN_NAME}/g" ${INSTALL_PATH}/esb/apis/cmp/toolkit/configs.py
     sed -i "s/${OLD_DOMAIN_NAME}/${NEW_DOMAIN_NAME}/g" ${INSTALL_PATH}/esb/apis/devops/toolkit/configs.py
     sed -i "s/${OLD_DOMAIN_NAME}/${NEW_DOMAIN_NAME}/g" ${INSTALL_PATH}/esb/apis/bastion/toolkit/configs.py
+    sed -i "s/${OLD_DOMAIN_NAME}/${NEW_DOMAIN_NAME}/g" ${INSTALL_PATH}/esb/apis/repo/toolkit/configs.py
+    sed -i "s/${OLD_DOMAIN_NAME}/${NEW_DOMAIN_NAME}/g" ${INSTALL_PATH}/esb/apis/pipeline/toolkit/configs.py
+    sed -i "s/${OLD_DOMAIN_NAME}/${NEW_DOMAIN_NAME}/g" ${INSTALL_PATH}/esb/apis/deploy/toolkit/configs.py
     sed -i "s/${OLD_DOMAIN_NAME}/${NEW_DOMAIN_NAME}/g" ${INSTALL_PATH}/conf/settings_production.py.paas
     sed -i "s/${OLD_DOMAIN_NAME}/${NEW_DOMAIN_NAME}/g" ${INSTALL_PATH}/conf/settings_production.py.login
     sed -i "s/${OLD_DOMAIN_NAME}/${NEW_DOMAIN_NAME}/g" ${INSTALL_PATH}/conf/proxy/settings_production.py.proxy
@@ -76,11 +79,13 @@ replace_domain(){
     sed -i "s/${OLD_DOMAIN_NAME}/${NEW_DOMAIN_NAME}/g"  ${INSTALL_PATH}/conf/opsany-saas/monitor/monitor-init.py
     sed -i "s/${OLD_DOMAIN_NAME}/${NEW_DOMAIN_NAME}/g"  ${INSTALL_PATH}/conf/opsany-saas/bastion/bastion-init.py
     sed -i "s/${OLD_DOMAIN_NAME}/${NEW_DOMAIN_NAME}/g"  ${INSTALL_PATH}/conf/opsany-saas/dashboard/dashboard-init.py
-
+    sed -i "s/${OLD_DOMAIN_NAME}/${NEW_DOMAIN_NAME}/g"  ${INSTALL_PATH}/conf/opsany-saas/repo/repo-init.py
+    sed -i "s/${OLD_DOMAIN_NAME}/${NEW_DOMAIN_NAME}/g"  ${INSTALL_PATH}/conf/opsany-saas/pipeline/pipeline-init.py
+    sed -i "s/${OLD_DOMAIN_NAME}/${NEW_DOMAIN_NAME}/g"  ${INSTALL_PATH}/conf/opsany-saas/deploy/deploy-init.py
 }
 
 restart_paas(){
-    service_list='opsany-paas-paas opsany-paas-login opsany-paas-esb opsany-paas-appengine opsany-paas-websocket opsany-paas-proxy'
+    service_list='opsany-paas-paas opsany-paas-login opsany-paas-esb opsany-paas-appengine opsany-paas-websocket opsany-paas-proxy opsany-base-openresty'
     for service in $service_list;do
         shell_log "Restart $service" && docker restart $service;
     done

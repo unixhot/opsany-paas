@@ -57,7 +57,7 @@ install_check(){
 # Install Initialize
 install_init(){
     shell_log "Start: Install Init"
-    mkdir -p ${INSTALL_PATH}/{uploads,conf,logs,prometheus-volume/conf,prometheus-volume/data,consul-volume/data,consul-volume/config,uploads/prometheus-config/rules}
+    mkdir -p ${INSTALL_PATH}/{uploads,conf,logs,prometheus-volume/conf,prometheus-volume/data,consul-volume/data,consul-volume/config,uploads/prometheus-config/rules,prometheus-volume/template}
     cd $CDIR
     /bin/cp -r ./conf/prometheus/* ${INSTALL_PATH}/prometheus-volume/conf/
     /bin/cp conf/consul.hcl ${INSTALL_PATH}/consul-volume/config/
@@ -107,31 +107,113 @@ prometheus_install(){
     #${PAAS_DOCKER_REG}/node-exporter:v1.3.1
 }
 
+alertmanager_install(){
+    # Determine if there is a configuration file
+    if [ ! -d "${INSTALL_PATH}/prometheus-volume/template/" ]; then
+    mkdir -p "${INSTALL_PATH}/prometheus-volume/template/"
+        echo "Directory created: ${INSTALL_PATH}/prometheus-volume/template/"
+    else
+        echo "Directory already exists: ${INSTALL_PATH}/prometheus-volume/template/"
+    fi
+    if [ ! -f "${INSTALL_PATH}/prometheus-volume/conf/alertmanager.yml" ]; then
+    /bin/cp  ./conf/prometheus/alertmanager.yml "${INSTALL_PATH}/prometheus-volume/conf/alertmanager.yml"
+        echo "Configuration file created: ${INSTALL_PATH}/prometheus-volume/conf/alertmanager.yml"
+    else
+        echo "The configuration file already exists: ${INSTALL_PATH}/prometheus-volume/conf/alertmanager.yml"
+    fi
+    /bin/cp  ./conf/prometheus/prometheus.yml "${INSTALL_PATH}/prometheus-volume/conf/prometheus.yml"    
+    # Alertmanager Server Basic Auth
+    CONSUL_TOKEN=`cat ${INSTALL_PATH}/conf/.consul_token`
+    sed -i "s#PROM_CONSUL_SERVER#$PROXY_LOCAL_IP#g" ${INSTALL_PATH}/prometheus-volume/conf/prometheus.yml
+    sed -i "s#CONSUL_TOKEN#$CONSUL_TOKEN#g" ${INSTALL_PATH}/prometheus-volume/conf/prometheus.yml
+    sed -i "s#LOCAL_IP#$PROXY_LOCAL_IP#g" ${INSTALL_PATH}/prometheus-volume/conf/prometheus.yml
+    sed -i "s#PROM_SERVER_PASSWD#$PROM_SERVER_PASSWD#g" ${INSTALL_PATH}/prometheus-volume/conf/prometheus.yml
+
+    # restart opsany-base-prometheus-server
+    docker restart opsany-base-prometheus-server
+
+    # Alertmanager Release Date: 2024-03-21 https://hub.docker.com/r/prom/alertmanager
+    shell_log "======Start Alertmanager Server======"
+    docker run -d --restart=always --name opsany-base-alertmanager-server \
+    -p 9093:9093 \
+    -v ${INSTALL_PATH}/prometheus-volume/template/:/etc/alertmanager/template \
+    -v ${INSTALL_PATH}/prometheus-volume/conf/alertmanager.yml:/etc/alertmanager/alertmanager.yml \
+    -v /etc/localtime:/etc/localtime:ro \
+    -d prom/alertmanager:latest
+}
+
+blackbox-exporter_install(){
+    # Determine if there is a configuration file
+    if [ ! -f "${INSTALL_PATH}/prometheus-volume/conf/blackbox.yml" ]; then
+    /bin/cp  ./conf/prometheus/blackbox.yml "${INSTALL_PATH}/prometheus-volume/conf/blackbox.yml"
+        echo "Configuration file created: ${INSTALL_PATH}/prometheus-volume/conf/blackbox.yml"
+    else
+        echo "The configuration file already exists: ${INSTALL_PATH}/prometheus-volume/conf/blackbox.yml"
+    fi
+    /bin/cp  ./conf/prometheus/prometheus.yml "${INSTALL_PATH}/prometheus-volume/conf/prometheus.yml"     
+    # Alertmanager Server Basic Auth
+    CONSUL_TOKEN=`cat ${INSTALL_PATH}/conf/.consul_token`
+    sed -i "s#PROM_CONSUL_SERVER#$PROXY_LOCAL_IP#g" ${INSTALL_PATH}/prometheus-volume/conf/prometheus.yml
+    sed -i "s#CONSUL_TOKEN#$CONSUL_TOKEN#g" ${INSTALL_PATH}/prometheus-volume/conf/prometheus.yml
+    sed -i "s#LOCAL_IP#$PROXY_LOCAL_IP#g" ${INSTALL_PATH}/prometheus-volume/conf/prometheus.yml
+    sed -i "s#PROM_SERVER_PASSWD#$PROM_SERVER_PASSWD#g" ${INSTALL_PATH}/prometheus-volume/conf/prometheus.yml
+
+    # restart opsany-base-prometheus-server
+    docker restart opsany-base-prometheus-server
+
+    shell_log "======Start blackbox-exporter======"
+    docker run -itd \
+    -p 9115:9115 \
+    --name opsany-base-blackbox-exporter \
+    -v ${INSTALL_PATH}/prometheus-volume/conf/blackbox.yml:/config/blackbox.yml \
+    quay.io/prometheus/blackbox-exporter:latest --config.file=/config/blackbox.yml
+}
+
 prometheus_uninstall(){
     docker stop opsany-base-prometheus-server
     docker rm opsany-base-prometheus-server
     docker stop opsany-base-consul
     docker rm opsany-base-consul
+    docker stop opsany-base-alertmanager-server
+    docker rm opsany-base-alertmanager-server
+    docker stop opsany-base-blackbox-exporter
+    docker rm opsany-base-blackbox-exporter
     rm -rf ${INSTALL_PATH}/prometheus-volume/*
     rm -rf ${INSTALL_PATH}/consul-volume/*
-
 }
+
+
+
 
 # Main
 main(){
     case "$1" in
-	install)
+	all)
             install_check
             install_init
             consul_install
             prometheus_install
+            alertmanager_install
+            blackbox-exporter_install
 		;;
-        uninstall)
+    base)
+            install_check
+            install_init
+            consul_install
+            prometheus_install
+        ;;
+    alertmanager)
+            alertmanager_install
+        ;;
+    blackbox-exporter)
+            blackbox-exporter_install
+        ;;
+    uninstall)
             prometheus_uninstall
-                ;;
+        ;;
 	help|*)
-		echo $"Usage: $0 {install|uninstall|help}"
-	        ;;
+		echo $"Usage: $0 {all|base|alertmanager|blackbox-exporter|uninstall|help}"
+	    ;;
     esac
 }
 

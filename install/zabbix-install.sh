@@ -36,21 +36,19 @@ shell_log(){
 
 # Check Install requirement
 install_init(){
+    shell_log "=====Begin: Init======"
     # Configuration file write to DB
     pip3 install requests==2.25.1 grafana-api==1.0.3 mysql-connector==2.2.9 SQLAlchemy==1.4.22 \
              -i http://mirrors.aliyun.com/pypi/simple/ \
              --trusted-host mirrors.aliyun.com
-    mkdir -p ${INSTALL_PATH}/{es-volume,zabbix-volume/alertscripts,zabbix-volume/externalscripts,zabbix-volume/snmptraps}
-    mkdir -p ${INSTALL_PATH}/uploads/monitor/heartbeat-monitors.d
-    chmod -R 777 ${INSTALL_PATH}/es-volume
-    # Heartbeat
-    sed -i "s/ES_SERVER_IP/${ES_SERVER_IP}/g" ${INSTALL_PATH}/conf/heartbeat.yml
-    sed -i "s/ES_PASSWORD/${ES_PASSWORD}/g" ${INSTALL_PATH}/conf/heartbeat.yml
+    mkdir -p ${INSTALL_PATH}/{zabbix-volume/alertscripts,zabbix-volume/externalscripts,zabbix-volume/snmptraps}
+    mkdir -p ${INSTALL_PATH}/{zabbix-mysql8-volume,conf/mysql8,logs/mysql8}
+    /bin/cp ./conf/mysqld.cnf ${INSTALL_PATH}/conf/mysql8/mysqld.cnf
 }
 
 # Start Zabbix
-zabbix_install(){
-    shell_log "=====Start Zabbix======"
+zabbix_5_0_install(){
+    shell_log "=====Start Zabbix 5.0LTS======"
     docker run --restart=always --name opsany-zabbix-server-st2 -t \
       -e DB_SERVER_HOST="${MYSQL_SERVER_IP}" \
       -e MYSQL_DATABASE="${ZABBIX_DB_NAME}" \
@@ -79,16 +77,91 @@ zabbix_install(){
       -d ${PAAS_DOCKER_REG}/zabbix-web-nginx-mysql:alpine-5.0-latest
 }
 
+zabbix_6_0_install(){
+
+    shell_log "=====Start mysql 8.0======"
+    docker run -d --restart=always --name opsany-zabbix-mysql8 \
+    -e MYSQL_ROOT_PASSWORD="$MYSQL_ROOT_PASSWORD" \
+    -p 3307:3306 -v ${INSTALL_PATH}/zabbix-mysql8-volume:/var/lib/mysql \
+    -v ${INSTALL_PATH}/conf/mysql8/mysqld.cnf:/etc/mysql/mysql.conf.d/mysqld.cnf \
+    -v ${INSTALL_PATH}/logs/mysql8:/var/log/mysql \
+    -v /etc/localtime:/etc/localtime:ro \
+    mysql:8.0 --character-set-server=utf8 --collation-server=utf8_general_ci
+
+
+
+    shell_log "=====Start Zabbix 6.0 LTS======"
+    docker run --restart=always --name opsany-zabbix-server-6.0 -t \
+      -e DB_SERVER_HOST="${MYSQL_SERVER_IP}" \
+      -e DB_SERVER_PORT="3307" \
+      -e MYSQL_DATABASE="${ZABBIX_DB_NAME}" \
+      -e MYSQL_USER="${ZABBIX_DB_USER}" \
+      -e MYSQL_PASSWORD="${ZABBIX_DB_PASSWORD}" \
+      -e MYSQL_ROOT_PASSWORD="${MYSQL_ROOT_PASSWORD}" \
+      -p 10051:10051 \
+      -v ${INSTALL_PATH}/zabbix-volume/alertscripts:/usr/lib/zabbix/alertscripts \
+      -v ${INSTALL_PATH}/zabbix-volume/externalscripts:/usr/lib/zabbix/externalscripts \
+      -v ${INSTALL_PATH}/zabbix-volume/snmptraps:/var/lib/zabbix/snmptraps \
+      -v /etc/localtime:/etc/localtime:ro \
+      -d zabbix/zabbix-server-mysql:6.0-centos-latest
+
+
+    sleep 20
+    
+    docker run --restart=always --name opsany-zabbix-web-6.0 -t \
+      -e ZBX_SERVER_HOST="${MYSQL_SERVER_IP}" \
+      -e DB_SERVER_HOST="${MYSQL_SERVER_IP}" \
+      -e DB_SERVER_PORT="3307" \
+      -e MYSQL_DATABASE="${ZABBIX_DB_NAME}" \
+      -e MYSQL_USER="${ZABBIX_DB_USER}" \
+      -e MYSQL_PASSWORD="${ZABBIX_DB_PASSWORD}" \
+      -e MYSQL_ROOT_PASSWORD="${MYSQL_ROOT_PASSWORD}" \
+      -v /etc/localtime:/etc/localtime:ro \
+      -p 8006:8080 \
+      -d zabbix/zabbix-web-nginx-mysql:6.0-centos-latest
+
+}
+
+zabbix_uninstall5(){
+    shell_log "=====Uninstall Zabbix 5.0======"
+    docker stop opsany-zabbix-web
+    docker stop opsany-zabbix-server-st2
+    docker rm opsany-zabbix-web
+    docker rm opsany-zabbix-server-st2
+    rm -rf ${INSTALL_PATH}{zabbix-volume
+}
+
+zabbix_uninstall6(){
+    shell_log "=====Uninstall Zabbix 6.0======"
+    docker stop opsany-zabbix-web
+    docker stop opsany-zabbix-server-st2
+    docker stop opsany-zabbix-mysql8
+    docker rm opsany-zabbix-web
+    docker rm opsany-zabbix-server-st2
+    docker rm opsany-zabbix-mysql8
+    rm -rf ${INSTALL_PATH}/{zabbix-volume,logs/mysql8,conf/mysql8,zabbix-mysql8-volume}
+}
+
 # Main
 main(){
     case "$1" in
-    zabbix)
+    5.0)
         install_init
-        zabbix_install
+        zabbix_5_0_install
         ;;
-	help|*)
-		echo $"Usage: $0 {zabbix|help}"
-	        ;;
+    6.0)
+        install_init
+        zabbix_6_0_install
+        ;;
+    uninstall5)
+        zabbix_uninstall
+        ;;
+    uninstall6)
+        zabbix_uninstall
+        ;;
+        help|*)
+                echo $"Usage: $0 {5.0|6.0|uninstall5|uninstall6|help}"
+                ;;
 esac
 }
 

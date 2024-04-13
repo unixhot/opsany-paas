@@ -47,6 +47,11 @@ uninstall_paas(){
     #docker stop opsany-base-rabbitmq && docker rm -f opsany-base-rabbitmq
     docker stop opsany-base-guacd && docker rm -f opsany-base-guacd
     docker stop opsany-base-mongodb && docker rm -f opsany-base-mongodb
+    docker stop opsany-zabbix-web && docker rm -f opsany-zabbix-web
+    docker stop opsany-zabbix-server-st2 && docker rm -f opsany-zabbix-server-st2
+    docker stop opsany-zabbix-web-6.0 && docker rm -f opsany-zabbix-web-6.0
+    docker stop opsany-zabbix-server-6.0 && docker rm -f opsany-zabbix-server-6.0
+    docker stop opsany-zabbix-mysql8 && docker rm -f opsany-zabbix-mysql8
     grep '^[A-Z]' install.config > install.env
     source ./install.env && rm -f install.env
     rm -rf ${INSTALL_PATH}
@@ -64,7 +69,6 @@ uninstall_saas(){
     docker stop opsany-saas-ce-job && docker rm -f opsany-saas-ce-job
     docker stop opsany-saas-ce-cmp && docker rm -f opsany-saas-ce-cmp
     docker stop opsany-saas-ce-bastion && docker rm -f opsany-saas-ce-bastion 
-    docker stop opsany-saas-ce-dashboard && docker rm -f opsany-saas-ce-dashboard
     docker stop opsany-saas-ce-monitor && docker rm -f opsany-saas-ce-monitor
     docker stop opsany-base-grafana && docker rm -f opsany-base-grafana
     docker stop opsany-saas-ce-devops && docker rm -f opsany-saas-ce-devops

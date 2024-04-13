@@ -314,7 +314,8 @@ class OpsAnyApi:
         return True, message
 
 
-def start(paas_domain, username, password, st2_url, st2_username, st2_password, st2_pack_install_type="file"):
+def start(paas_domain, username, password, st2_url, st2_username, st2_password,
+          app_code="devops", app_secret="", st2_pack_install_type="file"):
     run_obj = OpsAnyApi(paas_domain=paas_domain, username=username, password=password, st2_url=st2_url,
                         st2_username=st2_username, st2_password=st2_password)
 
@@ -329,10 +330,9 @@ def start(paas_domain, username, password, st2_url, st2_username, st2_password, 
     # 配置核心包参数
     pack = "opsany_core"
     api_url = paas_domain
-    app_code = "devops"
-    app_secret = "f64f3fae-b335-11eb-a88b-00163e105ceb"
+    # app_code = "devops"
+    # app_secret = "f64f3fae-b335-11eb-a88b-00163e105ceb"
     access_token = "opsany-esb-auth-token-9e8083137204"
-
     # 1. 初始化应用平台初始化StackStorm服务
     # st2_status, st2_message = run_obj.init_devops_st2()
     st2_status, st2_message = run_obj.init_control_st2()
@@ -357,6 +357,8 @@ def add_parameter():
     parameter.add_argument("--st2_url", help="StackStorm service url.", required=True)
     parameter.add_argument("--st2_username", help="StackStorm service username.", required=True)
     parameter.add_argument("--st2_password", help="StackStorm service password.", required=True)
+    parameter.add_argument("--app_code", help="app code.", required=True)
+    parameter.add_argument("--app_secret", help="app secret.", required=True)
     parameter.add_argument("--st2_core_pack_source", default="StackStorm", help="St2 core pack source [file|git|gitee|github].", required=False)
     parameter.parse_args()
     return parameter
@@ -365,20 +367,23 @@ def add_parameter():
 if __name__ == '__main__':
     parameter = add_parameter()
     options = parameter.parse_args()
-    domain = options.domain
-    username = options.username
-    password = options.password
-    st2_url = options.st2_url
-    st2_username = options.st2_username
-    st2_password = options.st2_password
-    st2_core_pack_source = options.st2_core_pack_source
-    start(domain, username, password, st2_url=st2_url, st2_username=st2_username, st2_password=st2_password, st2_pack_install_type=st2_core_pack_source)
+    domain = options.domain  # 域名
+    username = options.username  # 平台用户名
+    password = options.password  # s平台密码
+    st2_url = options.st2_url  # st2地址
+    st2_username = options.st2_username  # st2用户名
+    st2_password = options.st2_password  # st2密码
+    app_code = options.app_code  # 平台code(可以使用devops)
+    app_secret = options.app_secret  # 平台code对应secret
+    st2_core_pack_source = options.st2_core_pack_source  # st2用户名
+    start(domain, username, password, st2_url=st2_url, st2_username=st2_username, st2_password=st2_password,
+          app_code=app_code, app_secret=app_secret, st2_pack_install_type=st2_core_pack_source)
 
 """
 1. 部署完应用平台和StackStorm才可以执行此初始化脚本
 2. 如果StackStorm服务器可以联网[https://gitee.com | https://github.com]支持使用线上仓库安装(仓库地址已配置)，脚本参数为st2_core_pack_source [file|git|gitee|github]
 3. 离线安装可将包opsany-core和opsany-workflow两个包复制到StackStorm服务器/opt/stackstorm-packs/目录下，需要有pip源 核心包需要下载依赖
-4. 执行init-ce-st2.py脚本，参数为OpsAny地址用户名密码，St2地址用户名密码
+4. 执行init-ce-st2.py脚本，参数为OpsAny地址用户名密码，St2地址用户名密码, app_code,app_secret, 安装包的方式
 
-# python3 init-ce-st2.py --domain https://www.opsany_url.cn --username opsany_username  --password opsany_password --st2_url https://st2_url/  --st2_username st2admin --st2_password st2_password
+python3 init-ce-st2.py --domain https://www.opsany_url.cn --username opsany_username  --password opsany_password --st2_url https://st2_url/  --st2_username st2admin --st2_password st2_password --app_code app_code --app_secret app_secret --st2_core_pack_source file
 """

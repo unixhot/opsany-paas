@@ -9,7 +9,7 @@ alerting:
   alertmanagers:
     - static_configs:
         - targets:
-          # - alertmanager:9093
+           - PROM_CONSUL_SERVER:9093
 
 # Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
 rule_files:
@@ -73,3 +73,23 @@ scrape_configs:
       - source_labels: ['__meta_consul_service_metadata_instance']  # 定义endpoint的参数 target=instance
         target_label: __param_target
 
+  - job_name: "consul-blackbox_http" # black_exporter
+    metrics_path: /probe
+    params:
+      module: [http_2xx]
+    consul_sd_configs:
+      - server: 'PROM_CONSUL_SERVER:8500'
+        token: CONSUL_TOKEN
+        services: []
+    relabel_configs:
+      - source_labels: [__meta_consul_tags]
+        regex: .*blackbox_http.*
+        action: keep
+      - regex: __meta_consul_service_metadata_(.+)
+        action: labelmap
+      - source_labels: [__meta_consul_service_address]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: PROM_CONSUL_SERVER:9115

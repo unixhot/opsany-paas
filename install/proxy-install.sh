@@ -58,7 +58,7 @@ install_check(){
 # Install Initialize
 install_init(){
     shell_log "Start: Install Init"
-    mkdir -p ${INSTALL_PATH}/{uploads/guacamole,conf,logs,proxy-volume/certs,proxy-volume/srv/pillar,proxy-volume/srv/salt,proxy-volume/etc,proxy-volume/pki,redis-volume,mysql-volume}
+    mkdir -p ${INSTALL_PATH}/{uploads/guacamole,conf,logs/proxy,proxy-volume/certs,proxy-volume/srv/pillar,proxy-volume/srv/salt,proxy-volume/etc,proxy-volume/pki,redis-volume,mysql-volume}
     cd $CDIR
     /bin/cp -r ../install/conf ${INSTALL_PATH}/
     #/bin/cp -r ../install/init ${INSTALL_PATH}/
@@ -135,7 +135,7 @@ proxy_start(){
     shell_log "======Start Proxy======"
     docker run --restart=always --name opsany-proxy -d \
         -p 4505:4505 -p 4506:4506 -p 8010:8010 \
-        -v ${INSTALL_PATH}/logs:${INSTALL_PATH}/logs \
+        -v ${INSTALL_PATH}/logs/proxy:/opt/opsany/logs/proxy \
         -v ${INSTALL_PATH}/proxy-volume/certs/:/etc/pki/tls/certs/ \
         -v ${INSTALL_PATH}/proxy-volume/etc/salt/:/etc/salt/ \
         -v ${INSTALL_PATH}/proxy-volume/cache/:/var/cache/salt/ \
@@ -145,9 +145,12 @@ proxy_start(){
         -v ${INSTALL_PATH}/uploads:/opt/opsany/uploads \
         -v ${INSTALL_PATH}/conf/proxy/settings_production.py.proxy-standalone:/opt/opsany-proxy/config/prod.py \
         -v ${INSTALL_PATH}/conf/proxy/invscript_proxy.py:/opt/opsany-proxy/invscript_proxy.py \
+        -v ${INSTALL_PATH}/conf/proxy/proxy.ini:/etc/supervisord.d/proxy.ini \
+        -v ${INSTALL_PATH}/conf/proxy/saltapi.ini:/etc/supervisord.d/saltapi.ini \
+        -v ${INSTALL_PATH}/conf/proxy/saltmaster.ini:/etc/supervisord.d/saltmaster.ini \
         -v ${INSTALL_PATH}/proxy-volume/pki:/opt/opsany/pki \
         -v /etc/localtime:/etc/localtime:ro \
-        ${PAAS_DOCKER_REG}/opsany-proxy:1.2.19
+        ${PAAS_DOCKER_REG}/opsany-proxy:2.2.0
 
     #openresty
     shell_log "======Start openresty Service======"
