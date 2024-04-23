@@ -2,5 +2,7 @@ apm-server:
   host: "0.0.0.0:8200"
 output.elasticsearch:
   hosts: ["http://ES_SERVER_IP:ELASTIC_PORT"]
+  auth:
+    secret_token: "APM_SECRET_TOKEN"
   username: "ES_USER"
   password: "ES_PASSWORD"

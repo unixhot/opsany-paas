@@ -44,6 +44,7 @@ if [ ! -f ./install.config ];then
 else
     grep '^[A-Z]' install.config > install.env
     source ./install.env && rm -f install.env
+    export MYSQL_PWD=${MYSQL_ROOT_PASSWORD}
 fi
 
 # Install initialization
@@ -99,10 +100,9 @@ proxy_install(){
         -v /etc/localtime:/etc/localtime:ro \
         ${PAAS_DOCKER_REG}/opsany-paas-proxy:2.2.0
 
-    shell_log "======Proxy: OpsAny Proxy Initialize======"
     # OpsAny Database Init
     docker exec -e OPS_ANY_ENV=production \
-        opsany-paas-proxy /bin/sh -c "/usr/local/bin/python3 /opt/opsany-proxy/manage.py migrate --noinput" >> ${SHELL_LOG}
+        opsany-paas-proxy /bin/sh -c "/usr/local/bin/python3 /opt/opsany-proxy/manage.py migrate --noinput" >> ${SHELL_LOG} 2>&1
 }
 
 # MonogDB Initialize
@@ -122,22 +122,21 @@ mongodb_init(){
     docker cp ${INSTALL_PATH}/init/mongodb-init/mongodb_init.js opsany-base-mongodb:/opt/
     docker exec -e MONGO_INITDB_ROOT_USERNAME=$MONGO_INITDB_ROOT_USERNAME \
                 -e MONGO_INITDB_ROOT_PASSWORD=$MONGO_INITDB_ROOT_PASSWORD \
-                opsany-base-mongodb /bin/bash -c "/usr/bin/mongo -u $MONGO_INITDB_ROOT_USERNAME -p $MONGO_INITDB_ROOT_PASSWORD /opt/mongodb_init.js" >> ${SHELL_LOG}
+                opsany-base-mongodb /bin/bash -c "/usr/bin/mongo -u $MONGO_INITDB_ROOT_USERNAME -p $MONGO_INITDB_ROOT_PASSWORD /opt/mongodb_init.js" >> ${SHELL_LOG} 2>&1
 
-    docker cp -a init/cmdb-init opsany-base-mongodb:/opt/
-    docker exec -e MONGO_CMDB_PASSWORD=${MONGO_CMDB_PASSWORD} \
-                opsany-base-mongodb /bin/bash -c "mongoimport -u cmdb -p ${MONGO_CMDB_PASSWORD} --db cmdb --drop --collection field_group < /opt/cmdb-init/field_group.json" >> ${SHELL_LOG}
-    docker exec -e MONGO_CMDB_PASSWORD=${MONGO_CMDB_PASSWORD} \
-                opsany-base-mongodb /bin/bash -c "mongoimport -u cmdb -p ${MONGO_CMDB_PASSWORD} --db cmdb --drop --collection icon_model < /opt/cmdb-init/icon_model.json" >> ${SHELL_LOG}
-    docker exec -e MONGO_CMDB_PASSWORD=${MONGO_CMDB_PASSWORD} \
-                opsany-base-mongodb /bin/bash -c "mongoimport -u cmdb -p ${MONGO_CMDB_PASSWORD} --db cmdb --drop --collection link_relationship_model < /opt/cmdb-init/link_relationship_model.json"
-        docker exec -e MONGO_CMDB_PASSWORD=${MONGO_CMDB_PASSWORD} \
-                opsany-base-mongodb /bin/bash -c "mongoimport -u cmdb -p ${MONGO_CMDB_PASSWORD} --db cmdb --drop --collection model_group < /opt/cmdb-init/model_group.json" >> ${SHELL_LOG}
-    docker exec -e MONGO_CMDB_PASSWORD=${MONGO_CMDB_PASSWORD} \
-                opsany-base-mongodb /bin/bash -c "mongoimport -u cmdb -p ${MONGO_CMDB_PASSWORD} --db cmdb --drop --collection model_field < /opt/cmdb-init/model_field.json" >> ${SHELL_LOG}
-    docker exec -e MONGO_CMDB_PASSWORD=${MONGO_CMDB_PASSWORD} \
-                opsany-base-mongodb /bin/bash -c "mongoimport -u cmdb -p ${MONGO_CMDB_PASSWORD} --db cmdb --drop --collection model_info < /opt/cmdb-init/model_info.json" >> ${SHELL_LOG}
-
+    #docker cp -a init/cmdb-init opsany-base-mongodb:/opt/
+    #docker exec -e MONGO_CMDB_PASSWORD=${MONGO_CMDB_PASSWORD} \
+    #            opsany-base-mongodb /bin/bash -c "mongoimport -u cmdb -p ${MONGO_CMDB_PASSWORD} --db cmdb --drop --collection field_group < /opt/cmdb-init/field_group.json" >> ${SHELL_LOG} 2>&1
+    #docker exec -e MONGO_CMDB_PASSWORD=${MONGO_CMDB_PASSWORD} \
+    #            opsany-base-mongodb /bin/bash -c "mongoimport -u cmdb -p ${MONGO_CMDB_PASSWORD} --db cmdb --drop --collection icon_model < /opt/cmdb-init/icon_model.json" >> ${SHELL_LOG} 2>&1
+    #docker exec -e MONGO_CMDB_PASSWORD=${MONGO_CMDB_PASSWORD} \
+    #            opsany-base-mongodb /bin/bash -c "mongoimport -u cmdb -p ${MONGO_CMDB_PASSWORD} --db cmdb --drop --collection link_relationship_model < /opt/cmdb-init/link_relationship_model.json" >> ${SHELL_LOG} 2>&1
+    #docker exec -e MONGO_CMDB_PASSWORD=${MONGO_CMDB_PASSWORD} \
+    #            opsany-base-mongodb /bin/bash -c "mongoimport -u cmdb -p ${MONGO_CMDB_PASSWORD} --db cmdb --drop --collection model_group < /opt/cmdb-init/model_group.json" >> ${SHELL_LOG} 2>&1
+    #docker exec -e MONGO_CMDB_PASSWORD=${MONGO_CMDB_PASSWORD} \
+    #            opsany-base-mongodb /bin/bash -c "mongoimport -u cmdb -p ${MONGO_CMDB_PASSWORD} --db cmdb --drop --collection model_field < /opt/cmdb-init/model_field.json" >> ${SHELL_LOG} 2>&1
+    #docker exec -e MONGO_CMDB_PASSWORD=${MONGO_CMDB_PASSWORD} \
+    #            opsany-base-mongodb /bin/bash -c "mongoimport -u cmdb -p ${MONGO_CMDB_PASSWORD} --db cmdb --drop --collection model_info < /opt/cmdb-init/model_info.json" >> ${SHELL_LOG} 2>&1
     shell_log "======MongoDB: MongoDB Initialize End======"
 }
 
@@ -146,9 +145,9 @@ mongodb_init(){
 saas_rbac_deploy(){
     shell_log "======RBAC: Start RBAC======"
     # Database 
-    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "create database rbac DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
-    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "grant all on rbac.* to rbac@'%' identified by "\"${MYSQL_OPSANY_RBAC_PASSWORD}\"";"
-    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "grant all on rbac.* to opsany@'%' identified by "\"${MYSQL_OPSANY_PASSWORD}\"";"
+    mysql -h "${MYSQL_SERVER_IP}" -u root  -e "create database rbac DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
+    mysql -h "${MYSQL_SERVER_IP}" -u root  -e "grant all on rbac.* to rbac@'%' identified by "\"${MYSQL_OPSANY_RBAC_PASSWORD}\"";"
+    mysql -h "${MYSQL_SERVER_IP}" -u root  -e "grant all on rbac.* to opsany@'%' identified by "\"${MYSQL_OPSANY_PASSWORD}\"";"
 
     # Register rbac
     RBAC_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.rbac_secret_key)
@@ -191,9 +190,9 @@ saas_rbac_deploy(){
 saas_workbench_deploy(){
     shell_log "======Workbench: Start workbench======"
     #workbench
-    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "create database workbench DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
-    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "grant all on workbench.* to workbench@'%' identified by "\"${MYSQL_OPSANY_WORKBENCH_PASSWORD}\"";"
-    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "grant all on workbench.* to opsany@'%' identified by "\"${MYSQL_OPSANY_PASSWORD}\"";"
+    mysql -h "${MYSQL_SERVER_IP}" -u root  -e "create database workbench DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
+    mysql -h "${MYSQL_SERVER_IP}" -u root  -e "grant all on workbench.* to workbench@'%' identified by "\"${MYSQL_OPSANY_WORKBENCH_PASSWORD}\"";"
+    mysql -h "${MYSQL_SERVER_IP}" -u root  -e "grant all on workbench.* to opsany@'%' identified by "\"${MYSQL_OPSANY_PASSWORD}\"";"
 
     # Register workbench
     WORKBENCH_SECRET_KEY=$(uuid -v4)
@@ -240,9 +239,9 @@ saas_workbench_deploy(){
 saas_cmdb_deploy(){
     shell_log "======CMDB: Start cmdb======"
     #cmdb
-    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "create database cmdb DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
-    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "grant all on cmdb.* to cmdb@'%' identified by "\"${MYSQL_OPSANY_CMDB_PASSWORD}\"";"
-    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "grant all on cmdb.* to opsany@'%' identified by "\"${MYSQL_OPSANY_PASSWORD}\"";"
+    mysql -h "${MYSQL_SERVER_IP}" -u root  -e "create database cmdb DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
+    mysql -h "${MYSQL_SERVER_IP}" -u root  -e "grant all on cmdb.* to cmdb@'%' identified by "\"${MYSQL_OPSANY_CMDB_PASSWORD}\"";"
+    mysql -h "${MYSQL_SERVER_IP}" -u root  -e "grant all on cmdb.* to opsany@'%' identified by "\"${MYSQL_OPSANY_PASSWORD}\"";"
 
     # Register cmdb
     CMDB_SECRET_KEY=$(uuid -v4)
@@ -291,9 +290,9 @@ saas_cmdb_deploy(){
 saas_control_deploy(){
     shell_log "======Control: Start control======"
     #control
-    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "create database control DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
-    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "grant all on control.* to control@'%' identified by "\"${MYSQL_OPSANY_CONTROL_PASSWORD}\"";"
-    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "grant all on control.* to opsany@'%' identified by "\"${MYSQL_OPSANY_PASSWORD}\"";"
+    mysql -h "${MYSQL_SERVER_IP}" -u root  -e "create database control DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
+    mysql -h "${MYSQL_SERVER_IP}" -u root  -e "grant all on control.* to control@'%' identified by "\"${MYSQL_OPSANY_CONTROL_PASSWORD}\"";"
+    mysql -h "${MYSQL_SERVER_IP}" -u root  -e "grant all on control.* to opsany@'%' identified by "\"${MYSQL_OPSANY_PASSWORD}\"";"
 
     # Register control 
     python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code control --saas_app_name 管控平台 --saas_app_version 2.2.0 --saas_app_secret_key ${CONTROL_SECRET_KEY}
@@ -336,9 +335,9 @@ saas_control_deploy(){
 saas_job_deploy(){
     shell_log "======Job: Start job======"
     #job
-    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "create database job DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
-    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "grant all on job.* to job@'%' identified by "\"${MYSQL_OPSANY_JOB_PASSWORD}\"";"
-    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "grant all on job.* to opsany@'%' identified by "\"${MYSQL_OPSANY_PASSWORD}\"";"
+    mysql -h "${MYSQL_SERVER_IP}" -u root  -e "create database job DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
+    mysql -h "${MYSQL_SERVER_IP}" -u root  -e "grant all on job.* to job@'%' identified by "\"${MYSQL_OPSANY_JOB_PASSWORD}\"";"
+    mysql -h "${MYSQL_SERVER_IP}" -u root  -e "grant all on job.* to opsany@'%' identified by "\"${MYSQL_OPSANY_PASSWORD}\"";"
 
     # Register job
     JOB_SECRET_KEY=$(uuid -v4)
@@ -393,13 +392,13 @@ saas_monitor_deploy(){
     -v /etc/localtime:/etc/localtime:ro \
     -v ${INSTALL_PATH}/grafana-volume/data:/var/lib/grafana \
     -p 8007:3000 \
-    ${PAAS_DOCKER_REG}/opsany-grafana:9.0.2
+    ${PAAS_DOCKER_REG}/opsany-grafana:9.0.3
 
     shell_log "======Monitor: Start monitor======"
     #monitor
-    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "create database monitor DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
-    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "grant all on monitor.* to monitor@'%' identified by "\"${MYSQL_OPSANY_MONITOR_PASSWORD}\"";"
-    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "grant all on monitor.* to opsany@'%' identified by "\"${MYSQL_OPSANY_PASSWORD}\"";" 
+    mysql -h "${MYSQL_SERVER_IP}" -u root  -e "create database monitor DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
+    mysql -h "${MYSQL_SERVER_IP}" -u root  -e "grant all on monitor.* to monitor@'%' identified by "\"${MYSQL_OPSANY_MONITOR_PASSWORD}\"";"
+    mysql -h "${MYSQL_SERVER_IP}" -u root  -e "grant all on monitor.* to opsany@'%' identified by "\"${MYSQL_OPSANY_PASSWORD}\"";" 
 
     #monitor
     sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/monitor/toolkit/configs.py
@@ -453,9 +452,9 @@ saas_monitor_deploy(){
 saas_cmp_deploy(){
     shell_log "======CMP: Start cmp======"
     #cmp
-    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "create database cmp DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
-    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "grant all on cmp.* to cmp@'%' identified by "\"${MYSQL_OPSANY_CMP_PASSWORD}\"";"
-    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "grant all on cmp.* to opsany@'%' identified by "\"${MYSQL_OPSANY_PASSWORD}\"";" 
+    mysql -h "${MYSQL_SERVER_IP}" -u root  -e "create database cmp DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
+    mysql -h "${MYSQL_SERVER_IP}" -u root  -e "grant all on cmp.* to cmp@'%' identified by "\"${MYSQL_OPSANY_CMP_PASSWORD}\"";"
+    mysql -h "${MYSQL_SERVER_IP}" -u root  -e "grant all on cmp.* to opsany@'%' identified by "\"${MYSQL_OPSANY_PASSWORD}\"";" 
 
     #cmp
     sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/cmp/toolkit/configs.py
@@ -503,9 +502,9 @@ saas_cmp_deploy(){
 saas_bastion_deploy(){
     shell_log "======Bastion: Start bastion======"
     #bastion
-    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "create database bastion DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
-    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "grant all on bastion.* to bastion@'%' identified by "\"${MYSQL_OPSANY_BASTION_PASSWORD}\"";"
-    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "grant all on bastion.* to opsany@'%' identified by "\"${MYSQL_OPSANY_PASSWORD}\"";" 
+    mysql -h "${MYSQL_SERVER_IP}" -u root  -e "create database bastion DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
+    mysql -h "${MYSQL_SERVER_IP}" -u root  -e "grant all on bastion.* to bastion@'%' identified by "\"${MYSQL_OPSANY_BASTION_PASSWORD}\"";"
+    mysql -h "${MYSQL_SERVER_IP}" -u root  -e "grant all on bastion.* to opsany@'%' identified by "\"${MYSQL_OPSANY_PASSWORD}\"";" 
 
     #bastion
     sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/bastion/toolkit/configs.py
@@ -548,9 +547,9 @@ saas_bastion_deploy(){
 saas_devops_deploy(){
     shell_log "======DevOps: Start devops======"
     #DevOps MySQL
-    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "create database devops DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
-    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "grant all on devops.* to devops@'%' identified by "\"${MYSQL_OPSANY_BASTION_PASSWORD}\"";"
-    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "grant all on devops.* to opsany@'%' identified by "\"${MYSQL_OPSANY_PASSWORD}\"";" 
+    mysql -h "${MYSQL_SERVER_IP}" -u root  -e "create database devops DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
+    mysql -h "${MYSQL_SERVER_IP}" -u root  -e "grant all on devops.* to devops@'%' identified by "\"${MYSQL_OPSANY_BASTION_PASSWORD}\"";"
+    mysql -h "${MYSQL_SERVER_IP}" -u root  -e "grant all on devops.* to opsany@'%' identified by "\"${MYSQL_OPSANY_PASSWORD}\"";" 
 
     #devops
     sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/devops/toolkit/configs.py
@@ -608,9 +607,9 @@ saas_devops_deploy(){
 saas_repo_deploy(){
     shell_log "======REPO: Start repo======"
     #repo
-    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "create database repo DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
-    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "grant all on repo.* to repo@'%' identified by "\"${MYSQL_OPSANY_REPO_PASSWORD}\"";"
-    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "grant all on repo.* to opsany@'%' identified by "\"${MYSQL_OPSANY_PASSWORD}\"";" 
+    mysql -h "${MYSQL_SERVER_IP}" -u root  -e "create database repo DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
+    mysql -h "${MYSQL_SERVER_IP}" -u root  -e "grant all on repo.* to repo@'%' identified by "\"${MYSQL_OPSANY_REPO_PASSWORD}\"";"
+    mysql -h "${MYSQL_SERVER_IP}" -u root  -e "grant all on repo.* to opsany@'%' identified by "\"${MYSQL_OPSANY_PASSWORD}\"";" 
 
     #repo
     sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/repo/toolkit/configs.py
@@ -666,9 +665,9 @@ saas_repo_deploy(){
 saas_pipeline_deploy(){
     shell_log "======Pipeline: Start pipeline======"
     #pipeline
-    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "create database pipeline DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
-    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "grant all on pipeline.* to pipeline@'%' identified by "\"${MYSQL_OPSANY_PIPELINE_PASSWORD}\"";"
-    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "grant all on pipeline.* to opsany@'%' identified by "\"${MYSQL_OPSANY_PASSWORD}\"";" 
+    mysql -h "${MYSQL_SERVER_IP}" -u root  -e "create database pipeline DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
+    mysql -h "${MYSQL_SERVER_IP}" -u root  -e "grant all on pipeline.* to pipeline@'%' identified by "\"${MYSQL_OPSANY_PIPELINE_PASSWORD}\"";"
+    mysql -h "${MYSQL_SERVER_IP}" -u root  -e "grant all on pipeline.* to opsany@'%' identified by "\"${MYSQL_OPSANY_PASSWORD}\"";" 
 
     # Register pipeline
     PIPELINE_SECRET_KEY=$(uuid -v4)
@@ -720,9 +719,9 @@ saas_pipeline_deploy(){
 saas_deploy_deploy(){
     shell_log "======Deploy: Start deploy======"
     #deploy
-    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "create database deploy DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
-    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "grant all on deploy.* to deploy@'%' identified by "\"${MYSQL_OPSANY_DEPLOY_PASSWORD}\"";"
-    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "grant all on deploy.* to opsany@'%' identified by "\"${MYSQL_OPSANY_PASSWORD}\"";" 
+    mysql -h "${MYSQL_SERVER_IP}" -u root  -e "create database deploy DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
+    mysql -h "${MYSQL_SERVER_IP}" -u root  -e "grant all on deploy.* to deploy@'%' identified by "\"${MYSQL_OPSANY_DEPLOY_PASSWORD}\"";"
+    mysql -h "${MYSQL_SERVER_IP}" -u root  -e "grant all on deploy.* to opsany@'%' identified by "\"${MYSQL_OPSANY_PASSWORD}\"";" 
 
     # Register deploy
     DEPLOY_SECRET_KEY=$(uuid -v4)
@@ -774,9 +773,9 @@ saas_deploy_deploy(){
 saas_dashboard_deploy(){
     shell_log "======Dashboard: Start dashboard======"
     #dashboard
-    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "create database dashboard DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
-    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "grant all on dashboard.* to dashboard@'%' identified by "\"${MYSQL_OPSANY_BASTION_PASSWORD}\"";"
-    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "grant all on dashboard.* to opsany@'%' identified by "\"${MYSQL_OPSANY_PASSWORD}\"";" 
+    mysql -h "${MYSQL_SERVER_IP}" -u root  -e "create database dashboard DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
+    mysql -h "${MYSQL_SERVER_IP}" -u root  -e "grant all on dashboard.* to dashboard@'%' identified by "\"${MYSQL_OPSANY_BASTION_PASSWORD}\"";"
+    mysql -h "${MYSQL_SERVER_IP}" -u root  -e "grant all on dashboard.* to opsany@'%' identified by "\"${MYSQL_OPSANY_PASSWORD}\"";" 
 
      #dashboard
     sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/dashboard/toolkit/configs.py
@@ -831,16 +830,16 @@ saas_base_init(){
     shell_log "======Init: OpsAny Proxy Initialize======"
     # Create Proxy Token
     PROXY_TOKEN=$(docker exec -e OPS_ANY_ENV=production \
-            opsany-paas-proxy /bin/sh -c " /usr/local/bin/python3 /opt/opsany-proxy/manage.py create_access" | grep 'Access' | awk -F ': ' '{print $2}' | awk -F '.' '{print $1}')
-    python3 ../saas/init-ce-base.py --domain $DOMAIN_NAME --private_ip $LOCAL_IP --paas_username admin --paas_password ${ADMIN_PASSWORD} --proxy_url https://${PROXY_LOCAL_IP}:8011 --proxy_public_url https://${PROXY_PUBLIC_IP}:8011 --proxy_token $PROXY_TOKEN
+            opsany-paas-proxy /bin/sh -c " /usr/local/bin/python3 /opt/opsany-proxy/manage.py create_access" | grep 'Access' | awk -F ': ' '{print $2}' | awk -F '.' '{print $1}')  >> ${SHELL_LOG} 2>&1
+    python3 ../saas/init-ce-base.py --domain $DOMAIN_NAME --private_ip $LOCAL_IP --paas_username admin --paas_password ${ADMIN_PASSWORD} --proxy_url https://${PROXY_LOCAL_IP}:8011 --proxy_public_url https://${PROXY_PUBLIC_IP}:8011 --proxy_token $PROXY_TOKEN >> ${SHELL_LOG} 2>&1
 
     shell_log "======Init: OpsAny Job Initialize======"
     # Init Script Job
     cd $CDIR/init/
     python3 import_script.py --domain https://${DOMAIN_NAME} --paas_username admin --paas_password ${ADMIN_PASSWORD} \
---target_type script --target_path ./job-script
+--target_type script --target_path ./job-script >> ${SHELL_LOG} 2>&1
     python3 import_script.py --domain https://$DOMAIN_NAME --paas_username admin --paas_password ${ADMIN_PASSWORD} \
---target_type task --target_path ./job-task
+--target_type task --target_path ./job-task >> ${SHELL_LOG} 2>&1
 }
 
 admin_password_init(){

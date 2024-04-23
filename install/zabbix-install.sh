@@ -13,7 +13,6 @@ CTIME=$(date "+%Y-%m-%d-%H-%M")
 CDIR=$(pwd)
 SHELL_NAME="zabbix-install.sh"
 SHELL_LOG="${SHELL_NAME}.log"
-ADMIN_PASSWORD=""
 
 # Install Inspection
 if [ ! -f ./install.config ];then
@@ -22,9 +21,6 @@ if [ ! -f ./install.config ];then
 else
     grep '^[A-Z]' install.config > install.env
     source ./install.env && rm -f install.env
-    if [ -z "$ADMIN_PASSWORD" ];then
-        source ${INSTALL_PATH}/conf/.passwd_env
-    fi
 fi
 
 # Shell Log Record
@@ -128,16 +124,16 @@ zabbix_uninstall5(){
     docker stop opsany-zabbix-server-st2
     docker rm opsany-zabbix-web
     docker rm opsany-zabbix-server-st2
-    rm -rf ${INSTALL_PATH}{zabbix-volume
+    rm -rf ${INSTALL_PATH}/zabbix-volume
 }
 
 zabbix_uninstall6(){
     shell_log "=====Uninstall Zabbix 6.0======"
-    docker stop opsany-zabbix-web
-    docker stop opsany-zabbix-server-st2
+    docker stop opsany-zabbix-web-6.0
+    docker stop opsany-zabbix-server-6.0
     docker stop opsany-zabbix-mysql8
-    docker rm opsany-zabbix-web
-    docker rm opsany-zabbix-server-st2
+    docker rm opsany-zabbix-web-6.0
+    docker rm opsany-zabbix-server-6.0
     docker rm opsany-zabbix-mysql8
     rm -rf ${INSTALL_PATH}/{zabbix-volume,logs/mysql8,conf/mysql8,zabbix-mysql8-volume}
 }
@@ -154,10 +150,10 @@ main(){
         zabbix_6_0_install
         ;;
     uninstall5)
-        zabbix_uninstall
+        zabbix_uninstall5
         ;;
     uninstall6)
-        zabbix_uninstall
+        zabbix_uninstall6
         ;;
         help|*)
                 echo $"Usage: $0 {5.0|6.0|uninstall5|uninstall6|help}"

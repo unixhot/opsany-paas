@@ -249,8 +249,7 @@ class Account(AccountSingleton):
         登录页面和登录动作
         """
         redirect_field_name = self.REDIRECT_FIELD_NAME
-        redirect_to = request.POST.get(redirect_field_name,
-                                       request.GET.get(redirect_field_name, ''))
+        redirect_to = request.POST.get(redirect_field_name, request.GET.get(redirect_field_name, '/'))
         app_id = request.POST.get('app_id', request.GET.get('app_id', ''))
         c_url = request.POST.get('c_url', request.GET.get('c_url', '/'))
         tab_key = request.POST.get('tab_key', request.GET.get('tab_key', 0))

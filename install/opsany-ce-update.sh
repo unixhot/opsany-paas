@@ -218,6 +218,7 @@ websocket_update(){
     sed -i "s/MYSQL_OPSANY_PASSWORD/${MYSQL_OPSANY_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-paas/websocket/settings_production.py.websocket
     sed -i "s/PAAS_PAAS_IP/${PAAS_PAAS_IP}/g" ${INSTALL_PATH}/conf/opsany-paas/websocket/settings_production.py.websocket.init
     docker stop opsany-paas-websocket && docker rm opsany-paas-websocket
+    docker pull ${PAAS_DOCKER_REG}/opsany-paas-websocket:${UPDATE_VERSION}
     docker run -d --restart=always --name opsany-paas-websocket \
     -p 8004:8004 -v ${INSTALL_PATH}/logs:/opt/opsany/logs \
     -v ${INSTALL_PATH}/uploads:/opt/opsany/uploads \
@@ -801,9 +802,6 @@ main(){
 	monitor)
 	    saas_monitor_update $2
 	    ;;
-    dashboard)
-	    saas_dashboard_update $2
-	    ;;
 	devops)
 	    saas_devops_update $2
 	    ;;
@@ -833,7 +831,6 @@ main(){
 	    saas_job_update $2
 	    saas_cmp_update $2
 	    saas_bastion_update $2
-	    saas_dashboard_update $2
         saas_monitor_update $2
         saas_devops_update $2
         saas_pipeline_update $2
@@ -841,7 +838,7 @@ main(){
         saas_repo_update $2
         ;;
 	help|*)
-	    echo $"Usage: $0 {(paas|login|esb|appengine|proxy|websocket|rbac|workbench|cmdb|control|job|cmp|bastion|base|monitor|dashboard|devops|all|help) version}"
+	    echo $"Usage: $0 {(paas|login|esb|appengine|proxy|websocket|rbac|workbench|cmdb|control|job|cmp|bastion|base|monitor|devops|all|help) version}"
 	    ;;
     esac
 }

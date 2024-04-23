@@ -203,9 +203,9 @@ mysql_init(){
     mysql -h "${MYSQL_SERVER_IP}" -u root  -e "CREATE DATABASE IF NOT EXISTS opsany_proxy DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
     mysql -h "${MYSQL_SERVER_IP}" -u root  -e "grant all on opsany_proxy.* to opsany@'%' identified by "\"${MYSQL_OPSANY_PASSWORD}\"";" 
     mysql -h "${MYSQL_SERVER_IP}" -u root  opsany_paas < init/opsany-paas.sql
-    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" opsany_paas < ./init/esb-init/esb_api_doc.sql
-    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" opsany_paas < ./init/esb-init/esb_channel.sql
-    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" opsany_paas < ./init/esb-init/esb_component_system.sql
+    mysql -h "${MYSQL_SERVER_IP}" -u root  opsany_paas < ./init/esb-init/esb_api_doc.sql
+    mysql -h "${MYSQL_SERVER_IP}" -u root  opsany_paas < ./init/esb-init/esb_channel.sql
+    mysql -h "${MYSQL_SERVER_IP}" -u root  opsany_paas < ./init/esb-init/esb_component_system.sql
 }
 
 # PaaS Service Start
