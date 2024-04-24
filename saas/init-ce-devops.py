@@ -52,7 +52,34 @@ class InitData:
             },
         ]
     }
-
+    
+    # 初始化业务树
+    DEFAULT_BUSINESS_TREE = [
+            {
+                "BUSINESS_name": "Default",
+                "BUSINESS_VISIBLE_NAME": "默认分组",
+                "BUSINESS_STATUS": "已上线",
+                "BUSINESS_ID": "Default",
+                "BUSINESS_COMMENT": " <p>默认分组</p>",
+                "children": [
+                    {
+                        "APPLICATION_name": "Default",
+                        "APPLICATION_VISIBLE_NAME": "默认应用",
+                        "APPLICATION_STATUS": "运行中",
+                        "APPLICATION_ID": "Default",
+                        "APPLICATION_COMMENT": " <p>默认应用</p>",
+                        "children": [
+                            {
+                                "SERVICE_name": "Default",
+                                "SERVICE_VISIBLE_NAME": "默认服务",
+                                "SERVICE_STATUS": "运行中",
+                                "SERVICE_COMMENT": " <p>默认服务</p>",
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
 
 class OpsAnyApi:
     def __init__(self, paas_domain, username, password):
@@ -112,6 +139,27 @@ class OpsAnyApi:
         except Exception as e:
             return 0, str(e)
 
+    def init_default_business_tree(self):
+        """应用平台初始化应用分组应用和服务"""
+        try:
+            INIT_URL = "/o/devops//api/devops/v0_1/init-business/"
+            NAV_GROUP_URL = self.paas_domain + INIT_URL
+
+            data = InitData()
+            nav_data = {"business_list": data.DEFAULT_BUSINESS_TREE}
+            
+            response = self.session.post(url=NAV_GROUP_URL, data=json.dumps(nav_data), verify=False)
+            if response.status_code == 200:
+                res = response.json()
+            else:
+                res = {"code": 500, "message": "error", "data": response.status_code}
+            if res.get("code") == 200:
+                return 1, res.get("data") or res.get("message")
+            else:
+                return 0, res.get("data") or res.get("errors") or res.get("message")
+        except Exception as e:
+            return 0, str(e)
+
 
 def start(paas_domain, username, password):
     run_obj = OpsAnyApi(paas_domain=paas_domain, username=username, password=password)
@@ -120,6 +168,11 @@ def start(paas_domain, username, password):
     add_nav_status, add_nav_data = run_obj.workbench_add_nav()
     print("[SUCCESS] add nav success") if add_nav_status else print(
         "[ERROR] add nav error, error info: {}".format(add_nav_data))
+    
+    # 初始化默认应用
+    init_app_status, init_app_data = run_obj.init_default_business_tree()
+    print("[SUCCESS] init default application success: {}".format(init_app_data)) if init_app_status else print(
+        "[ERROR] init default application error, error info: {}".format(init_app_data))
 
 
 def add_parameter():

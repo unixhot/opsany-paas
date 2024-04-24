@@ -13,6 +13,7 @@ from Crypto.Cipher import AES
 
 
 DB_HOST = "LOCALHOST"
+DB_PORT = 3306
 DB_NAME = "opsany_proxy"
 DB_PASSWORD = "PROXY_PASSWORD"
 DB_USERNAME = "opsany"
@@ -89,7 +90,7 @@ def get_host_groups():
 
 def commmysql(host_name1=""):
 
-    db = MySQLdb.connect(host=DB_HOST, db=DB_NAME, user=DB_USERNAME, password=DB_PASSWORD, charset='utf8')
+    db = MySQLdb.connect(host=DB_HOST, port=DB_PORT, db=DB_NAME, user=DB_USERNAME, password=DB_PASSWORD, charset='utf8')
     cursor = db.cursor()
     if not host_name1:
         sql = "SELECT host_name, ip, ssh_port, username, password, ssh_type, private_key_file, privilege, privilege_password FROM agent_admin  where control_type in ('1', '3','4');"
