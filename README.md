@@ -138,3 +138,8 @@ cd /opt/opsany-paas/install/
 
 > OpsAny社区版本v2.2.0正式发布 >> [免费下载](https://opsany.com/#/download)
 
+
+### Infrastructure model
+![Infrastructure main model](.infragenie/infrastructure_main_model.svg)
+
+---
