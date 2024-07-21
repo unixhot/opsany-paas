@@ -11,6 +11,10 @@ alerting:
         - targets:
            - PROM_CONSUL_SERVER:9093
 
+      basic_auth:
+        username: admin
+        password: PROM_SERVER_PASSWD
+
 # Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
 rule_files:
   - "/var/lib/prometheus-config/rules/*rules.yml"  # 增加告警规则yml文件路径

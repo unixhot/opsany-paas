@@ -27,6 +27,8 @@ class PostScript(Component):
     | host_list | list | 是  | 主机唯一标识列表 |
     | script_url | string | 是  | 脚本相对路径URL |
     | script_arg | string | 否  | 脚本参数 |
+    | timeout | string | 是  | 超时时间 |
+
 
     ### 请求参数示例
 
@@ -38,6 +40,7 @@ class PostScript(Component):
         "host_list":  ["unique value1", "unique value2", "unique value3"],
         "script_url": "uploads/xxx/xxx/xxx.py",
         "script_arg": "arg1 arg2 arg3"
+        "timeout": 600
     }
     ```
 
@@ -53,7 +56,7 @@ class PostScript(Component):
         "data": "xxxxxxx"
     }
     ```
-    """#
+    """
 
     # 组件所属系统的系统名
     sys_name = configs.SYSTEM_NAME
@@ -63,10 +66,11 @@ class PostScript(Component):
         host_list = forms.Field()
         script_url = forms.Field()
         script_arg = forms.Field(required=False)
+        timeout = forms.IntegerField(required=False)
 
         # clean方法返回的数据可通过组件的form_data属性获取
         def clean(self):
-            return self.get_cleaned_data_when_exist(keys=["host_list", "script_url", "script_arg"])
+            return self.get_cleaned_data_when_exist(keys=["host_list", "script_url", "script_arg", "timeout"])
 
     # 组件处理入口
     def handle(self):

@@ -55,6 +55,7 @@ install_init(){
 
 # Start Proxy
 proxy_install(){
+    cd ${CDIR}
     # Proxy config
     CONTROL_SECRET_KEY=$(uuid -v4)
     echo $CONTROL_SECRET_KEY > ${INSTALL_PATH}/conf/.control_secret_key
@@ -80,7 +81,7 @@ proxy_install(){
     chmod +x ${INSTALL_PATH}/conf/proxy/invscript_proxy.py
 
     shell_log "======Proxy: Start Proxy======"
-    docker pull ${PAAS_DOCKER_REG}/opsany-paas-proxy:2.2.0
+    docker pull ${PAAS_DOCKER_REG}/opsany-paas-proxy:2.2.1
     docker run --restart=always --name opsany-paas-proxy -d \
         -p 4505:4505 -p 4506:4506 -p 8010:8010 \
         -v ${INSTALL_PATH}/logs/proxy:/opt/opsany/logs/proxy \
@@ -97,8 +98,9 @@ proxy_install(){
         -v ${INSTALL_PATH}/conf/proxy/proxy.ini:/etc/supervisord.d/proxy.ini \
         -v ${INSTALL_PATH}/conf/proxy/saltapi.ini:/etc/supervisord.d/saltapi.ini \
         -v ${INSTALL_PATH}/conf/proxy/saltmaster.ini:/etc/supervisord.d/saltmaster.ini \
+        -v ${INSTALL_PATH}/prometheus-volume/conf/alertmanager.yml:/opt/opsany/alertmanager.yml \
         -v /etc/localtime:/etc/localtime:ro \
-        ${PAAS_DOCKER_REG}/opsany-paas-proxy:2.2.0
+        ${PAAS_DOCKER_REG}/opsany-paas-proxy:2.2.1
 
     # OpsAny Database Init
     docker exec -e OPS_ANY_ENV=production \
@@ -108,6 +110,7 @@ proxy_install(){
 # MonogDB Initialize
 mongodb_init(){
     shell_log "======MongoDB: MongoDB Initialize======"
+    cd ${CDIR}
     sed -i "s/MONGO_WORKBENCH_PASSWORD/${MONGO_WORKBENCH_PASSWORD}/g" ${INSTALL_PATH}/init/mongodb-init/mongodb_init.js
     sed -i "s/MONGO_CMDB_PASSWORD/${MONGO_CMDB_PASSWORD}/g" ${INSTALL_PATH}/init/mongodb-init/mongodb_init.js
     sed -i "s/MONGO_JOB_PASSWORD/${MONGO_JOB_PASSWORD}/g" ${INSTALL_PATH}/init/mongodb-init/mongodb_init.js
@@ -123,20 +126,6 @@ mongodb_init(){
     docker exec -e MONGO_INITDB_ROOT_USERNAME=$MONGO_INITDB_ROOT_USERNAME \
                 -e MONGO_INITDB_ROOT_PASSWORD=$MONGO_INITDB_ROOT_PASSWORD \
                 opsany-base-mongodb /bin/bash -c "/usr/bin/mongo -u $MONGO_INITDB_ROOT_USERNAME -p $MONGO_INITDB_ROOT_PASSWORD /opt/mongodb_init.js" >> ${SHELL_LOG} 2>&1
-
-    #docker cp -a init/cmdb-init opsany-base-mongodb:/opt/
-    #docker exec -e MONGO_CMDB_PASSWORD=${MONGO_CMDB_PASSWORD} \
-    #            opsany-base-mongodb /bin/bash -c "mongoimport -u cmdb -p ${MONGO_CMDB_PASSWORD} --db cmdb --drop --collection field_group < /opt/cmdb-init/field_group.json" >> ${SHELL_LOG} 2>&1
-    #docker exec -e MONGO_CMDB_PASSWORD=${MONGO_CMDB_PASSWORD} \
-    #            opsany-base-mongodb /bin/bash -c "mongoimport -u cmdb -p ${MONGO_CMDB_PASSWORD} --db cmdb --drop --collection icon_model < /opt/cmdb-init/icon_model.json" >> ${SHELL_LOG} 2>&1
-    #docker exec -e MONGO_CMDB_PASSWORD=${MONGO_CMDB_PASSWORD} \
-    #            opsany-base-mongodb /bin/bash -c "mongoimport -u cmdb -p ${MONGO_CMDB_PASSWORD} --db cmdb --drop --collection link_relationship_model < /opt/cmdb-init/link_relationship_model.json" >> ${SHELL_LOG} 2>&1
-    #docker exec -e MONGO_CMDB_PASSWORD=${MONGO_CMDB_PASSWORD} \
-    #            opsany-base-mongodb /bin/bash -c "mongoimport -u cmdb -p ${MONGO_CMDB_PASSWORD} --db cmdb --drop --collection model_group < /opt/cmdb-init/model_group.json" >> ${SHELL_LOG} 2>&1
-    #docker exec -e MONGO_CMDB_PASSWORD=${MONGO_CMDB_PASSWORD} \
-    #            opsany-base-mongodb /bin/bash -c "mongoimport -u cmdb -p ${MONGO_CMDB_PASSWORD} --db cmdb --drop --collection model_field < /opt/cmdb-init/model_field.json" >> ${SHELL_LOG} 2>&1
-    #docker exec -e MONGO_CMDB_PASSWORD=${MONGO_CMDB_PASSWORD} \
-    #            opsany-base-mongodb /bin/bash -c "mongoimport -u cmdb -p ${MONGO_CMDB_PASSWORD} --db cmdb --drop --collection model_info < /opt/cmdb-init/model_info.json" >> ${SHELL_LOG} 2>&1
     shell_log "======MongoDB: MongoDB Initialize End======"
 }
 
@@ -144,6 +133,7 @@ mongodb_init(){
 
 saas_rbac_deploy(){
     shell_log "======RBAC: Start RBAC======"
+    cd ${CDIR}
     # Database 
     mysql -h "${MYSQL_SERVER_IP}" -u root  -e "create database rbac DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
     mysql -h "${MYSQL_SERVER_IP}" -u root  -e "grant all on rbac.* to rbac@'%' identified by "\"${MYSQL_OPSANY_RBAC_PASSWORD}\"";"
@@ -151,7 +141,7 @@ saas_rbac_deploy(){
 
     # Register rbac
     RBAC_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.rbac_secret_key)
-    python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code rbac --saas_app_name 统一权限 --saas_app_version 2.2.0 --saas_app_secret_key ${RBAC_SECRET_KEY}
+    python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code rbac --saas_app_name 统一权限 --saas_app_version 2.2.1 --saas_app_secret_key ${RBAC_SECRET_KEY}
 
     # Modify configuration
     sed -i "s/DOMAIN_NAME/${DOMAIN_NAME}/g" ${INSTALL_PATH}/conf/opsany-saas/rbac/rbac-init.py
@@ -169,7 +159,7 @@ saas_rbac_deploy(){
     sed -i "s#/t/rbac#/o/rbac#g" ${INSTALL_PATH}/esb/apis/rbac/toolkit/configs.py
 
     # Starter container
-    docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-rbac:2.2.0
+    docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-rbac:2.2.1
     docker run -d --restart=always --name opsany-saas-ce-rbac \
        -p 7001:80 \
        -v ${INSTALL_PATH}/conf/opsany-saas/rbac/rbac-supervisor.ini:/etc/supervisord.d/rbac.ini \
@@ -180,7 +170,7 @@ saas_rbac_deploy(){
        -v ${INSTALL_PATH}/logs/rbac:/opt/opsany/logs/rbac \
        -v ${INSTALL_PATH}/uploads:/opt/opsany/uploads \
        -v /etc/localtime:/etc/localtime:ro \
-       ${PAAS_DOCKER_REG}/opsany-saas-ce-rbac:2.2.0
+       ${PAAS_DOCKER_REG}/opsany-saas-ce-rbac:2.2.1
     
     # Django migrate
     docker exec -e BK_ENV="production" opsany-saas-ce-rbac /bin/sh -c \
@@ -189,6 +179,7 @@ saas_rbac_deploy(){
 
 saas_workbench_deploy(){
     shell_log "======Workbench: Start workbench======"
+    cd ${CDIR}
     #workbench
     mysql -h "${MYSQL_SERVER_IP}" -u root  -e "create database workbench DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
     mysql -h "${MYSQL_SERVER_IP}" -u root  -e "grant all on workbench.* to workbench@'%' identified by "\"${MYSQL_OPSANY_WORKBENCH_PASSWORD}\"";"
@@ -197,7 +188,7 @@ saas_workbench_deploy(){
     # Register workbench
     WORKBENCH_SECRET_KEY=$(uuid -v4)
     echo $WORKBENCH_SECRET_KEY > ${INSTALL_PATH}/conf/.workbench_secret_key
-    python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code workbench --saas_app_name 工作台 --saas_app_version 2.2.0 --saas_app_secret_key ${WORKBENCH_SECRET_KEY}
+    python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code workbench --saas_app_name 工作台 --saas_app_version 2.2.1 --saas_app_secret_key ${WORKBENCH_SECRET_KEY}
 
     # Modify configuration
     WORKBENCH_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.workbench_secret_key)
@@ -219,7 +210,7 @@ saas_workbench_deploy(){
     sed -i "s#/t/workbench#/o/workbench#g" ${INSTALL_PATH}/esb/apis/workbench/toolkit/tools.py
 
     # Starter container
-    docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-workbench:2.2.0
+    docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-workbench:2.2.1
     docker run -d --restart=always --name opsany-saas-ce-workbench \
        -p 7002:80 \
        -v ${INSTALL_PATH}/conf/opsany-saas/workbench/workbench-supervisor.ini:/etc/supervisord.d/workbench.ini \
@@ -230,7 +221,7 @@ saas_workbench_deploy(){
        -v ${INSTALL_PATH}/logs/workbench:/opt/opsany/logs/workbench \
        -v ${INSTALL_PATH}/uploads:/opt/opsany/uploads \
        -v /etc/localtime:/etc/localtime:ro \
-       ${PAAS_DOCKER_REG}/opsany-saas-ce-workbench:2.2.0
+       ${PAAS_DOCKER_REG}/opsany-saas-ce-workbench:2.2.1
     # Django migrate
     docker exec -e BK_ENV="production" opsany-saas-ce-workbench /bin/sh -c \
     "python /opt/opsany/workbench/manage.py migrate --noinput && python /opt/opsany/workbench/manage.py createcachetable django_cache > /dev/null" >> ${SHELL_LOG}
@@ -238,6 +229,7 @@ saas_workbench_deploy(){
 
 saas_cmdb_deploy(){
     shell_log "======CMDB: Start cmdb======"
+    cd ${CDIR}
     #cmdb
     mysql -h "${MYSQL_SERVER_IP}" -u root  -e "create database cmdb DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
     mysql -h "${MYSQL_SERVER_IP}" -u root  -e "grant all on cmdb.* to cmdb@'%' identified by "\"${MYSQL_OPSANY_CMDB_PASSWORD}\"";"
@@ -246,7 +238,7 @@ saas_cmdb_deploy(){
     # Register cmdb
     CMDB_SECRET_KEY=$(uuid -v4)
     echo $CMDB_SECRET_KEY > ${INSTALL_PATH}/conf/.cmdb_secret_key
-    python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code cmdb --saas_app_name 资源平台 --saas_app_version 2.2.0 --saas_app_secret_key ${CMDB_SECRET_KEY}
+    python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code cmdb --saas_app_name 资源平台 --saas_app_version 2.2.1 --saas_app_secret_key ${CMDB_SECRET_KEY}
 
     # Modify configuration
     CMDB_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.cmdb_secret_key)
@@ -269,7 +261,7 @@ saas_cmdb_deploy(){
     sed -i "s#/t/cmdb#/o/cmdb#g" ${INSTALL_PATH}/esb/apis/cmdb/toolkit/tools.py
 
     # Starter container
-    docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-cmdb:2.2.0
+    docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-cmdb:2.2.1
     docker run -d --restart=always --name opsany-saas-ce-cmdb \
        -p 7003:80 \
        -v ${INSTALL_PATH}/conf/opsany-saas/cmdb/cmdb-supervisor.ini:/etc/supervisord.d/cmdb.ini \
@@ -280,7 +272,7 @@ saas_cmdb_deploy(){
        -v ${INSTALL_PATH}/logs/cmdb:/opt/opsany/logs/cmdb \
        -v ${INSTALL_PATH}/uploads:/opt/opsany/uploads \
        -v /etc/localtime:/etc/localtime:ro \
-       ${PAAS_DOCKER_REG}/opsany-saas-ce-cmdb:2.2.0
+       ${PAAS_DOCKER_REG}/opsany-saas-ce-cmdb:2.2.1
     
     # Django migrate
     docker exec -e BK_ENV="production" opsany-saas-ce-cmdb /bin/sh -c \
@@ -289,13 +281,14 @@ saas_cmdb_deploy(){
 
 saas_control_deploy(){
     shell_log "======Control: Start control======"
+    cd ${CDIR}
     #control
     mysql -h "${MYSQL_SERVER_IP}" -u root  -e "create database control DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
     mysql -h "${MYSQL_SERVER_IP}" -u root  -e "grant all on control.* to control@'%' identified by "\"${MYSQL_OPSANY_CONTROL_PASSWORD}\"";"
     mysql -h "${MYSQL_SERVER_IP}" -u root  -e "grant all on control.* to opsany@'%' identified by "\"${MYSQL_OPSANY_PASSWORD}\"";"
 
     # Register control 
-    python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code control --saas_app_name 管控平台 --saas_app_version 2.2.0 --saas_app_secret_key ${CONTROL_SECRET_KEY}
+    python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code control --saas_app_name 管控平台 --saas_app_version 2.2.1 --saas_app_secret_key ${CONTROL_SECRET_KEY}
 
     # Modify configuration
     CONTROL_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.control_secret_key)
@@ -314,7 +307,7 @@ saas_control_deploy(){
     sed -i "s#/t/control#/o/control#g" ${INSTALL_PATH}/esb/apis/control/toolkit/tools.py
 
     # Starter container
-    docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-control:2.2.0
+    docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-control:2.2.1
     docker run -d --restart=always --name opsany-saas-ce-control \
        -p 7004:80 \
        -v ${INSTALL_PATH}/conf/opsany-saas/control/control-supervisor.ini:/etc/supervisord.d/control.ini \
@@ -325,7 +318,7 @@ saas_control_deploy(){
        -v ${INSTALL_PATH}/logs:/opt/opsany/logs \
        -v ${INSTALL_PATH}/uploads:/opt/opsany/uploads \
        -v /etc/localtime:/etc/localtime:ro \
-       ${PAAS_DOCKER_REG}/opsany-saas-ce-control:2.2.0
+       ${PAAS_DOCKER_REG}/opsany-saas-ce-control:2.2.1
     
     # Django migrate
     docker exec -e BK_ENV="production" opsany-saas-ce-control /bin/sh -c \
@@ -334,6 +327,7 @@ saas_control_deploy(){
 
 saas_job_deploy(){
     shell_log "======Job: Start job======"
+    cd ${CDIR}
     #job
     mysql -h "${MYSQL_SERVER_IP}" -u root  -e "create database job DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
     mysql -h "${MYSQL_SERVER_IP}" -u root  -e "grant all on job.* to job@'%' identified by "\"${MYSQL_OPSANY_JOB_PASSWORD}\"";"
@@ -342,7 +336,7 @@ saas_job_deploy(){
     # Register job
     JOB_SECRET_KEY=$(uuid -v4)
     echo $JOB_SECRET_KEY > ${INSTALL_PATH}/conf/.job_secret_key
-    python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code job --saas_app_name 作业平台 --saas_app_version 2.2.0 --saas_app_secret_key ${JOB_SECRET_KEY}
+    python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code job --saas_app_name 作业平台 --saas_app_version 2.2.1 --saas_app_secret_key ${JOB_SECRET_KEY}
 
     # Modify configuration
     JOB_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.job_secret_key)
@@ -362,9 +356,11 @@ saas_job_deploy(){
     #job
     sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/task/toolkit/configs.py
     sed -i "s#/t/job#/o/job#g" ${INSTALL_PATH}/esb/apis/task/toolkit/tools.py
+    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/job/toolkit/configs.py
+    sed -i "s#/t/job#/o/job#g" ${INSTALL_PATH}/esb/apis/job/toolkit/tools.py
 
     # Starter container
-    docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-job:2.2.0
+    docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-job:2.2.1
     docker run -d --restart=always --name opsany-saas-ce-job \
        -p 7005:80 \
        -v ${INSTALL_PATH}/conf/opsany-saas/job/job-supervisor.ini:/etc/supervisord.d/job.ini \
@@ -375,7 +371,7 @@ saas_job_deploy(){
        -v ${INSTALL_PATH}/logs/job:/opt/opsany/logs/job \
        -v ${INSTALL_PATH}/uploads:/opt/opsany/uploads \
        -v /etc/localtime:/etc/localtime:ro \
-       ${PAAS_DOCKER_REG}/opsany-saas-ce-job:2.2.0
+       ${PAAS_DOCKER_REG}/opsany-saas-ce-job:2.2.1
     
     # Django migrate
     docker exec -e BK_ENV="production" opsany-saas-ce-job /bin/sh -c \
@@ -383,6 +379,7 @@ saas_job_deploy(){
 }
 
 saas_monitor_deploy(){
+    cd ${CDIR}
     # Grafana
     shell_log "======Grafana: Start Grafana======"
     docker run -d --restart=always --name opsany-base-grafana --user root \
@@ -427,7 +424,7 @@ saas_monitor_deploy(){
     sed -i "s/REDIS_SERVER_PASSWORD/${REDIS_SERVER_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-saas/monitor/monitor-prod.py
     
     # Starter container
-    docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-monitor:2.2.0
+    docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-monitor:2.2.1
     docker run -d --restart=always --name opsany-saas-ce-monitor \
        -p 7006:80 \
        -v ${INSTALL_PATH}/conf/opsany-saas/monitor/monitor-supervisor.ini:/etc/supervisord.d/monitor.ini \
@@ -438,19 +435,26 @@ saas_monitor_deploy(){
        -v ${INSTALL_PATH}/logs/monitor:/opt/opsany/logs/monitor \
        -v ${INSTALL_PATH}/uploads:/opt/opsany/uploads \
        -v /etc/localtime:/etc/localtime:ro \
-       ${PAAS_DOCKER_REG}/opsany-saas-ce-monitor:2.2.0
+       ${PAAS_DOCKER_REG}/opsany-saas-ce-monitor:2.2.1
     
     # Django migrate
     docker exec -e BK_ENV="production" opsany-saas-ce-monitor /bin/sh -c \
     "python /opt/opsany/monitor/manage.py migrate --noinput && python /opt/opsany/monitor/manage.py createcachetable django_cache > /dev/null" >> ${SHELL_LOG}
     sleep 5
-    python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code monitor --saas_app_name 基础监控 --saas_app_version 2.2.0 --saas_app_secret_key ${MONITOR_SECRET_KEY}
+    python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code monitor --saas_app_name 基础监控 --saas_app_version 2.2.1 --saas_app_secret_key ${MONITOR_SECRET_KEY}
     python3 ../saas/sync-user-script.py --domain https://${DOMAIN_NAME} --paas_username admin --paas_password ${ADMIN_PASSWORD} --app_code monitor
     python3 ../saas/init-ce-monitor.py --domain $DOMAIN_NAME --private_ip $LOCAL_IP --paas_username admin --paas_password ${ADMIN_PASSWORD} --grafana_password admin --grafana_change_password $GRAFANA_ADMIN_PASSWORD
+
+    # Install Grafana Zabbix Plugin
+    cd /tmp && wget https://opsany.oss-cn-beijing.aliyuncs.com/alexanderzobnin-zabbix-app-4.3.1.zip
+    unzip alexanderzobnin-zabbix-app-4.3.1.zip
+    docker cp /tmp/alexanderzobnin-zabbix-app opsany-base-grafana:/var/lib/grafana/plugins/
+    docker restart opsany-base-grafana
 }
 
 saas_cmp_deploy(){
     shell_log "======CMP: Start cmp======"
+    cd ${CDIR}
     #cmp
     mysql -h "${MYSQL_SERVER_IP}" -u root  -e "create database cmp DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
     mysql -h "${MYSQL_SERVER_IP}" -u root  -e "grant all on cmp.* to cmp@'%' identified by "\"${MYSQL_OPSANY_CMP_PASSWORD}\"";"
@@ -463,7 +467,7 @@ saas_cmp_deploy(){
     # Register cmp
     CMP_SECRET_KEY=$(uuid -v4)
     echo $CMP_SECRET_KEY > ${INSTALL_PATH}/conf/.cmp_secret_key
-    python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code cmp --saas_app_name 云管平台 --saas_app_version 2.2.0 --saas_app_secret_key ${CMP_SECRET_KEY}
+    python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code cmp --saas_app_name 云管平台 --saas_app_version 2.2.1 --saas_app_secret_key ${CMP_SECRET_KEY}
 
     #CMP Configure
     CMP_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.cmp_secret_key)
@@ -481,7 +485,7 @@ saas_cmp_deploy(){
     sed -i "s/REDIS_SERVER_PASSWORD/${REDIS_SERVER_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-saas/cmp/cmp-prod.py
     
     # Starter container
-    docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-cmp:2.2.0
+    docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-cmp:2.2.1
     docker run -d --restart=always --name opsany-saas-ce-cmp \
        -p 7007:80 \
        -v ${INSTALL_PATH}/conf/opsany-saas/cmp/cmp-supervisor.ini:/etc/supervisord.d/cmp.ini \
@@ -492,7 +496,7 @@ saas_cmp_deploy(){
        -v ${INSTALL_PATH}/logs/cmp:/opt/opsany/logs/cmp \
        -v ${INSTALL_PATH}/uploads:/opt/opsany/uploads \
        -v /etc/localtime:/etc/localtime:ro \
-       ${PAAS_DOCKER_REG}/opsany-saas-ce-cmp:2.2.0
+       ${PAAS_DOCKER_REG}/opsany-saas-ce-cmp:2.2.1
     
     # Django migrate
     docker exec -e BK_ENV="production" opsany-saas-ce-cmp /bin/sh -c \
@@ -501,6 +505,7 @@ saas_cmp_deploy(){
 
 saas_bastion_deploy(){
     shell_log "======Bastion: Start bastion======"
+    cd ${CDIR}
     #bastion
     mysql -h "${MYSQL_SERVER_IP}" -u root  -e "create database bastion DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
     mysql -h "${MYSQL_SERVER_IP}" -u root  -e "grant all on bastion.* to bastion@'%' identified by "\"${MYSQL_OPSANY_BASTION_PASSWORD}\"";"
@@ -512,7 +517,7 @@ saas_bastion_deploy(){
 
     # Register bastion
     BASTION_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.bastion_secret_key)
-    python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code bastion --saas_app_name 堡垒机 --saas_app_version 2.2.0 --saas_app_secret_key ${BASTION_SECRET_KEY}
+    python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code bastion --saas_app_name 堡垒机 --saas_app_version 2.2.1 --saas_app_secret_key ${BASTION_SECRET_KEY}
 
     # Bastion Configure
     sed -i "s/DOMAIN_NAME/${DOMAIN_NAME}/g" ${INSTALL_PATH}/conf/opsany-saas/bastion/bastion-init.py
@@ -526,7 +531,7 @@ saas_bastion_deploy(){
     sed -i "s/REDIS_SERVER_PASSWORD/${REDIS_SERVER_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-saas/bastion/bastion-prod.py
     
     # Starter container
-    docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-bastion:2.2.0
+    docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-bastion:2.2.1
     docker run -d --restart=always --name opsany-saas-ce-bastion \
        -p 7008:80 \
        -v ${INSTALL_PATH}/conf/opsany-saas/bastion/bastion-supervisor.ini:/etc/supervisord.d/bastion.ini \
@@ -537,7 +542,7 @@ saas_bastion_deploy(){
        -v ${INSTALL_PATH}/logs:/opt/opsany/logs \
        -v ${INSTALL_PATH}/uploads:/opt/opsany/uploads \
        -v /etc/localtime:/etc/localtime:ro \
-       ${PAAS_DOCKER_REG}/opsany-saas-ce-bastion:2.2.0
+       ${PAAS_DOCKER_REG}/opsany-saas-ce-bastion:2.2.1
     
     # Django migrate
     docker exec -e BK_ENV="production" opsany-saas-ce-bastion /bin/sh -c \
@@ -546,6 +551,7 @@ saas_bastion_deploy(){
 
 saas_devops_deploy(){
     shell_log "======DevOps: Start devops======"
+    cd ${CDIR}
     #DevOps MySQL
     mysql -h "${MYSQL_SERVER_IP}" -u root  -e "create database devops DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
     mysql -h "${MYSQL_SERVER_IP}" -u root  -e "grant all on devops.* to devops@'%' identified by "\"${MYSQL_OPSANY_BASTION_PASSWORD}\"";"
@@ -565,7 +571,7 @@ saas_devops_deploy(){
         DEVOPS_SECRET_KEY=$(uuid -v4)
         echo $DEVOPS_SECRET_KEY > ${INSTALL_PATH}/conf/.devops_secret_key
     fi
-    python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code devops --saas_app_name 应用平台 --saas_app_version 2.2.0 --saas_app_secret_key ${DEVOPS_SECRET_KEY}
+    python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code devops --saas_app_name 应用平台 --saas_app_version 2.2.1 --saas_app_secret_key ${DEVOPS_SECRET_KEY}
 
     # DevOps Configure
     DEVOPS_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.devops_secret_key)
@@ -584,7 +590,7 @@ saas_devops_deploy(){
     sed -i "s/REDIS_SERVER_PASSWORD/${REDIS_SERVER_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-saas/devops/devops-prod.py
     
     # Starter container   
-    docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-devops:2.2.0
+    docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-devops:2.2.1
     docker run -d --restart=always --name opsany-saas-ce-devops \
        -p 7009:80 \
        -v ${INSTALL_PATH}/conf/opsany-saas/devops/devops-supervisor.ini:/etc/supervisord.d/devops.ini \
@@ -595,7 +601,7 @@ saas_devops_deploy(){
        -v ${INSTALL_PATH}/logs:/opt/opsany/logs \
        -v ${INSTALL_PATH}/uploads:/opt/opsany/uploads \
        -v /etc/localtime:/etc/localtime:ro \
-       ${PAAS_DOCKER_REG}/opsany-saas-ce-devops:2.2.0
+       ${PAAS_DOCKER_REG}/opsany-saas-ce-devops:2.2.1
         # Django migrate
     docker exec -e BK_ENV="production" opsany-saas-ce-devops /bin/sh -c \
     "python /opt/opsany/devops/manage.py migrate --noinput && python /opt/opsany/devops/manage.py createcachetable django_cache > /dev/null" >> ${SHELL_LOG}
@@ -606,6 +612,7 @@ saas_devops_deploy(){
 
 saas_repo_deploy(){
     shell_log "======REPO: Start repo======"
+    cd ${CDIR}
     #repo
     mysql -h "${MYSQL_SERVER_IP}" -u root  -e "create database repo DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
     mysql -h "${MYSQL_SERVER_IP}" -u root  -e "grant all on repo.* to repo@'%' identified by "\"${MYSQL_OPSANY_REPO_PASSWORD}\"";"
@@ -622,7 +629,7 @@ saas_repo_deploy(){
     if [ -f  ${INSTALL_PATH}/conf/.passwd_env ];then
         source ${INSTALL_PATH}/conf/.passwd_env
     fi
-    python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code repo --saas_app_name 制品仓库 --saas_app_version 2.2.0 --saas_app_secret_key ${REPO_SECRET_KEY}
+    python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code repo --saas_app_name 制品仓库 --saas_app_version 2.2.1 --saas_app_secret_key ${REPO_SECRET_KEY}
 
     # repo Configure
     if [ -d ${INSTALL_PATH}/conf/opsany-saas/repo ];then
@@ -644,7 +651,7 @@ saas_repo_deploy(){
     sed -i "s/REDIS_SERVER_PASSWORD/${REDIS_SERVER_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-saas/repo/repo-prod.py
     
     # Starter container
-    docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-repo:2.2.0
+    docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-repo:2.2.1
     docker run -d --restart=always --name opsany-saas-ce-repo \
        -p 7020:80 \
        -v ${INSTALL_PATH}/conf/opsany-saas/repo/repo-supervisor.ini:/etc/supervisord.d/repo.ini \
@@ -655,7 +662,7 @@ saas_repo_deploy(){
        -v ${INSTALL_PATH}/logs:/opt/opsany/logs \
        -v ${INSTALL_PATH}/uploads:/opt/opsany/uploads \
        -v /etc/localtime:/etc/localtime:ro \
-       ${PAAS_DOCKER_REG}/opsany-saas-ce-repo:2.2.0
+       ${PAAS_DOCKER_REG}/opsany-saas-ce-repo:2.2.1
     
     # Django migrate
     docker exec -e BK_ENV="production" opsany-saas-ce-repo /bin/sh -c \
@@ -664,6 +671,7 @@ saas_repo_deploy(){
 
 saas_pipeline_deploy(){
     shell_log "======Pipeline: Start pipeline======"
+    cd ${CDIR}
     #pipeline
     mysql -h "${MYSQL_SERVER_IP}" -u root  -e "create database pipeline DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
     mysql -h "${MYSQL_SERVER_IP}" -u root  -e "grant all on pipeline.* to pipeline@'%' identified by "\"${MYSQL_OPSANY_PIPELINE_PASSWORD}\"";"
@@ -675,7 +683,7 @@ saas_pipeline_deploy(){
     if [ -f  ${INSTALL_PATH}/conf/.passwd_env ];then
         source ${INSTALL_PATH}/conf/.passwd_env
     fi
-    python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code pipeline --saas_app_name 流水线 --saas_app_version 2.2.0 --saas_app_secret_key ${PIPELINE_SECRET_KEY}
+    python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code pipeline --saas_app_name 流水线 --saas_app_version 2.2.1 --saas_app_secret_key ${PIPELINE_SECRET_KEY}
 
     # Modify configuration
     if [ -d ${INSTALL_PATH}/conf/opsany-saas/pipeline ];then
@@ -698,7 +706,7 @@ saas_pipeline_deploy(){
     sed -i "s/REDIS_SERVER_PASSWORD/${REDIS_SERVER_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-saas/pipeline/pipeline-prod.py
 
     # Starter container
-    docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-pipeline:2.2.0
+    docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-pipeline:2.2.1
     docker run -d --restart=always --name opsany-saas-ce-pipeline \
        -p 7017:80 \
        -v ${INSTALL_PATH}/conf/opsany-saas/pipeline/pipeline-supervisor.ini:/etc/supervisord.d/pipeline.ini \
@@ -709,7 +717,7 @@ saas_pipeline_deploy(){
        -v ${INSTALL_PATH}/logs/pipeline:/opt/opsany/logs/pipeline \
        -v ${INSTALL_PATH}/uploads:/opt/opsany/uploads \
        -v /etc/localtime:/etc/localtime:ro \
-       ${PAAS_DOCKER_REG}/opsany-saas-ce-pipeline:2.2.0
+       ${PAAS_DOCKER_REG}/opsany-saas-ce-pipeline:2.2.1
     
     # Django migrate
     docker exec -e BK_ENV="production" opsany-saas-ce-pipeline /bin/sh -c \
@@ -718,6 +726,7 @@ saas_pipeline_deploy(){
 
 saas_deploy_deploy(){
     shell_log "======Deploy: Start deploy======"
+    cd ${CDIR}
     #deploy
     mysql -h "${MYSQL_SERVER_IP}" -u root  -e "create database deploy DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
     mysql -h "${MYSQL_SERVER_IP}" -u root  -e "grant all on deploy.* to deploy@'%' identified by "\"${MYSQL_OPSANY_DEPLOY_PASSWORD}\"";"
@@ -729,7 +738,7 @@ saas_deploy_deploy(){
     if [ -f  ${INSTALL_PATH}/conf/.passwd_env ];then
         source ${INSTALL_PATH}/conf/.passwd_env
     fi
-    python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code deploy --saas_app_name 持续部署 --saas_app_version 2.2.0 --saas_app_secret_key ${DEPLOY_SECRET_KEY}
+    python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code deploy --saas_app_name 持续部署 --saas_app_version 2.2.1 --saas_app_secret_key ${DEPLOY_SECRET_KEY}
 
     # Modify configuration
     if [ -d ${INSTALL_PATH}/conf/opsany-saas/deploy ];then
@@ -752,7 +761,7 @@ saas_deploy_deploy(){
     sed -i "s/REDIS_SERVER_PASSWORD/${REDIS_SERVER_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-saas/deploy/deploy-prod.py
 
     # Starter container
-    docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-deploy:2.2.0
+    docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-deploy:2.2.1
     docker run -d --restart=always --name opsany-saas-ce-deploy \
        -p 7018:80 \
        -v ${INSTALL_PATH}/conf/opsany-saas/deploy/deploy-supervisor.ini:/etc/supervisord.d/deploy.ini \
@@ -763,63 +772,65 @@ saas_deploy_deploy(){
        -v ${INSTALL_PATH}/logs/deploy:/opt/opsany/logs/deploy \
        -v ${INSTALL_PATH}/uploads:/opt/opsany/uploads \
        -v /etc/localtime:/etc/localtime:ro \
-       ${PAAS_DOCKER_REG}/opsany-saas-ce-deploy:2.2.0
+       ${PAAS_DOCKER_REG}/opsany-saas-ce-deploy:2.2.1
     
     # Django migrate
     docker exec -e BK_ENV="production" opsany-saas-ce-deploy /bin/sh -c \
     "python /opt/opsany/deploy/manage.py migrate --noinput && python /opt/opsany/deploy/manage.py createcachetable django_cache > /dev/null" >> ${SHELL_LOG}
 }
 
-saas_dashboard_deploy(){
-    shell_log "======Dashboard: Start dashboard======"
-    #dashboard
-    mysql -h "${MYSQL_SERVER_IP}" -u root  -e "create database dashboard DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
-    mysql -h "${MYSQL_SERVER_IP}" -u root  -e "grant all on dashboard.* to dashboard@'%' identified by "\"${MYSQL_OPSANY_BASTION_PASSWORD}\"";"
-    mysql -h "${MYSQL_SERVER_IP}" -u root  -e "grant all on dashboard.* to opsany@'%' identified by "\"${MYSQL_OPSANY_PASSWORD}\"";" 
+saas_code_deploy(){
+    shell_log "======Code: Start Code======"
+    cd ${CDIR}
+    #Code
+    mysql -h "${MYSQL_SERVER_IP}" -u root  -e "create database code DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
+    mysql -h "${MYSQL_SERVER_IP}" -u root  -e "grant all on code.* to code@'%' identified by "\"${MYSQL_OPSANY_CODE_PASSWORD}\"";"
+    mysql -h "${MYSQL_SERVER_IP}" -u root  -e "grant all on code.* to opsany@'%' identified by "\"${MYSQL_OPSANY_PASSWORD}\"";" 
 
-     #dashboard
-    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/dashboard/toolkit/configs.py
-    sed -i "s#/t/dashboard#/o/dashboard#g" ${INSTALL_PATH}/esb/apis/dashboard/toolkit/tools.py
+     #Code
+    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/code/toolkit/configs.py
+    sed -i "s#/t/code#/o/code#g" ${INSTALL_PATH}/esb/apis/code/toolkit/tools.py
 
-    # Register dashboard
+    # Register Code
     if [ -f ${INSTALL_PATH}/conf/.passwd_env ];then
         source ${INSTALL_PATH}/conf/.passwd_env
     fi
-    DASHBOARD_SECRET_KEY=$(uuid -v4)
-    echo $DASHBOARD_SECRET_KEY > ${INSTALL_PATH}/conf/.dashboard_secret_key
-    python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code dashboard --saas_app_name 可视化平台 --saas_app_version 2.2.0 --saas_app_secret_key ${DASHBOARD_SECRET_KEY}
+    CODE_SECRET_KEY=$(uuid -v4)
+    echo $CODE_SECRET_KEY > ${INSTALL_PATH}/conf/.code_secret_key
+    python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code code --saas_app_name 代码仓库 --saas_app_version 2.2.1 --saas_app_secret_key ${CODE_SECRET_KEY}
 
-    # Dashboard Configure
-    DASHBOARD_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.dashboard_secret_key)
-    sed -i "s/DOMAIN_NAME/${DOMAIN_NAME}/g" ${INSTALL_PATH}/conf/opsany-saas/dashboard/dashboard-init.py
-    sed -i "s/DASHBOARD_SECRET_KEY/${DASHBOARD_SECRET_KEY}/g" ${INSTALL_PATH}/conf/opsany-saas/dashboard/dashboard-init.py
-    sed -i "s/MYSQL_SERVER_IP/${MYSQL_SERVER_IP}/g" ${INSTALL_PATH}/conf/opsany-saas/dashboard/dashboard-prod.py
-    sed -i "s/MYSQL_SERVER_PORT/${MYSQL_SERVER_PORT}/g" ${INSTALL_PATH}/conf/opsany-saas/dashboard/dashboard-prod.py
-    sed -i "s/MYSQL_OPSANY_DASHBOARD_PASSWORD/${MYSQL_OPSANY_DASHBOARD_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-saas/dashboard/dashboard-prod.py
+    # Code Configure
+    CODE_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.code_secret_key)
+    sed -i "s/DOMAIN_NAME/${DOMAIN_NAME}/g" ${INSTALL_PATH}/conf/opsany-saas/code/code-init.py
+    sed -i "s/CODE_SECRET_KEY/${CODE_SECRET_KEY}/g" ${INSTALL_PATH}/conf/opsany-saas/code/code-init.py
+    sed -i "s/MYSQL_SERVER_IP/${MYSQL_SERVER_IP}/g" ${INSTALL_PATH}/conf/opsany-saas/code/code-prod.py
+    sed -i "s/MYSQL_SERVER_PORT/${MYSQL_SERVER_PORT}/g" ${INSTALL_PATH}/conf/opsany-saas/code/code-prod.py
+    sed -i "s/MYSQL_OPSANY_CODE_PASSWORD/${MYSQL_OPSANY_CODE_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-saas/code/code-prod.py
 
     # Starter container
-    docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-dashboard:2.2.0
-    docker run -d --restart=always --name opsany-saas-ce-dashboard \
+    docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-code:2.2.1
+    docker run -d --restart=always --name opsany-saas-ce-code \
        -p 7010:80 \
-       -v ${INSTALL_PATH}/conf/opsany-saas/dashboard/dashboard-supervisor.ini:/etc/supervisord.d/dashboard.ini \
-       -v ${INSTALL_PATH}/conf/opsany-saas/dashboard/dashboard-uwsgi.ini:/opt/opsany/uwsgi/dashboard.ini \
-       -v ${INSTALL_PATH}/conf/opsany-saas/dashboard/dashboard-init.py:/opt/opsany/dashboard/config/__init__.py \
-       -v ${INSTALL_PATH}/conf/opsany-saas/dashboard/dashboard-prod.py:/opt/opsany/dashboard/config/prod.py \
-       -v ${INSTALL_PATH}/conf/opsany-saas/dashboard/dashboard-nginx.conf:/etc/nginx/http.d/default.conf \
+       -v ${INSTALL_PATH}/conf/opsany-saas/code/code-supervisor.ini:/etc/supervisord.d/code.ini \
+       -v ${INSTALL_PATH}/conf/opsany-saas/code/code-uwsgi.ini:/opt/opsany/uwsgi/code.ini \
+       -v ${INSTALL_PATH}/conf/opsany-saas/code/code-init.py:/opt/opsany/code/config/__init__.py \
+       -v ${INSTALL_PATH}/conf/opsany-saas/code/code-prod.py:/opt/opsany/code/config/prod.py \
+       -v ${INSTALL_PATH}/conf/opsany-saas/code/code-nginx.conf:/etc/nginx/http.d/default.conf \
        -v ${INSTALL_PATH}/logs:/opt/opsany/logs \
        -v ${INSTALL_PATH}/uploads:/opt/opsany/uploads \
        -v /etc/localtime:/etc/localtime:ro \
-       ${PAAS_DOCKER_REG}/opsany-saas-ce-dashboard:2.2.0
+       ${PAAS_DOCKER_REG}/opsany-saas-ce-code:2.2.1
 
     # Django migrate
-    docker exec -e BK_ENV="production" opsany-saas-ce-dashboard /bin/sh -c \
-    "python /opt/opsany/dashboard/manage.py migrate --noinput && python /opt/opsany/dashboard/manage.py createcachetable django_cache > /dev/null" >> ${SHELL_LOG}
+    docker exec -e BK_ENV="production" opsany-saas-ce-code /bin/sh -c \
+    "python /opt/opsany/code/manage.py migrate --noinput && python /opt/opsany/code/manage.py createcachetable django_cache > /dev/null" >> ${SHELL_LOG}
     
 }
 
 saas_base_init(){
     shell_log "======Init: OpsAny User Initialize======"
     sleep 3
+    cd ${CDIR}
     # Sync User
     python3 ../saas/sync-user-script.py --domain https://${DOMAIN_NAME} --paas_username admin --paas_password ${ADMIN_PASSWORD} --app_code workbench cmdb control job cmp bastion
 
@@ -840,6 +851,13 @@ saas_base_init(){
 --target_type script --target_path ./job-script >> ${SHELL_LOG} 2>&1
     python3 import_script.py --domain https://$DOMAIN_NAME --paas_username admin --paas_password ${ADMIN_PASSWORD} \
 --target_type task --target_path ./job-task >> ${SHELL_LOG} 2>&1
+
+    shell_log "======Init: Download Agent+Docs Package======"
+    cd $INSTALL_PATH/uploads/
+    wget https://opsany.oss-cn-beijing.aliyuncs.com/opsany-agent-2.2.0.tar.gz
+    tar zxf opsany-agent-2.2.0.tar.gz
+    wget https://opsany-saas.oss-cn-beijing.aliyuncs.com/opsany-docs-2.2.0.tar.gz
+    tar zxf opsany-docs-2.2.0.tar.gz
 }
 
 admin_password_init(){
@@ -879,6 +897,9 @@ main(){
     repo)
         saas_repo_deploy
         ;;
+    code)
+        saas_code_deploy
+        ;;
     pipeline)
         saas_pipeline_deploy
         ;;
@@ -890,6 +911,7 @@ main(){
         saas_pipeline_deploy
         saas_deploy_deploy
         saas_repo_deploy
+        #saas_code_deploy
 	    ;;
     all)
         install_init
@@ -903,7 +925,7 @@ main(){
 	    saas_cmp_deploy
 	    saas_bastion_deploy
         saas_monitor_deploy
-        #saas_dashboard_deploy
+        #saas_code_deploy
         saas_devops_deploy
         saas_pipeline_deploy
         saas_deploy_deploy
@@ -912,7 +934,7 @@ main(){
         admin_password_init
         ;;
 	help|*)
-	    echo $"Usage: $0 {base|monitor|devops|all|repo|help}"
+	    echo $"Usage: $0 {base|monitor|devops|all|repo|code|help}"
 	    ;;
     esac
 }

@@ -92,11 +92,11 @@ opsany_init(){
     cd $CDIR
     /bin/cp -r ./conf ${INSTALL_PATH}/
     /bin/cp -r ../kubernetes ${INSTALL_PATH}/
-    /bin/cp ${INSTALL_PATH}/conf/nginx-conf.d/ssl/$DOMAIN_NAME.key /opt/opsany/kubernetes/helm/opsany-paas/opsany-paas-openresty/ssl/
-    /bin/cp ${INSTALL_PATH}/conf/nginx-conf.d/ssl/$DOMAIN_NAME.pem /opt/opsany/kubernetes/helm/opsany-paas/opsany-paas-openresty/ssl/
-    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" /opt/opsany/kubernetes/helm/opsany-paas/opsany-paas-openresty/templates/deployment.yaml
-    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" /opt/opsany/kubernetes/helm/opsany-paas/opsany-paas-openresty/templates/secret.yaml
-    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" /opt/opsany/kubernetes/helm/opsany-paas/opsany-paas-openresty/values.yaml
+    /bin/cp ${INSTALL_PATH}/conf/nginx-conf.d/ssl/$DOMAIN_NAME.key ${INSTALL_PATH}/kubernetes/helm/opsany-paas/opsany-paas-openresty/ssl/
+    /bin/cp ${INSTALL_PATH}/conf/nginx-conf.d/ssl/$DOMAIN_NAME.pem ${INSTALL_PATH}/kubernetes/helm/opsany-paas/opsany-paas-openresty/ssl/
+    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/kubernetes/helm/opsany-paas/opsany-paas-openresty/templates/deployment.yaml
+    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/kubernetes/helm/opsany-paas/opsany-paas-openresty/templates/secret.yaml
+    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/kubernetes/helm/opsany-paas/opsany-paas-openresty/values.yaml
     /bin/cp -r ./init ${INSTALL_PATH}/
     /bin/cp -r ./uploads/* /data/k8s-nfs/opsany-uploads/
     /bin/cp -r ../paas-ce/saas/saas-logo/* ${INSTALL_PATH}/uploads/workbench/icon/
@@ -126,6 +126,8 @@ esb_init(){
     #job
     sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/task/toolkit/configs.py
     sed -i "s#/t/job#/o/job#g" ${INSTALL_PATH}/esb/apis/task/toolkit/tools.py
+    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/job/toolkit/configs.py
+    sed -i "s#/t/job#/o/job#g" ${INSTALL_PATH}/esb/apis/job/toolkit/tools.py
     #workbench
     sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/workbench/toolkit/configs.py
     sed -i "s#/t/workbench#/o/workbench#g" ${INSTALL_PATH}/esb/apis/workbench/toolkit/tools.py
@@ -169,13 +171,14 @@ paas_install(){
     #paas
     shell_log "Config paas Service"
     # PaaS Config
-    sed -i "s/PAAS_LOGIN_IP/opsany-paas-login/g" ${INSTALL_PATH}/conf/settings_production.py.paas
-    sed -i "s/PAAS_APPENGINE_IP/opsany-paas-appengine/g" ${INSTALL_PATH}/conf/settings_production.py.paas
-    sed -i "s/DOMAIN_NAME/${DOMAIN_NAME}/g" ${INSTALL_PATH}/conf/settings_production.py.paas
-    sed -i "s/LOCAL_IP/opsany-paas-openresty/g" ${INSTALL_PATH}/conf/settings_production.py.paas
-    sed -i "s/MYSQL_SERVER_IP/${MYSQL_SERVER_IP}/g" ${INSTALL_PATH}/conf/settings_production.py.paas
-    sed -i "s/MYSQL_OPSANY_PASSWORD/${MYSQL_OPSANY_PASSWORD}/g" ${INSTALL_PATH}/conf/settings_production.py.paas
-    /bin/cp ${INSTALL_PATH}/conf/settings_production.py.paas ${INSTALL_PATH}/kubernetes/helm/opsany-paas/opsany-paas-paas/
+    sed -i "s/PAAS_LOGIN_IP/opsany-paas-login/g" ${INSTALL_PATH}/conf/opsany-paas/paas/settings_production.py.paas
+    sed -i "s/PAAS_APPENGINE_IP/opsany-paas-appengine/g" ${INSTALL_PATH}/conf/opsany-paas/paas/settings_production.py.paas
+    sed -i "s/DOMAIN_NAME/${DOMAIN_NAME}/g" ${INSTALL_PATH}/conf/opsany-paas/paas/settings_production.py.paas
+    sed -i "s/LOCAL_IP/opsany-paas-openresty/g" ${INSTALL_PATH}/conf/opsany-paas/paas/settings_production.py.paas
+    sed -i "s/MYSQL_SERVER_IP/${MYSQL_SERVER_IP}/g" ${INSTALL_PATH}/conf/opsany-paas/paas/settings_production.py.paas
+    sed -i "s/MYSQL_OPSANY_PASSWORD/${MYSQL_OPSANY_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-paas/paas/settings_production.py.paas
+    /bin/cp ${INSTALL_PATH}/conf/opsany-paas/paas/settings_production.py.paas ${INSTALL_PATH}/kubernetes/helm/opsany-paas/opsany-paas-paas/
+    /bin/cp ${INSTALL_PATH}/conf/opsany-paas/paas/paas.ini ${INSTALL_PATH}/kubernetes/helm/opsany-paas/opsany-paas-paas/
 }
 
 login_install(){
@@ -186,33 +189,36 @@ login_install(){
     echo $RBAC_SECRET_KEY > ${INSTALL_PATH}/conf/.rbac_secret_key
 
     #Login Config
-    sed -i "s/RBAC_SECRET_KEY/${RBAC_SECRET_KEY}/g" ${INSTALL_PATH}/conf/settings_production.py.login
-    sed -i "s/DOMAIN_NAME/${DOMAIN_NAME}/g" ${INSTALL_PATH}/conf/settings_production.py.login
-    sed -i "s/LOCAL_IP/${LOCAL_IP}/g" ${INSTALL_PATH}/conf/settings_production.py.login
-    sed -i "s/MYSQL_SERVER_IP/${MYSQL_SERVER_IP}/g" ${INSTALL_PATH}/conf/settings_production.py.login
-    sed -i "s/MYSQL_OPSANY_PASSWORD/${MYSQL_OPSANY_PASSWORD}/g" ${INSTALL_PATH}/conf/settings_production.py.login
-    /bin/cp ${INSTALL_PATH}/conf/settings_production.py.login ${INSTALL_PATH}/kubernetes/helm/opsany-paas/opsany-paas-login/
+    sed -i "s/RBAC_SECRET_KEY/${RBAC_SECRET_KEY}/g" ${INSTALL_PATH}/conf/opsany-paas/login/settings_production.py.login
+    sed -i "s/DOMAIN_NAME/${DOMAIN_NAME}/g" ${INSTALL_PATH}/conf/opsany-paas/login/settings_production.py.login
+    sed -i "s/LOCAL_IP/${LOCAL_IP}/g" ${INSTALL_PATH}/conf/opsany-paas/login/settings_production.py.login
+    sed -i "s/MYSQL_SERVER_IP/${MYSQL_SERVER_IP}/g" ${INSTALL_PATH}/conf/opsany-paas/login/settings_production.py.login
+    sed -i "s/MYSQL_OPSANY_PASSWORD/${MYSQL_OPSANY_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-paas/login/settings_production.py.login
+    /bin/cp ${INSTALL_PATH}/conf/opsany-paas/login/settings_production.py.login ${INSTALL_PATH}/kubernetes/helm/opsany-paas/opsany-paas-login/
+    /bin/cp ${INSTALL_PATH}/conf/opsany-paas/login/login.ini ${INSTALL_PATH}/kubernetes/helm/opsany-paas/opsany-paas-login/
 }
     
 esb_install(){
     #esb
     shell_log "Config esb Service"
     # ESB Config
-    sed -i "s/PAAS_LOGIN_IP/opsany-paas-login/g" ${INSTALL_PATH}/conf/settings_production.py.esb
-    sed -i "s/PAAS_PAAS_IP/opsany-paas-paas/g" ${INSTALL_PATH}/conf/settings_production.py.esb
-    sed -i "s/REDIS_SERVER_IP/${REDIS_SERVER_IP}/g" ${INSTALL_PATH}/conf/settings_production.py.esb
-    sed -i "s/REDIS_SERVER_PASSWORD/${REDIS_SERVER_PASSWORD}/g" ${INSTALL_PATH}/conf/settings_production.py.esb
-    sed -i "s/MYSQL_SERVER_IP/${MYSQL_SERVER_IP}/g" ${INSTALL_PATH}/conf/settings_production.py.esb
-    sed -i "s/MYSQL_OPSANY_PASSWORD/${MYSQL_OPSANY_PASSWORD}/g" ${INSTALL_PATH}/conf/settings_production.py.esb
-    /bin/cp ${INSTALL_PATH}/conf/settings_production.py.esb ${INSTALL_PATH}/kubernetes/helm/opsany-paas/opsany-paas-esb/
+    sed -i "s/PAAS_LOGIN_IP/opsany-paas-login/g" ${INSTALL_PATH}/conf/opsany-paas/esb/settings_production.py.esb
+    sed -i "s/PAAS_PAAS_IP/opsany-paas-paas/g" ${INSTALL_PATH}/conf/opsany-paas/esb/settings_production.py.esb
+    sed -i "s/REDIS_SERVER_IP/${REDIS_SERVER_IP}/g" ${INSTALL_PATH}/conf/opsany-paas/esb/settings_production.py.esb
+    sed -i "s/REDIS_SERVER_PASSWORD/${REDIS_SERVER_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-paas/esb/settings_production.py.esb
+    sed -i "s/MYSQL_SERVER_IP/${MYSQL_SERVER_IP}/g" ${INSTALL_PATH}/conf/opsany-paas/esb/settings_production.py.esb
+    sed -i "s/MYSQL_OPSANY_PASSWORD/${MYSQL_OPSANY_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-paas/esb/settings_production.py.esb
+    /bin/cp ${INSTALL_PATH}/conf/opsany-paas/esb/settings_production.py.esb ${INSTALL_PATH}/kubernetes/helm/opsany-paas/opsany-paas-esb/
+    /bin/cp ${INSTALL_PATH}/conf/opsany-paas/esb/esb.ini ${INSTALL_PATH}/kubernetes/helm/opsany-paas/opsany-paas-esb/
 }
 
 appengine_install(){
     #appengine
     # App Engine Config
-    sed -i "s/MYSQL_SERVER_IP/${MYSQL_SERVER_IP}/g" ${INSTALL_PATH}/conf/settings_production.py.appengine
-    sed -i "s/MYSQL_OPSANY_PASSWORD/${MYSQL_OPSANY_PASSWORD}/g" ${INSTALL_PATH}/conf/settings_production.py.appengine
-    /bin/cp ${INSTALL_PATH}/conf/settings_production.py.appengine ${INSTALL_PATH}/kubernetes/helm/opsany-paas/opsany-paas-appengine/
+    sed -i "s/MYSQL_SERVER_IP/${MYSQL_SERVER_IP}/g" ${INSTALL_PATH}/conf/opsany-paas/appengine/settings_production.py.appengine
+    sed -i "s/MYSQL_OPSANY_PASSWORD/${MYSQL_OPSANY_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-paas/appengine/settings_production.py.appengine
+    /bin/cp ${INSTALL_PATH}/conf/opsany-paas/appengine/settings_production.py.appengine ${INSTALL_PATH}/kubernetes/helm/opsany-paas/opsany-paas-appengine/
+    /bin/cp ${INSTALL_PATH}/conf/opsany-paas/appengine/appengine.ini ${INSTALL_PATH}/kubernetes/helm/opsany-paas/opsany-paas-appengine/
     shell_log "Config appengine Service"
 }  
 
@@ -222,18 +228,19 @@ websocket_install(){
     BASTION_SECRET_KEY=$(uuid -v4)
     echo $BASTION_SECRET_KEY > ${INSTALL_PATH}/conf/.bastion_secret_key   
     # Websocket
-    sed -i "s/BASTION_SECRET_KEY/${BASTION_SECRET_KEY}/g" ${INSTALL_PATH}/conf/settings_production.py.websocket.init
-    sed -i "s/WEBSOCKET_GUACD_HOST/opsany-paas-guacd/g" ${INSTALL_PATH}/conf/settings_production.py.websocket
-    sed -i "s/REDIS_SERVER_IP/${REDIS_SERVER_IP}/g" ${INSTALL_PATH}/conf/settings_production.py.websocket
-    sed -i "s/REDIS_SERVER_USER/${REDIS_SERVER_USER}/g" ${INSTALL_PATH}/conf/settings_production.py.websocket
-    sed -i "s/REDIS_SERVER_PORT/${REDIS_SERVER_PORT}/g" ${INSTALL_PATH}/conf/settings_production.py.websocket
-    sed -i "s/REDIS_SERVER_PASSWORD/${REDIS_SERVER_PASSWORD}/g" ${INSTALL_PATH}/conf/settings_production.py.websocket
-    sed -i "s/MYSQL_SERVER_IP/${MYSQL_SERVER_IP}/g" ${INSTALL_PATH}/conf/settings_production.py.websocket
-    sed -i "s/MYSQL_SERVER_PORT/${MYSQL_SERVER_PORT}/g" ${INSTALL_PATH}/conf/settings_production.py.websocket
-    sed -i "s/MYSQL_OPSANY_PASSWORD/${MYSQL_OPSANY_PASSWORD}/g" ${INSTALL_PATH}/conf/settings_production.py.websocket
-    sed -i "s/PAAS_PAAS_IP/opsany-paas-openresty/g" ${INSTALL_PATH}/conf/settings_production.py.websocket.init
-    /bin/cp ${INSTALL_PATH}/conf/settings_production.py.websocket ${INSTALL_PATH}/kubernetes/helm/opsany-paas/opsany-paas-websocket/
-    /bin/cp ${INSTALL_PATH}/conf/settings_production.py.websocket.init ${INSTALL_PATH}/kubernetes/helm/opsany-paas/opsany-paas-websocket/
+    sed -i "s/BASTION_SECRET_KEY/${BASTION_SECRET_KEY}/g" ${INSTALL_PATH}/conf/opsany-paas/websocket/settings_production.py.websocket.init
+    sed -i "s/WEBSOCKET_GUACD_HOST/opsany-paas-guacd/g" ${INSTALL_PATH}/conf/opsany-paas/websocket/settings_production.py.websocket
+    sed -i "s/REDIS_SERVER_IP/${REDIS_SERVER_IP}/g" ${INSTALL_PATH}/conf/opsany-paas/websocket/settings_production.py.websocket
+    sed -i "s/REDIS_SERVER_USER/${REDIS_SERVER_USER}/g" ${INSTALL_PATH}/conf/opsany-paas/websocket/settings_production.py.websocket
+    sed -i "s/REDIS_SERVER_PORT/${REDIS_SERVER_PORT}/g" ${INSTALL_PATH}/conf/opsany-paas/websocket/settings_production.py.websocket
+    sed -i "s/REDIS_SERVER_PASSWORD/${REDIS_SERVER_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-paas/websocket/settings_production.py.websocket
+    sed -i "s/MYSQL_SERVER_IP/${MYSQL_SERVER_IP}/g" ${INSTALL_PATH}/conf/opsany-paas/websocket/settings_production.py.websocket
+    sed -i "s/MYSQL_SERVER_PORT/${MYSQL_SERVER_PORT}/g" ${INSTALL_PATH}/conf/opsany-paas/websocket/settings_production.py.websocket
+    sed -i "s/MYSQL_OPSANY_PASSWORD/${MYSQL_OPSANY_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-paas/websocket/settings_production.py.websocket
+    sed -i "s/PAAS_PAAS_IP/opsany-paas-openresty/g" ${INSTALL_PATH}/conf/opsany-paas/websocket/settings_production.py.websocket.init
+    /bin/cp ${INSTALL_PATH}/conf/opsany-paas/websocket/settings_production.py.websocket ${INSTALL_PATH}/kubernetes/helm/opsany-paas/opsany-paas-websocket/
+    /bin/cp ${INSTALL_PATH}/conf/opsany-paas/websocket/settings_production.py.websocket.init ${INSTALL_PATH}/kubernetes/helm/opsany-paas/opsany-paas-websocket/
+    /bin/cp ${INSTALL_PATH}/conf/opsany-paas/websocket/websocket.ini ${INSTALL_PATH}/kubernetes/helm/opsany-paas/opsany-paas-websocket/
 }
 
 proxy_install(){
@@ -405,4 +412,5 @@ main(){
 }
 
 main $1
+
 

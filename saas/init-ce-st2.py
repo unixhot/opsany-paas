@@ -197,7 +197,7 @@ class OpsAnyApi:
     def get_csrftoken(self):
         try:
             resp = self.session.get(self.login_url, verify=False)
-            if resp.status_code == 200:
+            if resp.status_code in [200, 400]:
                 return resp.cookies["bklogin_csrftoken"]
             else:
                 return ""
@@ -383,7 +383,8 @@ if __name__ == '__main__':
 1. 部署完应用平台和StackStorm才可以执行此初始化脚本
 2. 如果StackStorm服务器可以联网[https://gitee.com | https://github.com]支持使用线上仓库安装(仓库地址已配置)，脚本参数为st2_core_pack_source [file|git|gitee|github]
 3. 离线安装可将包opsany-core和opsany-workflow两个包复制到StackStorm服务器/opt/stackstorm-packs/目录下，需要有pip源 核心包需要下载依赖
-4. 执行init-ce-st2.py脚本，参数为OpsAny地址用户名密码，St2地址用户名密码, app_code,app_secret, 安装包的方式
+4. 需要准备参数 app_code,app_secret, 可以使用应用平台的应用ID和secret_key(可以前往开发中心查看)
+5. 执行init-ce-st2.py脚本，参数为OpsAny地址用户名密码，St2地址用户名密码, app_code,app_secret, 安装包的方式
 
 python3 init-ce-st2.py --domain https://www.opsany_url.cn --username opsany_username  --password opsany_password --st2_url https://st2_url/  --st2_username st2admin --st2_password st2_password --app_code app_code --app_secret app_secret --st2_core_pack_source file
 """

@@ -60,10 +60,11 @@ class PostShell(Component):
     class Form(BaseComponentForm):
         host_list = forms.Field()
         command = forms.Field()
+        timeout = forms.IntegerField(required=False)
 
         # clean方法返回的数据可通过组件的form_data属性获取
         def clean(self):
-            return self.get_cleaned_data_when_exist(keys=["host_list", "command"])
+            return self.get_cleaned_data_when_exist(keys=["host_list", "command", "timeout"])
 
     # 组件处理入口
     def handle(self):

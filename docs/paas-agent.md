@@ -13,8 +13,17 @@
     PaaSAgent需要部署在满足系统要求的app服务器上。建议最少准备两台服务器，分别用于测试和正式环境。
 
 ### 1. 基础环境初始化
+
+- CentOS
+
 ```
 [root@linux-node1 ~]# yum install -y gcc glibc make zlib-devel openssl-devel curl-devel mysql-devel
+```
+
+- Ubuntu
+
+```
+apt install -y redis-server mariadb-server rabbitmq-server
 ```
 
 **准备Python 2环境**
@@ -31,14 +40,14 @@ Python 2.7.15
 [root@ops ~]# pip install virtualenv virtualenvwrapper supervisor==3.3.3
 ```
 
-**准备Python 3环境**
+**准备Python3环境**
 
 ```
 [root@linux-node1 ~]# cd /usr/local/src
 [root@linux-node1 src]# wget https://www.python.org/ftp/python/3.6.8/Python-3.6.8.tgz
 [root@linux-node1 src]# tar zxf Python-3.6.8.tgz
 [root@linux-node1 src]# cd Python-3.6.8/
-[root@linux-node1 Python-3.6.8]# ./configure --prefix=/usr/local/Python-3.6.8 --with-ssl
+[root@linux-node1 Python-3.6.8]# ./configure --prefix=/usr/local/Python-3.6.8 --enable-ipv6 --enable-optimizations
 [root@linux-node1 Python-3.6.8]# make && make install
 [root@linux-node1 Python-3.6.8]# ln -s /usr/local/Python-3.6.8/ /opt/py36
 [root@linux-node1 Python-3.6.8]# cd /opt/py36/bin

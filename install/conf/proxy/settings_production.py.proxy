@@ -83,3 +83,5 @@ PROXY_PUBLIC_URL = "http://public-proxy.opsany.com:8012"
 # 告警规则路径---该路径需要挂载到与Prometheus配置文件规则挂载路径一致，通过在Proxy目录写入规则方式使Prometheus能读取到该告警目录
 PROM_ALERT_RULE_PATH = os.getenv("PROM_ALERT_RULE_PATH" ,"/opt/opsany/uploads/prometheus-config/rules")
 PROM_SERVER_CHECK_PATH = os.getenv("PROM_SERVER_CHECK_PATH" ,"/opt/opsany/uploads/monitor/heartbeat-monitors.d/")
+PROM_ALERT_MANAGER_YML = os.getenv("PROM_ALERT_MANAGER_YML" ,"/opt/opsany/alertmanager.yml")
+

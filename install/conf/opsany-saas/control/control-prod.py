@@ -131,3 +131,11 @@ ELASTIC_APM = {
   'VERIFY_SERVER_CERT': 'false',
   'ENVIRONMENT': 'prod',
 }
+
+# Elastic frontend APM
+FRONTEND_ELASTIC_APM = {
+    'FRONTEND_SERVICE_NAME': 'opsany-saas-control-frontend',
+    'FRONTEND_SERVER_URL': 'https://APM_SERVER_HOST:8200',
+    "FRONTEND_ENABLED": 'false',
+    'FRONTEND_ENVIRONMENT': 'prod',
+}

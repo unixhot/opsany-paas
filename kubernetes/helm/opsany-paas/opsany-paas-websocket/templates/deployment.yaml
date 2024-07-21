@@ -43,6 +43,9 @@ spec:
             - name: opsany-paas-websocket-init
               mountPath: /opt/opsany/websocket/__init__.py
               subPath: __init__.py
+            - name: websocket-ini
+              mountPath: /etc/supervisord.d/websocket.ini
+              subPath: websocket.ini
           ports:
             - name: websocket
               containerPort: 8004
@@ -74,6 +77,12 @@ spec:
             items:
             - key: settings_production.py.websocket.init
               path: __init__.py
+        - name: websocket-ini
+          configMap:
+            name: websocket-ini
+            items:
+            - key: websocket.ini
+              path: websocket.ini
         - name: opsany-logs
           persistentVolumeClaim:
             claimName: opsany-logs

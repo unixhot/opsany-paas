@@ -63,10 +63,11 @@ class PostScript(Component):
         host_list = forms.Field()
         script_url = forms.Field()
         script_arg = forms.Field(required=False)
+        timeout = forms.IntegerField(required=False)
 
         # clean方法返回的数据可通过组件的form_data属性获取
         def clean(self):
-            return self.get_cleaned_data_when_exist(keys=["host_list", "script_url", "script_arg"])
+            return self.get_cleaned_data_when_exist(keys=["host_list", "script_url", "script_arg", "timeout"])
 
     # 组件处理入口
     def handle(self):

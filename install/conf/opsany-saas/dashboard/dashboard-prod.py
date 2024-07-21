@@ -48,4 +48,10 @@ ELASTIC_APM = {
   'ENVIRONMENT': 'prod',
 }
 
-
+# Elastic frontend APM
+FRONTEND_ELASTIC_APM = {
+    'FRONTEND_SERVICE_NAME': 'opsany-saas-dashboard-frontend',
+    'FRONTEND_SERVER_URL': 'https://APM_SERVER_HOST:8200',
+    "FRONTEND_ENABLED": 'false',
+    'FRONTEND_ENVIRONMENT': 'prod',
+}

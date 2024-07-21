@@ -3,7 +3,7 @@
 
 ###defaults
 # Install Path
-INSTALL_PATH="/opt/opsany"
+INSTALL_PATH="/data/opsany"
 
 # Network
 DOMAIN_NAME="demo.opsany.com"

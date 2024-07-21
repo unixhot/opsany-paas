@@ -893,7 +893,7 @@ class OpsAnyApi:
     def get_csrftoken(self):
         try:
             resp = self.session.get(self.login_url, verify=False)
-            if resp.status_code == 200:
+            if resp.status_code in [200, 400]:
                 return resp.cookies["bklogin_csrftoken"]
             else:
                 return ""
@@ -968,4 +968,5 @@ if __name__ == '__main__':
 
 """
 python3 init_work_order.py --domain https://demo.opsany.com --paas_username admin --paas_password 123456
+python init_work_order.py --domain http://192.168.0.13:8004 --paas_username huxingqi --paas_password 123456
 """

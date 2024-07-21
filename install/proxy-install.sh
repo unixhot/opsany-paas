@@ -133,6 +133,7 @@ proxy_config(){
 proxy_start(){
     # Proxy
     shell_log "======Start Proxy======"
+    docker pull ${PAAS_DOCKER_REG}/opsany-paas-proxy:2.2.0
     docker run --restart=always --name opsany-proxy -d \
         -p 4505:4505 -p 4506:4506 -p 8010:8010 \
         -v ${INSTALL_PATH}/logs/proxy:/opt/opsany/logs/proxy \
@@ -150,7 +151,7 @@ proxy_start(){
         -v ${INSTALL_PATH}/conf/proxy/saltmaster.ini:/etc/supervisord.d/saltmaster.ini \
         -v ${INSTALL_PATH}/proxy-volume/pki:/opt/opsany/pki \
         -v /etc/localtime:/etc/localtime:ro \
-        ${PAAS_DOCKER_REG}/opsany-proxy:2.2.0
+        ${PAAS_DOCKER_REG}/opsany-paas-proxy:2.2.0
 
     #openresty
     shell_log "======Start openresty Service======"
@@ -165,11 +166,11 @@ proxy_start(){
 
     # OpsAny Database Init
     docker exec -e OPS_ANY_ENV=production \
-        opsany-proxy /bin/sh -c "/usr/local/bin/python3 /opt/opsany-proxy/manage.py makemigrations && /usr/local/bin/python3 /opt/opsany-proxy/manage.py migrate"
+        opsany-paas-proxy /bin/sh -c "/usr/local/bin/python3 /opt/opsany-proxy/manage.py makemigrations && /usr/local/bin/python3 /opt/opsany-proxy/manage.py migrate"
 
     # Create Proxy Token
     PROXY_TOKEN=$(docker exec -e OPS_ANY_ENV=production \
-            opsany-proxy /bin/sh -c " /usr/local/bin/python3 /opt/opsany-proxy/manage.py create_access" | grep 'Access' | awk -F ': ' '{print $2}' | awk -F '.' '{print $1}')
+            opsany-paas-proxy /bin/sh -c " /usr/local/bin/python3 /opt/opsany-proxy/manage.py create_access" | grep 'Access' | awk -F ': ' '{print $2}' | awk -F '.' '{print $1}')
     shell_warning_log "Proxy Token: ${PROXY_TOKEN}"
 }
 

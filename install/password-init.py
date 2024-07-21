@@ -30,7 +30,7 @@ class BkApi:
         API = "/login/"
         URL = self.url + API
         resp = self.session.get(URL, verify=False)
-        if resp.status_code == 200:
+        if resp.status_code in [200, 400]:
             return resp.cookies["bklogin_csrftoken"]
         return None
 

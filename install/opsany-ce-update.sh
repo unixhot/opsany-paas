@@ -102,6 +102,82 @@ login_update(){
 esb_update(){
 #esb
     shell_log "Start esb Service"
+
+# ESB Components Update
+    shell_log "======ESB Update======"
+    /bin/cp -r ../paas-ce/paas/esb/components/generic/apis/* ${INSTALL_PATH}/esb/apis/
+    #cmdb
+    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/cmdb/toolkit/configs.py
+    sed -i "s#/t/cmdb#/o/cmdb#g" ${INSTALL_PATH}/esb/apis/cmdb/toolkit/tools.py
+    #control
+    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/control/toolkit/configs.py
+    sed -i "s#/t/control#/o/control#g" ${INSTALL_PATH}/esb/apis/control/toolkit/tools.py
+    #rbac
+    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/rbac/toolkit/configs.py
+    sed -i "s#/t/rbac#/o/rbac#g" ${INSTALL_PATH}/esb/apis/rbac/toolkit/configs.py
+    #job
+    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/task/toolkit/configs.py
+    sed -i "s#/t/job#/o/job#g" ${INSTALL_PATH}/esb/apis/task/toolkit/tools.py
+    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/job/toolkit/configs.py
+    sed -i "s#/t/job#/o/job#g" ${INSTALL_PATH}/esb/apis/job/toolkit/tools.py
+    #workbench
+    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/workbench/toolkit/configs.py
+    sed -i "s#/t/workbench#/o/workbench#g" ${INSTALL_PATH}/esb/apis/workbench/toolkit/tools.py
+    #monitor
+    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/monitor/toolkit/configs.py
+    sed -i "s#/t/monitor#/o/monitor#g" ${INSTALL_PATH}/esb/apis/monitor/toolkit/tools.py
+    #cmp
+    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/cmp/toolkit/configs.py
+    sed -i "s#/t/cmp#/o/cmp#g" ${INSTALL_PATH}/esb/apis/cmp/toolkit/tools.py
+    #devops
+    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/devops/toolkit/configs.py
+    sed -i "s#/t/devops#/o/devops#g" ${INSTALL_PATH}/esb/apis/devops/toolkit/tools.py
+    #pipeline
+    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/pipeline/toolkit/configs.py
+    sed -i "s#/t/pipeline#/o/pipeline#g" ${INSTALL_PATH}/esb/apis/pipeline/toolkit/tools.py
+    #deploy
+    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/deploy/toolkit/configs.py
+    sed -i "s#/t/deploy#/o/deploy#g" ${INSTALL_PATH}/esb/apis/deploy/toolkit/tools.py
+    #repo
+    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/repo/toolkit/configs.py
+    sed -i "s#/t/repo#/o/repo#g" ${INSTALL_PATH}/esb/apis/repo/toolkit/tools.py
+    #code
+    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/code/toolkit/configs.py
+    sed -i "s#/t/code#/o/code#g" ${INSTALL_PATH}/esb/apis/code/toolkit/tools.py
+    #bastion
+    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/bastion/toolkit/configs.py
+    sed -i "s#/t/bastion#/o/bastion#g" ${INSTALL_PATH}/esb/apis/bastion/toolkit/configs.py
+    #prom
+    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/prom/toolkit/configs.py
+    sed -i "s#/t/prom#/o/prom#g" ${INSTALL_PATH}/esb/apis/prom/toolkit/tools.py
+    #auto
+    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/auto/toolkit/configs.py
+    sed -i "s#/t/auto#/o/auto#g" ${INSTALL_PATH}/esb/apis/auto/toolkit/tools.py
+    #dashboard
+    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/dashboard/toolkit/configs.py
+    sed -i "s#/t/dashboard#/o/dashboard#g" ${INSTALL_PATH}/esb/apis/dashboard/toolkit/tools.py
+    #event
+    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/event/toolkit/configs.py
+    sed -i "s#/t/event#/o/event#g" ${INSTALL_PATH}/esb/apis/event/toolkit/tools.py
+    #k8s
+    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/k8s/toolkit/configs.py
+    sed -i "s#/t/k8s#/o/k8s#g" ${INSTALL_PATH}/esb/apis/k8s/toolkit/tools.py
+    #kbase
+    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/kbase/toolkit/configs.py
+    sed -i "s#/t/kbase#/o/kbase#g" ${INSTALL_PATH}/esb/apis/kbase/toolkit/tools.py
+    #log
+    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/log/toolkit/configs.py
+    sed -i "s#/t/log#/o/log#g" ${INSTALL_PATH}/esb/apis/log/toolkit/tools.py
+    #apm
+    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/apm/toolkit/configs.py
+    sed -i "s#/t/apm#/o/apm#g" ${INSTALL_PATH}/esb/apis/apm/toolkit/tools.py
+
+    # update esb sql
+    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" opsany_paas < ./init/esb-init/esb_api_doc.sql
+    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" opsany_paas < ./init/esb-init/esb_channel.sql
+    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" opsany_paas < ./init/esb-init/esb_component_system.sql
+    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" opsany_paas < ./init/esb-init/esb_function_controller.sql
+
     # ESB Config
     UPDATE_VERSION=$1
     /bin/cp conf/opsany-paas/esb/esb.ini ${INSTALL_PATH}/conf/opsany-paas/esb/esb.ini
@@ -192,6 +268,7 @@ proxy_update(){
         -v ${INSTALL_PATH}/conf/proxy/proxy.ini:/etc/supervisord.d/proxy.ini \
         -v ${INSTALL_PATH}/conf/proxy/saltapi.ini:/etc/supervisord.d/saltapi.ini \
         -v ${INSTALL_PATH}/conf/proxy/saltmaster.ini:/etc/supervisord.d/saltmaster.ini \
+        -v ${INSTALL_PATH}/prometheus-volume/conf/alertmanager.yml:/opt/opsany/alertmanager.yml \
         -v /etc/localtime:/etc/localtime:ro \
         ${PAAS_DOCKER_REG}/opsany-paas-proxy:${UPDATE_VERSION}
 
@@ -265,6 +342,7 @@ saas_rbac_update(){
     # Django migrate
     docker exec -e BK_ENV="production" opsany-saas-ce-rbac /bin/sh -c \
     "python /opt/opsany/rbac/manage.py migrate --noinput >> ${SHELL_LOG} && python /opt/opsany/rbac/manage.py createcachetable django_cache > /dev/null"
+    update_saas_version rbac 统一权限 ${RBAC_SECRET_KEY}
 }
 
 saas_workbench_update(){
@@ -308,6 +386,7 @@ saas_workbench_update(){
     # Django migrate
     docker exec -e BK_ENV="production" opsany-saas-ce-workbench /bin/sh -c \
     "python /opt/opsany/workbench/manage.py migrate --noinput >> ${SHELL_LOG} >> ${SHELL_LOG} && python /opt/opsany/workbench/manage.py createcachetable django_cache > /dev/null"
+    update_saas_version workbench 工作台 ${WORKBENCH_SECRET_KEY}
 }
 
 saas_cmdb_update(){
@@ -353,6 +432,7 @@ saas_cmdb_update(){
     # Django migrate
     docker exec -e BK_ENV="production" opsany-saas-ce-cmdb /bin/sh -c \
     "python /opt/opsany/cmdb/manage.py migrate --noinput >> ${SHELL_LOG} && python /opt/opsany/cmdb/manage.py createcachetable django_cache > /dev/null"
+    update_saas_version cmdb 资源平台 ${CMDB_SECRET_KEY}
 }
 
 saas_control_update(){
@@ -394,6 +474,7 @@ saas_control_update(){
     # Django migrate
     docker exec -e BK_ENV="production" opsany-saas-ce-control /bin/sh -c \
     "python /opt/opsany/control/manage.py migrate --noinput >> ${SHELL_LOG} && python /opt/opsany/control/manage.py createcachetable django_cache > /dev/null"
+    update_saas_version control 管控平台 ${CONTROL_SECRET_KEY}
 }
 
 saas_job_update(){
@@ -418,6 +499,8 @@ saas_job_update(){
     #job
     sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/task/toolkit/configs.py
     sed -i "s#/t/job#/o/job#g" ${INSTALL_PATH}/esb/apis/task/toolkit/tools.py
+    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/job/toolkit/configs.py
+    sed -i "s#/t/job#/o/job#g" ${INSTALL_PATH}/esb/apis/job/toolkit/tools.py
 
     # Starter container
     docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-job:${UPDATE_VERSION}
@@ -438,6 +521,7 @@ saas_job_update(){
     # Django migrate
     docker exec -e BK_ENV="production" opsany-saas-ce-job /bin/sh -c \
     "python /opt/opsany/job/manage.py migrate --noinput >> ${SHELL_LOG} && python /opt/opsany/job/manage.py createcachetable django_cache > /dev/null"
+    update_saas_version job 作业平台 ${JOB_SECRET_KEY}
 }
 
 saas_monitor_update(){
@@ -479,6 +563,7 @@ saas_monitor_update(){
     # Django migrate
     docker exec -e BK_ENV="production" opsany-saas-ce-monitor /bin/sh -c \
     "python /opt/opsany/monitor/manage.py migrate --noinput >> ${SHELL_LOG} && python /opt/opsany/monitor/manage.py createcachetable django_cache > /dev/null"
+    update_saas_version monitor 基础监控 ${MONITOR_SECRET_KEY}
 }
 
 saas_cmp_update(){
@@ -520,6 +605,7 @@ saas_cmp_update(){
     # Django migrate
     docker exec -e BK_ENV="production" opsany-saas-ce-cmp /bin/sh -c \
     "python /opt/opsany/cmp/manage.py migrate --noinput >> ${SHELL_LOG} && python /opt/opsany/cmp/manage.py createcachetable django_cache > /dev/null"
+    update_saas_version cmp 云管平台 ${CMP_SECRET_KEY}
 }
 
 saas_bastion_update(){
@@ -558,6 +644,7 @@ saas_bastion_update(){
     # Django migrate
     docker exec -e BK_ENV="production" opsany-saas-ce-bastion /bin/sh -c \
     "python /opt/opsany/bastion/manage.py migrate --noinput >> ${SHELL_LOG} && python /opt/opsany/bastion/manage.py createcachetable django_cache > /dev/null"
+    update_saas_version bastion 堡垒机 ${BASTION_SECRET_KEY}
 }
 
 saas_devops_update(){
@@ -598,6 +685,7 @@ saas_devops_update(){
         # Django migrate
     docker exec -e BK_ENV="production" opsany-saas-ce-devops /bin/sh -c \
     "python /opt/opsany/devops/manage.py migrate --noinput >> ${SHELL_LOG} && python /opt/opsany/devops/manage.py createcachetable django_cache > /dev/null"
+    update_saas_version devops 应用平台 ${DEVOPS_SECRET_KEY}
 }
 
 saas_pipeline_update(){
@@ -637,6 +725,7 @@ saas_pipeline_update(){
     # Django migrate
     docker exec -e BK_ENV="production" opsany-saas-ce-pipeline /bin/sh -c \
     "python /opt/opsany/pipeline/manage.py migrate --noinput >> ${SHELL_LOG} && python /opt/opsany/pipeline/manage.py createcachetable django_cache > /dev/null"
+    update_saas_version pipeline 流水线 ${PIPELINE_SECRET_KEY}
 }
 
 saas_deploy_update(){
@@ -676,6 +765,7 @@ saas_deploy_update(){
     # Django migrate
     docker exec -e BK_ENV="production" opsany-saas-ce-deploy /bin/sh -c \
     "python /opt/opsany/deploy/manage.py migrate --noinput >> ${SHELL_LOG} && python /opt/opsany/deploy/manage.py createcachetable django_cache > /dev/null"
+    update_saas_version deploy 持续部署 ${DEPLOY_SECRET_KEY}
 }
 
 saas_repo_update(){
@@ -716,42 +806,50 @@ saas_repo_update(){
     # Django migrate
     docker exec -e BK_ENV="production" opsany-saas-ce-repo /bin/sh -c \
     "python /opt/opsany/repo/manage.py migrate --noinput && python /opt/opsany/repo/manage.py createcachetable django_cache > /dev/null" >> ${SHELL_LOG}
+    update_saas_version repo 制品仓库 ${REPO_SECRET_KEY}
 }
 
 
-saas_dashboard_update(){
-    shell_log "======Update dashboard======"
+saas_code_update(){
+    shell_log "======Update code======"
 
     # Dashboard Configure
     UPDATE_VERSION=$1
-    DASHBOARD_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.dashboard_secret_key)
-    /bin/cp conf/opsany-saas/dashboard/* ${INSTALL_PATH}/conf/opsany-saas/dashboard/
-    sed -i "s/DOMAIN_NAME/${DOMAIN_NAME}/g" ${INSTALL_PATH}/conf/opsany-saas/dashboard/dashboard-init.py
-    sed -i "s/DASHBOARD_SECRET_KEY/${DASHBOARD_SECRET_KEY}/g" ${INSTALL_PATH}/conf/opsany-saas/dashboard/dashboard-init.py
-    sed -i "s/MYSQL_SERVER_IP/${MYSQL_SERVER_IP}/g" ${INSTALL_PATH}/conf/opsany-saas/dashboard/dashboard-prod.py
-    sed -i "s/MYSQL_SERVER_PORT/${MYSQL_SERVER_PORT}/g" ${INSTALL_PATH}/conf/opsany-saas/dashboard/dashboard-prod.py
-    sed -i "s/MYSQL_OPSANY_DASHBOARD_PASSWORD/${MYSQL_OPSANY_DASHBOARD_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-saas/dashboard/dashboard-prod.py
+    CODE_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.code_secret_key)
+    /bin/cp conf/opsany-saas/code/* ${INSTALL_PATH}/conf/opsany-saas/code/
+    sed -i "s/DOMAIN_NAME/${DOMAIN_NAME}/g" ${INSTALL_PATH}/conf/opsany-saas/code/code-init.py
+    sed -i "s/CODE_SECRET_KEY/${CODE_SECRET_KEY}/g" ${INSTALL_PATH}/conf/opsany-saas/code/code-init.py
+    sed -i "s/MYSQL_SERVER_IP/${MYSQL_SERVER_IP}/g" ${INSTALL_PATH}/conf/opsany-saas/code/code-prod.py
+    sed -i "s/MYSQL_SERVER_PORT/${MYSQL_SERVER_PORT}/g" ${INSTALL_PATH}/conf/opsany-saas/code/code-prod.py
+    sed -i "s/MYSQL_OPSANY_CODE_PASSWORD/${MYSQL_OPSANY_CODE_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-saas/code/code-prod.py
 
     # Starter container
-    docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-dashboard:${UPDATE_VERSION}
-    docker stop opsany-saas-ce-dashboard && docker rm opsany-saas-ce-dashboard
-    docker run -d --restart=always --name opsany-saas-ce-dashboard \
+    docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-code:${UPDATE_VERSION}
+    docker stop opsany-saas-ce-code && docker rm opsany-saas-ce-code
+    docker run -d --restart=always --name opsany-saas-ce-code \
        -p 7010:80 \
-       -v ${INSTALL_PATH}/conf/opsany-saas/dashboard/dashboard-supervisor.ini:/etc/supervisord.d/dashboard.ini \
-       -v ${INSTALL_PATH}/conf/opsany-saas/dashboard/dashboard-uwsgi.ini:/opt/opsany/uwsgi/dashboard.ini \
-       -v ${INSTALL_PATH}/conf/opsany-saas/dashboard/dashboard-init.py:/opt/opsany/dashboard/config/__init__.py \
-       -v ${INSTALL_PATH}/conf/opsany-saas/dashboard/dashboard-prod.py:/opt/opsany/dashboard/config/prod.py \
-       -v ${INSTALL_PATH}/conf/opsany-saas/dashboard/dashboard-nginx.conf:/etc/nginx/http.d/default.conf \
-       -v ${INSTALL_PATH}/conf/opsany-saas/dashboard/dashboard-nginx-main.conf:/etc/nginx/nginx.conf \
+       -v ${INSTALL_PATH}/conf/opsany-saas/code/code-supervisor.ini:/etc/supervisord.d/code.ini \
+       -v ${INSTALL_PATH}/conf/opsany-saas/code/code-uwsgi.ini:/opt/opsany/uwsgi/code.ini \
+       -v ${INSTALL_PATH}/conf/opsany-saas/code/code-init.py:/opt/opsany/code/config/__init__.py \
+       -v ${INSTALL_PATH}/conf/opsany-saas/code/code-prod.py:/opt/opsany/code/config/prod.py \
+       -v ${INSTALL_PATH}/conf/opsany-saas/code/code-nginx.conf:/etc/nginx/http.d/default.conf \
+       -v ${INSTALL_PATH}/conf/opsany-saas/code/code-nginx-main.conf:/etc/nginx/nginx.conf \
        -v ${INSTALL_PATH}/logs:/opt/opsany/logs \
        -v ${INSTALL_PATH}/uploads:/opt/opsany/uploads \
        -v /etc/localtime:/etc/localtime:ro \
-       ${PAAS_DOCKER_REG}/opsany-saas-ce-dashboard:${UPDATE_VERSION}
+       ${PAAS_DOCKER_REG}/opsany-saas-ce-code:${UPDATE_VERSION}
 
     # Django migrate
-    docker exec -e BK_ENV="production" opsany-saas-ce-dashboard /bin/sh -c \
-    "python /opt/opsany/dashboard/manage.py migrate --noinput >> ${SHELL_LOG} && python /opt/opsany/dashboard/manage.py createcachetable django_cache > /dev/null"
+    docker exec -e BK_ENV="production" opsany-saas-ce-code /bin/sh -c \
+    "python /opt/opsany/code/manage.py migrate --noinput >> ${SHELL_LOG} && python /opt/opsany/code/manage.py createcachetable django_cache > /dev/null"
+    update_saas_version code 代码仓库 ${CODE_SECRET_KEY}
 }
+
+# $1 rbac $2 统一权限 $3 ${RBAC_SECRET_KEY}
+update_saas_version(){
+      python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code $1 --saas_app_name $2 --saas_app_version ${UPDATE_VERSION} --saas_app_secret_key $3 --is_update true
+}
+
 
 # Main
 main(){
@@ -814,6 +912,9 @@ main(){
 	repo)
 	    saas_repo_update $2
 	    ;;
+    code)
+	    saas_code_update $2
+	    ;;
     cmp)
         saas_cmp_update $2
 	    ;;
@@ -822,6 +923,13 @@ main(){
 	    ;;
     websocket)
         websocket_update $2
+        ;;
+    dev)
+        saas_devops_update $2
+        saas_pipeline_update $2
+        saas_deploy_update $2
+        saas_repo_update $2
+        #saas_code_update $2
         ;;
     all)
 	    saas_rbac_update $2

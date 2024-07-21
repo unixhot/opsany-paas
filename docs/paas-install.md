@@ -39,10 +39,18 @@ CentOS Linux release 7.9.2009 (Core)
 
 2. 安装依赖软件包
 
+- CentOS
+
 ```
 [root@linux-node1 ~]# yum install -y git mariadb mariadb-server nginx supervisor openssl-devel \
  python3-pip pycrypto gcc glibc python-devel rabbitmq-server python3 python3-devel redis
 [root@linux-node1 ~]# mkdir -p /opt/opsany/{logs,uploads}
+```
+
+- Ubuntu
+
+```
+apt install -y redis-server mariadb-server rabbitmq-server nginx supervisor
 ```
 
 3. 初始化MySQL数据库
@@ -58,8 +66,8 @@ character-set-server = utf8
 [root@linux-node1 ~]# systemctl enable mariadb && systemctl start mariadb
 [root@linux-node1 ~]# mysql_secure_installation 
 [root@linux-node1 ~]# mysql -u root -p
-MariaDB [(none)]> CREATE DATABASE IF NOT EXISTS opsany_paas DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
-MariaDB [(none)]> grant all on opsany_paas.* to opsany@localhost identified by '123456.coM';
+MariaDB [(none)]> CREATE DATABASE IF NOT EXISTS bk_paas DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
+MariaDB [(none)]> grant all on bk_paas.* to opsany@localhost identified by '123456.coM';
 MariaDB [(none)]> exit;
 ```
 
@@ -108,9 +116,17 @@ requirepass 123456.coM
 
 - 安装RabbitMQ
 
-```
-[root@linux-node1 ~]# yum install -y rabbitmq-server
-```
+    - CentOS
+
+    ```
+    [root@linux-node1 ~]# yum install -y rabbitmq-server
+    ```
+
+    - Ubuntu 
+
+    ```
+    [root@linux-node1 ~]# apt install -y rabbitmq-server
+    ```
 
 - 设置开启启动，并启动RabbitMQ
 
@@ -153,7 +169,36 @@ beam    2620 rabbitmq   15u  IPv4  16805      0t0  TCP *:15672 (LISTEN)
 > RabbitMQ默认的用户名和密码均为guest。之前创建的openstack的用户是无法通过Web界面登录的。
 
 
-7. 克隆代码
+7. 克隆代码并准备Python环境
+
+- 准备Python3环境
+
+```
+# 安装编译依赖
+[root@linux-node1 ~]# apt install tcl-dev libffi-dev 
+
+# 编译安装Python3
+[root@linux-node1 ~]# cd /usr/local/src
+[root@linux-node1 src]# wget https://www.python.org/ftp/python/3.6.8/Python-3.6.8.tgz
+[root@linux-node1 src]# tar zxf Python-3.6.8.tgz
+[root@linux-node1 src]# cd Python-3.6.8/
+[root@linux-node1 Python-3.6.8]# ./configure --prefix=/usr/local/Python-3.6.8 --enable-ipv6 --enable-optimizations
+[root@linux-node1 Python-3.6.8]# make && make install
+[root@linux-node1 Python-3.6.8]# ln -s /usr/local/Python-3.6.8/ /opt/py36
+[root@linux-node1 Python-3.6.8]# cd /opt/py36/bin
+[root@ops bin]# ln -s python3.6 python
+[root@ops bin]# ln -s pip3 pip
+```
+
+- 确认Python版本
+
+```
+[root@ops ~]# /opt/py36/bin/python --version
+Python 3.6.8
+```
+> 注意：其它版本的PIP有兼容性问题，请根据文档操作。
+
+- 克隆项目代码
 
 ```
 [root@linux-node1 ~]# cd /opt
@@ -162,7 +207,6 @@ beam    2620 rabbitmq   15u  IPv4  16805      0t0  TCP *:15672 (LISTEN)
 [root@linux-node1 opt]# pip3 install virtualenv
 [root@linux-node1 opt]# mkdir -p /opt/opsany/.runtime
 ```
-> 注意：其它版本的PIP有兼容性问题，请根据文档操作。
 
 ## 部署paas服务
 
@@ -171,7 +215,7 @@ beam    2620 rabbitmq   15u  IPv4  16805      0t0  TCP *:15672 (LISTEN)
 # 创建Python虚拟环境
 [root@linux-node1 opt]# screen -S paas
 [root@linux-node1 opt]# cd /opt/opsany/.runtime/
-[root@linux-node1 .runtime]# python3 -m venv paas
+[root@linux-node1 .runtime]# /usr/local/Python-3.8.18/bin/python3 -m venv paas
 
 # 使用Python虚拟环境
 
@@ -179,7 +223,8 @@ beam    2620 rabbitmq   15u  IPv4  16805      0t0  TCP *:15672 (LISTEN)
 
 # 安装依赖软件包
 (paas) [root@linux-node1 .runtime]# cd /opt/opsany-paas/paas-ce/paas/paas/
-(paas) [root@linux-node1 .runtime]# pip3 install -r requirements.txt 
+
+(paas) [root@linux-node1 .runtime]# /usr/local/Python-3.9.19/bin/pip3 install -r requirements.txt -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
 ```
 
 ### 2.配置paas
@@ -252,8 +297,8 @@ BK_COOKIE_DOMAIN = '192.168.0.101'
 - 进行数据库初始化（如果遇到权限问题请检查数据库授权）
 
 ```
-(login) [root@linux-node1 login]# python manage.py migrate
-(login) [root@linux-node1 login]# python manage.py runserver 0.0.0.0:8003
+(login) [root@linux-node1 login]# python3 manage.py migrate
+(login) [root@linux-node1 login]# python3 manage.py runserver 0.0.0.0:8003
 ```
 
 - 退出Screen(Ctrl + A + D)

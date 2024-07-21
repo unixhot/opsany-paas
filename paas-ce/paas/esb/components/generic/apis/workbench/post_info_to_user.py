@@ -26,6 +26,7 @@ class PostInfoToUser(Component):
     | ----- | ------ | ---- | -------- |
     | temp_id | int | 是  | 信息模板ID |
     | parameter | string | 是  | 参数 |
+    | result | bool | 否  | 是否需要返回发送状态信息 |
     | subscribe_type | list | 否  | 发送类型 |
     | alert_info | dict | 否  | 告警内容 |
 
@@ -62,13 +63,14 @@ class PostInfoToUser(Component):
     class Form(BaseComponentForm):
         temp_id = forms.IntegerField(required=True)
         parameter = forms.Field(required=True)
+        result = forms.BooleanField(required=False)
         operator = forms.Field(required=True)
         subscribe_type = forms.Field(required=False)
         alert_info = forms.Field(required=False)
 
         # clean方法返回的数据可通过组件的form_data属性获取
         def clean(self):
-            return self.get_cleaned_data_when_exist(keys=["temp_id", "parameter", "operator", "subscribe_type", "alert_info"])
+            return self.get_cleaned_data_when_exist(keys=["temp_id", "parameter", "result", "operator", "subscribe_type", "alert_info"])
 
     # 组件处理入口
     def handle(self):
@@ -94,7 +96,7 @@ class PostInfoToUser(Component):
                 'api_code': response['successcode'],
                 'message': response['message'],
                 'result': True,
-                # 'data': response['data'],
+                'data': response.get("data")
             }
         else:
             result = {

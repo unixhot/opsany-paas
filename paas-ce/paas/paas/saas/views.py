@@ -213,6 +213,7 @@ class UploadAndRegisterView(SuperuserRequiredMixin, View):
     # @transaction.atomic
     def get(self, request):
         data = request.GET.dict()
+        is_update = True if data.get("is_update") in [1, "1", "true", "True"] else False
         saas_file_name = data.get("saas_file_name")
         app_code = data.get("saas_app_code")
         app_name = data.get("saas_app_name")
@@ -221,16 +222,22 @@ class UploadAndRegisterView(SuperuserRequiredMixin, View):
         result = True
         message = "Success"
         saas_app = SaaSApp.objects.filter(code=app_code).first()
-        if request.user.username != "admin":
-            result = False
-            message = "无权操作"
-        elif not all([saas_file_name, app_code, app_name, version, secret_key]):
+        if not all([saas_file_name, app_code, app_name, version, secret_key]):
             result = False
             message = "缺失参数"
-        elif saas_app:
-            result = False
-            message = "该应用已存在: {}".format(app_code)
+        if not is_update:
+            if request.user.username != "admin":
+                result = False
+                message = "无权操作"
+        if not is_update:
+            if saas_app:
+                result = False
+                message = "该应用已存在: {}".format(app_code)
         else:
+            if not saas_app:
+                result = False
+                message = "该应用不存在无法更新: {}".format(app_code)
+        if result:
             saas_upload_file = self._save_saas_upload_file(saas_file_name)  # 创建上传记录
             saas_app = self._save_saas_app(app_code, app_name)  # saas基础表
             saas_app_version = self._save_saas_app_version(saas_app, version, saas_upload_file, secret_key)  # saas版本表
@@ -239,8 +246,7 @@ class UploadAndRegisterView(SuperuserRequiredMixin, View):
             app = self._save_app(saas_app, secret_key)  # app基本信息表 包含开发中心列表页信息
             secure_info = self._save_secure_info(app_code)  # 数据库信息
             desktop_setting = self._save_desktop_setting(app_code)  # 桌面配置
-            record = self._save_record(app_code, version)  # 日志
-            
+            record = self._save_record(app_code, app_name, version, secret_key)  # 日志
         result = {"result": result, "message": message}
         result.update(data)
         return JsonResponse(result)
@@ -358,11 +364,13 @@ class UploadAndRegisterView(SuperuserRequiredMixin, View):
 
         return desktop_setting
 
-    def _save_record(self, app_code, version):
-        record = Record.objects.filter(app_code=app_code).first()
-        if not record:
-            record = Record()
-        message = "手动部署成功"
+    def _save_record(self, app_code, app_name, version, secret_key):
+        record = Record()
+        message = "手动部署成功\n"
+        message += "  \n应用ID：{}\n".format(app_code)
+        message += "  \n应用名称：{}\n".format(app_name)
+        message += "  \n应用版本：{}\n".format(version)
+        message += "  \n应用秘钥：{}\n".format(secret_key)
         record.app_code = app_code
         record.operate_id = 1
         record.operate_user = "admin"
@@ -377,6 +385,7 @@ class UploadAndRegisterView(SuperuserRequiredMixin, View):
         record.event_id = str(uuid.uuid4())
         record.save()
         return record
+
 
 class UploadView(SuperuserRequiredMixin, View):
     """

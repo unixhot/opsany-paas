@@ -35,6 +35,9 @@ spec:
             - name: opsany-paas-esb-config
               mountPath: /opt/opsany/paas/esb/configs/default.py
               subPath: default.py
+            - name: esb-ini
+              mountPath: /etc/supervisord.d/esb.ini
+              subPath: esb.ini
             - name: opsany-logs
               mountPath: /opt/opsany/logs
             - name: opsany-paas-esb-code
@@ -73,6 +76,12 @@ spec:
             items:
             - key: settings_production.py.esb
               path: default.py
+        - name: esb-ini
+          secret:
+            secretName: esb-ini
+            items:
+            - key: esb.ini
+              path: esb.ini
         - name: opsany-logs
           persistentVolumeClaim:
             claimName: opsany-logs

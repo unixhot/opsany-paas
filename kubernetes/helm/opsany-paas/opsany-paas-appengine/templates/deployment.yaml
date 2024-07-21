@@ -35,6 +35,9 @@ spec:
             - name: opsany-paas-appengine-config
               mountPath: /opt/opsany/paas/appengine/controller/settings.py
               subPath: settings.py
+            - name: appengine-ini
+              mountPath: /etc/supervisord.d/appengine.ini
+              subPath: appengine.ini
             - name: opsany-logs
               mountPath: /opt/opsany/logs
           imagePullPolicy: {{ .Values.image.pullPolicy }}
@@ -71,6 +74,12 @@ spec:
             items:
             - key: settings_production.py.appengine
               path: settings.py
+        - name: appengine-ini
+          secret:
+            secretName: appengine-ini
+            items:
+            - key: appengine.ini
+              path: appengine.ini
         - name: opsany-logs
           persistentVolumeClaim:
             claimName: opsany-logs

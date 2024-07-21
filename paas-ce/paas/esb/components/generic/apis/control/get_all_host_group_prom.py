@@ -31,7 +31,7 @@ class GetAllHostGroupProm(Component):
         "message": "获取相关信息成功"
     }
     ```
-    """#
+    """
 
     # 组件所属系统的系统名
     sys_name = configs.SYSTEM_NAME
@@ -39,10 +39,12 @@ class GetAllHostGroupProm(Component):
     # Form处理参数校验
     class Form(BaseComponentForm):
         token_data = forms.Field(required=False)
+        system_type = forms.Field(required=False)
+        host_type = forms.Field(required=False)
 
         # clean方法返回的数据可通过组件的form_data属性获取
         def clean(self):
-            return self.get_cleaned_data_when_exist(keys=["token_data"])
+            return self.get_cleaned_data_when_exist(keys=["token_data", "system_type", "host_type"])
 
     # 组件处理入口
     def handle(self):

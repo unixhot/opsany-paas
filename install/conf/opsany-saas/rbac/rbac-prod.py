@@ -77,6 +77,14 @@ ELASTIC_APM = {
   'ENVIRONMENT': 'prod',
 }
 
+# Elastic frontend APM
+FRONTEND_ELASTIC_APM = {
+    'FRONTEND_SERVICE_NAME': 'opsany-saas-rbac-frontend',
+    'FRONTEND_SERVER_URL': 'https://APM_SERVER_HOST:8200',
+    "FRONTEND_ENABLED": 'false',
+    'FRONTEND_ENVIRONMENT': 'prod',
+}
+
 # 增加新的saas需要将新平台的组件系统和同步用户组件名录入该配置才可以实现用户的新平台本地同步
 # 1: 平台中文名称
 # 2: 平台code

@@ -9,7 +9,7 @@
 	<link rel="icon" type="image/x-icon" href="{{STATIC_URL}}favicon.ico">
 	<link href="{{STATIC_URL}}css/bk.{{CSS_SUFFIX}}" rel="stylesheet" type="text/css" />
 	<link href="{{STATIC_URL}}assets/bk-icon-2.0/iconfont.css" rel="stylesheet" type="text/css" />
-	<link href="{{STATIC_URL}}css/login.{{CSS_SUFFIX}}?v={{STATIC_VERSION}}" rel="stylesheet" type="text/css" />
+	<link href="{{STATIC_URL}}css/login.{{CSS_SUFFIX}}?v=0.81" rel="stylesheet" type="text/css" />
 	<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}modal/icon/iconfont.css">
 	<link rel="stylesheet" type="text/css" href="{{STATIC_URL}}modal/modal.css">
 	<style>
@@ -18,7 +18,7 @@
 			display: none;
 		}
 	</style>
-	<title>{% trans '登录 | OpsAny' %}</title>
+	<title>{% trans '登录 | 数字化运维平台' %}</title>
 </head>
 
 <body>
@@ -177,8 +177,14 @@
 						<div class="form-login" style="padding: 5px 55px 0 56px">
 							<div class="user group-control" style="margin-bottom: 8%;width: 270px;">
 								<i style="color: #0BA360" class="bk-icon icon-code"></i>
-								<input id="user" type="text" name="domain" value="" i18n_p="LDAP_login_placeholder1"
+								<input hidden id="user" type="select" name="domain" value="" i18n_p="LDAP_login_placeholder1"
 									placeholder="{% trans '请输入登录域' %}">
+									<div class="select_box select_box_active">
+										<div class="select_box_content"><span class="select_box_content_placeholder">请选择登录域</span> <img src="{{STATIC_URL}}img/down.png" /></div>
+										<div class="domain_options">
+											<div class="no_domain">暂无登录域</div>
+										</div>
+									</div>
 							</div>
 							<div class="user group-control" style="margin-bottom: 8%;width: 270px;">
 								<i style="color: #0BA360" class="bk-icon icon-user"></i>
@@ -409,6 +415,9 @@
 		<span i18n="Chrome">{% trans '您的浏览器非Chrome，建议您使用最新版本的Chrome浏览，以保证最好的体验效果' %}</span><i
 			class="bk-icon icon-close-circle-shape" id="close-chrome"></i>
 	</div>
+	<div id="demo_tips">
+		【演示用户：demo，密码：123456.coM】演示用户由于权限限制，仅可查看部分功能，完整功能请私有化部署社区版使用。
+	</div>
 	<div class="m-modal__wrapper" id="m-modal__wrapper">
 		<div class="m-modal__container">
 			<div class="m-modal__header">
@@ -554,6 +563,57 @@
 		});
 	}
 
+	//获取登录域列表
+	function getDomainList(){
+		$.ajax({
+			url: "accounts/get_auth_config/?auth_type=2,7",
+			type: "get",
+			dataType: "json",
+			success:function(res){
+				if(res.code == '00' && res.result){
+					let domainList = res.data.data || []
+					if(domainList.length){
+						let html = ''
+						domainList.forEach(item => {
+							html += `<div class="domain_options_item" title="${item.domain}">${item.domain}</div>`
+						})
+						$('.domain_options').html(html)
+						$('.domain_options_item').on('click',function(e){
+							$('.select_box_content span').html($(e.currentTarget).html()).removeClass('select_box_content_placeholder')
+						})
+						//默认选中第一项
+						$('.select_box_content span').html(domainList[0].domain).removeClass('select_box_content_placeholder')
+						$('input[name="domain"]').val(domainList[0].domain)
+					}else {
+						$('.select_box_content span').html('暂无登录域').addClass('select_box_content_placeholder')
+						$('input[name="domain"]').val('')
+					}
+				}
+			},
+			error:function(e){
+				$('.select_box_content span').html('暂无登录域').addClass('select_box_content_placeholder')
+				$('input[name="domain"]').val('')
+			}
+		})
+	}
+
+	//加载演示提示
+	function loadDemoTip(){
+		if(window.location.hostname == 'demo.opsany.com'){
+			$('#demo_tips').show()
+		}
+	}
+
+		//处理domain选择
+	$('.domain_options').on('click', '.domain_options_item', function (e) {
+		$('.select_box_content span').html($(e.target).html())
+		$('input[name="domain"]').val($(e.target).html())
+		$('.select_box').removeClass('select_box_active')
+		setTimeout(() => {
+			$('.select_box').addClass('select_box_active')
+		}, 0);
+	})
+
 	//初始化验证码
 	function initCaptch(type) {
 		const activeKey = key || 0
@@ -613,6 +673,8 @@
 	showTabItem()
 	getOAuthList()
 	getSSOList()
+	getDomainList()
+	loadDemoTip()
 	$('.login-form-title-box-btn').click(e => {
 		$('.login-form-title-box-btn').each((index, item) => {
 			$(item).removeClass('login-form-title-box-btn-check')
@@ -629,7 +691,7 @@
 	})
 
 
-		console.log("{{ google_auth_url }}")
+	// console.log("{{ google_auth_url }}")
 	$("#google_auth_pic").attr("src", window.location.origin + "/" + "{{ google_auth_url }}")
 
 	function copy() {
@@ -676,7 +738,6 @@
 		});
 	})
 
-
 	$('#m-modal__close').click(e => {
 		$('#m-modal__wrapper').css({
 			'display': 'none'
@@ -699,7 +760,12 @@
 		setLanguage("zh_CN", "简体中文")
 		initCaptch()
 	}
-	console.log(obj)
+	
+	if(!obj.opsany_language) {
+		let exp = new Date()
+		exp.setTime(exp.getTime() + 24 * 60 * 60 * 1000)
+        	document.cookie = "opsany_language=chinese_simplified" + ";expires=" + exp.toGMTString() + ";path=/;"
+    	}
 
 	function setLanguage(type, text) {
 		let language = i18n_language[type]
@@ -723,15 +789,12 @@
 		let exp = new Date()
 		exp.setTime(exp.getTime() + 24 * 60 * 60 * 1000)
 		if (type == "zh_CN") {
-			document.cookie = "opsany_language=chinese_simplified" + ";expires=" + exp.toGMTString() +
-				";path=/"
+			document.cookie = "opsany_language=chinese_simplified" + ";expires=" + exp.toGMTString() + ";path=/;"
 		} else if (type == "zh_TW") {
-			document.cookie = "opsany_language=chinese_traditional" + ";expires=" + exp.toGMTString() +
-				";path=/"
+			document.cookie = "opsany_language=chinese_traditional" + ";expires=" + exp.toGMTString() + ";path=/;"
 		}
 		if (type == "en") {
-			document.cookie = "opsany_language=english" + ";expires=" + exp.toGMTString() +
-				";path=/"
+			document.cookie = "opsany_language=english" + ";expires=" + exp.toGMTString() + ";path=/;"
 		}
 		location.reload()
 

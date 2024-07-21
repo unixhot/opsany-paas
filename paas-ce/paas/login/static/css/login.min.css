@@ -411,7 +411,8 @@ input[type="number"]::-webkit-outer-spin-button {
 	left: 0
 }
 
-.page-content .login-from .form-login .group-control input {
+.page-content .login-from .form-login .group-control input,
+select {
 	width: 100%;
 	height: 100%;
 	outline: 0;
@@ -903,5 +904,108 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 
 oauth_box_content {
+	display: none;
+}
+
+.select_box {
+	width: 270px;
+	height: 37px;
+}
+
+.select_box_content {
+	padding-left: 40px;
+	line-height: 37px;
+	border: 1px solid #e8e8e8;
+	border-radius: 5px;
+	cursor: pointer;
+	position: relative;
+}
+
+.select_box_content>.select_box_content_placeholder {
+	color: #bdaab2;
+}
+
+.select_box_content>img {
+	position: absolute;
+	transition: all .2s;
+	right: 13px;
+	top: 13px;
+	width: 10px;
+	height: 10px;
+}
+
+.select_box:hover .select_box_content>img {
+	transform: rotate(180deg);
+}
+
+.select_box_content>span {
+	max-width: 200px;
+	display: block;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	color: #333;
+}
+
+.domain_options {
+	/* 增加过渡动画 */
+	opacity: 0;
+	height: 0;
+	overflow: hidden;
+	position: absolute;
+	top: 39px;
+	left: 0px;
+	width: 270px;
+	background: #fff;
+	/* border: 1px solid #e8e8e8; */
+	/* border-top: 1px solid #e8e8e8; */
+	border-radius: 5px;
+	border-top-left-radius: 0;
+	border-top-right-radius: 0;
+	z-index: 100;
+	transition: all .2s;
+	box-shadow: 0 6px 8px rgb(0 0 0 / 6%);
+}
+
+.domain_options>.domain_options_item {
+	cursor: pointer;
+	margin: 4px 0;
+	padding: 5px 15px;
+	border-radius: 2px;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	color: #333;
+}
+
+.domain_options>.no_domain {
+	padding: 20px 10px;
+	text-align: center;
+	color: #999;
+}
+
+.domain_options>.domain_options_item:hover {
+	background: #e6f6ef;
+}
+
+.select_box_active:hover .domain_options {
+	opacity: 1;
+	max-height: 200px;
+	height: auto;
+}
+
+
+#demo_tips {
+	position: absolute;
+	top: 50px;
+	right: 0;
+	width: 100%;
+	height: 46px;
+	background: #f6ffed;
+	line-height: 46px;
+	text-align: center;
+	border: 1px solid #d1f3b9;
+	font-size: 15px;
+	color: #333;
 	display: none;
 }

@@ -66,8 +66,8 @@ class UserQueryForm(forms.Form):
 
 
 class BaseUserInfoForm(forms.Form):
-    chname = forms.CharField(max_length=16, required=False, error_messages={
-        "max_length": _("名称长度不能超过16个字符")
+    chname = forms.CharField(max_length=254, required=False, error_messages={
+        "max_length": _("名称长度不能超过254个字符")
     })
     phone = forms.CharField(max_length=11, required=False, error_messages={
         "max_length": _("手机号长度不能超过11个字符")
@@ -77,9 +77,9 @@ class BaseUserInfoForm(forms.Form):
     def clean_chname(self):
         chname = self.cleaned_data.get("chname", "")
         chname = chname.strip()
-        if chname:
-            if not CHNAME_CHECK_PATTERN.match(chname):
-                self.add_error('chname', _("中文名错误，只能包含数字、字母、中文汉字、下划线，长度在1-16个字符"))
+        # if chname:
+        #     if not CHNAME_CHECK_PATTERN.match(chname):
+        #         self.add_error('chname', _("中文名错误，只能包含数字、字母、中文汉字、下划线，长度在1-16个字符"))
         return chname
 
     def clean_phone(self):

@@ -33,7 +33,7 @@ class OpsAnyApi:
     def get_csrftoken(self):  # sourcery skip: do-not-use-bare-except
         try:
             resp = self.session.get(self.login_url, verify=False)
-            if resp.status_code == 200:
+            if resp.status_code in [200, 400]:
                 return resp.cookies["bklogin_csrftoken"]
             else:
                 return ""
@@ -111,4 +111,5 @@ if __name__ == '__main__':
 
 """
 python3 sync-user-script.py --domain https://${DOMAIN_NAME} --paas_username admin --paas_password ${ADMIN_PASSWORD} --app_code auto event k8s prom kbase
+python3 sync-user-script.py --domain https://${DOMAIN_NAME} --paas_username admin --paas_password ${ADMIN_PASSWORD} --app_code job
 """

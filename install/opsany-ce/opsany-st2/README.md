@@ -3,9 +3,9 @@
 1. 准备安装包 
 
 ```
-# cd /opt/opsany-paas/install/
-# cp -r opsany-st2/ /opt/opsany/
-# cd /opt/opsany/opsany-st2/
+cd /opt/opsany-paas/install/opsany-ce/
+cp -r opsany-st2/ /opt/opsany/
+cd /opt/opsany/opsany-st2/
 ```
 
 2. 安装docker-compose

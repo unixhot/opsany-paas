@@ -89,6 +89,24 @@ spec:
             items:
             - key: invscript_proxy.py
               path: invscript_proxy.py
+        - name: proxy-ini
+          secret:
+            secretName: proxy-ini
+            items:
+            - key: proxy.ini
+              path: proxy.ini
+        - name: saltapi-ini
+          secret:
+            secretName: saltapi-ini
+            items:
+            - key: saltapi.ini
+              path: saltapi.ini
+        - name: saltmaster-ini
+          secret:
+            secretName: saltmaster-ini
+            items:
+            - key: saltmaster.ini
+              path: saltmaster.ini
         - name: opsany-logs
           persistentVolumeClaim:
             claimName: opsany-logs

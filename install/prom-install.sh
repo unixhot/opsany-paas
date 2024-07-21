@@ -57,10 +57,11 @@ install_check(){
 # Install Initialize
 install_init(){
     shell_log "Start: Install Init"
-    mkdir -p ${INSTALL_PATH}/{uploads,conf,logs,prometheus-volume/conf,prometheus-volume/data,consul-volume/data,consul-volume/config,uploads/prometheus-config/rules,prometheus-volume/template}
+    mkdir -p ${INSTALL_PATH}/{uploads,conf,logs,prometheus-volume/conf,prometheus-volume/data,consul-volume/data,consul-volume/config,uploads/prometheus-config/rules,prometheus-volume/template,prometheus-volume/alertmanager}
     cd $CDIR
     /bin/cp -r ./conf/prometheus/* ${INSTALL_PATH}/prometheus-volume/conf/
     /bin/cp conf/consul.hcl ${INSTALL_PATH}/consul-volume/config/
+    chmod -R 777 ${INSTALL_PATH}/prometheus-volume/
     pip3 install requests==2.25.1 grafana-api==1.0.3 mysql-connector==2.2.9 SQLAlchemy==1.4.22 bcrypt==3.2.2 \
              -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
     shell_log "End: Install Init"
@@ -109,6 +110,12 @@ prometheus_install(){
 
 alertmanager_install(){
     # Determine if there is a configuration file
+    if [ ! -d "${INSTALL_PATH}/prometheus-volume/alertmanager/" ]; then
+    mkdir -p "${INSTALL_PATH}/prometheus-volume/alertmanager/"
+        echo "Directory created: ${INSTALL_PATH}/prometheus-volume/alertmanager/"
+    else
+        echo "Directory already exists: ${INSTALL_PATH}/prometheus-volume/alertmanager/"
+    fi
     if [ ! -d "${INSTALL_PATH}/prometheus-volume/template/" ]; then
     mkdir -p "${INSTALL_PATH}/prometheus-volume/template/"
         echo "Directory created: ${INSTALL_PATH}/prometheus-volume/template/"
@@ -138,8 +145,10 @@ alertmanager_install(){
     -p 9093:9093 \
     -v ${INSTALL_PATH}/prometheus-volume/template/:/etc/alertmanager/template \
     -v ${INSTALL_PATH}/prometheus-volume/conf/alertmanager.yml:/etc/alertmanager/alertmanager.yml \
+    -v ${INSTALL_PATH}/prometheus-volume/conf/web.yml:/etc/alertmanager/web.yml \
+    -v ${INSTALL_PATH}/prometheus-volume/alertmanager/:/alertmanager \
     -v /etc/localtime:/etc/localtime:ro \
-    -d prom/alertmanager:latest
+    -d ${PAAS_DOCKER_REG}/alertmanager:v0.27.0 --config.file=/etc/alertmanager/alertmanager.yml --storage.path=/alertmanager --web.config.file=/etc/alertmanager/web.yml
 }
 
 blackbox-exporter_install(){
@@ -166,7 +175,7 @@ blackbox-exporter_install(){
     -p 9115:9115 \
     --name opsany-base-blackbox-exporter \
     -v ${INSTALL_PATH}/prometheus-volume/conf/blackbox.yml:/config/blackbox.yml \
-    quay.io/prometheus/blackbox-exporter:latest --config.file=/config/blackbox.yml
+    ${PAAS_DOCKER_REG}/blackbox-exporter:v0.25.0 --config.file=/config/blackbox.yml
 }
 
 prometheus_uninstall(){

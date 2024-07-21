@@ -20,7 +20,7 @@ class BkApi:
         API = "/login/"
         URL = self.url + API
         resp = self.session.get(URL, verify=False)
-        if resp.status_code == 200:
+        if resp.status_code in [200, 400]:
             return resp.cookies["bklogin_csrftoken"]
         return None
 
@@ -56,7 +56,7 @@ class OpsAnyApi:
     def get_csrftoken(self):
         try:
             resp = self.session.get(self.login_url, verify=False)
-            if resp.status_code == 200:
+            if resp.status_code in [200, 400]:
                 return resp.cookies["bklogin_csrftoken"]
             else:
                 return ""

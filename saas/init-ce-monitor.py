@@ -1,5 +1,3 @@
-#! /usr/bin/python3
-# -*- coding: utf8 -*-
 import requests
 import json
 import urllib3
@@ -29,7 +27,6 @@ class InitData:
     ]
     
 
-
 class OpsAnyApi:
     def __init__(self, paas_domain, username, password):
         self.paas_domain = paas_domain
@@ -47,7 +44,8 @@ class OpsAnyApi:
     def get_csrftoken(self):
         try:
             resp = self.session.get(self.login_url, verify=False)
-            if resp.status_code == 200:
+            # if resp.status_code == 200:
+            if resp.status_code in [200, 400]:
                 return resp.cookies["bklogin_csrftoken"]
             else:
                 return ""
@@ -62,7 +60,7 @@ class OpsAnyApi:
                 'password': self.password
             }
             resp = self.session.post(self.login_url, data=login_form, verify=False)
-            if resp.status_code == 200:
+            if resp.status_code in [200, 400]:
                 return self.session.cookies.get("bk_token")
             return ""
         except:
@@ -261,6 +259,7 @@ if __name__ == '__main__':
     default_paas_username = "admin"
     default_paas_password = "admin"
     default_grafana_password = "admin"
+
     start(
         options.domain,
         options.private_ip,
@@ -269,11 +268,5 @@ if __name__ == '__main__':
         options.grafana_password,
         options.grafana_change_password,
     )
-
-# python3 init-ce-monitor.py \
-# --domain 192.168.56.11 \
-# --private_ip 192.168.56.11 \
-# --paas_username admin \
-# --paas_password 123456.coM
-#  --grafana_password grafana_password
-#  --grafana_change_password new_password
+    
+    # python3 init-ce-monitor.py  --domain 192.168.56.11 --private_ip 192.168.56.11 --paas_username admin --paas_password 123456.coM --grafana_password grafana_password --grafana_change_password new_password

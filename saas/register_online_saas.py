@@ -21,7 +21,7 @@ class BkApi:
         API = "/login/"
         URL = self.url + API
         resp = self.session.get(URL, verify=False)
-        if resp.status_code == 200:
+        if resp.status_code in [200, 400]:
             return resp.cookies["bklogin_csrftoken"]
         return None
 
@@ -40,7 +40,7 @@ class BkApi:
             return True, ""
         return False, resp.json().get("message")
 
-    def register_online_saas(self, saas_app_code, saas_app_name, saas_app_version, saas_app_secret_key):
+    def register_online_saas(self, saas_app_code, saas_app_name, saas_app_version, saas_app_secret_key, is_update):
         API = "/saas/register-online-saas-app/"
         URL = self.url + API
         req = {
@@ -51,6 +51,8 @@ class BkApi:
             "saas_app_secret_key": saas_app_secret_key,
 			"csrfmiddlewaretoken": self.csrfmiddlewaretoken
         }
+        if is_update in [1, "1", "true", "True"]:
+            req["is_update"] = True
         res = self.session.get(URL, params=req, verify=False)
         try:
             try:
@@ -78,6 +80,7 @@ def add_parameter():
     parameter.add_argument("--saas_app_version", help="Saas App Version.", required=True)
     parameter.add_argument("--saas_app_secret_key", help="Saas App Secret Key.", required=True)
     parameter.add_argument("--verify_code", help="Verify code.", default="", required=False)
+    parameter.add_argument("--is_update", help="is update.", default="", required=False)
     parameter.parse_args()
     return parameter
 
@@ -93,19 +96,24 @@ if __name__ == '__main__':
     saas_app_version = options.saas_app_version
     saas_app_secret_key = options.saas_app_secret_key
     verify_code = options.verify_code if options.verify_code else ""
+    is_update = options.is_update
     bk_api = BkApi(paas_domain, username, password)
     status, res = bk_api.login(verify_code)
     if status:
         # res, status = bk_api.set_new_password(password)
-        status, res = bk_api.register_online_saas(saas_app_code, saas_app_name, saas_app_version, saas_app_secret_key)
+        status, res = bk_api.register_online_saas(saas_app_code, saas_app_name, saas_app_version, saas_app_secret_key, is_update)
         if status:
-            print("Register Online SAAS SUCCESS: {} ".format(saas_app_code))
+            message = "{} SUCCESS: {}:{} ".format("Register Online SAAS" if not is_update else "Update SAAS Version", saas_app_code, saas_app_version)
         else:
-            print("Register Online SAAS ERROR, error info: {}".format(res))
+            message = "{} ERROR, error info: {}".format("Register Online" if not is_update else "Update SAAS Version", res)
+        print(message)
     else:
         print("Login ERROR: {}".format(res))
 
 
     """
-    python register_online_saas.py --paas_domain https://opsany.com --username admin --password admin --saas_app_code rbac --saas_app_name 统一权限 --saas_app_version 1.7.0 --saas_app_secret_key bf4a54e0-a08a-4449-b3f4-1432ddbe4b31
+    # 注册SAAS
+    python register_online_saas.py --paas_domain https://opsany.com --username admin --password admin --saas_app_code rbac --saas_app_name 统一权限 --saas_app_version 2.2.0 --saas_app_secret_key bf4a54e0-a08a-4449-b3f4-1431ddbe4b31
+    # 更新SAAS版本
+    python register_online_saas.py --paas_domain https://opsany.com --username admin --password admin --saas_app_code rbac --saas_app_name 统一权限 --saas_app_version 2.2.2 --saas_app_secret_key bf4a54e0-a08a-4449-b3f4-1431ddbe4b31 --is_update true
     """

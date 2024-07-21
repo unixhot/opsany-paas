@@ -39,7 +39,7 @@ class Deploy(object):
     # 获取登陆用csrftoken
     def get_csrftoken(self):
         resp = self.session.get(self.login_url, verify=False)
-        if resp.status_code == 200:
+        if resp.status_code in [200, 400]:
             return resp.cookies["bklogin_csrftoken"]
 
     # 登陆

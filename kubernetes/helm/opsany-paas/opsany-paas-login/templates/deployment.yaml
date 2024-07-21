@@ -35,6 +35,9 @@ spec:
             - name: opsany-paas-login-config
               mountPath: /opt/opsany/paas/login/conf/settings_production.py
               subPath: settings_production.py
+            - name: login-ini
+              mountPath: /etc/supervisord.d/login.ini
+              subPath: login.ini
             - name: opsany-logs
               mountPath: /opt/opsany/logs
           imagePullPolicy: {{ .Values.image.pullPolicy }}
@@ -71,6 +74,12 @@ spec:
             items:
             - key: settings_production.py.login
               path: settings_production.py
+        - name: login-ini
+          secret:
+            secretName: login-ini
+            items:
+            - key: login.ini
+              path: login.ini
         - name: opsany-logs
           persistentVolumeClaim:
             claimName: opsany-logs
