@@ -134,7 +134,7 @@ proxy_start(){
     # Proxy
     shell_log "======Start Proxy======"
     docker pull ${PAAS_DOCKER_REG}/opsany-paas-proxy:2.2.0
-    docker run --restart=always --name opsany-proxy -d \
+    docker run --restart=always --name opsany-paas-proxy -d \
         -p 4505:4505 -p 4506:4506 -p 8010:8010 \
         -v ${INSTALL_PATH}/logs/proxy:/opt/opsany/logs/proxy \
         -v ${INSTALL_PATH}/proxy-volume/certs/:/etc/pki/tls/certs/ \
