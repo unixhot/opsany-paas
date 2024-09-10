@@ -1,0 +1,44 @@
+---
+# repo-init.py
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ce-repo-init
+data:
+{{ (.Files.Glob "repo-init.py").AsConfig | indent 2 }}
+
+---
+# repo-prod.py
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ce-repo-prod
+data:
+{{ (.Files.Glob "repo-prod.py").AsConfig | indent 2 }}
+
+---
+# repo-nginx.conf
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ce-repo-nginx
+data:
+{{ (.Files.Glob "repo-nginx.conf").AsConfig | indent 2 }}
+
+---
+# repo-supervisor.ini
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ce-repo-supervisor
+data:
+{{ (.Files.Glob "repo-supervisor.ini").AsConfig | indent 2 }}
+
+---
+# repo-uwsgi.ini
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ce-repo-uwsgi
+data:
+{{ (.Files.Glob "repo-uwsgi.ini").AsConfig | indent 2 }}

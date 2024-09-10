@@ -5,7 +5,7 @@ Copyright (C) 2017-2018 THL A29 Limited, a Tencent company. All rights reserved.
 Licensed under the MIT License (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
 http://opensource.org/licenses/MIT
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
-""" # noqa
+"""  # noqa
 
 from __future__ import unicode_literals
 
@@ -62,11 +62,11 @@ class MakoTemplateView(MakoTemplateResponseMixin, ContextMixin, View):
             workbench_platform = SaaSApp.objects.filter(code="workbench")
             if workbench_platform:
                 return HttpResponseRedirect("/o/workbench/?login=1")
-            
+
             dev_workbench_platform = App.objects.filter(code="workbench", is_saas=False)
             if dev_workbench_platform:
                 return HttpResponseRedirect("/t/workbench/?login=1")
-        
+
         context = self.get_context_data(**kwargs)
         return self.render_to_response(context)
 

@@ -1,0 +1,24 @@
+# -*- coding: utf-8 -*-
+# 工程预装模块
+# 需要额外的python包，可直接在文件后面添加
+# 请确保指定的包和版本号，可通过pip安装
+
+# blueapps requirement
+pip==21.3.1
+Django==2.2.6
+Mako==1.0.6
+mysqlclient==1.4.4
+PyMySQL==1.0.2
+redis==3.4.0
+django_redis==4.11.0
+celery==3.1.25
+django-cors-headers==3.2.1
+django-celery==3.2.1
+channels==2.1.4
+channels-redis==2.3.1
+requests==2.25.0
+paramiko==2.7.2
+sshtunnel==0.4.0
+kubernetes==26.1.0
+cryptography==3.4.7
+pycryptodomex==3.9.8

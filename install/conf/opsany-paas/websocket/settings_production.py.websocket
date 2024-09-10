@@ -113,3 +113,14 @@ CHANNEL_LAYERS = {
         },
     }
 }
+
+
+# Elastic APM
+ELASTIC_APM = {
+  'ENABLED': 'false',
+  'SERVICE_NAME': 'opsany-paas-websocket',
+  'SECRET_TOKEN': 'APM_SECRET_TOKEN',
+  'SERVER_URL': 'https://APM_SERVER_HOST:8200',
+  'VERIFY_SERVER_CERT': 'false',
+  'ENVIRONMENT': 'prod',
+}

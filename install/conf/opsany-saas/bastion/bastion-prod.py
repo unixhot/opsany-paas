@@ -103,15 +103,7 @@ CACHES.update(
     }
 )
 
-CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            'hosts': ["redis://{}:{}@{}:{}/8".format(REDIS_USERNAME, REDIS_PASSWORD, REDIS_HOST, REDIS_PORT)],
-            "symmetric_encryption_keys": [SECRET_KEY],
-        },
-    }
-}
+WEBSOCKET_CHANNEL_LAYERS = ["redis://{}:{}@{}:{}/8".format(REDIS_USERNAME, REDIS_PASSWORD, REDIS_HOST, REDIS_PORT)]
 
 # Elastic APM
 ELASTIC_APM = {

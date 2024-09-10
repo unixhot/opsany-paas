@@ -1,0 +1,119 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "opsany-saas-deploy.fullname" . }}
+  labels:
+    {{- include "opsany-saas-deploy.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "opsany-saas-deploy.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "opsany-saas-deploy.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          volumeMounts:
+            - name: opsany-saas-ce-deploy-init
+              mountPath: /opt/opsany/deploy/config/__init__.py
+              subPath: deploy-init.py
+            - name: opsany-saas-ce-deploy-prod
+              mountPath: /opt/opsany/deploy/config/prod.py
+              subPath: deploy-prod.py
+            - name: opsany-saas-ce-deploy-supervisor
+              mountPath: /etc/supervisord.d/deploy.ini
+              subPath: deploy-supervisor.ini
+            - name: opsany-saas-ce-deploy-nginx
+              mountPath: /etc/nginx/http.d/default.conf
+              subPath: deploy-nginx.conf
+            - name: opsany-saas-ce-deploy-uwsgi
+              mountPath: /opt/opsany/uwsgi/deploy.ini
+              subPath: deploy-uwsgi.ini
+            - name: opsany-logs
+              mountPath: /opt/opsany/logs
+            - name: opsany-uploads
+              mountPath: /opt/opsany/uploads
+
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+#          livenessProbe:
+#            httpGet:
+#              path: /o/deploy/healthz/
+#              port: http
+#          readinessProbe:
+#            httpGet:
+#              path: /o/deploy/healthz/
+#              port: http
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+        - name: opsany-saas-ce-deploy-init
+          configMap:
+            name: opsany-saas-ce-deploy-init
+            items:
+            - key: deploy-init.py
+              path: deploy-init.py
+        - name: opsany-saas-ce-deploy-prod
+          configMap:
+            name: opsany-saas-ce-deploy-prod
+            items:
+            - key: deploy-prod.py
+              path: deploy-prod.py
+        - name: opsany-saas-ce-deploy-nginx
+          configMap:
+            name: opsany-saas-ce-deploy-nginx
+            items:
+            - key: deploy-nginx.conf
+              path: deploy-nginx.conf
+        - name: opsany-saas-ce-deploy-uwsgi
+          configMap:
+            name: opsany-saas-ce-deploy-uwsgi
+            items:
+            - key: deploy-uwsgi.ini
+              path: deploy-uwsgi.ini
+        - name: opsany-saas-ce-deploy-supervisor
+          configMap:
+            name: opsany-saas-ce-deploy-supervisor
+            items:
+            - key: deploy-supervisor.ini
+              path: deploy-supervisor.ini
+        - name: opsany-uploads
+          persistentVolumeClaim:
+            claimName: opsany-uploads
+        - name: opsany-logs
+          persistentVolumeClaim:
+            claimName: opsany-logs
+

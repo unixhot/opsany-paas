@@ -1,0 +1,119 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "opsany-saas-repo.fullname" . }}
+  labels:
+    {{- include "opsany-saas-repo.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "opsany-saas-repo.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "opsany-saas-repo.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          volumeMounts:
+            - name: opsany-saas-ce-repo-init
+              mountPath: /opt/opsany/repo/config/__init__.py
+              subPath: repo-init.py
+            - name: opsany-saas-ce-repo-prod
+              mountPath: /opt/opsany/repo/config/prod.py
+              subPath: repo-prod.py
+            - name: opsany-saas-ce-repo-supervisor
+              mountPath: /etc/supervisord.d/repo.ini
+              subPath: repo-supervisor.ini
+            - name: opsany-saas-ce-repo-nginx
+              mountPath: /etc/nginx/http.d/default.conf
+              subPath: repo-nginx.conf
+            - name: opsany-saas-ce-repo-uwsgi
+              mountPath: /opt/opsany/uwsgi/repo.ini
+              subPath: repo-uwsgi.ini
+            - name: opsany-logs
+              mountPath: /opt/opsany/logs
+            - name: opsany-uploads
+              mountPath: /opt/opsany/uploads
+
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+#          livenessProbe:
+#            httpGet:
+#              path: /o/repo/healthz/
+#              port: http
+#          readinessProbe:
+#            httpGet:
+#              path: /o/repo/healthz/
+#              port: http
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+        - name: opsany-saas-ce-repo-init
+          configMap:
+            name: opsany-saas-ce-repo-init
+            items:
+            - key: repo-init.py
+              path: repo-init.py
+        - name: opsany-saas-ce-repo-prod
+          configMap:
+            name: opsany-saas-ce-repo-prod
+            items:
+            - key: repo-prod.py
+              path: repo-prod.py
+        - name: opsany-saas-ce-repo-nginx
+          configMap:
+            name: opsany-saas-ce-repo-nginx
+            items:
+            - key: repo-nginx.conf
+              path: repo-nginx.conf
+        - name: opsany-saas-ce-repo-uwsgi
+          configMap:
+            name: opsany-saas-ce-repo-uwsgi
+            items:
+            - key: repo-uwsgi.ini
+              path: repo-uwsgi.ini
+        - name: opsany-saas-ce-repo-supervisor
+          configMap:
+            name: opsany-saas-ce-repo-supervisor
+            items:
+            - key: repo-supervisor.ini
+              path: repo-supervisor.ini
+        - name: opsany-uploads
+          persistentVolumeClaim:
+            claimName: opsany-uploads
+        - name: opsany-logs
+          persistentVolumeClaim:
+            claimName: opsany-logs
+

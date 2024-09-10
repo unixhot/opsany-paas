@@ -121,6 +121,22 @@ class OpsAnyApi:
         else:
             return None, "获取用户ID失败"
 
+    def init_celery_queue(self, queue):
+        API = "/o/control/api/control/v0_1/celery-queue-init/"
+        url = self.paas_domain + API
+        res = self.session.post(url, json={"init_data_list": queue}, verify=False)
+        try:
+            res_data = res.json()
+        except Exception:
+            return False, "后台任务初始化中 API连接不成功，请检查API地址{}".format(res.content.decode())
+        if res.status_code == 200:
+            if str(res_data.get("code", "")) == "200":
+                return True, "后台任务初始化成功！"
+            else:
+                return False, res_data.get("message")
+        else:
+            return False, "后台任务初始化中 API连接不成功，请检查API地址{}".format(url)
+
 
 class Run:
     def __init__(self, paas_domain, private_ip, paas_username, paas_password, proxy_url, proxy_public_url, proxy_token):
@@ -152,20 +168,6 @@ class Run:
             return domain
 
     def create_controller_salt(self):
-        controller_dict = {
-            "name": "默认控制器",
-            "type": "本地",
-            # TEST DATA 8011 -> 8005
-            "api1": "https://{}:8005".format(self.paas_domain) if self.paas_domain else "",
-            "api2": "https://{}:8005".format(self.private_ip) if self.private_ip else "",
-            "username1": "saltapi",
-            "username2": "saltapi",
-            # TEST DATA 123456.coM -> OpsAny@2020
-            "password1": "OpsAny@2020",
-            "password2": "OpsAny@2020",
-            "port1": "",
-            "port2": ""
-        }
         controller_dict_v2 = {
             "name": "默认控制器",
             "type": "本地",
@@ -198,6 +200,30 @@ class Run:
         message, status = BkApi(bk_token, "https://" + self.paas_domain).update_user_info(user_id_or_error_message, user_info)
         return status, message
 
+    def init_celery_queue(self):
+        saas_queue = [
+            ("统一权限", "rbac", "celery", "1"),
+            ("工作台", "workbench", "celery", "2"),
+            ("资源平台", "cmdb", "celery", "3"),
+            ("管控平台", "control", "celery", "4"),
+            ("作业平台", "job", "celery", "5"),
+            ("基础监控", "monitor", "celery", "6"),
+            ("云管平台", "cmp", "celery", "7"),
+            ("堡垒机", "bastion", "celery", "8"),
+            ("应用平台", "devops", "celery", "9"),
+            ("制品仓库", "repo", "celery", "17"),
+            ("流水线", "pipeline", "celery", "17"),
+            ("持续部署", "deploy", "celery", "18"),
+        ]
+        if self.opsany_api_obj.token:
+            status, message = self.opsany_api_obj.init_celery_queue(saas_queue)
+            if status:
+                return True, message
+            else:
+                return False, message
+        else:
+            return False, "OpsAny平台认证失败"
+
 
 def start(paas_domain, private_ip, paas_username, paas_password, proxy_url, proxy_public_url, proxy_token):
     run_obj = Run(paas_domain, private_ip, paas_username, paas_password, proxy_url, proxy_public_url, proxy_token)
@@ -210,7 +236,11 @@ def start(paas_domain, private_ip, paas_username, paas_password, proxy_url, prox
     update_admin_user_info_status, update_admin_user_info_message = run_obj.update_admin_user()
     print("[SUCCESS] Update admin user info success") if update_admin_user_info_status else \
         print("[ERROR] Update admin user info error, error info: {}".format(update_admin_user_info_message))
-    
+
+    # 更新管控后台任务
+    init_queue_status, init_queue_info_message = run_obj.init_celery_queue()
+    print("[SUCCESS] Init Control Celery Queue info success") if init_queue_status else \
+        print("[ERROR] Init Control Celery Queue info error, error info: {}".format(init_queue_info_message))
     print("[SUCCESS] ALL success")
 
 
@@ -246,6 +276,7 @@ if __name__ == '__main__':
 # --domain 192.168.56.11
 # --private_ip 192.168.56.11
 # --proxy_url https://192.168.56.11:8011
+# --proxy_public_url https://192.168.56.11:8011
 # --proxy_token fa4b47fb-4f0f-4140-be69-171e00ca4831
 # --paas_username admin
 # --paas_password 123456.coM

@@ -35,7 +35,7 @@ spec:
             - name: opsany-paas-appengine-config
               mountPath: /opt/opsany/paas/appengine/controller/settings.py
               subPath: settings.py
-            - name: appengine-ini
+            - name: opsany-paas-appengine-supervisor
               mountPath: /etc/supervisord.d/appengine.ini
               subPath: appengine.ini
             - name: opsany-logs
@@ -70,13 +70,13 @@ spec:
       volumes:
         - name: opsany-paas-appengine-config
           secret:
-            secretName: opsany-paas-appengine
+            secretName: opsany-paas-appengine-config
             items:
             - key: settings_production.py.appengine
               path: settings.py
-        - name: appengine-ini
+        - name: opsany-paas-appengine-supervisor
           secret:
-            secretName: appengine-ini
+            secretName: opsany-paas-appengine-supervisor
             items:
             - key: appengine.ini
               path: appengine.ini

@@ -17,10 +17,10 @@ data:
 {{ (.Files.Glob "settings_production.py.websocket").AsConfig | indent 2 }}
 
 ---
-websocket-prod.py
+# websocket.ini
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: websocket-ini
+  name: opsany-paas-websocket-supervisor
 data:
 {{ (.Files.Glob "websocket.ini").AsConfig | indent 2 }}

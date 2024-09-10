@@ -75,11 +75,6 @@ install_check(){
   if [ -f /etc/redhat-release ];then
       setenforce 0
   fi
-  DOCKER_PID=$(ps aux | grep '/usr/bin/containerd' | grep -v 'grep' | wc -l)
-  if [ ${DOCKER_PID} -lt 1 ];then
-      shell_error_log "Please install and start docker first!!!"
-      exit
-  fi
 }
 
 # Install Initialize
@@ -342,10 +337,25 @@ mysql_init(){
     mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "CREATE USER 'devops'@'%' identified by "\"${MYSQL_OPSANY_DEVOPS_PASSWORD}\"";"
     mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "grant all on devops.* to devops@'%';" 
     
-    #dashboard
-    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "create database dashboard DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
-    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "CREATE USER 'dashboard'@'%' identified by "\"${MYSQL_OPSANY_DASHBOARD_PASSWORD}\"";"
-    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "grant all on dashboard.* to dashboard@'%';" 
+    #code
+    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "create database code DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
+    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "CREATE USER 'code'@'%' identified by "\"${MYSQL_OPSANY_CODE_PASSWORD}\"";"
+    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "grant all on code.* to code@'%';" 
+
+    #pipeline
+    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "create database pipeline DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
+    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "CREATE USER 'pipeline'@'%' identified by "\"${MYSQL_OPSANY_PIPELINE_PASSWORD}\"";"
+    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "grant all on pipeline.* to pipeline@'%';" 
+
+    #repo
+    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "create database repo DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
+    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "CREATE USER 'repo'@'%' identified by "\"${MYSQL_OPSANY_REPO_PASSWORD}\"";"
+    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "grant all on repo.* to repo@'%';" 
+
+    #deploy
+    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "create database deploy DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
+    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "CREATE USER 'deploy'@'%' identified by "\"${MYSQL_OPSANY_DEPLOY_PASSWORD}\"";"
+    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" -e "grant all on deploy.* to deploy@'%';" 
 
     # create paas tables
     mysql -h "${MYSQL_SERVER_IP}" -u root  opsany_paas < init/opsany-paas.sql

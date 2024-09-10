@@ -49,57 +49,73 @@ fi
 # Install initialization
 install_init(){
     #SaaS Log Directory
-    mkdir -p /data/k8s-nfs/opsany-logs/{rbac,workbench,cmdb,control,job,monitor,cmp,bastion,dashboard,devops}
+    mkdir -p /data/k8s-nfs/opsany-logs/{rbac,workbench,cmdb,control,job,monitor,cmp,bastion,code,devops,pipeline,repo,deploy}
 
     # Register rbac
     RBAC_SECRET_KEY=$(uuid -v4)
     echo $RBAC_SECRET_KEY > ${INSTALL_PATH}/conf/.rbac_secret_key
-    python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code rbac --saas_app_name 统一权限 --saas_app_version 2.0.0 --saas_app_secret_key ${RBAC_SECRET_KEY}
+    python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code rbac --saas_app_name 统一权限 --saas_app_version 2.2.1 --saas_app_secret_key ${RBAC_SECRET_KEY}
 
     # Register workbench
     WORKBENCH_SECRET_KEY=$(uuid -v4)
     echo $WORKBENCH_SECRET_KEY > ${INSTALL_PATH}/conf/.workbench_secret_key
-    python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code workbench --saas_app_name 工作台 --saas_app_version 2.0.0 --saas_app_secret_key ${WORKBENCH_SECRET_KEY}
+    python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code workbench --saas_app_name 工作台 --saas_app_version 2.2.1 --saas_app_secret_key ${WORKBENCH_SECRET_KEY}
 
     # Register cmdb
     CMDB_SECRET_KEY=$(uuid -v4)
     echo $CMDB_SECRET_KEY > ${INSTALL_PATH}/conf/.cmdb_secret_key
-    python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code cmdb --saas_app_name 资源平台 --saas_app_version 2.0.0 --saas_app_secret_key ${CMDB_SECRET_KEY}
+    python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code cmdb --saas_app_name 资源平台 --saas_app_version 2.2.1 --saas_app_secret_key ${CMDB_SECRET_KEY}
 
     # Register control
     CONTROL_SECRET_KEY=$(uuid -v4)
     echo $CONTROL_SECRET_KEY > ${INSTALL_PATH}/conf/.control_secret_key
-    python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code control --saas_app_name 管控平台 --saas_app_version 2.0.0 --saas_app_secret_key ${CONTROL_SECRET_KEY}
+    python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code control --saas_app_name 管控平台 --saas_app_version 2.2.1 --saas_app_secret_key ${CONTROL_SECRET_KEY}
     
     # Register job
     JOB_SECRET_KEY=$(uuid -v4)
     echo $JOB_SECRET_KEY > ${INSTALL_PATH}/conf/.job_secret_key
-    python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code job --saas_app_name 作业平台 --saas_app_version 2.0.0 --saas_app_secret_key ${JOB_SECRET_KEY}
+    python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code job --saas_app_name 作业平台 --saas_app_version 2.2.1 --saas_app_secret_key ${JOB_SECRET_KEY}
 
     # Register monitor
     MONITOR_SECRET_KEY=$(uuid -v4)
     echo $MONITOR_SECRET_KEY > ${INSTALL_PATH}/conf/.monitor_secret_key
-    python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code monitor --saas_app_name 基础监控 --saas_app_version 2.0.0 --saas_app_secret_key ${MONITOR_SECRET_KEY}
+    python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code monitor --saas_app_name 基础监控 --saas_app_version 2.2.1 --saas_app_secret_key ${MONITOR_SECRET_KEY}
 
     # Register cmp
     CMP_SECRET_KEY=$(uuid -v4)
     echo $CMP_SECRET_KEY > ${INSTALL_PATH}/conf/.cmp_secret_key
-    python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code cmp --saas_app_name 云管平台 --saas_app_version 2.0.0 --saas_app_secret_key ${CMP_SECRET_KEY}
+    python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code cmp --saas_app_name 云管平台 --saas_app_version 2.2.1 --saas_app_secret_key ${CMP_SECRET_KEY}
 
     # Register bastion
     BASTION_SECRET_KEY=$(uuid -v4)
     echo $BASTION_SECRET_KEY > ${INSTALL_PATH}/conf/.bastion_secret_key
-    python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code bastion --saas_app_name 堡垒机 --saas_app_version 2.0.0 --saas_app_secret_key ${BASTION_SECRET_KEY}
+    python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code bastion --saas_app_name 堡垒机 --saas_app_version 2.2.1 --saas_app_secret_key ${BASTION_SECRET_KEY}
 
     # Register devops
     DEVOPS_SECRET_KEY=$(uuid -v4)
     echo $DEVOPS_SECRET_KEY > ${INSTALL_PATH}/conf/.devops_secret_key
-    python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code devops --saas_app_name 应用平台 --saas_app_version 2.0.0 --saas_app_secret_key ${DEVOPS_SECRET_KEY}
+    python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code devops --saas_app_name 应用平台 --saas_app_version 2.2.1 --saas_app_secret_key ${DEVOPS_SECRET_KEY}
 
-    # Register dashboard
-    DASHBOARD_SECRET_KEY=$(uuid -v4)
-    echo $DASHBOARD_SECRET_KEY > ${INSTALL_PATH}/conf/.dashboard_secret_key
-    python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code dashboard --saas_app_name 可视化平台 --saas_app_version 2.0.0 --saas_app_secret_key ${DASHBOARD_SECRET_KEY}
+    # Register code
+    CODE_SECRET_KEY=$(uuid -v4)
+    echo $CODE_SECRET_KEY > ${INSTALL_PATH}/conf/.code_secret_key
+    python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code code --saas_app_name 代码仓库 --saas_app_version 2.2.1 --saas_app_secret_key ${CODE_SECRET_KEY}
+
+    # Register pipeline
+    PIPELINE_SECRET_KEY=$(uuid -v4)
+    echo $PIPELINE_SECRET_KEY > ${INSTALL_PATH}/conf/.pipeline_secret_key
+    python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code pipeline --saas_app_name 流水线 --saas_app_version 2.2.1 --saas_app_secret_key ${PIPELINE_SECRET_KEY}
+
+    # Register repo
+    REPO_SECRET_KEY=$(uuid -v4)
+    echo $REPO_SECRET_KEY > ${INSTALL_PATH}/conf/.repo_secret_key
+    python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code repo --saas_app_name 制品仓库 --saas_app_version 2.2.1 --saas_app_secret_key ${REPO_SECRET_KEY}
+
+    # Register deploy
+    DEPLOY_SECRET_KEY=$(uuid -v4)
+    echo $DEPLOY_SECRET_KEY > ${INSTALL_PATH}/conf/.deploy_secret_key
+    python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code deploy --saas_app_name 持续部署 --saas_app_version 2.2.1 --saas_app_secret_key ${DEPLOY_SECRET_KEY}
+
 }
 
 # SaaS Deploy
@@ -268,16 +284,70 @@ saas_devops_deploy(){
     /bin/cp ${INSTALL_PATH}/conf/opsany-saas/devops/*  ${INSTALL_PATH}/kubernetes/helm/opsany-saas/opsany-saas-devops/
 }
 
-saas_dashboard_deploy(){
-    shell_log "======Config dashboard======"
-    # Dashboard Configure
-    DASHBOARD_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.dashboard_secret_key)
-    sed -i "s/DOMAIN_NAME/${DOMAIN_NAME}/g" ${INSTALL_PATH}/conf/opsany-saas/dashboard/dashboard-init.py
-    sed -i "s/DASHBOARD_SECRET_KEY/${DASHBOARD_SECRET_KEY}/g" ${INSTALL_PATH}/conf/opsany-saas/dashboard/dashboard-init.py
-    sed -i "s/MYSQL_SERVER_IP/${MYSQL_SERVER_IP}/g" ${INSTALL_PATH}/conf/opsany-saas/dashboard/dashboard-prod.py
-    sed -i "s/MYSQL_SERVER_PORT/${MYSQL_SERVER_PORT}/g" ${INSTALL_PATH}/conf/opsany-saas/dashboard/dashboard-prod.py
-    sed -i "s/MYSQL_OPSANY_DASHBOARD_PASSWORD/${MYSQL_OPSANY_DASHBOARD_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-saas/dashboard/dashboard-prod.py
-    /bin/cp ${INSTALL_PATH}/conf/opsany-saas/dashboard/*  ${INSTALL_PATH}/kubernetes/helm/opsany-saas/opsany-saas-dashboard/   
+saas_code_deploy(){
+    shell_log "======Config code======"
+    # Code Configure
+    CODE_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.code_secret_key)
+    sed -i "s/DOMAIN_NAME/${DOMAIN_NAME}/g" ${INSTALL_PATH}/conf/opsany-saas/code/code-init.py
+    sed -i "s/CODE_SECRET_KEY/${CODE_SECRET_KEY}/g" ${INSTALL_PATH}/conf/opsany-saas/code/code-init.py
+    sed -i "s/MYSQL_SERVER_IP/${MYSQL_SERVER_IP}/g" ${INSTALL_PATH}/conf/opsany-saas/code/code-prod.py
+    sed -i "s/MYSQL_SERVER_PORT/${MYSQL_SERVER_PORT}/g" ${INSTALL_PATH}/conf/opsany-saas/code/code-prod.py
+    sed -i "s/MYSQL_OPSANY_CODE_PASSWORD/${MYSQL_OPSANY_CODE_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-saas/code/code-prod.py
+    /bin/cp ${INSTALL_PATH}/conf/opsany-saas/code/*  ${INSTALL_PATH}/kubernetes/helm/opsany-saas/opsany-saas-code/
+}
+
+saas_pipeline_deploy(){
+    shell_log "======Config pipeline======"
+    PIPELINE_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.pipeline_secret_key)
+    sed -i "s/DOMAIN_NAME/${DOMAIN_NAME}/g" ${INSTALL_PATH}/conf/opsany-saas/pipeline/pipeline-init.py
+    sed -i "s/PIPELINE_SECRET_KEY/${PIPELINE_SECRET_KEY}/g" ${INSTALL_PATH}/conf/opsany-saas/pipeline/pipeline-init.py
+    sed -i "s/MYSQL_SERVER_IP/${MYSQL_SERVER_IP}/g" ${INSTALL_PATH}/conf/opsany-saas/pipeline/pipeline-prod.py
+    sed -i "s/MYSQL_SERVER_PORT/${MYSQL_SERVER_PORT}/g" ${INSTALL_PATH}/conf/opsany-saas/pipeline/pipeline-prod.py
+    sed -i "s/MYSQL_OPSANY_PIPELINE_PASSWORD/${MYSQL_OPSANY_PIPELINE_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-saas/pipeline/pipeline-prod.py
+    sed -i "s/MONGO_SERVER_IP/${MONGO_SERVER_IP}/g" ${INSTALL_PATH}/conf/opsany-saas/pipeline/pipeline-prod.py
+    sed -i "s/MONGO_SERVER_PORT/${MONGO_SERVER_PORT}/g" ${INSTALL_PATH}/conf/opsany-saas/pipeline/pipeline-prod.py
+    sed -i "s/MONGO_DEVOPS_PASSWORD/${MONGO_DEVOPS_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-saas/pipeline/pipeline-prod.py
+    sed -i "s/REDIS_SERVER_IP/${REDIS_SERVER_IP}/g" ${INSTALL_PATH}/conf/opsany-saas/pipeline/pipeline-prod.py
+    sed -i "s/REDIS_SERVER_PORT/${REDIS_SERVER_PORT}/g" ${INSTALL_PATH}/conf/opsany-saas/pipeline/pipeline-prod.py
+    sed -i "s/REDIS_SERVER_USER/${REDIS_SERVER_USER}/g" ${INSTALL_PATH}/conf/opsany-saas/pipeline/pipeline-prod.py
+    sed -i "s/REDIS_SERVER_PASSWORD/${REDIS_SERVER_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-saas/pipeline/pipeline-prod.py
+    /bin/cp ${INSTALL_PATH}/conf/opsany-saas/pipeline/*  ${INSTALL_PATH}/kubernetes/helm/opsany-saas/opsany-saas-pipeline/
+}
+
+saas_repo_deploy(){
+    shell_log "======Config repo======"
+    REPO_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.repo_secret_key)
+    sed -i "s/DOMAIN_NAME/${DOMAIN_NAME}/g" ${INSTALL_PATH}/conf/opsany-saas/repo/repo-init.py
+    sed -i "s/REPO_SECRET_KEY/${REPO_SECRET_KEY}/g" ${INSTALL_PATH}/conf/opsany-saas/repo/repo-init.py
+    sed -i "s/MYSQL_SERVER_IP/${MYSQL_SERVER_IP}/g" ${INSTALL_PATH}/conf/opsany-saas/repo/repo-prod.py
+    sed -i "s/MYSQL_SERVER_PORT/${MYSQL_SERVER_PORT}/g" ${INSTALL_PATH}/conf/opsany-saas/repo/repo-prod.py
+    sed -i "s/MYSQL_OPSANY_REPO_PASSWORD/${MYSQL_OPSANY_REPO_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-saas/repo/repo-prod.py
+    sed -i "s/MONGO_SERVER_IP/${MONGO_SERVER_IP}/g" ${INSTALL_PATH}/conf/opsany-saas/repo/repo-prod.py
+    sed -i "s/MONGO_SERVER_PORT/${MONGO_SERVER_PORT}/g" ${INSTALL_PATH}/conf/opsany-saas/repo/repo-prod.py
+    sed -i "s/MONGO_DEVOPS_PASSWORD/${MONGO_DEVOPS_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-saas/repo/repo-prod.py
+    sed -i "s/REDIS_SERVER_IP/${REDIS_SERVER_IP}/g" ${INSTALL_PATH}/conf/opsany-saas/repo/repo-prod.py
+    sed -i "s/REDIS_SERVER_PORT/${REDIS_SERVER_PORT}/g" ${INSTALL_PATH}/conf/opsany-saas/repo/repo-prod.py
+    sed -i "s/REDIS_SERVER_USER/${REDIS_SERVER_USER}/g" ${INSTALL_PATH}/conf/opsany-saas/repo/repo-prod.py
+    sed -i "s/REDIS_SERVER_PASSWORD/${REDIS_SERVER_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-saas/repo/repo-prod.py
+    /bin/cp ${INSTALL_PATH}/conf/opsany-saas/repo/*  ${INSTALL_PATH}/kubernetes/helm/opsany-saas/opsany-saas-repo/
+}
+
+saas_deploy_deploy(){
+    shell_log "======Config deploy======"
+    DEPLOY_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.deploy_secret_key)
+    sed -i "s/DOMAIN_NAME/${DOMAIN_NAME}/g" ${INSTALL_PATH}/conf/opsany-saas/deploy/deploy-init.py
+    sed -i "s/DEPLOY_SECRET_KEY/${DEPLOY_SECRET_KEY}/g" ${INSTALL_PATH}/conf/opsany-saas/deploy/deploy-init.py
+    sed -i "s/MYSQL_SERVER_IP/${MYSQL_SERVER_IP}/g" ${INSTALL_PATH}/conf/opsany-saas/deploy/deploy-prod.py
+    sed -i "s/MYSQL_SERVER_PORT/${MYSQL_SERVER_PORT}/g" ${INSTALL_PATH}/conf/opsany-saas/deploy/deploy-prod.py
+    sed -i "s/MYSQL_OPSANY_DEPLOY_PASSWORD/${MYSQL_OPSANY_DEPLOY_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-saas/deploy/deploy-prod.py
+    sed -i "s/MONGO_SERVER_IP/${MONGO_SERVER_IP}/g" ${INSTALL_PATH}/conf/opsany-saas/deploy/deploy-prod.py
+    sed -i "s/MONGO_SERVER_PORT/${MONGO_SERVER_PORT}/g" ${INSTALL_PATH}/conf/opsany-saas/deploy/deploy-prod.py
+    sed -i "s/MONGO_DEVOPS_PASSWORD/${MONGO_DEVOPS_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-saas/deploy/deploy-prod.py
+    sed -i "s/REDIS_SERVER_IP/${REDIS_SERVER_IP}/g" ${INSTALL_PATH}/conf/opsany-saas/deploy/deploy-prod.py
+    sed -i "s/REDIS_SERVER_PORT/${REDIS_SERVER_PORT}/g" ${INSTALL_PATH}/conf/opsany-saas/deploy/deploy-prod.py
+    sed -i "s/REDIS_SERVER_USER/${REDIS_SERVER_USER}/g" ${INSTALL_PATH}/conf/opsany-saas/deploy/deploy-prod.py
+    sed -i "s/REDIS_SERVER_PASSWORD/${REDIS_SERVER_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-saas/deploy/deploy-prod.py
+    /bin/cp ${INSTALL_PATH}/conf/opsany-saas/deploy/*  ${INSTALL_PATH}/kubernetes/helm/opsany-saas/opsany-saas-deploy/
 }
 
 saas_init(){
@@ -332,8 +402,26 @@ main(){
 	    saas_cmp_deploy
 	    saas_bastion_deploy
         saas_monitor_deploy
-        saas_dashboard_deploy
         saas_devops_deploy
+        saas_code_deploy
+        saas_pipeline_deploy
+        saas_repo_deploy
+        saas_deploy_deploy
+        ;;
+    config)
+        saas_rbac_deploy
+	    saas_workbench_deploy
+	    saas_cmdb_deploy
+	    saas_control_deploy
+	    saas_job_deploy
+	    saas_cmp_deploy
+	    saas_bastion_deploy
+        saas_monitor_deploy
+        saas_devops_deploy
+        saas_code_deploy
+        saas_pipeline_deploy
+        saas_repo_deploy
+        saas_deploy_deploy
         ;;
     init)
         saas_init

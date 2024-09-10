@@ -32,10 +32,10 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           volumeMounts:
-            - name: opsany-paas-esb-config
+            - name: opsany-paas-esb-conf
               mountPath: /opt/opsany/paas/esb/configs/default.py
               subPath: default.py
-            - name: esb-ini
+            - name: opsany-paas-esb-supervisor
               mountPath: /etc/supervisord.d/esb.ini
               subPath: esb.ini
             - name: opsany-logs
@@ -47,14 +47,6 @@ spec:
             - name: paas-esb
               containerPort: 8002
               protocol: TCP
-          livenessProbe:
-            httpGet:
-              path: /healthz/
-              port: 8002
-          readinessProbe:
-            httpGet:
-              path: /healthz/
-              port: 8002
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
@@ -70,15 +62,15 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       volumes:
-        - name: opsany-paas-esb-config
+        - name: opsany-paas-esb-conf
           secret:
-            secretName: opsany-paas-esb
+            secretName: opsany-paas-esb-conf
             items:
             - key: settings_production.py.esb
               path: default.py
-        - name: esb-ini
+        - name: opsany-paas-esb-supervisor
           secret:
-            secretName: esb-ini
+            secretName: opsany-paas-esb-supervisor
             items:
             - key: esb.ini
               path: esb.ini

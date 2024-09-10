@@ -1,9 +1,0 @@
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: paas-esb-cm
-  namespace: opsany
-data:
-  default.py: |
-{{ .Files.Get "files/opsany/conf/settings_production.py.esb" | indent 4 }}

@@ -43,7 +43,7 @@ spec:
             - name: opsany-paas-websocket-init
               mountPath: /opt/opsany/websocket/__init__.py
               subPath: __init__.py
-            - name: websocket-ini
+            - name: opsany-paas-websocket-supervisor
               mountPath: /etc/supervisord.d/websocket.ini
               subPath: websocket.ini
           ports:
@@ -77,9 +77,9 @@ spec:
             items:
             - key: settings_production.py.websocket.init
               path: __init__.py
-        - name: websocket-ini
+        - name: opsany-paas-websocket-supervisor
           configMap:
-            name: websocket-ini
+            name: opsany-paas-websocket-supervisor
             items:
             - key: websocket.ini
               path: websocket.ini

@@ -264,7 +264,7 @@ default_include: master.d/*.conf
 # return calls made from minions to the master. If the master seems to be
 # running slowly, increase the number of threads. This setting can not be
 # set lower than 3.
-#worker_threads: 5
+worker_threads: 3
 
 # Set the ZeroMQ high water marks
 # http://api.zeromq.org/3-2:zmq-setsockopt

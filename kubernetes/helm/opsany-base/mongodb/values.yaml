@@ -104,8 +104,8 @@ diagnosticMode:
 ## @param image.debug Set to true if you would like to see extra information on logs
 ##
 image:
-  registry: docker.io
-  repository: bitnami/mongodb
+  registry: registry.cn-beijing.aliyuncs.com
+  repository: opsany/mongodb
   tag: 6.0.3-debian-11-r0
   digest: ""
   ## Specify a imagePullPolicy

@@ -5,7 +5,7 @@ Copyright (C) 2017-2018 THL A29 Limited, a Tencent company. All rights reserved.
 Licensed under the MIT License (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
 http://opensource.org/licenses/MIT
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
-""" # noqa
+"""  # noqa
 
 from __future__ import unicode_literals
 
@@ -45,6 +45,7 @@ class SaaSListPageView(SuperuserRequiredMixin, MakoTemplateView):
 class SaaSListView(SuperuserRequiredMixin, View):
     """查询获得上传部署应用的列表
     """
+
     def get(self, request):
 
         form = AppQueryForm(request.GET)
@@ -183,6 +184,7 @@ class OfflinePageView(SaaSAdminMixin, MakoTemplateView):
 class DeleteSaaSView(SaaSAdminMixin, View):
     """删除某个 saas 及其所有版本
     """
+
     def post(self, request, *args, **kwargs):
         app_code = self.kwargs["app_code"]
         username = request.user.username
@@ -250,7 +252,7 @@ class UploadAndRegisterView(SuperuserRequiredMixin, View):
         result = {"result": result, "message": message}
         result.update(data)
         return JsonResponse(result)
-        
+
     def _save_saas_upload_file(self, saas_file_name):
         saas_upload_file = SaaSUploadFile.objects.create(
             name=saas_file_name,
@@ -268,7 +270,7 @@ class UploadAndRegisterView(SuperuserRequiredMixin, View):
         saas_app.name = app_name
         saas_app.save()
         return saas_app
-    
+
     def _save_saas_app_version(self, saas_app, version, upload_file, secret_key):
         version_settings = {
             'app_code': saas_app.code,
@@ -296,7 +298,7 @@ class UploadAndRegisterView(SuperuserRequiredMixin, View):
         saas_app.online_version = saas_app_version
         saas_app.save()
         return saas_app_version
-    
+
     def _save_bk_app(self, saas_app):
         bk_app = BkApp.objects.filter(app_code=saas_app.code).first()
         if not bk_app:
@@ -307,7 +309,7 @@ class UploadAndRegisterView(SuperuserRequiredMixin, View):
         bk_app.app_lang = "Python"
         bk_app.save()
         return bk_app
-    
+
     def _save_bk_app_token(self, bk_app, secret_key):
         bk_app_token = BkAppToken.objects.filter(bk_app=bk_app).first()
         if not bk_app_token:
@@ -397,6 +399,7 @@ class UploadView(SuperuserRequiredMixin, View):
     1. app_code = 0, 则上传的新应用
     2. app_code != 0, 则上传老的应用, 需要校验app_code同包里的 app_code 是否一致
     """
+
     def post(self, request, *args, **kwargs):
         app_code = self.kwargs["app_code"]
 
@@ -484,6 +487,7 @@ class UploadView(SuperuserRequiredMixin, View):
 class OnlineView(SuperuserRequiredMixin, View):
     """执行部署
     """
+
     def post(self, request, *args, **kwargs):
         saas_app_version_id = self.kwargs["saas_app_version_id"]
 
@@ -502,6 +506,7 @@ class OnlineView(SuperuserRequiredMixin, View):
 class ModifyAppLogoView(SuperuserRequiredMixin, View):
     """修改应用图标
     """
+
     def post(self, request, *args, **kwargs):
         app_code = self.kwargs["app_code"]
 

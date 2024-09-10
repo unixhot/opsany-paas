@@ -1,0 +1,119 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "opsany-saas-pipeline.fullname" . }}
+  labels:
+    {{- include "opsany-saas-pipeline.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "opsany-saas-pipeline.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "opsany-saas-pipeline.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          volumeMounts:
+            - name: opsany-saas-ce-pipeline-init
+              mountPath: /opt/opsany/pipeline/config/__init__.py
+              subPath: pipeline-init.py
+            - name: opsany-saas-ce-pipeline-prod
+              mountPath: /opt/opsany/pipeline/config/prod.py
+              subPath: pipeline-prod.py
+            - name: opsany-saas-ce-pipeline-supervisor
+              mountPath: /etc/supervisord.d/pipeline.ini
+              subPath: pipeline-supervisor.ini
+            - name: opsany-saas-ce-pipeline-nginx
+              mountPath: /etc/nginx/http.d/default.conf
+              subPath: pipeline-nginx.conf
+            - name: opsany-saas-ce-pipeline-uwsgi
+              mountPath: /opt/opsany/uwsgi/pipeline.ini
+              subPath: pipeline-uwsgi.ini
+            - name: opsany-logs
+              mountPath: /opt/opsany/logs
+            - name: opsany-uploads
+              mountPath: /opt/opsany/uploads
+
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+#          livenessProbe:
+#            httpGet:
+#              path: /o/pipeline/healthz/
+#              port: http
+#          readinessProbe:
+#            httpGet:
+#              path: /o/pipeline/healthz/
+#              port: http
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+        - name: opsany-saas-ce-pipeline-init
+          configMap:
+            name: opsany-saas-ce-pipeline-init
+            items:
+            - key: pipeline-init.py
+              path: pipeline-init.py
+        - name: opsany-saas-ce-pipeline-prod
+          configMap:
+            name: opsany-saas-ce-pipeline-prod
+            items:
+            - key: pipeline-prod.py
+              path: pipeline-prod.py
+        - name: opsany-saas-ce-pipeline-nginx
+          configMap:
+            name: opsany-saas-ce-pipeline-nginx
+            items:
+            - key: pipeline-nginx.conf
+              path: pipeline-nginx.conf
+        - name: opsany-saas-ce-pipeline-uwsgi
+          configMap:
+            name: opsany-saas-ce-pipeline-uwsgi
+            items:
+            - key: pipeline-uwsgi.ini
+              path: pipeline-uwsgi.ini
+        - name: opsany-saas-ce-pipeline-supervisor
+          configMap:
+            name: opsany-saas-ce-pipeline-supervisor
+            items:
+            - key: pipeline-supervisor.ini
+              path: pipeline-supervisor.ini
+        - name: opsany-uploads
+          persistentVolumeClaim:
+            claimName: opsany-uploads
+        - name: opsany-logs
+          persistentVolumeClaim:
+            claimName: opsany-logs
+

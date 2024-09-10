@@ -80,11 +80,6 @@ install_check(){
   if [ -f /etc/redhat-release ];then
       setenforce 0
   fi
-  DOCKER_PID=$(ps aux | grep '/usr/bin/containerd' | grep -v 'grep' | wc -l)
-  if [ ${DOCKER_PID} -lt 1 ];then
-      shell_error_log "Error: Please install and start docker first!!!"
-      exit
-  fi
 }
 
 # Install Initialize
@@ -305,7 +300,7 @@ paas_start(){
     sed -i "s/MYSQL_SERVER_PORT/${MYSQL_SERVER_PORT}/g" ${INSTALL_PATH}/conf/opsany-paas/websocket/settings_production.py.websocket
     sed -i "s/MYSQL_OPSANY_PASSWORD/${MYSQL_OPSANY_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-paas/websocket/settings_production.py.websocket
     sed -i "s/PAAS_PAAS_IP/${PAAS_PAAS_IP}/g" ${INSTALL_PATH}/conf/opsany-paas/websocket/settings_production.py.websocket.init
-    docker pull ${PAAS_DOCKER_REG}/opsany-paas-websocket:2.2.1
+    docker pull ${PAAS_DOCKER_REG}/opsany-paas-websocket:2.2.2
     docker run -d --restart=always --name opsany-paas-websocket \
     -p 8004:8004 -v ${INSTALL_PATH}/logs:/opt/opsany/logs \
     -v ${INSTALL_PATH}/uploads:/opt/opsany/uploads \
@@ -314,7 +309,7 @@ paas_start(){
     -v ${INSTALL_PATH}/conf/opsany-paas/websocket/websocket.ini:/etc/supervisord.d/websocket.ini \
     -v /usr/share/zoneinfo:/usr/share/zoneinfo \
     -v /etc/localtime:/etc/localtime:ro \
-    ${PAAS_DOCKER_REG}/opsany-paas-websocket:2.2.1
+    ${PAAS_DOCKER_REG}/opsany-paas-websocket:2.2.2
     
     #openresty
     shell_log "======PaaS Service: Start openresty Service======"

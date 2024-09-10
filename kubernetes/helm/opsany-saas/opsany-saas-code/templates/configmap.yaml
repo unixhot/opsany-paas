@@ -1,0 +1,44 @@
+---
+# code-init.py
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ce-code-init
+data:
+{{ (.Files.Glob "code-init.py").AsConfig | indent 2 }}
+
+---
+# code-prod.py
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ce-code-prod
+data:
+{{ (.Files.Glob "code-prod.py").AsConfig | indent 2 }}
+
+---
+# code-nginx.conf
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ce-code-nginx
+data:
+{{ (.Files.Glob "code-nginx.conf").AsConfig | indent 2 }}
+
+---
+# code-supervisor.ini
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ce-code-supervisor
+data:
+{{ (.Files.Glob "code-supervisor.ini").AsConfig | indent 2 }}
+
+---
+# code-uwsgi.ini
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ce-code-uwsgi
+data:
+{{ (.Files.Glob "code-uwsgi.ini").AsConfig | indent 2 }}

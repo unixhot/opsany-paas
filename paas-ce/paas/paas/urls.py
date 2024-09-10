@@ -5,7 +5,7 @@ Copyright (C) 2017-2018 THL A29 Limited, a Tencent company. All rights reserved.
 Licensed under the MIT License (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
 http://opensource.org/licenses/MIT
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
-""" # noqa
+"""  # noqa
 """paas URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
@@ -28,6 +28,7 @@ from django.contrib import admin
 from django.http import HttpResponse
 from django.views.generic import RedirectView
 from django.views.i18n import javascript_catalog
+
 # from account.decorators import login_exempt
 
 
@@ -44,7 +45,7 @@ urlpatterns = [
     url(r'^$', RedirectView.as_view(pattern_name="platform", permanent=True)),
     # url(wx_verify_code_url, wx_verify),
     # url(r'^$', RedirectView.as_view(url='/o/workbench/', permanent=True)),
-    
+
     # 首页
     url(r'^platform/', include("home.urls")),
 
@@ -92,11 +93,12 @@ urlpatterns = [
 # urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 from account.decorators import login_exempt  # noqa
 import django.views  # noqa
+
 static_serve = login_exempt(django.views.static.serve)
 urlpatterns.append(url(r'^media/(?P<path>.*)$', static_serve, {'document_root': settings.MEDIA_ROOT}))
 
-
 # for static
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns  # noqa
+
 urlpatterns += staticfiles_urlpatterns()
 

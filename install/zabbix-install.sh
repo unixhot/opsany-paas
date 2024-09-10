@@ -69,6 +69,8 @@ zabbix_5_0_install(){
       -e MYSQL_PASSWORD="${ZABBIX_DB_PASSWORD}" \
       -e MYSQL_ROOT_PASSWORD="${MYSQL_ROOT_PASSWORD}" \
       -v /etc/localtime:/etc/localtime:ro \
+      -e PHP_TZ="Asia/Shanghai" \
+      -e ZBX_SERVER_NAME="opsany-server" \
       -p 8006:8080 \
       -d ${PAAS_DOCKER_REG}/zabbix-web-nginx-mysql:alpine-5.0-latest
 }
@@ -84,8 +86,6 @@ zabbix_6_0_install(){
     -v /etc/localtime:/etc/localtime:ro \
     ${PAAS_DOCKER_REG}/mysql:8.0 --character-set-server=utf8 --collation-server=utf8_general_ci
 
-
-
     shell_log "=====Start Zabbix 6.0 LTS======"
     docker run --restart=always --name opsany-zabbix-server-6.0 -t \
       -e DB_SERVER_HOST="${MYSQL_SERVER_IP}" \
@@ -100,8 +100,6 @@ zabbix_6_0_install(){
       -v ${INSTALL_PATH}/zabbix-volume/snmptraps:/var/lib/zabbix/snmptraps \
       -v /etc/localtime:/etc/localtime:ro \
       -d ${PAAS_DOCKER_REG}/zabbix-server-mysql:6.0-centos-latest
-
-
     sleep 20
     
     docker run --restart=always --name opsany-zabbix-web-6.0 -t \
@@ -112,16 +110,16 @@ zabbix_6_0_install(){
       -e MYSQL_USER="${ZABBIX_DB_USER}" \
       -e MYSQL_PASSWORD="${ZABBIX_DB_PASSWORD}" \
       -e MYSQL_ROOT_PASSWORD="${MYSQL_ROOT_PASSWORD}" \
+      -e PHP_TZ="Asia/Shanghai" \
+      -e ZBX_SERVER_NAME="opsany-server" \
       -v /etc/localtime:/etc/localtime:ro \
       -p 8006:8080 \
       -d ${PAAS_DOCKER_REG}/zabbix-web-nginx-mysql:6.0-centos-latest
-      
-
 }
 
 zabbix_7_0_install(){
 
-    shell_log "=====Start mysql 8.0======"
+    shell_log "=====Start Zabbix MySQL 8.0======"
     docker run -d --restart=always --name opsany-zabbix-mysql8 \
     -e MYSQL_ROOT_PASSWORD="$MYSQL_ROOT_PASSWORD" \
     -p 3307:3306 -v ${INSTALL_PATH}/zabbix-mysql8-volume:/var/lib/mysql \
@@ -130,10 +128,8 @@ zabbix_7_0_install(){
     -v /etc/localtime:/etc/localtime:ro \
     ${PAAS_DOCKER_REG}/mysql:8.0 --character-set-server=utf8 --collation-server=utf8_general_ci --default-authentication-plugin=caching_sha2_password
 
-
-
-   shell_log "=====Start Zabbix 7.0 LTS======"
-   docker run --restart=always --name opsany-zabbix-server-7.0 -t \
+   shell_log "=====Start Zabbix Server 7.0 LTS======"
+   docker run --restart=always --name opsany-zabbix-server-7.0.3 -t \
      -e DB_SERVER_HOST="${MYSQL_SERVER_IP}" \
      -e DB_SERVER_PORT="3307" \
      -e MYSQL_DATABASE="${ZABBIX_DB_NAME}" \
@@ -145,12 +141,11 @@ zabbix_7_0_install(){
      -v ${INSTALL_PATH}/zabbix-volume/externalscripts:/usr/lib/zabbix/externalscripts \
      -v ${INSTALL_PATH}/zabbix-volume/snmptraps:/var/lib/zabbix/snmptraps \
      -v /etc/localtime:/etc/localtime:ro \
-     -d ${PAAS_DOCKER_REG}/zabbix-server-mysql:7.0-centos-latest
+     -d ${PAAS_DOCKER_REG}/zabbix-server-mysql:7.0.3-ubuntu
 
-
-   sleep 20
-   
-   docker run --restart=always --name opsany-zabbix-web-7.0 -t \
+   sleep 15
+   shell_log "=====Start Zabbix Web 7.0 LTS======"
+   docker run --restart=always --name opsany-zabbix-web-7.0.3 -t \
      -e ZBX_SERVER_HOST="${MYSQL_SERVER_IP}" \
      -e DB_SERVER_HOST="${MYSQL_SERVER_IP}" \
      -e DB_SERVER_PORT="3307" \
@@ -158,10 +153,28 @@ zabbix_7_0_install(){
      -e MYSQL_USER="${ZABBIX_DB_USER}" \
      -e MYSQL_PASSWORD="${ZABBIX_DB_PASSWORD}" \
      -e MYSQL_ROOT_PASSWORD="${MYSQL_ROOT_PASSWORD}" \
+     -e PHP_TZ="Asia/Shanghai" \
+     -e ZBX_SERVER_NAME="opsany-server" \
      -v /etc/localtime:/etc/localtime:ro \
      -p 8006:8080 \
-     -d ${PAAS_DOCKER_REG}/zabbix-web-nginx-mysql:7.0-centos-latest
-     
+     -d ${PAAS_DOCKER_REG}/zabbix-web-nginx-mysql:7.0.3-ubuntu
+
+    shell_log "=====Start Zabbix Agent2 7.0 LTS======"
+    docker run --restart=always --name opsany-zabbix-agent2 -t \
+     -e ZBX_HOSTNAME="opsany-server" \
+     -e ZBX_SERVER_HOST="${LOCAL_IP}" \
+     -e ZBX_ACTIVE_ALLOW=true \
+     -e ZBX_PASSIVE_ALLOW=false \
+     -v /etc/localtime:/etc/localtime:ro \
+     -d ${PAAS_DOCKER_REG}/zabbix-agent2:7.0.3-ubuntu
+
+    shell_log "=====Zabbix Automatic Integration======"
+    if [ -z "$ADMIN_PASSWORD" ];then
+        source ${INSTALL_PATH}/conf/.passwd_env
+    fi
+    sleep 120
+    python3 ../saas/init-ce-monitor-zabbix.py --domain $DOMAIN_NAME --private_ip $LOCAL_IP --paas_username admin --paas_password $ADMIN_PASSWORD --zabbix_ip $LOCAL_IP --zabbix_password zabbix --grafana_ip $LOCAL_IP --grafana_password $GRAFANA_ADMIN_PASSWORD --zabbix_api_password ${ZABBIX_API_PASSWORD}  --modify_zabbix_password ${ZABBIX_ADMIN_PASSWORD} --zabbix_version 7.0
+
 
 }
 
@@ -186,13 +199,15 @@ zabbix_uninstall6(){
 }
 
 zabbix_uninstall7(){
-    shell_log "=====Uninstall Zabbix 7.0======"
-    docker stop opsany-zabbix-web-7.0
-    docker stop opsany-zabbix-server-7.0
+    shell_log "=====Uninstall Zabbix 7.0.3======"
+    docker stop opsany-zabbix-web-7.0.3
+    docker stop opsany-zabbix-server-7.0.3
     docker stop opsany-zabbix-mysql8
-    docker rm opsany-zabbix-web-7.0
-    docker rm opsany-zabbix-server-7.0
+    docker stop opsany-zabbix-agent2
+    docker rm opsany-zabbix-web-7.0.3
+    docker rm opsany-zabbix-server-7.0.3
     docker rm opsany-zabbix-mysql8
+    docker rm opsany-zabbix-agent2
     rm -rf ${INSTALL_PATH}/{zabbix-volume,logs/mysql8,conf/mysql8,zabbix-mysql8-volume}
 }
 

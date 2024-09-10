@@ -35,7 +35,7 @@ spec:
             - name: opsany-paas-paas-config
               mountPath: /opt/opsany/paas/paas/conf/settings_production.py
               subPath: settings_production.py
-            - name: paas-ini
+            - name: opsany-paas-paas-supervisor
               mountPath: /etc/supervisord.d/paas.ini
               subPath: paas.ini
             - name: opsany-logs
@@ -45,14 +45,6 @@ spec:
             - name: paas-paas
               containerPort: 8001
               protocol: TCP
-          livenessProbe:
-            httpGet:
-              path: /healthz/
-              port: 8001
-          readinessProbe:
-            httpGet:
-              path: /healthz/
-              port: 8001
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
@@ -70,13 +62,13 @@ spec:
       volumes:
         - name: opsany-paas-paas-config
           secret:
-            secretName: opsany-paas-paas
+            secretName: opsany-paas-paas-config
             items:
             - key: settings_production.py.paas
               path: settings_production.py
-        - name: paas-ini
+        - name: opsany-paas-paas-supervisor
           secret:
-            secretName: paas-ini
+            secretName: opsany-paas-paas-supervisor
             items:
             - key: paas.ini
               path: paas.ini

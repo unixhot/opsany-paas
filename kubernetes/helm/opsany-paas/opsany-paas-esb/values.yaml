@@ -5,7 +5,7 @@
 replicaCount: 1
 
 image:
-  repository: opsany/opsany-paas-esb
+  repository: registry.cn-beijing.aliyuncs.com/opsany/opsany-paas-esb
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""

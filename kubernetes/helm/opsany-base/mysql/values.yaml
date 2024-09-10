@@ -71,8 +71,8 @@ diagnosticMode:
 ## @param image.debug Specify if debug logs should be enabled
 ##
 image:
-  registry: docker.io
-  repository: bitnami/mysql
+  registry: registry.cn-beijing.aliyuncs.com
+  repository: opsany/mysql
   tag: 8.0.31-debian-11-r10
 
   digest: ""

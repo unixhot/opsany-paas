@@ -35,7 +35,7 @@ spec:
             - name: opsany-paas-login-config
               mountPath: /opt/opsany/paas/login/conf/settings_production.py
               subPath: settings_production.py
-            - name: login-ini
+            - name: opsany-paas-login-supervisor
               mountPath: /etc/supervisord.d/login.ini
               subPath: login.ini
             - name: opsany-logs
@@ -70,13 +70,13 @@ spec:
       volumes:
         - name: opsany-paas-login-config
           secret:
-            secretName: opsany-paas-login
+            secretName: opsany-paas-login-config
             items:
             - key: settings_production.py.login
               path: settings_production.py
-        - name: login-ini
+        - name: opsany-paas-login-supervisor
           secret:
-            secretName: login-ini
+            secretName: opsany-paas-login-supervisor
             items:
             - key: login.ini
               path: login.ini
