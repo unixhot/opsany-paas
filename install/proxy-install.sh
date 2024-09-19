@@ -133,7 +133,7 @@ proxy_config(){
 proxy_start(){
     # Proxy
     shell_log "======Start Proxy======"
-    docker pull ${PAAS_DOCKER_REG}/opsany-paas-proxy:2.2.0
+    docker pull ${PAAS_DOCKER_REG}/opsany-paas-proxy:2.2.2
     docker run --restart=always --name opsany-paas-proxy -d \
         -p 4505:4505 -p 4506:4506 -p 8010:8010 \
         -v ${INSTALL_PATH}/logs/proxy:/opt/opsany/logs/proxy \
@@ -151,7 +151,7 @@ proxy_start(){
         -v ${INSTALL_PATH}/conf/proxy/saltmaster.ini:/etc/supervisord.d/saltmaster.ini \
         -v ${INSTALL_PATH}/proxy-volume/pki:/opt/opsany/pki \
         -v /etc/localtime:/etc/localtime:ro \
-        ${PAAS_DOCKER_REG}/opsany-paas-proxy:2.2.0
+        ${PAAS_DOCKER_REG}/opsany-paas-proxy:2.2.2
 
     #openresty
     shell_log "======Start openresty Service======"
