@@ -78,7 +78,9 @@ git clone https://gitee.com/opsany/opsany_workflow.git
 
 ```
 cd /opt/opsany-paas/saas/
-python3 init-ce-st2.py --domain https://www.opsany.com --username admin  --password PASSWORD --st2_url https://www.opsany.com:8005  --st2_username st2admin --st2_password ST2_PASSWORD
+INSTALL_PATH=/data/opsany/
+DEVOPS_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.devops_secret_key)
+python3 init-ce-st2.py --domain https://www.opsany.com --username admin  --password PASSWORD --st2_url https://www.opsany.com:8005  --st2_username st2admin --st2_password ST2_PASSWORD --app_code devops --app_secret ${DEVOPS_SECRET_KEY} --st2_core_pack_source gitee
 [SUCCESS] init devops st2 success.
 Downloading the OpsAny core package is expected to take 60 seconds...
 [SUCCESS] init st2 pack success.
