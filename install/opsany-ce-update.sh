@@ -309,6 +309,8 @@ websocket_update(){
     -v /usr/share/zoneinfo:/usr/share/zoneinfo \
     -v /etc/localtime:/etc/localtime:ro \
     ${PAAS_DOCKER_REG}/opsany-paas-websocket:${UPDATE_VERSION}
+    docker cp ../saas/ opsany-paas-websocket:/opt/opsany/
+    docker cp ./init/ opsany-paas-websocket:/opt/opsany/
 }
 
 saas_rbac_update(){
