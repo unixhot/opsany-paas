@@ -55,7 +55,7 @@ libraries:
 - name: PyNaCl
   version: 1.4.0
 - name: paramiko
-  version: 2.7.2
+  version: 3.5.0
 - name: channels
   version: 2.1.4
 - name: channels-redis

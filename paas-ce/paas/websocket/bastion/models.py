@@ -1598,6 +1598,7 @@ class NetworkProxyModel(BaseModel):
     linux_port = models.IntegerField(default=22, null=True, blank=True, verbose_name="Linux端口")
     linux_login_name = models.CharField(max_length=50, null=True, blank=True, verbose_name="Linux登录名")
     linux_login_password = models.CharField(max_length=500, null=True, blank=True, verbose_name="Linux密码")
+    linux_timeout = models.IntegerField(default=10, null=True, blank=True, verbose_name="Linux超时时间")
     credential_type = models.CharField(max_length=20, choices=CREDENTIAL_TYPE, default=CREDENTIAL_PASSWORD,
                                        verbose_name="凭据类型")
     ssh_key = models.TextField(null=True, blank=True, verbose_name="SSH Key")
@@ -1608,6 +1609,7 @@ class NetworkProxyModel(BaseModel):
 
     windows_ip = models.CharField(max_length=150, null=True, blank=True, verbose_name="Windows IP地址")
     windows_port = models.IntegerField(default=22, null=True, blank=True, verbose_name="Windows端口")
+    windows_timeout = models.IntegerField(default=10, null=True, blank=True, verbose_name="Windows超时时间")
     description = models.TextField(max_length=2000, null=True, blank=True, verbose_name="网路代理描述")
     
     # 1 正常 2 未使用 3 异常 4 未知

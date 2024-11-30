@@ -26,6 +26,33 @@ spec:
       {{- end }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      initContainers: 
+        - name: migrate
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          command: ["python", "/opt/opsany/bastion/manage.py","migrate"] 
+          env:  
+            - name: BK_ENV
+              value: "production"
+          volumeMounts:
+            - name: opsany-saas-ce-bastion-init
+              mountPath: /opt/opsany/bastion/config/__init__.py
+              subPath: bastion-init.py
+            - name: opsany-saas-ce-bastion-prod
+              mountPath: /opt/opsany/bastion/config/prod.py
+              subPath: bastion-prod.py
+            - name: opsany-saas-ce-bastion-supervisor
+              mountPath: /etc/supervisord.d/bastion.ini
+              subPath: bastion-supervisor.ini
+            - name: opsany-saas-ce-bastion-nginx
+              mountPath: /etc/nginx/http.d/default.conf
+              subPath: bastion-nginx.conf
+            - name: opsany-saas-ce-bastion-uwsgi
+              mountPath: /opt/opsany/uwsgi/bastion.ini
+              subPath: bastion-uwsgi.ini
+            - name: opsany-logs
+              mountPath: /opt/opsany/logs
+            - name: opsany-uploads
+              mountPath: /opt/opsany/uploads
       containers:
         - name: {{ .Chart.Name }}
           securityContext:

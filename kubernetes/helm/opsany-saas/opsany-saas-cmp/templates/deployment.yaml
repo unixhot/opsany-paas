@@ -26,6 +26,34 @@ spec:
       {{- end }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      initContainers: 
+        - name: migrate
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          command: ["python", "/opt/opsany/cmp/manage.py","migrate"] 
+          env:  
+            - name: BK_ENV
+              value: "production"
+          volumeMounts:
+            - name: opsany-saas-ce-cmp-init
+              mountPath: /opt/opsany/cmp/config/__init__.py
+              subPath: cmp-init.py
+            - name: opsany-saas-ce-cmp-prod
+              mountPath: /opt/opsany/cmp/config/prod.py
+              subPath: cmp-prod.py
+            - name: opsany-saas-ce-cmp-supervisor
+              mountPath: /etc/supervisord.d/cmp.ini
+              subPath: cmp-supervisor.ini
+            - name: opsany-saas-ce-cmp-nginx
+              mountPath: /etc/nginx/http.d/default.conf
+              subPath: cmp-nginx.conf
+            - name: opsany-saas-ce-cmp-uwsgi
+              mountPath: /opt/opsany/uwsgi/cmp.ini
+              subPath: cmp-uwsgi.ini
+            - name: opsany-logs
+              mountPath: /opt/opsany/logs
+            - name: opsany-uploads
+              mountPath: /opt/opsany/uploads
+          
       containers:
         - name: {{ .Chart.Name }}
           securityContext:

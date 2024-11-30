@@ -10,5 +10,3 @@ host = SmartHost(
     # 需要填入系统正式环境的域名地址
     host_prod='DOMAIN_NAME',
 )
-
-base_api_url = "/t/event/api/event/v0_1/"

@@ -6,7 +6,7 @@ replicaCount: 1
 
 image:
   repository: registry.cn-beijing.aliyuncs.com/opsany/opsany-saas-ce-workbench
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
 
@@ -14,7 +14,8 @@ imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 
-podAnnotations: {}
+podAnnotations:
+  opsany.com/change-cause: 2024-11-23
 
 podSecurityContext: {}
   # fsGroup: 2000
@@ -30,10 +31,6 @@ securityContext: {}
 service:
   type: ClusterIP
   port: 7002
-
-volume:
-  path: /data/k8s-nfs/opsany-logs
-  server: 10.60.37.218
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious

@@ -18,7 +18,7 @@ import select
 import sys
 import json
 import codecs
-from paramiko.py3compat import u
+# from paramiko.py3compat import u
 import errno
 import os
 
@@ -480,6 +480,15 @@ class InterActiveShellThread(threading.Thread):
             else:
                 raise  # The original exception
 
+    def u(self, s, encoding="utf8"):
+        """cast bytes or unicode to unicode"""
+        if isinstance(s, bytes):
+            return s.decode(encoding)
+        elif isinstance(s, str):
+            return s
+        else:
+            raise TypeError("Expected unicode or bytes, got {!r}".format(s))
+
     def create_log(self, width, height, begin_time, stdout, log_name):
         attrs = {
             "version": 1,
@@ -586,7 +595,7 @@ class InterActiveShellThread(threading.Thread):
                             if len(data) == 0:
                                 channel.send({'text_data': json.dumps(['disconnect', smart_unicode('\r\n*** EOF\r\n')])})
                                 break
-                            x = u(data)
+                            x = self.u(data)
                             now = time.time()
                             delay = now - last_write_time['last_activity_time']
                             last_write_time['last_activity_time'] = now

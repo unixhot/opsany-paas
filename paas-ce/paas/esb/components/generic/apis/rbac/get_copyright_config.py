@@ -60,19 +60,16 @@ class GetCopyrightConfig(Component):
         params['operator'] = self.current_user.username
 
         # 请求系统接口
-        try:
-            response = self.outgoing.http_client.get(
-                host=configs.host,
-                path=configs.base_api_url + 'copyright-config/',
-                params=params,
-                data=None,
-                cookies=self.request.wsgi_request.COOKIES,	            
-            )
-        except:
-            pass
+        response = self.outgoing.http_client.get(
+            host=configs.host,
+            path=configs.base_api_url + 'copyright-config/',
+            params=params,
+            data=None,
+            cookies=self.request.wsgi_request.COOKIES,
+        )
 
         # 对结果进行解析
-	code = response['code']
+        code = response['code']
         if code == 200:
             result = {
                 'code': response['code'],
@@ -90,4 +87,3 @@ class GetCopyrightConfig(Component):
 
         # 设置组件返回结果，payload为组件实际返回结果
         self.response.payload = result
-

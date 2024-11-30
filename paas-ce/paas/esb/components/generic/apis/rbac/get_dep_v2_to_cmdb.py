@@ -45,9 +45,9 @@ class GetDepV2ToCmdb(Component):
 
     # Form处理参数校验
     class Form(BaseComponentForm):
-        data_type= forms.Field(required=True)
-        id= forms.Field(required=False)
-        dep_type= forms.Field(required=False)
+        data_type = forms.Field(required=True)
+        id = forms.Field(required=False)
+        dep_type = forms.Field(required=False)
 
         # clean方法返回的数据可通过组件的form_data属性获取
         def clean(self):
@@ -71,7 +71,7 @@ class GetDepV2ToCmdb(Component):
         )
 
         # 对结果进行解析
-	code = response['code']
+        code = response['code']
         if code == 200:
             result = {
                 'code': response['code'],
@@ -89,4 +89,3 @@ class GetDepV2ToCmdb(Component):
 
         # 设置组件返回结果，payload为组件实际返回结果
         self.response.payload = result
-

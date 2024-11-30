@@ -1,4 +1,5 @@
-1. Get the application URL by running these commands:
-  export SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ include "opsany-saas-workbench.fullname" . }} --template "{{"{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}"}}")
-  echo http://$SERVICE_IP:{{ .Values.service.port }}
-  echo "Visit http://127.0.0.1:7002 to use your application"
+# Get the OpsAny workbench URL by running these commands
+  export SERVICE_IP=$(kubectl get svc -n opsany opsany-saas-workbench -o jsonpath='{.spec.clusterIP}')
+  export SERVICE_PORT=$(kubectl get svc -n opsany opsany-saas-workbench -o jsonpath='{.spec.ports[*].port}')
+  echo http://$SERVICE_IP:$SERVICE_PORT
+  echo "Visit http://$SERVICE_IP:$SERVICE_PORT to use your application"

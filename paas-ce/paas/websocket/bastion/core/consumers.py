@@ -111,7 +111,7 @@ class WebSSH(WebsocketConsumer):
             else:
                 self.token = self.get_cookie().get("link_token")
         status, data = self.get_link_config(self.token)
-        if status:
+        if status and data:
             if not check_user:
                 status = self.check_link_user(data.get("user_id"))
             else:
@@ -188,11 +188,11 @@ class WebSSH(WebsocketConsumer):
         return session_log
 
     # 通过密码连接
-    def client_ssh_by_password(self, ip, port, username, password, sock=None):
+    def client_ssh_by_password(self, ip, port, username, password, sock=None, timeout=5):
         try:
             self.ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             # self.ssh.load_system_host_keys()
-            self.ssh.connect(hostname=ip, port=port, username=username, password=password, sock=sock, timeout=3)
+            self.ssh.connect(hostname=ip, port=port, username=username, password=password, sock=sock, timeout=timeout)
             return True, ""
         except socket.timeout:
             return False, WebSocketStatusCode.TIME_OUT
@@ -204,7 +204,7 @@ class WebSSH(WebsocketConsumer):
             return False, WebSocketStatusCode.SSH_CHECK_ERROR
 
     # 通过key登录
-    def client_ssh_by_ssh_key(self, ip, port, login_name, ssh_key, passphrase, sock=None):
+    def client_ssh_by_ssh_key(self, ip, port, login_name, ssh_key, passphrase, sock=None, timeout=5):
         """
         创建秘钥登陆SSH连接
         """
@@ -213,7 +213,12 @@ class WebSSH(WebsocketConsumer):
             self.ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             io_pri_key = io.StringIO(ssh_key)
             pri_key = paramiko.RSAKey.from_private_key(io_pri_key, password=passphrase)
-            self.ssh.connect(hostname=ip, port=port, username=login_name, pkey=pri_key, timeout=3, sock=sock)
+            self.ssh.connect(hostname=ip, port=port, username=login_name, pkey=pri_key, timeout=timeout, sock=sock)
+            # /usr/local/lib/python3.7/site-packages/paramiko/transport.py +757
+            # self.server_extensions = {"server-sig-algs": "ssh-rsa"}
+            # t = paramiko.Transport(sock)
+            # if hasattr(t, 'server_extensions'):
+            #     t.server_extensions = {'server-sig-algs': 'ssh-rsa'}
             return True, ""
         except socket.timeout:
             return False, WebSocketStatusCode.TIME_OUT
@@ -239,14 +244,14 @@ class WebSSH(WebsocketConsumer):
         return password
 
     # 通代理密码连接
-    def create_proxy_sock_by_password(self, ip, port, username, password, host_ip, host_port):
+    def create_proxy_sock_by_password(self, ip, port, username, password, host_ip, host_port, timeout=5):
         """
         通过密码创建代理连接
         """
         try:
             proxy = paramiko.SSHClient()
             proxy.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            proxy.connect(hostname=ip, port=port, username=username, password=self.get_password(password))
+            proxy.connect(hostname=ip, port=port, username=username, password=self.get_password(password), timeout=timeout)
             sock = proxy.get_transport().open_channel('direct-tcpip', (host_ip, host_port), (ip, 0))
             return True, sock
         except Exception as e:
@@ -254,7 +259,7 @@ class WebSSH(WebsocketConsumer):
             return False, None
 
     # 通过代理key连接
-    def create_proxy_sock_by_ssh_key(self, ip, port, username, ssh_key, passphrase, host_ip, host_port):
+    def create_proxy_sock_by_ssh_key(self, ip, port, username, ssh_key, passphrase, host_ip, host_port, timeout=5):
         """
         通过key创建代理连接
         """
@@ -263,7 +268,7 @@ class WebSSH(WebsocketConsumer):
             proxy.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             io_pri_key = io.StringIO(ssh_key)
             pri_key = paramiko.RSAKey.from_private_key(io_pri_key, password=self.get_password(passphrase))
-            proxy.connect(hostname=ip, port=port, username=username, pkey=pri_key)
+            proxy.connect(hostname=ip, port=port, username=username, pkey=pri_key, timeout=timeout)
             sock = proxy.get_transport().open_channel('direct-tcpip', (host_ip, host_port), (ip, 0))
             return True, sock
         except Exception as e:
@@ -273,57 +278,63 @@ class WebSSH(WebsocketConsumer):
             return False, None
 
     # 创建本地登录SSH连接
-    def _create_ssh_link(self, credential, host, password):
+    def _create_ssh_link(self, credential, host, password, timeout=5):
         """
         创建SSH连接
         """
         network_proxy = host.network_proxy
         sock = None
         if network_proxy:
+            try:
+                linux_timeout = network_proxy.linux_timeout or 5
+            except Exception:
+                linux_timeout = 5
             if network_proxy.credential_type == network_proxy.CREDENTIAL_PASSWORD:
                 status, sock = self.create_proxy_sock_by_password(
-                        network_proxy.linux_ip,
-                        network_proxy.linux_port,
-                        network_proxy.linux_login_name,
-                        network_proxy.linux_login_password,
-                        self.host.host_address,
-                        self.host.port
-                    )
+                    network_proxy.linux_ip,
+                    network_proxy.linux_port,
+                    network_proxy.linux_login_name,
+                    network_proxy.linux_login_password,
+                    self.host.host_address,
+                    self.host.port,
+                    linux_timeout
+                )
             else:
                 status, sock = self.create_proxy_sock_by_ssh_key(
-                        network_proxy.linux_ip,
-                        network_proxy.linux_port,
-                        network_proxy.linux_login_name,
-                        network_proxy.ssh_key,
-                        network_proxy.passphrase,
-                        self.host.host_address,
-                        self.host.port
-                    )
+                    network_proxy.linux_ip,
+                    network_proxy.linux_port,
+                    network_proxy.linux_login_name,
+                    network_proxy.ssh_key,
+                    network_proxy.passphrase,
+                    self.host.host_address,
+                    self.host.port,
+                    linux_timeout
+                )
             if not status:
                 return False, WebSocketStatusCode.PROXY_LINK_ERROR
         if credential.login_type == CredentialModel.LOGIN_AUTO:
             if credential.credential_type == CredentialModel.CREDENTIAL_PASSWORD:
                 password = self.get_password(credential.login_password)
                 login_name = credential.login_name
-                status, code = self.client_ssh_by_password(host.host_address, host.port, login_name, password, sock)
+                status, code = self.client_ssh_by_password(host.host_address, host.port, login_name, password, sock, timeout)
             else:
-                password = credential.passphrase
+                password = self.get_password(credential.passphrase)
                 ssh_key = credential.ssh_key
                 login_name = credential.login_name
-                status, code = self.client_ssh_by_ssh_key(host.host_address, host.port, login_name, ssh_key, password, sock)
+                status, code = self.client_ssh_by_ssh_key(host.host_address, host.port, login_name, ssh_key, password, sock, timeout)
         else:
             login_name = credential.login_name
             if credential.credential_type == CredentialModel.CREDENTIAL_PASSWORD:
-                status, code = self.client_ssh_by_password(host.host_address, host.port, login_name, password, sock)
+                status, code = self.client_ssh_by_password(host.host_address, host.port, login_name, password, sock, timeout)
             else:
                 ssh_key = credential.ssh_key
-                status, code = self.client_ssh_by_ssh_key(host.host_address, host.port, login_name, ssh_key, password, sock)
+                status, code = self.client_ssh_by_ssh_key(host.host_address, host.port, login_name, ssh_key, password, sock, timeout)
         if not status:
             return False, code
         return True, ""
 
     # 创建外部登录SSH连接
-    def _create_cache_ssh_link(self, token_data):
+    def _create_cache_ssh_link(self, token_data, timeout=5):
         """
         创建SSH连接
         """
@@ -344,6 +355,10 @@ class WebSSH(WebsocketConsumer):
 
             if not network_proxy:
                 return False, WebSocketStatusCode.PROXY_LINK_ERROR
+            try:
+                linux_timeout = network_proxy.linux_timeout or 5
+            except Exception:
+                linux_timeout = 5
             if network_proxy.credential_type == network_proxy.CREDENTIAL_PASSWORD:
                 status, sock = self.create_proxy_sock_by_password(
                         network_proxy.linux_ip,
@@ -351,8 +366,9 @@ class WebSSH(WebsocketConsumer):
                         network_proxy.linux_login_name,
                         network_proxy.linux_login_password,
                         ip,
-                        port
-                    )
+                        port,
+                        linux_timeout
+                )
             else:
                 status, sock = self.create_proxy_sock_by_ssh_key(
                         network_proxy.linux_ip,
@@ -361,16 +377,17 @@ class WebSSH(WebsocketConsumer):
                         network_proxy.ssh_key,
                         network_proxy.passphrase,
                         ip,
-                        port
+                        port,
+                        linux_timeout
                     )
             if not status:
                 return False, WebSocketStatusCode.PROXY_LINK_ERROR
         # app_logging.info(sock)
 
         if token_data.get("login_type") == "password":
-            status, code = self.client_ssh_by_password(ip, port, username, password, sock)
+            status, code = self.client_ssh_by_password(ip, port, username, password, sock, timeout=timeout)
         else:
-            status, code = self.client_ssh_by_ssh_key(ip, port, username, ssh_key, password, sock)
+            status, code = self.client_ssh_by_ssh_key(ip, port, username, ssh_key, password, sock, timeout=timeout)
         if not status:
             return False, code
         return True, ""
@@ -381,6 +398,10 @@ class WebSSH(WebsocketConsumer):
         校验数据以及创建SSH连接
         """
         # app_logging.info(str(data))
+        try:
+            timeout = int(data.get("timeout", 5))
+        except Exception:
+            timeout = 5
         if not data.get("cache"):
             host_id = data.get("host_id")
             credential_host_id = data.get("credential_host_id")
@@ -391,9 +412,9 @@ class WebSSH(WebsocketConsumer):
                 self.close_connect(WebSocketStatusCode.PARAM_ERROR)
             if self.host.system_type != HostModel.SYSTEM_LINUX:
                 self.close_connect(WebSocketStatusCode.HOST_TYPE_ERROR)
-            status, code = self._create_ssh_link(credential_host.credential, self.host, password)
+            status, code = self._create_ssh_link(credential_host.credential, self.host, password, timeout=timeout)
         else:
-            status, code = self._create_cache_ssh_link(data)
+            status, code = self._create_cache_ssh_link(data, timeout)
 
         if not status:
             return False, code

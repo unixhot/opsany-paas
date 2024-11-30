@@ -8,6 +8,7 @@ from django import forms
 from common.forms import BaseComponentForm
 from components.component import Component
 from .toolkit import configs
+from .toolkit.tools import base_api_url
 
 
 class GetSyncData(Component):
@@ -51,19 +52,16 @@ class GetSyncData(Component):
         params['operator'] = self.current_user.username
 
         # 请求系统接口
-        try:
-            response = self.outgoing.http_client.get(
-                host=configs.host,
-                path=configs.base_api_url + 'get_sync_data/',
-                params=params,
-                data=None,
-                cookies=self.request.wsgi_request.COOKIES,	            
-            )
-        except:
-            pass
+        response = self.outgoing.http_client.get(
+            host=configs.host,
+            path='{}get_sync_data/'.format(base_api_url),
+            params=params,
+            data=None,
+            cookies=self.request.wsgi_request.COOKIES,
+        )
 
         # 对结果进行解析
-	code = response['code']
+        code = response['code']
         if code == 200:
             result = {
                 'code': response['code'],

@@ -175,6 +175,10 @@ class DatabaseRedisWeb(WebsocketConsumer):
         return
 
     def start_ssh(self, data):
+        try:
+            timeout = int(data.get("timeout", 10))
+        except Exception:
+            timeout = 10
         if not data.get("cache"):
             host_id = data.get("host_id")
             credential_host_id = data.get("credential_host_id")
@@ -189,6 +193,7 @@ class DatabaseRedisWeb(WebsocketConsumer):
             dic = {
                 "host": self.database.host_address,
                 "port": self.database.port,
+                "socket_connect_timeout": timeout,
                 # "port": "16379",
                 "password": password,
                 "decode_responses": True

@@ -10,7 +10,6 @@ import urllib3
 from urllib3.exceptions import ConnectTimeoutError
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-from default_host_dashboard_dict import default_host_dashboard_dict
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 import argparse
@@ -237,8 +236,8 @@ class ZabbixApi:
                 "method": "host.update",
                 "params": {
                     "hostid": host_id,
-                    "host": "opsany-server",
-                    "name": "opsany-server",
+                    "host": default_zabbix_host_name,
+                    "name": default_zabbix_host_name,
                     "templates": [
                         # {"templateid": "10047"},
                         # {"templateid": "10343"}
@@ -398,16 +397,6 @@ class GrafanaBearerApi:
         except Exception as e:
             return False, str(e), {}
 
-    def import_dashboard(self, request_json):
-        try:
-            res = self.grafana_api_obj.dashboard.update_dashboard(request_json)
-            if res.get("status", "") == "success":
-                return True, "import success"
-            else:
-                return False, "import error"
-        except Exception as e:
-            return False, str(e)
-
 
 class Run:
     def __init__(self, paas_domain, private_ip, paas_username, paas_password, zabbix_ip, zabbix_password,
@@ -466,7 +455,7 @@ class Run:
             else:
                 status = False
                 return status, "用户名密码验证失败"
-            update_host_res = zabbix_obj.update_base_host_info(10084, self.private_ip)
+            update_host_res = zabbix_obj.update_base_host_info(default_zabbix_host_id, self.private_ip)
             if not update_host_res:
                 print("更新主机失败")
             # 修改admin用户密码
@@ -490,17 +479,8 @@ class Run:
             create_data_source_status, create_data_source_message, create_data_source_dict = bearer_grafana_obj.create_data_source(
                 "http://{}:8006/api_jsonrpc.php".format(self.private_ip), self.zabbix_api_username, self.data_source_name
             )
-            data_source_dict = {
-                "dashboard": default_host_dashboard_dict,
-                "folderId": 0,
-                "overwrite": False
-            }
             if create_data_source_status:
-                import_host_status, import_host_message = bearer_grafana_obj.import_dashboard(data_source_dict)
-                if not import_host_status:
-                    return False, f"[ERROR] Import default host dashboard error: {import_host_message}", {}
-                else:
-                    return True, "[SUCCESS] Import default host dashboard success", create_data_source_dict
+                return True, "[SUCCESS] Create data source success", create_data_source_dict
             else:
                 return False, f"[ERROR] Create data source error: {create_data_source_message}", {}
         except Exception as e:
@@ -593,6 +573,12 @@ if __name__ == '__main__':
     options = parameter.parse_args()
     default_data_source_name = "内置Zabbix Server"
     default_paas_username = "admin"
+    default_zabbix_host_name = "opsany-server"
+    default_zabbix_host_id = 10084
+    default_zabbix_host_template_list = [
+        {"temp_id": "10047", "temp_name": "Zabbix server health"},
+        {"temp_id": "10343", "temp_name": "Linux by Zabbix agent active"}
+    ]
     default_paas_password = "admin"
     default_zabbix_password = "admin"
     default_grafana_password = "admin"
@@ -615,6 +601,8 @@ if __name__ == '__main__':
 
 """
 # 不修改Admin的Zabbix密码可以不传modify_zabbix_password
+python ../saas/init-ce-monitor-zabbix.py --domain 127.0.0.1 --private_ip 127.0.0.1 --paas_username admin --paas_password OpsYXur628852 --zabbix_ip 127.0.0.1 --zabbix_password zabbix --grafana_ip 127.0.0.1 --grafana_password OpsMEnOL9268 --zabbix_api_password OpsAny@2020 --zabbix_version 6.0
+
 python3 ../saas/init-ce-monitor-zabbix.py --domain $DOMAIN_NAME --private_ip $LOCAL_IP --paas_username admin --paas_password $ADMIN_PASSWORD --zabbix_ip $LOCAL_IP --zabbix_password zabbix --grafana_ip $LOCAL_IP --grafana_password $GRAFANA_ADMIN_PASSWORD --zabbix_api_password OpsAny@2020 --zabbix_version 7.0
 """
 

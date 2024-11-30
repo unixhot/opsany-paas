@@ -45,14 +45,6 @@ spec:
             - name: paas-appengine
               containerPort: 8000
               protocol: TCP
-          livenessProbe:
-            httpGet:
-              path: /v1/healthz/
-              port: 8000
-          readinessProbe:
-            httpGet:
-              path: /v1/healthz/
-              port: 8000
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}

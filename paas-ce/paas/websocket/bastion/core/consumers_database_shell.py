@@ -128,16 +128,16 @@ class Database(WebsocketConsumer):
             password = ""
         return password
 
-    def client_proxy_or_local_link(self, ip="127.0.0.1", port=22, username="", password=""):
+    def client_proxy_or_local_link(self, ip="127.0.0.1", port=22, username="", password="", timeout=5):
         """
         创建本地连接或者代理连接
         """
         try:
             self.ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             if username:
-                self.ssh.connect(hostname=ip, port=port, username=username, password=password)
+                self.ssh.connect(hostname=ip, port=port, username=username, password=password, timeout=timeout)
             else:
-                self.ssh.connect(hostname=ip, port=port, password=password)
+                self.ssh.connect(hostname=ip, port=port, password=password, timeout=timeout)
             return True, ""
         except socket.timeout:
             return False, WebSocketStatusCode.TIME_OUT
@@ -178,7 +178,7 @@ class Database(WebsocketConsumer):
                 return True, command
         return False, WebSocketStatusCode.DATABASE_TYPE_ERROR
 
-    def _create_databases_link(self, credential, database, password):
+    def _create_databases_link(self, credential, database, password, timeout=5):
         """
         获取数据库连接命令，创建代理/本地连接
         """
@@ -217,16 +217,17 @@ class Database(WebsocketConsumer):
                 ip=network_proxy.linux_ip,
                 port=network_proxy.linux_port,
                 username=network_proxy.linux_login_name,
-                password=self.get_password(network_proxy.linux_login_password)
+                password=self.get_password(network_proxy.linux_login_password),
+                timeout=timeout
             )
         else:
-            status, code = self.client_proxy_or_local_link()
+            status, code = self.client_proxy_or_local_link(timeout=timeout)
         if not status:
             self.close_connect(code)
             return ""
         return command
 
-    def _create_cache_databases_link(self, token_data):
+    def _create_cache_databases_link(self, token_data, timeout):
         """
         创建外平台连接
         """
@@ -242,7 +243,7 @@ class Database(WebsocketConsumer):
         if not command_status:
             self.close_connect(command)
             return ""
-        status, code = self.client_proxy_or_local_link()
+        status, code = self.client_proxy_or_local_link(timeout=timeout)
         if not status:
             self.close_connect(code)
             return ""
@@ -252,6 +253,10 @@ class Database(WebsocketConsumer):
         """
         校验数据以及创建SSH连接
         """
+        try:
+            timeout = int(data.get("timeout", 10))
+        except Exception:
+            timeout = 10
         if not data.get("cache"):
             host_id = data.get("host_id")
             credential_host_id = data.get("credential_host_id")
@@ -262,9 +267,9 @@ class Database(WebsocketConsumer):
                 self.close_connect(WebSocketStatusCode.PARAM_ERROR)
             if self.database.resource_type != HostModel.RESOURCE_DATABASE:
                 self.close_connect(WebSocketStatusCode.HOST_TYPE_ERROR)
-            command = self._create_databases_link(credential_host.credential, self.database, password)
+            command = self._create_databases_link(credential_host.credential, self.database, password, timeout)
         else:
-            command = self._create_cache_databases_link(data)
+            command = self._create_cache_databases_link(data, timeout)
         return command
 
     def create_session_log(self, data):

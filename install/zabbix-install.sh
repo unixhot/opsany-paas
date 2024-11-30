@@ -174,8 +174,104 @@ zabbix_7_0_install(){
     fi
     sleep 120
     python3 ../saas/init-ce-monitor-zabbix.py --domain $DOMAIN_NAME --private_ip $LOCAL_IP --paas_username admin --paas_password $ADMIN_PASSWORD --zabbix_ip $LOCAL_IP --zabbix_password zabbix --grafana_ip $LOCAL_IP --grafana_password $GRAFANA_ADMIN_PASSWORD --zabbix_api_password ${ZABBIX_API_PASSWORD}  --modify_zabbix_password ${ZABBIX_ADMIN_PASSWORD} --zabbix_version 7.0
+}
 
+zabbix_install(){
+   shell_log "=====Start Zabbix Server 7.0 LTS======"
+   docker run --restart=always --name opsany-zabbix-server-7.0.3 -t \
+     -e DB_SERVER_HOST="${MYSQL_SERVER_IP}" \
+     -e DB_SERVER_PORT="3306" \
+     -e MYSQL_DATABASE="${ZABBIX_DB_NAME}" \
+     -e MYSQL_USER="${ZABBIX_DB_USER}" \
+     -e MYSQL_PASSWORD="${ZABBIX_DB_PASSWORD}" \
+     -e MYSQL_ROOT_PASSWORD="${MYSQL_ROOT_PASSWORD}" \
+     -p 10051:10051 \
+     -v ${INSTALL_PATH}/zabbix-volume/alertscripts:/usr/lib/zabbix/alertscripts \
+     -v ${INSTALL_PATH}/zabbix-volume/externalscripts:/usr/lib/zabbix/externalscripts \
+     -v ${INSTALL_PATH}/zabbix-volume/snmptraps:/var/lib/zabbix/snmptraps \
+     -v /etc/localtime:/etc/localtime:ro \
+     -d ${PAAS_DOCKER_REG}/zabbix-server-mysql:7.0.3-ubuntu
 
+   sleep 15
+   shell_log "=====Start Zabbix Web 7.0 LTS======"
+   docker run --restart=always --name opsany-zabbix-web-7.0.3 -t \
+     -e ZBX_SERVER_HOST="${MYSQL_SERVER_IP}" \
+     -e DB_SERVER_HOST="${MYSQL_SERVER_IP}" \
+     -e DB_SERVER_PORT="3307" \
+     -e MYSQL_DATABASE="${ZABBIX_DB_NAME}" \
+     -e MYSQL_USER="${ZABBIX_DB_USER}" \
+     -e MYSQL_PASSWORD="${ZABBIX_DB_PASSWORD}" \
+     -e MYSQL_ROOT_PASSWORD="${MYSQL_ROOT_PASSWORD}" \
+     -e PHP_TZ="Asia/Shanghai" \
+     -e ZBX_SERVER_NAME="opsany-server" \
+     -v /etc/localtime:/etc/localtime:ro \
+     -p 8006:8080 \
+     -d ${PAAS_DOCKER_REG}/zabbix-web-nginx-mysql:7.0.3-ubuntu
+
+    shell_log "=====Start Zabbix Agent2 7.0 LTS======"
+    docker run --restart=always --name opsany-zabbix-agent2 -t \
+     -e ZBX_HOSTNAME="opsany-server" \
+     -e ZBX_SERVER_HOST="${LOCAL_IP}" \
+     -e ZBX_ACTIVE_ALLOW=true \
+     -e ZBX_PASSIVE_ALLOW=false \
+     -v /etc/localtime:/etc/localtime:ro \
+     -d ${PAAS_DOCKER_REG}/zabbix-agent2:7.0.3-ubuntu
+
+    shell_log "=====Zabbix Automatic Integration======"
+    if [ -z "$ADMIN_PASSWORD" ];then
+        source ${INSTALL_PATH}/conf/.passwd_env
+    fi
+    sleep 120
+    python3 ../saas/init-ce-monitor-zabbix.py --domain $DOMAIN_NAME --private_ip $LOCAL_IP --paas_username admin --paas_password $ADMIN_PASSWORD --zabbix_ip $LOCAL_IP --zabbix_password zabbix --grafana_ip $LOCAL_IP --grafana_password $GRAFANA_ADMIN_PASSWORD --zabbix_api_password ${ZABBIX_API_PASSWORD}  --modify_zabbix_password ${ZABBIX_ADMIN_PASSWORD} --zabbix_version 7.0
+}
+
+zabbix_install(){
+   shell_log "=====Start Zabbix Server 7.0 LTS======"
+   docker run --restart=always --name opsany-zabbix-server-7.0.3 -t \
+     -e DB_SERVER_HOST="${MYSQL_SERVER_IP}" \
+     -e DB_SERVER_PORT="3307" \
+     -e MYSQL_DATABASE="${ZABBIX_DB_NAME}" \
+     -e MYSQL_USER="${ZABBIX_DB_USER}" \
+     -e MYSQL_PASSWORD="${ZABBIX_DB_PASSWORD}" \
+     -e MYSQL_ROOT_PASSWORD="${MYSQL_ROOT_PASSWORD}" \
+     -p 10051:10051 \
+     -v ${INSTALL_PATH}/zabbix-volume/alertscripts:/usr/lib/zabbix/alertscripts \
+     -v ${INSTALL_PATH}/zabbix-volume/externalscripts:/usr/lib/zabbix/externalscripts \
+     -v ${INSTALL_PATH}/zabbix-volume/snmptraps:/var/lib/zabbix/snmptraps \
+     -v /etc/localtime:/etc/localtime:ro \
+     -d ${PAAS_DOCKER_REG}/zabbix-server-mysql:7.0.3-ubuntu
+
+   sleep 15
+   shell_log "=====Start Zabbix Web 7.0 LTS======"
+   docker run --restart=always --name opsany-zabbix-web-7.0.3 -t \
+     -e ZBX_SERVER_HOST="${MYSQL_SERVER_IP}" \
+     -e DB_SERVER_HOST="${MYSQL_SERVER_IP}" \
+     -e DB_SERVER_PORT="3307" \
+     -e MYSQL_DATABASE="${ZABBIX_DB_NAME}" \
+     -e MYSQL_USER="${ZABBIX_DB_USER}" \
+     -e MYSQL_PASSWORD="${ZABBIX_DB_PASSWORD}" \
+     -e MYSQL_ROOT_PASSWORD="${MYSQL_ROOT_PASSWORD}" \
+     -e PHP_TZ="Asia/Shanghai" \
+     -e ZBX_SERVER_NAME="opsany-server" \
+     -v /etc/localtime:/etc/localtime:ro \
+     -p 8006:8080 \
+     -d ${PAAS_DOCKER_REG}/zabbix-web-nginx-mysql:7.0.3-ubuntu
+
+    shell_log "=====Start Zabbix Agent2 7.0 LTS======"
+    docker run --restart=always --name opsany-zabbix-agent2 -t \
+     -e ZBX_HOSTNAME="opsany-server" \
+     -e ZBX_SERVER_HOST="${LOCAL_IP}" \
+     -e ZBX_ACTIVE_ALLOW=true \
+     -e ZBX_PASSIVE_ALLOW=false \
+     -v /etc/localtime:/etc/localtime:ro \
+     -d ${PAAS_DOCKER_REG}/zabbix-agent2:7.0.3-ubuntu
+
+    shell_log "=====Zabbix Automatic Integration======"
+    if [ -z "$ADMIN_PASSWORD" ];then
+        source ${INSTALL_PATH}/conf/.passwd_env
+    fi
+    sleep 120
+    python3 ../saas/init-ce-monitor-zabbix.py --domain $DOMAIN_NAME --private_ip $LOCAL_IP --paas_username admin --paas_password $ADMIN_PASSWORD --zabbix_ip $LOCAL_IP --zabbix_password zabbix --grafana_ip $LOCAL_IP --grafana_password $GRAFANA_ADMIN_PASSWORD --zabbix_api_password ${ZABBIX_API_PASSWORD}  --modify_zabbix_password ${ZABBIX_ADMIN_PASSWORD} --zabbix_version 7.0
 }
 
 zabbix_uninstall5(){
@@ -226,6 +322,10 @@ main(){
         install_init
         zabbix_7_0_install
         ;;
+    install)
+        install_init
+        zabbix_install
+        ;;
     uninstall5)
         zabbix_uninstall5
         ;;
@@ -236,7 +336,7 @@ main(){
         zabbix_uninstall7
         ;;
         help|*)
-                echo $"Usage: $0 {5.0|6.0|7.0|uninstall5|uninstall6|uninstall7|help}"
+                echo $"Usage: $0 {5.0|6.0|7.0|install|uninstall5|uninstall6|uninstall7|help}"
                 ;;
 esac
 }

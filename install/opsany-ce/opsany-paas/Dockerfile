@@ -1,5 +1,5 @@
 # Base Image
-FROM python:2.7.18-alpine3.11
+FROM registry.cn-beijing.aliyuncs.com/opsany/python:2.7.18-alpine3.11
 
 # Install PATH
 RUN mkdir -p /opt/opsany/logs && mkdir /etc/supervisord.d

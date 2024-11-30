@@ -924,6 +924,16 @@ main(){
     websocket)
         websocket_update $2
         ;;
+    ops)
+	    saas_rbac_update $2
+	    saas_workbench_update $2
+	    saas_cmdb_update $2
+	    saas_control_update $2
+	    saas_job_update $2
+	    saas_cmp_update $2
+	    saas_bastion_update $2
+        saas_monitor_update $2
+		;;
     dev)
         saas_devops_update $2
         saas_pipeline_update $2

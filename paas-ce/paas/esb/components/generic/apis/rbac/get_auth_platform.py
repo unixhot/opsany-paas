@@ -45,7 +45,7 @@ class GetAuthPlatform(Component):
 
     # Form处理参数校验
     class Form(BaseComponentForm):
-        username= forms.Field(required=True)
+        username = forms.Field(required=True)
 
         # clean方法返回的数据可通过组件的form_data属性获取
         def clean(self):
@@ -60,19 +60,16 @@ class GetAuthPlatform(Component):
         params['operator'] = self.current_user.username
 
         # 请求系统接口
-        try:
-            response = self.outgoing.http_client.get(
-                host=configs.host,
-                path=configs.base_api_url + 'get-auth-platform/',
-                params=params,
-                data=None,
-                cookies=self.request.wsgi_request.COOKIES,	            
-            )
-        except:
-            pass
+        response = self.outgoing.http_client.get(
+            host=configs.host,
+            path=configs.base_api_url + 'get-auth-platform/',
+            params=params,
+            data=None,
+            cookies=self.request.wsgi_request.COOKIES,
+        )
 
         # 对结果进行解析
-	code = response['code']
+        code = response['code']
         if code == 200:
             result = {
                 'code': response['code'],
@@ -90,4 +87,3 @@ class GetAuthPlatform(Component):
 
         # 设置组件返回结果，payload为组件实际返回结果
         self.response.payload = result
-

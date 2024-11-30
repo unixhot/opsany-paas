@@ -82,6 +82,17 @@ install_check(){
   fi
 }
 
+minio(){
+    mkdir -p ${INSTALL_PATH}/minio-volume
+    docker run -d --restart=always --name opsany-base-minio \
+    -p 8020:9000 \
+    -p 8021:9001 \
+    -v ${INSTALL_PATH}/minio-volume:/data \
+    -e "MINIO_ROOT_USER=opsany" \
+    -e "MINIO_ROOT_PASSWORD=123456.coM" \
+    quay.io/minio/minio server /data --console-address ":9001"
+}
+
 # Install Initialize
 opsany_init(){
     shell_log "======Init: Install Init======"
@@ -151,9 +162,6 @@ esb_init(){
     #bastion
     sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/bastion/toolkit/configs.py
     sed -i "s#/t/bastion#/o/bastion#g" ${INSTALL_PATH}/esb/apis/bastion/toolkit/configs.py
-    #dashboard
-    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/dashboard/toolkit/configs.py
-    sed -i "s#/t/dashboard#/o/dashboard#g" ${INSTALL_PATH}/esb/apis/dashboard/toolkit/tools.py
 }
 
 
@@ -172,10 +180,11 @@ paas_install(){
     docker run -d --restart=always --name opsany-base-mysql \
     -e MYSQL_ROOT_PASSWORD="$MYSQL_ROOT_PASSWORD" \
     -p 3306:3306 -v ${INSTALL_PATH}/mysql-volume:/var/lib/mysql \
-    -v ${INSTALL_PATH}/conf/mysqld.cnf:/etc/mysql/mysql.conf.d/mysqld.cnf \
+    -v ${INSTALL_PATH}/conf/mysqld.cnf:/etc/mysql/conf.d/mysqld.cnf \
     -v ${INSTALL_PATH}/logs:/var/log/mysql \
     -v /etc/localtime:/etc/localtime:ro \
-    ${PAAS_DOCKER_REG}/mysql:5.6.50 --character-set-server=utf8 --collation-server=utf8_general_ci
+    ${PAAS_DOCKER_REG}/mysql:8.0.30 --character-set-server=utf8 --collation-server=utf8_general_ci
+    #${PAAS_DOCKER_REG}/mysql:5.6.50 --character-set-server=utf8 --collation-server=utf8_general_ci
     
     # MongoDB
     shell_log "======Base Service: Start MongoDB======"
@@ -185,7 +194,6 @@ paas_install(){
     -p 27017:27017 -v ${INSTALL_PATH}/mongodb-volume:/data/db \
     -v /etc/localtime:/etc/localtime:ro \
     ${PAAS_DOCKER_REG}/mongo:4.4.1-bionic
-    #${PAAS_DOCKER_REG}/mongo:5.0.3
     
     # Guacd
     shell_log "======Base Service: Start Guacd======"
@@ -201,11 +209,14 @@ mysql_init(){
     shell_log "======Base Service: MySQL Initialize======"
     sleep 10
     cd ${CDIR}/../install/
+    docker cp init opsany-base-mysql:/opt/
     export MYSQL_PWD=${MYSQL_ROOT_PASSWORD}
+    #For MySQL 8.0
     mysql -h "${MYSQL_SERVER_IP}" -u root  -e "CREATE DATABASE IF NOT EXISTS opsany_paas DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
-    mysql -h "${MYSQL_SERVER_IP}" -u root  -e "grant all on opsany_paas.* to opsany@'%' identified by "\"${MYSQL_OPSANY_PASSWORD}\"";" 
     mysql -h "${MYSQL_SERVER_IP}" -u root  -e "CREATE DATABASE IF NOT EXISTS opsany_proxy DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
-    mysql -h "${MYSQL_SERVER_IP}" -u root  -e "grant all on opsany_proxy.* to opsany@'%' identified by "\"${MYSQL_OPSANY_PASSWORD}\"";" 
+    mysql -h "${MYSQL_SERVER_IP}" -u root  -e "CREATE USER opsany@'%' identified by "\"${MYSQL_OPSANY_PASSWORD}\"";"
+    mysql -h "${MYSQL_SERVER_IP}" -u root  -e "grant all on opsany_paas.* to opsany@'%';"
+    mysql -h "${MYSQL_SERVER_IP}" -u root  -e "grant all on opsany_proxy.* to opsany@'%';"
     mysql -h "${MYSQL_SERVER_IP}" -u root  opsany_paas < init/opsany-paas.sql
     mysql -h "${MYSQL_SERVER_IP}" -u root  opsany_paas < ./init/esb-init/esb_api_doc.sql
     mysql -h "${MYSQL_SERVER_IP}" -u root  opsany_paas < ./init/esb-init/esb_channel.sql
@@ -224,13 +235,13 @@ paas_start(){
     sed -i "s/MYSQL_SERVER_IP/${MYSQL_SERVER_IP}/g" ${INSTALL_PATH}/conf/opsany-paas/paas/settings_production.py.paas
     sed -i "s/MYSQL_OPSANY_PASSWORD/${MYSQL_OPSANY_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-paas/paas/settings_production.py.paas
 
-    docker pull ${PAAS_DOCKER_REG}/opsany-paas-paas:3.3.1
+    docker pull ${PAAS_DOCKER_REG}/opsany-paas-paas:3.3.2
     docker run -d --restart=always --name opsany-paas-paas \
     -p 8001:8001 -v ${INSTALL_PATH}/logs:/opt/opsany/logs \
     -v ${INSTALL_PATH}/conf/opsany-paas/paas/settings_production.py.paas:/opt/opsany/paas/paas/conf/settings_production.py \
     -v ${INSTALL_PATH}/conf/opsany-paas/paas/paas.ini:/etc/supervisord.d/paas.ini \
     -v /etc/localtime:/etc/localtime:ro \
-    ${PAAS_DOCKER_REG}/opsany-paas-paas:3.3.1
+    ${PAAS_DOCKER_REG}/opsany-paas-paas:3.3.2
     
     #login service
     shell_log "======PaaS Service: Start login Service======"
@@ -246,13 +257,13 @@ paas_start(){
     sed -i "s/MYSQL_SERVER_IP/${MYSQL_SERVER_IP}/g" ${INSTALL_PATH}/conf/opsany-paas/login/settings_production.py.login
     sed -i "s/MYSQL_OPSANY_PASSWORD/${MYSQL_OPSANY_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-paas/login/settings_production.py.login
 
-    docker pull ${PAAS_DOCKER_REG}/opsany-paas-login:3.3.1
+    docker pull ${PAAS_DOCKER_REG}/opsany-paas-login:3.3.2
     docker run -d --restart=always --name opsany-paas-login \
     -p 8003:8003 -v ${INSTALL_PATH}/logs:/opt/opsany/logs \
     -v ${INSTALL_PATH}/conf/opsany-paas/login/settings_production.py.login:/opt/opsany/paas/login/conf/settings_production.py \
     -v ${INSTALL_PATH}/conf/opsany-paas/login/login.ini:/etc/supervisord.d/login.ini \
     -v /etc/localtime:/etc/localtime:ro \
-    ${PAAS_DOCKER_REG}/opsany-paas-login:3.3.1
+    ${PAAS_DOCKER_REG}/opsany-paas-login:3.3.2
     
     # esb service
     shell_log "======PaaS Service: Start esb Service======"
@@ -300,7 +311,7 @@ paas_start(){
     sed -i "s/MYSQL_SERVER_PORT/${MYSQL_SERVER_PORT}/g" ${INSTALL_PATH}/conf/opsany-paas/websocket/settings_production.py.websocket
     sed -i "s/MYSQL_OPSANY_PASSWORD/${MYSQL_OPSANY_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-paas/websocket/settings_production.py.websocket
     sed -i "s/PAAS_PAAS_IP/${PAAS_PAAS_IP}/g" ${INSTALL_PATH}/conf/opsany-paas/websocket/settings_production.py.websocket.init
-    docker pull ${PAAS_DOCKER_REG}/opsany-paas-websocket:2.2.2
+    docker pull ${PAAS_DOCKER_REG}/opsany-paas-websocket:3.3.2
     docker run -d --restart=always --name opsany-paas-websocket \
     -p 8004:8004 -v ${INSTALL_PATH}/logs:/opt/opsany/logs \
     -v ${INSTALL_PATH}/uploads:/opt/opsany/uploads \
@@ -309,7 +320,7 @@ paas_start(){
     -v ${INSTALL_PATH}/conf/opsany-paas/websocket/websocket.ini:/etc/supervisord.d/websocket.ini \
     -v /usr/share/zoneinfo:/usr/share/zoneinfo \
     -v /etc/localtime:/etc/localtime:ro \
-    ${PAAS_DOCKER_REG}/opsany-paas-websocket:2.2.2
+    ${PAAS_DOCKER_REG}/opsany-paas-websocket:3.3.2
     
     #openresty
     shell_log "======PaaS Service: Start openresty Service======"
@@ -326,6 +337,10 @@ paas_start(){
     -v ${INSTALL_PATH}/uploads:/opt/opsany/uploads \
     -v /etc/localtime:/etc/localtime:ro \
     ${PAAS_DOCKER_REG}/openresty:1.17.8.2-alpine
+
+    # copy init script to websocket
+    docker cp ../saas/ opsany-paas-websocket:/opt/opsany/
+    docker cp ./init/ opsany-paas-websocket:/opt/opsany/
     shell_warning_log "======End: The end is a new beginning.======"
 }
 

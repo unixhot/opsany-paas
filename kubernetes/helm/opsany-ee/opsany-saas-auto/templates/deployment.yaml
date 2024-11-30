@@ -1,0 +1,147 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "opsany-saas-auto.fullname" . }}
+  labels:
+    {{- include "opsany-saas-auto.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "opsany-saas-auto.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "opsany-saas-auto.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      initContainers: 
+        - name: migrate
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          command: ["python", "/opt/opsany/auto/manage.py","migrate"] 
+          env:  
+            - name: BK_ENV
+              value: "production"
+          volumeMounts:
+            - name: opsany-saas-ee-auto-init
+              mountPath: /opt/opsany/auto/config/__init__.py
+              subPath: auto-init.py
+            - name: opsany-saas-ee-auto-prod
+              mountPath: /opt/opsany/auto/config/prod.py
+              subPath: auto-prod.py
+            - name: opsany-saas-ee-auto-supervisor
+              mountPath: /etc/supervisord.d/auto.ini
+              subPath: auto-supervisor.ini
+            - name: opsany-saas-ee-auto-nginx
+              mountPath: /etc/nginx/http.d/default.conf
+              subPath: auto-nginx.conf
+            - name: opsany-saas-ee-auto-uwsgi
+              mountPath: /opt/opsany/uwsgi/auto.ini
+              subPath: auto-uwsgi.ini
+            - name: opsany-logs
+              mountPath: /opt/opsany/logs
+            - name: opsany-uploads
+              mountPath: /opt/opsany/uploads
+
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          volumeMounts:
+            - name: opsany-saas-ee-auto-init
+              mountPath: /opt/opsany/auto/config/__init__.py
+              subPath: auto-init.py
+            - name: opsany-saas-ee-auto-prod
+              mountPath: /opt/opsany/auto/config/prod.py
+              subPath: auto-prod.py
+            - name: opsany-saas-ee-auto-supervisor
+              mountPath: /etc/supervisord.d/auto.ini
+              subPath: auto-supervisor.ini
+            - name: opsany-saas-ee-auto-nginx
+              mountPath: /etc/nginx/http.d/default.conf
+              subPath: auto-nginx.conf
+            - name: opsany-saas-ee-auto-uwsgi
+              mountPath: /opt/opsany/uwsgi/auto.ini
+              subPath: auto-uwsgi.ini
+            - name: opsany-logs
+              mountPath: /opt/opsany/logs
+            - name: opsany-uploads
+              mountPath: /opt/opsany/uploads
+
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+#          livenessProbe:
+#            httpGet:
+#              path: /o/auto/healthz/
+#              port: http
+#          readinessProbe:
+#            httpGet:
+#              path: /o/auto/healthz/
+#              port: http
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+        - name: opsany-saas-ee-auto-init
+          configMap:
+            name: opsany-saas-ee-auto-init
+            items:
+            - key: auto-init.py
+              path: auto-init.py
+        - name: opsany-saas-ee-auto-prod
+          configMap:
+            name: opsany-saas-ee-auto-prod
+            items:
+            - key: auto-prod.py
+              path: auto-prod.py
+        - name: opsany-saas-ee-auto-nginx
+          configMap:
+            name: opsany-saas-ee-auto-nginx
+            items:
+            - key: auto-nginx.conf
+              path: auto-nginx.conf
+        - name: opsany-saas-ee-auto-uwsgi
+          configMap:
+            name: opsany-saas-ee-auto-uwsgi
+            items:
+            - key: auto-uwsgi.ini
+              path: auto-uwsgi.ini
+        - name: opsany-saas-ee-auto-supervisor
+          configMap:
+            name: opsany-saas-ee-auto-supervisor
+            items:
+            - key: auto-supervisor.ini
+              path: auto-supervisor.ini
+        - name: opsany-uploads
+          persistentVolumeClaim:
+            claimName: opsany-uploads
+        - name: opsany-logs
+          persistentVolumeClaim:
+            claimName: opsany-logs
+

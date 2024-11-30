@@ -49,9 +49,13 @@ uninstall_paas(){
     docker stop opsany-base-mongodb && docker rm -f opsany-base-mongodb
     docker stop opsany-zabbix-web && docker rm -f opsany-zabbix-web
     docker stop opsany-zabbix-server-st2 && docker rm -f opsany-zabbix-server-st2
-    docker stop opsany-zabbix-web-6.0 && docker rm -f opsany-zabbix-web-6.0
-    docker stop opsany-zabbix-server-6.0 && docker rm -f opsany-zabbix-server-6.0
+    docker stop opsany-zabbix-web-7.0.3 && docker rm -f opsany-zabbix-web-7.0.3
+    docker stop opsany-zabbix-server-7.0.3 && docker rm -f opsany-zabbix-server-7.0.3
+    docker stop opsany-zabbix-agent2 && docker rm -f opsany-zabbix-agent2
     docker stop opsany-zabbix-mysql8 && docker rm -f opsany-zabbix-mysql8
+    docker stop opsany-devops-jenkins && docker rm -f opsany-devops-jenkins
+    docker stop opsany-devops-nexus && docker rm -f opsany-devops-nexus
+    rm -rf /tmp/alexanderzobnin-zabbix-app-4.3.1*
     grep '^[A-Z]' install.config > install.env
     source ./install.env && rm -f install.env
     rm -rf ${INSTALL_PATH}

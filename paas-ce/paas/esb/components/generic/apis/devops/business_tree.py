@@ -32,18 +32,22 @@ class BusinessTree(Component):
         "message": "获取相关信息成功"
     }
     ```
-    """#
+    """
 
     # 组件所属系统的系统名
     sys_name = configs.SYSTEM_NAME
 
     # Form处理参数校验
     class Form(BaseComponentForm):
-        pass
+        data_type = forms.Field(required=False)
+        tree_depth = forms.Field(required=False)
+        auth_user = forms.Field(required=False)
+        search_type = forms.Field(required=False)
+        search_data = forms.Field(required=False)
 
         # clean方法返回的数据可通过组件的form_data属性获取
         def clean(self):
-            return self.get_cleaned_data_when_exist(keys=[])
+            return self.get_cleaned_data_when_exist(keys=["data_type", "tree_depth", "auth_user", "search_type", "search_data"])
 
     # 组件处理入口
     def handle(self):

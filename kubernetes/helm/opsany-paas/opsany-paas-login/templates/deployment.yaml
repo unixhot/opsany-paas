@@ -45,14 +45,6 @@ spec:
             - name: paas-login
               containerPort: 8003
               protocol: TCP
-          livenessProbe:
-            httpGet:
-              path: /healthz/
-              port: 8003
-          readinessProbe:
-            httpGet:
-              path: /healthz/
-              port: 8003
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}

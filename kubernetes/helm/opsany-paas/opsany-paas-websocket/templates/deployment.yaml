@@ -41,7 +41,7 @@ spec:
               mountPath: /opt/opsany/websocket/config/prod.py
               subPath: prod.py
             - name: opsany-paas-websocket-init
-              mountPath: /opt/opsany/websocket/__init__.py
+              mountPath: /opt/opsany/websocket/config/__init__.py
               subPath: __init__.py
             - name: opsany-paas-websocket-supervisor
               mountPath: /etc/supervisord.d/websocket.ini

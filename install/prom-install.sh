@@ -84,7 +84,7 @@ consul_install(){
 
 prometheus_install(){
     # Prometheus Server Basic Auth
-    PROM_SERVER_HASH=$(python3 ./prom-pass.py $PROM_SERVER_PASSWD)
+    PROM_SERVER_HASH=$(python3 ../saas/prom-pass.py $PROM_SERVER_PASSWD)
     sed -i "s#PROM_SERVER_HASH#$PROM_SERVER_HASH#g" ${INSTALL_PATH}/prometheus-volume/conf/web.yml
     sed -i "s#LOCAL_IP#$PROXY_LOCAL_IP#g" ${INSTALL_PATH}/prometheus-volume/conf/prometheus.yml
     sed -i "s#PROM_SERVER_PASSWD#$PROM_SERVER_PASSWD#g" ${INSTALL_PATH}/prometheus-volume/conf/prometheus.yml
@@ -93,7 +93,7 @@ prometheus_install(){
     shell_log "======Start Prometheus Server======"
     docker run -d --restart=always --name opsany-base-prometheus-server \
     -p 9090:9090 \
-    -v ${INSTALL_PATH}/prometheus-volume/data/:/var/lib/prometheus \
+    -v ${INSTALL_PATH}/prometheus-volume/data/:/prometheus \
     -v ${INSTALL_PATH}/uploads/prometheus-config/rules/:/var/lib/prometheus-config/rules \
     -v ${INSTALL_PATH}/prometheus-volume/conf/prometheus.yml:/etc/prometheus/prometheus.yml \
     -v ${INSTALL_PATH}/prometheus-volume/conf/web.yml:/etc/prometheus/web.yml \

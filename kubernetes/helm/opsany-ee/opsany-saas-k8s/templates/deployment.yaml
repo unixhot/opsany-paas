@@ -1,0 +1,147 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "opsany-saas-k8s.fullname" . }}
+  labels:
+    {{- include "opsany-saas-k8s.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "opsany-saas-k8s.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "opsany-saas-k8s.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      initContainers: 
+        - name: migrate
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          command: ["python", "/opt/opsany/k8s/manage.py","migrate"] 
+          env:  
+            - name: BK_ENV
+              value: "production"
+          volumeMounts:
+            - name: opsany-saas-ee-k8s-init
+              mountPath: /opt/opsany/k8s/config/__init__.py
+              subPath: k8s-init.py
+            - name: opsany-saas-ee-k8s-prod
+              mountPath: /opt/opsany/k8s/config/prod.py
+              subPath: k8s-prod.py
+            - name: opsany-saas-ee-k8s-supervisor
+              mountPath: /etc/supervisord.d/k8s.ini
+              subPath: k8s-supervisor.ini
+            - name: opsany-saas-ee-k8s-nginx
+              mountPath: /etc/nginx/http.d/default.conf
+              subPath: k8s-nginx.conf
+            - name: opsany-saas-ee-k8s-uwsgi
+              mountPath: /opt/opsany/uwsgi/k8s.ini
+              subPath: k8s-uwsgi.ini
+            - name: opsany-logs
+              mountPath: /opt/opsany/logs
+            - name: opsany-uploads
+              mountPath: /opt/opsany/uploads
+
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          volumeMounts:
+            - name: opsany-saas-ee-k8s-init
+              mountPath: /opt/opsany/k8s/config/__init__.py
+              subPath: k8s-init.py
+            - name: opsany-saas-ee-k8s-prod
+              mountPath: /opt/opsany/k8s/config/prod.py
+              subPath: k8s-prod.py
+            - name: opsany-saas-ee-k8s-supervisor
+              mountPath: /etc/supervisord.d/k8s.ini
+              subPath: k8s-supervisor.ini
+            - name: opsany-saas-ee-k8s-nginx
+              mountPath: /etc/nginx/http.d/default.conf
+              subPath: k8s-nginx.conf
+            - name: opsany-saas-ee-k8s-uwsgi
+              mountPath: /opt/opsany/uwsgi/k8s.ini
+              subPath: k8s-uwsgi.ini
+            - name: opsany-logs
+              mountPath: /opt/opsany/logs
+            - name: opsany-uploads
+              mountPath: /opt/opsany/uploads
+
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+#          livenessProbe:
+#            httpGet:
+#              path: /o/k8s/healthz/
+#              port: http
+#          readinessProbe:
+#            httpGet:
+#              path: /o/k8s/healthz/
+#              port: http
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+        - name: opsany-saas-ee-k8s-init
+          configMap:
+            name: opsany-saas-ee-k8s-init
+            items:
+            - key: k8s-init.py
+              path: k8s-init.py
+        - name: opsany-saas-ee-k8s-prod
+          configMap:
+            name: opsany-saas-ee-k8s-prod
+            items:
+            - key: k8s-prod.py
+              path: k8s-prod.py
+        - name: opsany-saas-ee-k8s-nginx
+          configMap:
+            name: opsany-saas-ee-k8s-nginx
+            items:
+            - key: k8s-nginx.conf
+              path: k8s-nginx.conf
+        - name: opsany-saas-ee-k8s-uwsgi
+          configMap:
+            name: opsany-saas-ee-k8s-uwsgi
+            items:
+            - key: k8s-uwsgi.ini
+              path: k8s-uwsgi.ini
+        - name: opsany-saas-ee-k8s-supervisor
+          configMap:
+            name: opsany-saas-ee-k8s-supervisor
+            items:
+            - key: k8s-supervisor.ini
+              path: k8s-supervisor.ini
+        - name: opsany-uploads
+          persistentVolumeClaim:
+            claimName: opsany-uploads
+        - name: opsany-logs
+          persistentVolumeClaim:
+            claimName: opsany-logs
+

@@ -1,0 +1,147 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "opsany-saas-apm.fullname" . }}
+  labels:
+    {{- include "opsany-saas-apm.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "opsany-saas-apm.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "opsany-saas-apm.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      initContainers: 
+        - name: migrate
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          command: ["python", "/opt/opsany/apm/manage.py","migrate"] 
+          env:  
+            - name: BK_ENV
+              value: "production"
+          volumeMounts:
+            - name: opsany-saas-ee-apm-init
+              mountPath: /opt/opsany/apm/config/__init__.py
+              subPath: apm-init.py
+            - name: opsany-saas-ee-apm-prod
+              mountPath: /opt/opsany/apm/config/prod.py
+              subPath: apm-prod.py
+            - name: opsany-saas-ee-apm-supervisor
+              mountPath: /etc/supervisord.d/apm.ini
+              subPath: apm-supervisor.ini
+            - name: opsany-saas-ee-apm-nginx
+              mountPath: /etc/nginx/http.d/default.conf
+              subPath: apm-nginx.conf
+            - name: opsany-saas-ee-apm-uwsgi
+              mountPath: /opt/opsany/uwsgi/apm.ini
+              subPath: apm-uwsgi.ini
+            - name: opsany-logs
+              mountPath: /opt/opsany/logs
+            - name: opsany-uploads
+              mountPath: /opt/opsany/uploads
+
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          volumeMounts:
+            - name: opsany-saas-ee-apm-init
+              mountPath: /opt/opsany/apm/config/__init__.py
+              subPath: apm-init.py
+            - name: opsany-saas-ee-apm-prod
+              mountPath: /opt/opsany/apm/config/prod.py
+              subPath: apm-prod.py
+            - name: opsany-saas-ee-apm-supervisor
+              mountPath: /etc/supervisord.d/apm.ini
+              subPath: apm-supervisor.ini
+            - name: opsany-saas-ee-apm-nginx
+              mountPath: /etc/nginx/http.d/default.conf
+              subPath: apm-nginx.conf
+            - name: opsany-saas-ee-apm-uwsgi
+              mountPath: /opt/opsany/uwsgi/apm.ini
+              subPath: apm-uwsgi.ini
+            - name: opsany-logs
+              mountPath: /opt/opsany/logs
+            - name: opsany-uploads
+              mountPath: /opt/opsany/uploads
+
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+#          livenessProbe:
+#            httpGet:
+#              path: /o/apm/healthz/
+#              port: http
+#          readinessProbe:
+#            httpGet:
+#              path: /o/apm/healthz/
+#              port: http
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+        - name: opsany-saas-ee-apm-init
+          configMap:
+            name: opsany-saas-ee-apm-init
+            items:
+            - key: apm-init.py
+              path: apm-init.py
+        - name: opsany-saas-ee-apm-prod
+          configMap:
+            name: opsany-saas-ee-apm-prod
+            items:
+            - key: apm-prod.py
+              path: apm-prod.py
+        - name: opsany-saas-ee-apm-nginx
+          configMap:
+            name: opsany-saas-ee-apm-nginx
+            items:
+            - key: apm-nginx.conf
+              path: apm-nginx.conf
+        - name: opsany-saas-ee-apm-uwsgi
+          configMap:
+            name: opsany-saas-ee-apm-uwsgi
+            items:
+            - key: apm-uwsgi.ini
+              path: apm-uwsgi.ini
+        - name: opsany-saas-ee-apm-supervisor
+          configMap:
+            name: opsany-saas-ee-apm-supervisor
+            items:
+            - key: apm-supervisor.ini
+              path: apm-supervisor.ini
+        - name: opsany-uploads
+          persistentVolumeClaim:
+            claimName: opsany-uploads
+        - name: opsany-logs
+          persistentVolumeClaim:
+            claimName: opsany-logs
+

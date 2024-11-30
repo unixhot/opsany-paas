@@ -1,0 +1,44 @@
+---
+# event-init.py
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ee-event-init
+data:
+{{ (.Files.Glob "event-init.py").AsConfig | indent 2 }}
+
+---
+# event-prod.py
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ee-event-prod
+data:
+{{ (.Files.Glob "event-prod.py").AsConfig | indent 2 }}
+
+---
+# event-nginx.conf
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ee-event-nginx
+data:
+{{ (.Files.Glob "event-nginx.conf").AsConfig | indent 2 }}
+
+---
+# event-supervisor.ini
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ee-event-supervisor
+data:
+{{ (.Files.Glob "event-supervisor.ini").AsConfig | indent 2 }}
+
+---
+# event-uwsgi.ini
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ee-event-uwsgi
+data:
+{{ (.Files.Glob "event-uwsgi.ini").AsConfig | indent 2 }}

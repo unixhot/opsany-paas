@@ -26,7 +26,7 @@ class GetDelayOfService(Component):
     | ----- | ------ | ---- | -------- |
     | start | datetime | 是 | 过去15分钟的时间 |
     | end | datetime | 是 | 当前时间 |
-    |group_code | str | 是 | 服务组唯一标识（与应用平台应用的唯一标识对应）
+    |app_id | str | 是 | 应用code
 
     ```
 
@@ -61,11 +61,11 @@ class GetDelayOfService(Component):
     class Form(BaseComponentForm):
         start = forms.Field()
         end = forms.Field()
-        group_code = forms.Field()
+        app_id = forms.Field()
     
         # clean方法返回的数据可通过组件的form_data属性获取
         def clean(self):
-            return self.get_cleaned_data_when_exist(keys=["start", "end", "group_code"])
+            return self.get_cleaned_data_when_exist(keys=["start", "end", "app_id"])
 
     # 组件处理入口
     def handle(self):

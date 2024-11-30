@@ -51,17 +51,13 @@ class GetWxWorkConfig(Component):
         params['operator'] = self.current_user.username
 
         # 请求系统接口
-        try:
-            response = self.outgoing.http_client.get(
-                host=configs.host,
-                path=configs.base_api_url + 'vx-work-config/',
-                params=params,
-                data=None,
-                cookies=self.request.wsgi_request.COOKIES,	            
-            )
-        except:
-            pass
-
+        response = self.outgoing.http_client.get(
+            host=configs.host,
+            path=configs.base_api_url + 'vx-work-config/',
+            params=params,
+            data=None,
+            cookies=self.request.wsgi_request.COOKIES,
+        )
         # 对结果进行解析
         code = response['code']
         if code == 200:

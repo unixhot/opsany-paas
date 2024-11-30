@@ -381,7 +381,7 @@ primary:
   ## E.g.
   ## extraFlags: "--max-connect-errors=1000 --max_connections=155"
   ##
-  extraFlags: ""
+  extraFlags: "--max-connect-errors=1000 --max_connections=4096"
   ## @param primary.extraEnvVars Extra environment variables to be set on MySQL primary containers
   ## E.g.
   ## extraEnvVars:

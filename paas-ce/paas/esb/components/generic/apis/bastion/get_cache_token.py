@@ -68,10 +68,11 @@ class GetCacheToken(Component):
         ssh_key_id = forms.IntegerField(required=False)
         password = forms.CharField(required=False)
         network_proxy = forms.CharField(required=False)
+        timeout = forms.CharField(required=False)
 
         # clean方法返回的数据可通过组件的form_data属性获取
         def clean(self):
-            return self.get_cleaned_data_when_exist(keys=["ip", "name", "ssh_port", "system_type", "username", "ssh_key_id", "password", "network_proxy"])
+            return self.get_cleaned_data_when_exist(keys=["ip", "name", "ssh_port", "system_type", "username", "ssh_key_id", "password", "network_proxy", "timeout"])
 
     # 组件处理入口
     def handle(self):

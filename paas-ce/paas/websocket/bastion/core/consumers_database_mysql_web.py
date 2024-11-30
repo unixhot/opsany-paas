@@ -178,6 +178,10 @@ class DatabaseMysqlWeb(WebsocketConsumer):
         return
 
     def start_ssh(self, data):
+        try:
+            timeout = int(data.get("timeout", 10))
+        except Exception:
+            timeout = 10
         if not data.get("cache"):
             host_id = data.get("host_id")
             credential_host_id = data.get("credential_host_id")
@@ -197,6 +201,7 @@ class DatabaseMysqlWeb(WebsocketConsumer):
                 "user": credential_host.credential.login_name,
                 "password": password,
                 "ssl_ca": False,
+                "connect_timeout": timeout,
                 "charset": "utf8"
             }
             if network_proxy:

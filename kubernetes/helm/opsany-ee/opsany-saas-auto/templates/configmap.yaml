@@ -1,0 +1,44 @@
+---
+# auto-init.py
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ee-auto-init
+data:
+{{ (.Files.Glob "auto-init.py").AsConfig | indent 2 }}
+
+---
+# auto-prod.py
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ee-auto-prod
+data:
+{{ (.Files.Glob "auto-prod.py").AsConfig | indent 2 }}
+
+---
+# auto-nginx.conf
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ee-auto-nginx
+data:
+{{ (.Files.Glob "auto-nginx.conf").AsConfig | indent 2 }}
+
+---
+# auto-supervisor.ini
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ee-auto-supervisor
+data:
+{{ (.Files.Glob "auto-supervisor.ini").AsConfig | indent 2 }}
+
+---
+# auto-uwsgi.ini
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ee-auto-uwsgi
+data:
+{{ (.Files.Glob "auto-uwsgi.ini").AsConfig | indent 2 }}

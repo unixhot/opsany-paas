@@ -26,6 +26,7 @@ spec:
       {{- end }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      hostNetwork: true
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
@@ -60,6 +61,12 @@ spec:
           ports:
             - name: paas-proxy
               containerPort: 8010
+              protocol: TCP
+            - name: paas-salt-pub
+              containerPort: 4505
+              protocol: TCP
+            - name: paas-salt-sub
+              containerPort: 4506
               protocol: TCP
           resources:
             {{- toYaml .Values.resources | nindent 12 }}

@@ -52,68 +52,120 @@ install_init(){
     mkdir -p /data/k8s-nfs/opsany-logs/{rbac,workbench,cmdb,control,job,monitor,cmp,bastion,code,devops,pipeline,repo,deploy}
 
     # Register rbac
-    RBAC_SECRET_KEY=$(uuid -v4)
-    echo $RBAC_SECRET_KEY > ${INSTALL_PATH}/conf/.rbac_secret_key
+    if [ -f ${INSTALL_PATH}/conf/.rbac_secret_key ];then
+        RBAC_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.rbac_secret_key)
+    else
+        RBAC_SECRET_KEY=$(uuid -v4)
+        echo $RBAC_SECRET_KEY > ${INSTALL_PATH}/conf/.rbac_secret_key
+    fi
     python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code rbac --saas_app_name 统一权限 --saas_app_version 2.2.1 --saas_app_secret_key ${RBAC_SECRET_KEY}
 
     # Register workbench
-    WORKBENCH_SECRET_KEY=$(uuid -v4)
-    echo $WORKBENCH_SECRET_KEY > ${INSTALL_PATH}/conf/.workbench_secret_key
+    if [ -f ${INSTALL_PATH}/conf/.workbench_secret_key ];then
+        WORKBENCH_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.workbench_secret_key)
+    else
+        WORKBENCH_SECRET_KEY=$(uuid -v4)
+        echo $WORKBENCH_SECRET_KEY > ${INSTALL_PATH}/conf/.workbench_secret_key
+    fi
     python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code workbench --saas_app_name 工作台 --saas_app_version 2.2.1 --saas_app_secret_key ${WORKBENCH_SECRET_KEY}
 
     # Register cmdb
-    CMDB_SECRET_KEY=$(uuid -v4)
-    echo $CMDB_SECRET_KEY > ${INSTALL_PATH}/conf/.cmdb_secret_key
+    if [ -f ${INSTALL_PATH}/conf/.cmdb_secret_key ];then
+        CMDB_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.cmdb_secret_key)
+    else
+        CMDB_SECRET_KEY=$(uuid -v4)
+        echo $CMDB_SECRET_KEY > ${INSTALL_PATH}/conf/.cmdb_secret_key
+    fi
     python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code cmdb --saas_app_name 资源平台 --saas_app_version 2.2.1 --saas_app_secret_key ${CMDB_SECRET_KEY}
 
     # Register control
-    CONTROL_SECRET_KEY=$(uuid -v4)
-    echo $CONTROL_SECRET_KEY > ${INSTALL_PATH}/conf/.control_secret_key
+    if [ -f ${INSTALL_PATH}/conf/.control_secret_key ];then
+        CONTROL_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.control_secret_key)
+    else
+        CONTROL_SECRET_KEY=$(uuid -v4)
+        echo $CONTROL_SECRET_KEY > ${INSTALL_PATH}/conf/.control_secret_key
+    fi
     python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code control --saas_app_name 管控平台 --saas_app_version 2.2.1 --saas_app_secret_key ${CONTROL_SECRET_KEY}
     
     # Register job
-    JOB_SECRET_KEY=$(uuid -v4)
-    echo $JOB_SECRET_KEY > ${INSTALL_PATH}/conf/.job_secret_key
+    if [ -f ${INSTALL_PATH}/conf/.job_secret_key ];then
+        JOB_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.job_secret_key)
+    else
+        JOB_SECRET_KEY=$(uuid -v4)
+        echo $JOB_SECRET_KEY > ${INSTALL_PATH}/conf/.job_secret_key
+    fi
     python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code job --saas_app_name 作业平台 --saas_app_version 2.2.1 --saas_app_secret_key ${JOB_SECRET_KEY}
 
     # Register monitor
-    MONITOR_SECRET_KEY=$(uuid -v4)
-    echo $MONITOR_SECRET_KEY > ${INSTALL_PATH}/conf/.monitor_secret_key
+    if [ -f ${INSTALL_PATH}/conf/.monitor_secret_key ];then
+        MONITOR_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.monitor_secret_key)
+    else
+        MONITOR_SECRET_KEY=$(uuid -v4)
+        echo $MONITOR_SECRET_KEY > ${INSTALL_PATH}/conf/.monitor_secret_key
+    fi
     python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code monitor --saas_app_name 基础监控 --saas_app_version 2.2.1 --saas_app_secret_key ${MONITOR_SECRET_KEY}
 
     # Register cmp
-    CMP_SECRET_KEY=$(uuid -v4)
-    echo $CMP_SECRET_KEY > ${INSTALL_PATH}/conf/.cmp_secret_key
+    if [ -f ${INSTALL_PATH}/conf/.cmp_secret_key ];then
+        CMP_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.cmp_secret_key)
+    else
+        CMP_SECRET_KEY=$(uuid -v4)
+        echo $CMP_SECRET_KEY > ${INSTALL_PATH}/conf/.cmp_secret_key
+    fi
     python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code cmp --saas_app_name 云管平台 --saas_app_version 2.2.1 --saas_app_secret_key ${CMP_SECRET_KEY}
 
     # Register bastion
-    BASTION_SECRET_KEY=$(uuid -v4)
-    echo $BASTION_SECRET_KEY > ${INSTALL_PATH}/conf/.bastion_secret_key
+    if [ -f ${INSTALL_PATH}/conf/.bastion_secret_key ];then
+        BASTION_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.bastion_secret_key)
+    else
+        BASTION_SECRET_KEY=$(uuid -v4)
+        echo $BASTION_SECRET_KEY > ${INSTALL_PATH}/conf/.bastion_secret_key
+    fi
     python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code bastion --saas_app_name 堡垒机 --saas_app_version 2.2.1 --saas_app_secret_key ${BASTION_SECRET_KEY}
 
     # Register devops
-    DEVOPS_SECRET_KEY=$(uuid -v4)
-    echo $DEVOPS_SECRET_KEY > ${INSTALL_PATH}/conf/.devops_secret_key
+    if [ -f ${INSTALL_PATH}/conf/.devops_secret_key ];then
+        DEVOPS_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.devops_secret_key)
+    else
+        DEVOPS_SECRET_KEY=$(uuid -v4)
+        echo $DEVOPS_SECRET_KEY > ${INSTALL_PATH}/conf/.devops_secret_key
+    fi
     python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code devops --saas_app_name 应用平台 --saas_app_version 2.2.1 --saas_app_secret_key ${DEVOPS_SECRET_KEY}
 
     # Register code
-    CODE_SECRET_KEY=$(uuid -v4)
-    echo $CODE_SECRET_KEY > ${INSTALL_PATH}/conf/.code_secret_key
+    if [ -f ${INSTALL_PATH}/conf/.code_secret_key ];then
+        CODE_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.code_secret_key)
+    else
+        CODE_SECRET_KEY=$(uuid -v4)
+        echo $CODE_SECRET_KEY > ${INSTALL_PATH}/conf/.code_secret_key
+    fi
     python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code code --saas_app_name 代码仓库 --saas_app_version 2.2.1 --saas_app_secret_key ${CODE_SECRET_KEY}
 
     # Register pipeline
-    PIPELINE_SECRET_KEY=$(uuid -v4)
-    echo $PIPELINE_SECRET_KEY > ${INSTALL_PATH}/conf/.pipeline_secret_key
+    if [ -f ${INSTALL_PATH}/conf/.pipeline_secret_key ];then
+        PIPELINE_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.pipeline_secret_key)
+    else
+        PIPELINE_SECRET_KEY=$(uuid -v4)
+        echo $PIPELINE_SECRET_KEY > ${INSTALL_PATH}/conf/.pipeline_secret_key
+    fi
     python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code pipeline --saas_app_name 流水线 --saas_app_version 2.2.1 --saas_app_secret_key ${PIPELINE_SECRET_KEY}
 
     # Register repo
-    REPO_SECRET_KEY=$(uuid -v4)
-    echo $REPO_SECRET_KEY > ${INSTALL_PATH}/conf/.repo_secret_key
+    if [ -f ${INSTALL_PATH}/conf/.repo_secret_key ];then
+        REPO_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.repo_secret_key)
+    else
+        REPO_SECRET_KEY=$(uuid -v4)
+        echo $REPO_SECRET_KEY > ${INSTALL_PATH}/conf/.repo_secret_key
+    fi
     python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code repo --saas_app_name 制品仓库 --saas_app_version 2.2.1 --saas_app_secret_key ${REPO_SECRET_KEY}
 
     # Register deploy
-    DEPLOY_SECRET_KEY=$(uuid -v4)
-    echo $DEPLOY_SECRET_KEY > ${INSTALL_PATH}/conf/.deploy_secret_key
+    if [ -f ${INSTALL_PATH}/conf/.deploy_secret_key ];then
+        DEPLOY_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.deploy_secret_key)
+    else
+        DEPLOY_SECRET_KEY=$(uuid -v4)
+        echo $DEPLOY_SECRET_KEY > ${INSTALL_PATH}/conf/.deploy_secret_key
+    fi
     python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code deploy --saas_app_name 持续部署 --saas_app_version 2.2.1 --saas_app_secret_key ${DEPLOY_SECRET_KEY}
 
 }
@@ -355,7 +407,7 @@ saas_init(){
     sleep 3
     # Sync User
     python3 ../saas/sync-user-script.py --domain https://${DOMAIN_NAME} --paas_username admin --paas_password ${ADMIN_PASSWORD} --app_code workbench cmdb control job cmp bastion
-     python3 ../saas/init-ce-monitor.py --domain $DOMAIN_NAME --private_ip $LOCAL_IP --paas_username admin --paas_password ${ADMIN_PASSWORD} --grafana_password admin --grafana_change_password $GRAFANA_ADMIN_PASSWORD
+     python3 ../saas/init-ce-monitor.py --domain $DOMAIN_NAME --private_ip $DOMAIN_NAME --paas_username admin --paas_password ${ADMIN_PASSWORD} --grafana_password admin --grafana_change_password $GRAFANA_ADMIN_PASSWORD
      python3 ../saas/init-ce-devops.py --domain https://${DOMAIN_NAME} --username admin  --password $ADMIN_PASSWORD
 
     shell_log "======OpsAny Workbench Initialize======"

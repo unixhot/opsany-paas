@@ -31,10 +31,6 @@ service:
   type: ClusterIP
   port: 8000
 
-volume:
-  path: /data/k8s-nfs/opsany-logs
-  server: 10.60.37.218
-
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
   # choice for the user. This also increases chances charts run on environments with little

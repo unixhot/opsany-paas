@@ -118,6 +118,7 @@ proxy_config(){
     sed -i "s/MYSQL_OPSANY_PASSWORD/${MYSQL_OPSANY_PASSWORD}/g" ${INSTALL_PATH}/conf/proxy/settings_production.py.proxy-standalone
     sed -i "s/local-proxy.opsany.com/${PROXY_LOCAL_IP}/g" ${INSTALL_PATH}/conf/proxy/settings_production.py.proxy-standalone
     sed -i "s/public-proxy.opsany.com/${PROXY_PUBLIC_IP}/g" ${INSTALL_PATH}/conf/proxy/settings_production.py.proxy-standalone
+    sed -i "s/CONTROL_SECRET_KEY_PROXY/${CONTROL_SECRET_KEY}/g" ${INSTALL_PATH}/conf/proxy/settings_production.py.proxy-standalone
     
     # OpenResty
     sed -i "s/LOCAL_IP/${PROXY_LOCAL_IP}/g" ${INSTALL_PATH}/conf/proxy/nginx-conf.d/nginx_proxy.conf 
@@ -127,13 +128,14 @@ proxy_config(){
     cp invscript_proxy.py ${INSTALL_PATH}/conf/proxy/
     sed -i "s/LOCALHOST/${MYSQL_SERVER_IP}/g" ${INSTALL_PATH}/conf/proxy/invscript_proxy.py
     sed -i "s/PROXY_PASSWORD/${MYSQL_OPSANY_PASSWORD}/g" ${INSTALL_PATH}/conf/proxy/invscript_proxy.py
+    sed -i "s/CONTROL_SECRET_KEY/${CONTROL_SECRET_KEY}/g" ${INSTALL_PATH}/conf/proxy/invscript_proxy.py
     chmod +x ${INSTALL_PATH}/conf/proxy/invscript_proxy.py
 }
 
 proxy_start(){
     # Proxy
     shell_log "======Start Proxy======"
-    docker pull ${PAAS_DOCKER_REG}/opsany-paas-proxy:2.2.2
+    docker pull ${PAAS_DOCKER_REG}/opsany-paas-proxy:2.2.3
     docker run --restart=always --name opsany-paas-proxy -d \
         -p 4505:4505 -p 4506:4506 -p 8010:8010 \
         -v ${INSTALL_PATH}/logs/proxy:/opt/opsany/logs/proxy \
@@ -151,7 +153,7 @@ proxy_start(){
         -v ${INSTALL_PATH}/conf/proxy/saltmaster.ini:/etc/supervisord.d/saltmaster.ini \
         -v ${INSTALL_PATH}/proxy-volume/pki:/opt/opsany/pki \
         -v /etc/localtime:/etc/localtime:ro \
-        ${PAAS_DOCKER_REG}/opsany-paas-proxy:2.2.2
+        ${PAAS_DOCKER_REG}/opsany-paas-proxy:2.2.3
 
     #openresty
     shell_log "======Start openresty Service======"
@@ -173,17 +175,38 @@ proxy_start(){
             opsany-paas-proxy /bin/sh -c " /usr/local/bin/python3 /opt/opsany-proxy/manage.py create_access" | grep 'Access' | awk -F ': ' '{print $2}' | awk -F '.' '{print $1}')
     shell_warning_log "Proxy Token: ${PROXY_TOKEN}"
 }
+uninstall_proxy(){
+    # Stop Proxy
+    docker stop opsany-proxy-mysql
+    docker stop opsany-proxy-redis
+    docker stop opsany-proxy-guacd
+    docker stop opsany-proxy-openresty
+    docker stop opsany-proxy
+
+    # Remove Proxy
+    docker rm -f opsany-proxy-mysql
+    docker rm -f opsany-proxy-redis
+    docker rm -f opsany-proxy-guacd
+    docker rm -f opsany-proxy-openresty
+    docker rm -f opsany-proxy
+    # Remove Install Path
+    #rm -rf ${INSTALL_PATH}
+}
+
 
 # Main
 main(){
     case "$1" in
 	install)
-            install_check
-            install_init
-            base_install
-            proxy_config
-            proxy_start
+        install_check
+        install_init
+        base_install
+        proxy_config
+        proxy_start
 		;;
+    uninstall)
+        uninstall_proxy
+        ;;
 	help|*)
 		echo $"Usage: $0 {install|help}"
 	        ;;

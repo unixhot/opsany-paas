@@ -13,7 +13,6 @@ import unicodedata
 import urllib
 import uuid
 import json
-
 from django.conf import settings
 from django.utils.translation import ugettext as _
 # Avoid shadowing the login() and logout() views below.
@@ -128,7 +127,7 @@ class Account(AccountSingleton):
             plain_bk_token = decrypt(bk_token)
         except Exception as error:
             plain_bk_token = ''
-            logger.exception("Parameter parse failed, error: {}".format(error))
+            logger.exception("Parameter parse failed, error: TOKEN:({}), {}".format(bk_token, error))
 
         # 参数bk_token非法
         error_msg = _("参数bk_token非法")
@@ -150,7 +149,9 @@ class Account(AccountSingleton):
         if not bk_token:
             error_msg = _("缺少参数bk_token")
             return False, None, error_msg
-
+        if bk_token == "None":
+            error_msg = _("参数bk_token为None")
+            return False, None, error_msg
         ok, error_msg, token_info = self._decrypt_token(bk_token)
         if not ok:
             return False, None, error_msg
@@ -203,10 +204,11 @@ class Account(AccountSingleton):
         """
         记录用户登录日志
         """
+        
         host = request.get_host()
         login_browser = request.META.get('HTTP_USER_AGENT') or 'unknown'
         # 获取用户ip
-        login_ip = request.META.get('HTTP_X_FORWARDED_FOR') or 'REMOTE_ADDR'
+        login_ip = request.META.get('HTTP_X_FORWARDED_FOR') or request.META.get('REMOTE_ADDR')
         try:
             if login_ip and "," in login_ip:
                 login_ip = login_ip.split(",")[0].split()
@@ -248,6 +250,7 @@ class Account(AccountSingleton):
         """
         登录页面和登录动作
         """
+             
         redirect_field_name = self.REDIRECT_FIELD_NAME
         redirect_to = request.POST.get(redirect_field_name, request.GET.get(redirect_field_name, '/'))
         app_id = request.POST.get('app_id', request.GET.get('app_id', ''))

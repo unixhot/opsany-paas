@@ -26,6 +26,33 @@ spec:
       {{- end }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      initContainers: 
+        - name: migrate
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          command: ["python", "/opt/opsany/control/manage.py","migrate"] 
+          env:  
+            - name: BK_ENV
+              value: "production"
+          volumeMounts:
+            - name: opsany-saas-ce-control-init
+              mountPath: /opt/opsany/control/config/__init__.py
+              subPath: control-init.py
+            - name: opsany-saas-ce-control-prod
+              mountPath: /opt/opsany/control/config/prod.py
+              subPath: control-prod.py
+            - name: opsany-saas-ce-control-supervisor
+              mountPath: /etc/supervisord.d/control.ini
+              subPath: control-supervisor.ini
+            - name: opsany-saas-ce-control-nginx
+              mountPath: /etc/nginx/http.d/default.conf
+              subPath: control-nginx.conf
+            - name: opsany-saas-ce-control-uwsgi
+              mountPath: /opt/opsany/uwsgi/control.ini
+              subPath: control-uwsgi.ini
+            - name: opsany-logs
+              mountPath: /opt/opsany/logs
+            - name: opsany-uploads
+              mountPath: /opt/opsany/uploads
       containers:
         - name: {{ .Chart.Name }}
           securityContext:

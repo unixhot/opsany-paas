@@ -130,6 +130,10 @@ class GuacamoleWebsocket(WebsocketConsumer):
                 self.height = int(float(query_dict["height"]))
                 self.dpi = int(float(query_dict["dpi"]))
         guacamole_host, guacamole_port = None, None
+        try:
+            timeout = int(data.get("timeout", 10))
+        except Exception:
+            timeout = 10
         if not data.get("cache"):
             server_ = HostModel.fetch_one(id=data.get("host_id"))
             credential_host = HostCredentialRelationshipModel.fetch_one(id=data.get("credential_host_id"))
@@ -157,7 +161,7 @@ class GuacamoleWebsocket(WebsocketConsumer):
             guacamole_host = settings.GUACD_HOST
             guacamole_port = settings.GUACD_PORT
 
-        self.GUACD_CLIENT = GuacamoleClient(guacamole_host, guacamole_port)
+        self.GUACD_CLIENT = GuacamoleClient(guacamole_host, guacamole_port, timeout=timeout)
         # if not os.path.exists(ori_drive_path + "/Download"):
         #     os.makedirs(ori_drive_path + "/Download")
         if not os.path.exists(self.recording_path):

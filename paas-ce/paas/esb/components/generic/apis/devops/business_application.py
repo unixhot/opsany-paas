@@ -19,6 +19,12 @@ class BusinessApplication(Component):
 
     ### 请求参数
     {{ common_args_desc }}
+    
+    ### 接口参数
+
+    | 字段   |  类型   | 必选 | 描述            |
+    | ----- | ------ | ---- | -------- |
+    | type | str | 否 | 获取数据的类型 |
 
 
     ### 返回结果示例
@@ -70,11 +76,11 @@ class BusinessApplication(Component):
 
     # Form处理参数校验
     class Form(BaseComponentForm):
-        pass
+        type = forms.Field(required=False)
 
         # clean方法返回的数据可通过组件的form_data属性获取
         def clean(self):
-            return self.get_cleaned_data_when_exist(keys=[])
+            return self.get_cleaned_data_when_exist(keys=["type"])
 
     # 组件处理入口
     def handle(self):

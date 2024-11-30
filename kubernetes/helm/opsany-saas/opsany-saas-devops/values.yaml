@@ -6,7 +6,7 @@ replicaCount: 1
 
 image:
   repository: registry.cn-beijing.aliyuncs.com/opsany/opsany-saas-ce-devops
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
 
@@ -14,7 +14,8 @@ imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 
-podAnnotations: {}
+podAnnotations:
+  opsany.com/change-cause: 2024-11-23
 
 podSecurityContext: {}
   # fsGroup: 2000
