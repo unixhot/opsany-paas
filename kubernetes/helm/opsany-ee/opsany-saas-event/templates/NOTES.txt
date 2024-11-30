@@ -1,5 +1,0 @@
-# Get the OpsAny event URL by running these commands
-  export SERVICE_IP=$(kubectl get svc -n opsany opsany-saas-event -o jsonpath='{.spec.clusterIP}')
-  export SERVICE_PORT=$(kubectl get svc -n opsany opsany-saas-event -o jsonpath='{.spec.ports[*].port}')
-  echo http://$SERVICE_IP:$SERVICE_PORT
-  echo "Visit http://$SERVICE_IP:$SERVICE_PORT to use your application"
