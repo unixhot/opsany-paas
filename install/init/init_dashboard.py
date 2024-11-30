@@ -107,6 +107,8 @@ if __name__ == "__main__":
         overwrite=True,
     )
     # target_path:脚本路径 overwrite:覆盖原数据(更新-标识依据 id,uid,title )
+    # 1. 传入id时当id不存在报错导入失败, id存在直接覆盖更新
+    # 2. 不传入id判断uid,title不存在创建，存在更新
     # 使用token操作 dashboard_path 默认路径./dashboard-init
     # python3 init_dashboard.py  --grafana_url https://domain/grafana/ --grafana_token grafana_token --dashboard_path ./dashboard-init
     # 使用用户名密码操作  dashboard_path 默认路径./dashboard-init

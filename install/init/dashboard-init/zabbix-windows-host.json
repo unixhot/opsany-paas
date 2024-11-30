@@ -107,7 +107,7 @@
             "filter": "$Group"
           },
           "host": {
-            "filter": "$Server"
+            "filter": "$Host"
           },
           "item": {
             "filter": "Total memory"
@@ -238,7 +238,7 @@
             "filter": "$Group"
           },
           "host": {
-            "filter": "$Server"
+            "filter": "$Host"
           },
           "item": {
             "filter": "Zabbix agent ping"
@@ -362,7 +362,7 @@
             "filter": "$Group"
           },
           "host": {
-            "filter": "$Server"
+            "filter": "$Host"
           },
           "item": {
             "filter": "Uptime"
@@ -483,7 +483,7 @@
             "filter": "$Group"
           },
           "host": {
-            "filter": "$Server"
+            "filter": "$Host"
           },
           "item": {
             "filter": "Memory utilization"
@@ -530,54 +530,81 @@
       "type": "gauge"
     },
     {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
       "datasource": {
         "type": "alexanderzobnin-zabbix-datasource",
         "uid": "${DATA_SOURCE}"
       },
       "fieldConfig": {
         "defaults": {
-          "links": []
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "links": [],
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "percent"
         },
         "overrides": []
       },
-      "fill": 1,
-      "fillGradient": 0,
       "gridPos": {
         "h": 5,
         "w": 18,
         "x": 3,
         "y": 2
       },
-      "hiddenSeries": false,
       "id": 8,
-      "legend": {
-        "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
-        "show": true,
-        "total": false,
-        "values": false
-      },
-      "lines": true,
-      "linewidth": 1,
-      "nullPointMode": "null",
       "options": {
-        "alertThreshold": true
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
       },
-      "percentage": false,
       "pluginVersion": "9.0.2",
-      "pointradius": 2,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
       "targets": [
         {
           "application": {
@@ -593,7 +620,7 @@
             "filter": "$Group"
           },
           "host": {
-            "filter": "$Server"
+            "filter": "$Host"
           },
           "item": {
             "filter": "Memory utilization"
@@ -649,7 +676,7 @@
             "filter": "$Group"
           },
           "host": {
-            "filter": "$Server"
+            "filter": "$Host"
           },
           "item": {
             "filter": "CPU utilization"
@@ -692,35 +719,8 @@
           }
         }
       ],
-      "thresholds": [],
-      "timeRegions": [],
       "title": "内存 / CPU",
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "mode": "time",
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "format": "short",
-          "logBase": 1,
-          "show": true
-        },
-        {
-          "format": "short",
-          "logBase": 1,
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false
-      }
+      "type": "timeseries"
     },
     {
       "datasource": {
@@ -797,7 +797,7 @@
             "filter": "$Group"
           },
           "host": {
-            "filter": "$Server"
+            "filter": "$Host"
           },
           "item": {
             "filter": "CPU utilization"
@@ -861,274 +861,10 @@
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
-        "h": 8,
-        "w": 24,
-        "x": 0,
-        "y": 7
-      },
-      "hiddenSeries": false,
-      "id": 14,
-      "legend": {
-        "alignAsTable": true,
-        "avg": true,
-        "current": true,
-        "max": true,
-        "min": true,
-        "rightSide": false,
-        "show": true,
-        "total": true,
-        "values": true
-      },
-      "lines": true,
-      "linewidth": 1,
-      "maxDataPoints": "",
-      "nullPointMode": "null",
-      "options": {
-        "alertThreshold": true
-      },
-      "percentage": false,
-      "pluginVersion": "9.0.2",
-      "pointradius": 2,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
-      "targets": [
-        {
-          "application": {
-            "filter": "$Interface"
-          },
-          "countTriggersBy": "",
-          "datasource": {
-            "type": "alexanderzobnin-zabbix-datasource",
-            "uid": "${DATA_SOURCE}"
-          },
-          "functions": [
-            {
-              "def": {
-                "category": "Filter",
-                "defaultParams": [
-                  5,
-                  "avg"
-                ],
-                "name": "top",
-                "params": [
-                  {
-                    "name": "number",
-                    "type": "int"
-                  },
-                  {
-                    "name": "value",
-                    "options": [
-                      "avg",
-                      "min",
-                      "max",
-                      "sum",
-                      "count",
-                      "median"
-                    ],
-                    "type": "string"
-                  }
-                ]
-              },
-              "params": [
-                "1",
-                "sum"
-              ],
-              "text": "top(1, sum)"
-            }
-          ],
-          "group": {
-            "filter": "$Group"
-          },
-          "host": {
-            "filter": "$Server"
-          },
-          "item": {
-            "filter": "/(?:Bits\\ received)/"
-          },
-          "itemTag": {
-            "filter": ""
-          },
-          "macro": {
-            "filter": ""
-          },
-          "mode": 0,
-          "options": {
-            "count": true,
-            "disableDataAlignment": false,
-            "minSeverity": 3,
-            "showDisabledItems": false,
-            "skipEmptyValues": false,
-            "useTrends": "default",
-            "useZabbixValueMapping": false
-          },
-          "proxy": {
-            "filter": ""
-          },
-          "queryType": "0",
-          "refId": "B",
-          "resultFormat": "time_series",
-          "schema": 12,
-          "table": {
-            "skipEmptyValues": false
-          },
-          "tags": {
-            "filter": ""
-          },
-          "textFilter": "",
-          "trigger": {
-            "filter": ""
-          },
-          "triggers": {
-            "acknowledged": 2
-          }
-        },
-        {
-          "application": {
-            "filter": "$Interface"
-          },
-          "countTriggersBy": "",
-          "datasource": {
-            "type": "alexanderzobnin-zabbix-datasource",
-            "uid": "${DATA_SOURCE}"
-          },
-          "functions": [
-            {
-              "def": {
-                "category": "Filter",
-                "defaultParams": [
-                  5,
-                  "avg"
-                ],
-                "name": "top",
-                "params": [
-                  {
-                    "name": "number",
-                    "type": "int"
-                  },
-                  {
-                    "name": "value",
-                    "options": [
-                      "avg",
-                      "min",
-                      "max",
-                      "sum",
-                      "count",
-                      "median"
-                    ],
-                    "type": "string"
-                  }
-                ]
-              },
-              "params": [
-                "1",
-                "sum"
-              ],
-              "text": "top(1, sum)"
-            }
-          ],
-          "group": {
-            "filter": "$Group"
-          },
-          "host": {
-            "filter": "$Server"
-          },
-          "item": {
-            "filter": "/(?:Bits\\ sent)/"
-          },
-          "itemTag": {
-            "filter": ""
-          },
-          "macro": {
-            "filter": ""
-          },
-          "mode": 0,
-          "options": {
-            "count": true,
-            "disableDataAlignment": false,
-            "minSeverity": 3,
-            "showDisabledItems": false,
-            "skipEmptyValues": false,
-            "useTrends": "default",
-            "useZabbixValueMapping": false
-          },
-          "proxy": {
-            "filter": ""
-          },
-          "queryType": "0",
-          "refId": "C",
-          "resultFormat": "time_series",
-          "schema": 12,
-          "table": {
-            "skipEmptyValues": false
-          },
-          "tags": {
-            "filter": ""
-          },
-          "textFilter": "",
-          "trigger": {
-            "filter": ""
-          },
-          "triggers": {
-            "acknowledged": 2
-          }
-        }
-      ],
-      "thresholds": [],
-      "timeRegions": [],
-      "title": "网络流量",
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "mode": "time",
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "format": "deckbytes",
-          "logBase": 1,
-          "show": true
-        },
-        {
-          "format": "KBs",
-          "logBase": 1,
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false
-      }
-    },
-    {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": {
-        "type": "alexanderzobnin-zabbix-datasource",
-        "uid": "${DATA_SOURCE}"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "links": []
-        },
-        "overrides": []
-      },
-      "fill": 1,
-      "fillGradient": 0,
-      "gridPos": {
         "h": 7,
         "w": 9,
         "x": 0,
-        "y": 15
+        "y": 7
       },
       "hiddenSeries": false,
       "id": 16,
@@ -1174,10 +910,10 @@
             "filter": "$Group"
           },
           "host": {
-            "filter": "$Server"
+            "filter": "$Host"
           },
           "item": {
-            "filter": "/^Free disk((?!%).)*$/"
+            "filter": "FS [{#FSLABEL}(C:)]: Space: Available"
           },
           "itemTag": {
             "filter": ""
@@ -1270,7 +1006,7 @@
         "h": 7,
         "w": 6,
         "x": 9,
-        "y": 15
+        "y": 7
       },
       "hiddenSeries": false,
       "id": 17,
@@ -1316,7 +1052,7 @@
             "filter": "$Group"
           },
           "host": {
-            "filter": "$Server"
+            "filter": "$Host"
           },
           "item": {
             "filter": "0 C:: Disk read rate"
@@ -1448,43 +1184,69 @@
       }
     },
     {
-      "aliasColors": {},
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
       "datasource": {
         "type": "alexanderzobnin-zabbix-datasource",
         "uid": "${DATA_SOURCE}"
       },
       "fieldConfig": {
         "defaults": {
-          "links": []
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "links": [],
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
         },
         "overrides": []
       },
-      "fill": 1,
-      "fillGradient": 0,
       "gridPos": {
         "h": 7,
         "w": 9,
         "x": 15,
-        "y": 15
+        "y": 7
       },
-      "hiddenSeries": false,
       "id": 19,
-      "legend": {
-        "alignAsTable": false,
-        "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
-        "rightSide": false,
-        "show": true,
-        "total": false,
-        "values": false
-      },
-      "lines": true,
-      "linewidth": 1,
       "links": [
         {
           "title": "",
@@ -1492,19 +1254,18 @@
         }
       ],
       "maxDataPoints": "",
-      "nullPointMode": "null",
       "options": {
-        "alertThreshold": true
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
       },
-      "percentage": false,
       "pluginVersion": "9.0.2",
-      "pointradius": 2,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
       "targets": [
         {
           "application": {
@@ -1520,10 +1281,10 @@
             "filter": "$Group"
           },
           "host": {
-            "filter": "$Server"
+            "filter": "$Host"
           },
           "item": {
-            "filter": "C:: Space utilization"
+            "filter": "FS [{#FSLABEL}(C:)]: Space: Used, in %"
           },
           "itemTag": {
             "filter": ""
@@ -1563,35 +1324,8 @@
           }
         }
       ],
-      "thresholds": [],
-      "timeRegions": [],
       "title": "磁盘使用率",
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "mode": "time",
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "format": "short",
-          "logBase": 1,
-          "show": true
-        },
-        {
-          "format": "short",
-          "logBase": 1,
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false
-      }
+      "type": "timeseries"
     },
     {
       "ackEventColor": "rgb(56, 219, 156)",
@@ -1608,7 +1342,7 @@
         "h": 13,
         "w": 24,
         "x": 0,
-        "y": 22
+        "y": 14
       },
       "highlightBackground": false,
       "highlightNewEvents": true,
@@ -1729,7 +1463,7 @@
             "filter": "$Group"
           },
           "host": {
-            "filter": "$Server"
+            "filter": "$Host"
           },
           "item": {
             "filter": ""
@@ -1809,6 +1543,7 @@
       "type": "alexanderzobnin-zabbix-triggers-panel"
     }
   ],
+  "refresh": "1m",
   "schemaVersion": 36,
   "style": "dark",
   "tags": [
@@ -1826,6 +1561,7 @@
         "name": "DATA_SOURCE",
         "options": [],
         "query": "alexanderzobnin-zabbix-datasource",
+        "queryValue": "",
         "refresh": 1,
         "regex": "",
         "skipUrlSync": false,
@@ -1899,6 +1635,6 @@
   "timezone": "",
   "title": "Windows主机大屏",
   "uid": "opsany-zabbix-windows-host",
-  "version": 6,
+  "version": 5,
   "weekStart": ""
 }
