@@ -48,6 +48,10 @@ else
         source ${INSTALL_PATH}/conf/.passwd_env
     fi
     mkdir -p ${INSTALL_PATH}/conf/opsany-paas/{paas,esb,login,appengine,websocket}
+    # copy init script to websocket
+    docker cp ../saas/ opsany-paas-websocket:/opt/opsany/
+    docker cp ./init/ opsany-paas-websocket:/opt/opsany/
+
 fi
 
 # PaaS Service Update
@@ -564,6 +568,11 @@ saas_monitor_update(){
     docker exec -e BK_ENV="production" opsany-saas-ce-monitor /bin/sh -c \
     "python /opt/opsany/monitor/manage.py migrate --noinput >> ${SHELL_LOG} && python /opt/opsany/monitor/manage.py createcachetable django_cache > /dev/null"
     update_saas_version monitor 基础监控 ${MONITOR_SECRET_KEY}
+
+    shell_log "======Update Dashboard Initialize======"
+    # Init Script Job
+    docker exec opsany-paas-websocket /bin/sh -c "cd /opt/opsany/init/ && python3 init_dashboard.py --grafana_url https://${DOMAIN_NAME}/grafana/ --grafana_username admin --grafana_password $GRAFANA_ADMIN_PASSWORD"
+
 }
 
 saas_cmp_update(){
@@ -847,7 +856,7 @@ saas_code_update(){
 
 # $1 rbac $2 统一权限 $3 ${RBAC_SECRET_KEY}
 update_saas_version(){
-      python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code $1 --saas_app_name $2 --saas_app_version ${UPDATE_VERSION} --saas_app_secret_key $3 --is_update true
+      docker exec opsany-paas-websocket /bin/sh -c "python3 /opt/opsany/saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code $1 --saas_app_name $2 --saas_app_version ${UPDATE_VERSION} --saas_app_secret_key $3 --is_update true"
 }
 
 

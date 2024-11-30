@@ -1436,13 +1436,13 @@
           },
           "functions": [],
           "group": {
-            "filter": ""
+            "filter": "$Group"
           },
           "host": {
-            "filter": ""
+            "filter": "$Host"
           },
           "item": {
-            "filter": "/Space utilization/"
+            "filter": "FS [/]: Space: Used, in %"
           },
           "itemTag": {
             "filter": ""
@@ -1463,6 +1463,7 @@
           },
           "queryType": "0",
           "refId": "A",
+          "resultFormat": "time_series",
           "schema": 12,
           "table": {
             "skipEmptyValues": false
@@ -1476,7 +1477,7 @@
           }
         }
       ],
-      "title": "Filesystem (Space utilization %)",
+      "title": "磁盘使用率",
       "transformations": [],
       "type": "bargauge"
     },
@@ -1641,7 +1642,7 @@
       "fillGradient": 6,
       "gridPos": {
         "h": 6,
-        "w": 10,
+        "w": 13,
         "x": 0,
         "y": 18
       },
@@ -1809,7 +1810,7 @@
       ],
       "thresholds": [],
       "timeRegions": [],
-      "title": "$Disk (read/write rates)",
+      "title": "磁盘读/写速率",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -1850,12 +1851,42 @@
         "type": "alexanderzobnin-zabbix-datasource",
         "uid": "${DATA_SOURCE}"
       },
-      "description": "This item is the percentage of elapsed time that the selected disk drive was busy servicing read or writes requests.",
+      "description": "Used storage in Bytes",
       "fieldConfig": {
         "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 40,
+            "gradientMode": "opacity",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
           "decimals": 0,
           "mappings": [],
-          "max": 100,
           "min": 0,
           "thresholds": {
             "mode": "absolute",
@@ -1865,213 +1896,186 @@
                 "value": null
               },
               {
-                "color": "#EAB839",
-                "value": 50
-              },
-              {
                 "color": "red",
                 "value": 80
               }
             ]
           },
-          "unit": "percent"
+          "unit": "bytes"
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "C:: Total space"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "rgb(255, 255, 255)",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "C:: Used space"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "red",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "CPU system time"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#e24d42",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Espaco livre na particao C: % (pfree)"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#629E51",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Espaco livre na particao D: % (pfree)"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#E5AC0E",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "Used memory %"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#6ed0e0",
+                  "mode": "fixed"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/Used space/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "#F2495C",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 100
+              },
+              {
+                "id": "custom.fillOpacity",
+                "value": 100
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 4
+              },
+              {
+                "id": "custom.lineStyle",
+                "value": {
+                  "dash": [
+                    7,
+                    4
+                  ],
+                  "fill": "dash"
+                }
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byRegexp",
+              "options": "/Total space/"
+            },
+            "properties": [
+              {
+                "id": "color",
+                "value": {
+                  "fixedColor": "rgb(255, 255, 255)",
+                  "mode": "fixed"
+                }
+              },
+              {
+                "id": "custom.lineWidth",
+                "value": 4
+              }
+            ]
+          }
+        ]
       },
       "gridPos": {
         "h": 6,
-        "w": 4,
-        "x": 10,
+        "w": 11,
+        "x": 13,
         "y": 18
       },
-      "id": 23,
+      "id": 32,
       "links": [],
       "options": {
-        "orientation": "auto",
-        "reduceOptions": {
+        "legend": {
           "calcs": [
             "lastNotNull"
           ],
-          "fields": "",
-          "values": false
+          "displayMode": "list",
+          "placement": "bottom"
         },
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true,
-        "text": {}
-      },
-      "pluginVersion": "9.0.2",
-      "repeat": "Disk",
-      "repeatDirection": "v",
-      "targets": [
-        {
-          "application": {
-            "filter": "$Disk"
-          },
-          "countTriggersBy": "",
-          "datasource": {
-            "type": "alexanderzobnin-zabbix-datasource",
-            "uid": "${DATA_SOURCE}"
-          },
-          "functions": [
-            {
-              "$$hashKey": "object:976",
-              "def": {
-                "category": "Alias",
-                "defaultParams": [
-                  "/(.*)/",
-                  "$1"
-                ],
-                "name": "replaceAlias",
-                "params": [
-                  {
-                    "name": "regexp",
-                    "type": "string"
-                  },
-                  {
-                    "name": "newAlias",
-                    "type": "string"
-                  }
-                ]
-              },
-              "params": [
-                "/(: Disk utilization)/",
-                "$'"
-              ],
-              "text": "replaceAlias(/(: Disk utilization)/, $')"
-            }
-          ],
-          "group": {
-            "filter": "$Group"
-          },
-          "host": {
-            "filter": "$Host"
-          },
-          "item": {
-            "filter": "/Disk utilization/"
-          },
-          "itemTag": {
-            "filter": ""
-          },
-          "macro": {
-            "filter": ""
-          },
-          "options": {
-            "count": true,
-            "disableDataAlignment": false,
-            "minSeverity": 3,
-            "showDisabledItems": false,
-            "skipEmptyValues": false,
-            "useTrends": "default",
-            "useZabbixValueMapping": false
-          },
-          "proxy": {
-            "filter": ""
-          },
-          "queryType": "0",
-          "refId": "A",
-          "resultFormat": "time_series",
-          "schema": 12,
-          "table": {
-            "skipEmptyValues": false
-          },
-          "tags": {
-            "filter": ""
-          },
-          "textFilter": "",
-          "trigger": {
-            "filter": ""
-          },
-          "triggers": {
-            "acknowledged": 2
-          }
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
         }
-      ],
-      "title": "$Disk (Performance)",
-      "type": "gauge"
-    },
-    {
-      "aliasColors": {
-        "C:: Total space": "rgb(255, 255, 255)",
-        "C:: Used space": "red",
-        "CPU system time": "#e24d42",
-        "Espaco livre na particao C: % (pfree)": "#629E51",
-        "Espaco livre na particao D: % (pfree)": "#E5AC0E",
-        "Used memory %": "#6ed0e0"
       },
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": {
-        "type": "alexanderzobnin-zabbix-datasource",
-        "uid": "${DATA_SOURCE}"
-      },
-      "decimals": 0,
-      "description": "Used storage in Bytes",
-      "fieldConfig": {
-        "defaults": {
-          "unit": "bytes"
-        },
-        "overrides": []
-      },
-      "fill": 1,
-      "fillGradient": 4,
-      "gridPos": {
-        "h": 6,
-        "w": 10,
-        "x": 14,
-        "y": 18
-      },
-      "hiddenSeries": false,
-      "id": 32,
-      "legend": {
-        "alignAsTable": false,
-        "avg": false,
-        "current": true,
-        "hideEmpty": false,
-        "hideZero": false,
-        "max": false,
-        "min": false,
-        "rightSide": false,
-        "show": true,
-        "total": false,
-        "values": true
-      },
-      "lines": true,
-      "linewidth": 2,
-      "links": [],
-      "nullPointMode": "connected",
-      "options": {
-        "alertThreshold": true
-      },
-      "percentage": true,
       "pluginVersion": "9.0.2",
-      "pointradius": 5,
-      "points": false,
-      "renderer": "flot",
       "repeat": "Filesystem",
       "repeatDirection": "v",
-      "seriesOverrides": [
-        {
-          "$$hashKey": "object:1193",
-          "alias": "/Used space/",
-          "color": "#F2495C",
-          "dashLength": 7,
-          "dashes": true,
-          "fill": 10,
-          "fillGradient": 10,
-          "linewidth": 4,
-          "spaceLength": 4
-        },
-        {
-          "$$hashKey": "object:3296",
-          "alias": "/Total space/",
-          "color": "rgb(255, 255, 255)",
-          "linewidth": 4
-        }
-      ],
-      "spaceLength": 10,
-      "stack": false,
-      "steppedLine": false,
       "targets": [
         {
           "application": {
@@ -2091,7 +2095,7 @@
             "filter": "$Host"
           },
           "item": {
-            "filter": "/(Used|Total) space/"
+            "filter": "FS [/]: Space: Available"
           },
           "itemTag": {
             "filter": ""
@@ -2130,42 +2134,8 @@
           }
         }
       ],
-      "thresholds": [],
-      "timeRegions": [],
-      "title": "$Filesystem (Space utilization)",
-      "tooltip": {
-        "shared": true,
-        "sort": 2,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "mode": "time",
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "$$hashKey": "object:1664",
-          "decimals": 0,
-          "format": "bytes",
-          "label": "",
-          "logBase": 1,
-          "min": "0",
-          "show": true
-        },
-        {
-          "$$hashKey": "object:1665",
-          "decimals": 0,
-          "format": "bytes",
-          "label": "",
-          "logBase": 1,
-          "show": false
-        }
-      ],
-      "yaxis": {
-        "align": true
-      }
+      "title": "磁盘可用空间",
+      "type": "timeseries"
     },
     {
       "collapsed": false,
@@ -2313,7 +2283,7 @@
           }
         }
       ],
-      "title": "(IN) $Network",
+      "title": "网卡流量（IN）",
       "type": "stat"
     },
     {
@@ -2681,151 +2651,15 @@
           }
         }
       ],
-      "title": "(OUT) $Network",
+      "title": "网卡流量（OUT）",
       "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "alexanderzobnin-zabbix-datasource",
-        "uid": "6f1bhRVNz"
-      },
-      "gridPos": {
-        "h": 8,
-        "w": 24,
-        "x": 0,
-        "y": 32
-      },
-      "id": 101,
-      "options": {
-        "ackEventColor": "rgb(56, 219, 156)",
-        "ackField": true,
-        "ageField": false,
-        "allowDangerousHTML": false,
-        "customLastChangeFormat": false,
-        "descriptionAtNewLine": false,
-        "descriptionField": true,
-        "fontSize": "100%",
-        "highlightBackground": false,
-        "highlightNewEvents": false,
-        "highlightNewerThan": "1h",
-        "hostField": true,
-        "hostGroups": false,
-        "hostProxy": false,
-        "hostTechNameField": false,
-        "lastChangeFormat": "",
-        "layout": "table",
-        "markAckEvents": false,
-        "okEventColor": "rgb(56, 189, 113)",
-        "opdataField": false,
-        "pageSize": 10,
-        "problemTimeline": true,
-        "severityField": true,
-        "showTags": true,
-        "sortProblems": "lastchange",
-        "statusField": true,
-        "statusIcon": false,
-        "triggerSeverity": [
-          {
-            "color": "rgb(108, 108, 108)",
-            "priority": 0,
-            "severity": "Not classified",
-            "show": true
-          },
-          {
-            "color": "rgb(120, 158, 183)",
-            "priority": 1,
-            "severity": "Information",
-            "show": true
-          },
-          {
-            "color": "rgb(175, 180, 36)",
-            "priority": 2,
-            "severity": "Warning",
-            "show": true
-          },
-          {
-            "color": "rgb(255, 137, 30)",
-            "priority": 3,
-            "severity": "Average",
-            "show": true
-          },
-          {
-            "color": "rgb(255, 101, 72)",
-            "priority": 4,
-            "severity": "High",
-            "show": true
-          },
-          {
-            "color": "rgb(215, 0, 0)",
-            "priority": 5,
-            "severity": "Disaster",
-            "show": true
-          }
-        ]
-      },
-      "pluginVersion": "9.0.2",
-      "targets": [
-        {
-          "application": {
-            "filter": ""
-          },
-          "countTriggersBy": "",
-          "datasource": {
-            "type": "alexanderzobnin-zabbix-datasource",
-            "uid": "6f1bhRVNz"
-          },
-          "functions": [],
-          "group": {
-            "filter": ""
-          },
-          "host": {
-            "filter": ""
-          },
-          "item": {
-            "filter": ""
-          },
-          "itemTag": {
-            "filter": ""
-          },
-          "macro": {
-            "filter": ""
-          },
-          "options": {
-            "count": false,
-            "disableDataAlignment": false,
-            "showDisabledItems": false,
-            "skipEmptyValues": false,
-            "useTrends": "default",
-            "useZabbixValueMapping": false
-          },
-          "proxy": {
-            "filter": ""
-          },
-          "queryType": "0",
-          "refId": "A",
-          "resultFormat": "time_series",
-          "schema": 12,
-          "table": {
-            "skipEmptyValues": false
-          },
-          "tags": {
-            "filter": ""
-          },
-          "textFilter": "",
-          "trigger": {
-            "filter": ""
-          }
-        }
-      ],
-      "title": "告警信息",
-      "type": "alexanderzobnin-zabbix-triggers-panel"
     }
   ],
   "refresh": "1m",
   "schemaVersion": 36,
   "style": "dark",
   "tags": [
-    "zabbix",
+    "Zabbix",
     "HOST"
   ],
   "templating": {
@@ -2937,6 +2771,6 @@
   "timezone": "browser",
   "title": "Linux主机大屏",
   "uid": "opsany-zabbix-linux-host",
-  "version": 2,
+  "version": 5,
   "weekStart": ""
 }
