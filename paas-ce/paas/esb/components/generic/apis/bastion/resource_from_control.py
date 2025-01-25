@@ -26,7 +26,7 @@ class ResourceFromControl(Component):
     | 字段    | 类型     | 必选   | 描述       |
     | ----- | ------ | ---- | -------- |
     | resource_type | string | 是  | 资源类型 |
-    | credential | dict | 是  | 凭据 |
+    | credential | dict | 是  | 凭证 |
     | data_list | dict | 是  | 资源列表 |
     | params | dict | 否  | 参数 |
 

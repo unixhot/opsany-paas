@@ -1,0 +1,16 @@
+---
+app_code:
+  description: "app code"
+  type: string
+
+app_secret:
+  description: "app secret"
+  type: string
+
+api_url:
+  description: "api url"
+  type: string
+
+access_token:
+  description: "access token"
+  type: string

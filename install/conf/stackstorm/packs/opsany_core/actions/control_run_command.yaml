@@ -1,0 +1,16 @@
+---
+name: control_run_command
+pack: opsany_core
+runner_type: "python-script"
+description: control run command
+enabled: true
+entry_point: control_run_command.py
+parameters:
+    host_list:
+      type: array
+      description: Executing the host list
+      required: true
+    shell_command:
+      type: string
+      description: script url(uploads/../script.sh)
+      required: true

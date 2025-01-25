@@ -298,6 +298,19 @@ class SshTerminalThread(threading.Thread):
             data = text_data
         return data
 
+    def send_large_text_or_bytes(self, text, chunk_size=2048):
+        if isinstance(text, bytes):
+            self.chan.send(text)
+            # print("发送字节", len(str(text)))
+            return "send-bytes"
+        else:
+            text = str(text)
+            for i in range(0, len(text), chunk_size):
+                self.chan.send(text[i:i + chunk_size])
+                if i > 1:
+                    time.sleep(0.1)  # 等待一段时间确保数据被处理
+            return "send-string"
+
     def run(self):
         first_flag = True
         command = list()
@@ -318,7 +331,7 @@ class SshTerminalThread(threading.Thread):
             text = self.queue.get_message()
             if text:
                 self.websocket.wait_time = time.time()
-                # print("texttext", text, type(text['data']))
+                # print("tttttttttttttttttttttttttttt", len(str(text['data'])), type(text['data']), (text['type']), text['data'])
                 data = self._clean_text_data(text)
                 if isinstance(data, (list, tuple)):
                     if data[0] == 'command':
@@ -431,10 +444,9 @@ class SshTerminalThread(threading.Thread):
                         if first_flag:
                             first_flag = False
                             command = list()
-                        elif isinstance(data, bytes):
-                            self.chan.send(data)
                         else:
-                            self.chan.send(str(data))
+                            self.send_large_text_or_bytes(data)
+                            # self.chan.send(str(data))
                     except socket.error:
                         self.websocket.disconnect(1000)
                         self.stop()
@@ -550,7 +562,8 @@ class InterActiveShellThread(threading.Thread):
                     break
                 try:
                     r, w, x = select.select([sshchan], [], [])
-                    data = sshchan.recv(102400)
+                    data = sshchan.recv(4096)
+                    # print("dddddddddddddddddddddddd", data)
                     if self.database_client:
                         # app_logger.info("self.database_client: ||||{}||||".format(self.database_client))
                         # 获取命令行样式
@@ -645,7 +658,10 @@ class InterActiveShellThread(threading.Thread):
                                 if elementid:
                                     channel.send(json.dumps(['stdout', x, elementid.rsplit('_')[0]]))
                                 else:
-                                    channel.send(str(x))
+                                    try:
+                                        channel.send(str(x))
+                                    except Exception as e:
+                                        pass
                             else:
                                 if elementid:
                                     channel_layer.send(channel, {'text_data': json.dumps(

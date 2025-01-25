@@ -1,0 +1,20 @@
+---
+name: send_mail
+pack: opsany_core
+runner_type: "python-script"
+description: send mail
+enabled: true
+entry_point: send_mail.py
+parameters:
+  receiver:
+    type: string
+    description: receiver email address
+    required: true
+  subject:
+    type: string
+    description: email project
+    required: true
+  text:
+    type: string
+    description: email text
+    required: true

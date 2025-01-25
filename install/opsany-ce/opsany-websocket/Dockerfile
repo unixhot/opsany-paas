@@ -9,6 +9,7 @@ ADD ./websocket /opt/opsany/websocket
 
 # Install Gcc
 RUN sed -i 's/deb.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list && \
+    sed -i 's/security.debian.org/mirrors.aliyun.com/g'  /etc/apt/sources.list && \
     apt-get update && apt-get -y install build-essential libmariadb-dev net-tools telnet iputils-ping openssh-client vim && apt-get clean && \
     echo '    StrictHostKeyChecking no' >> /etc/ssh/ssh_config && \ 
     pip --no-cache-dir install supervisor grafana-api==1.0.3 uvicorn==0.11.8 gunicorn==19.9.0 gevent==22.10.2 -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com && \

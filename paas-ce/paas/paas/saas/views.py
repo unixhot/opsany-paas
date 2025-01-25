@@ -223,7 +223,17 @@ class UploadAndRegisterView(SuperuserRequiredMixin, View):
         secret_key = data.get("saas_app_secret_key")
         result = True
         message = "Success"
-        saas_app = SaaSApp.objects.filter(code=app_code).first()
+        if not is_update:
+            try:
+                uuid.UUID(secret_key.replace('-', ''))
+            except Exception:
+                result = False
+                message = "saas_app_secret_key必须是UUID生成的数值！"
+        app = App.objects.filter(code=app_code).first()
+        app_by_name = App.objects.filter(name=app_name).first()
+        if app != app_by_name:
+            result = False
+            message = "该应用 <{}> 应用名称 <{}> 已被 <{}> 使用".format(app_code, app_name, app_by_name.name)
         if not all([saas_file_name, app_code, app_name, version, secret_key]):
             result = False
             message = "缺失参数"
@@ -232,23 +242,23 @@ class UploadAndRegisterView(SuperuserRequiredMixin, View):
                 result = False
                 message = "无权操作"
         if not is_update:
-            if saas_app:
+            if app:
                 result = False
                 message = "该应用已存在: {}".format(app_code)
         else:
-            if not saas_app:
+            if not app:
                 result = False
                 message = "该应用不存在无法更新: {}".format(app_code)
         if result:
             saas_upload_file = self._save_saas_upload_file(saas_file_name)  # 创建上传记录
-            saas_app = self._save_saas_app(app_code, app_name)  # saas基础表
-            saas_app_version = self._save_saas_app_version(saas_app, version, saas_upload_file, secret_key)  # saas版本表
+            app, this_secret_key = self._save_app(app_code, app_name, secret_key)  # app基本信息表 包含开发中心列表页信息
+            saas_app = self._save_saas_app(app)  # saas基础表
             bk_app = self._save_bk_app(saas_app)  # appengine表 app信息
-            bk_app_token = self._save_bk_app_token(bk_app, secret_key)  # appengine表 app token 信息
-            app = self._save_app(saas_app, secret_key)  # app基本信息表 包含开发中心列表页信息
-            secure_info = self._save_secure_info(app_code)  # 数据库信息
-            desktop_setting = self._save_desktop_setting(app_code)  # 桌面配置
-            record = self._save_record(app_code, app_name, version, secret_key)  # 日志
+            self._save_bk_app_token(bk_app, this_secret_key)  # appengine表 app token 信息
+            self._save_saas_app_version(saas_app, version, saas_upload_file, this_secret_key)  # saas版本表
+            self._save_secure_info(app_code)  # 数据库信息
+            self._save_desktop_setting(app_code)  # 桌面配置
+            self._save_record(app_code, app_name, version, secret_key)  # 日志
         result = {"result": result, "message": message}
         result.update(data)
         return JsonResponse(result)
@@ -262,12 +272,14 @@ class UploadAndRegisterView(SuperuserRequiredMixin, View):
         )
         return saas_upload_file
 
-    def _save_saas_app(self, app_code, app_name):
+    def _save_saas_app(self, app):
+        app_code = app.code
         saas_app = SaaSApp.objects.filter(code=app_code).first()
         if not saas_app:
             saas_app = SaaSApp()
         saas_app.code = app_code
-        saas_app.name = app_name
+        saas_app.name = app.name
+        saas_app.app = app
         saas_app.save()
         return saas_app
 
@@ -282,7 +294,7 @@ class UploadAndRegisterView(SuperuserRequiredMixin, View):
             'introduction': "OpsAny{}".format(saas_app.name),
             'category': "OpsAny",
             'language_support': "Python3.6",
-            'date': "2020-03-20 20:20:55",
+            'date': str(datetime.datetime.now()).split('.')[0],
             'desktop': {"width": 1300, "is_max": True, "height": 720},
             'env': None
         }
@@ -305,7 +317,6 @@ class UploadAndRegisterView(SuperuserRequiredMixin, View):
             bk_app = BkApp()
         bk_app.name = saas_app.name
         bk_app.app_code = saas_app.code
-        bk_app.version = saas_app.version
         bk_app.app_lang = "Python"
         bk_app.save()
         return bk_app
@@ -318,9 +329,7 @@ class UploadAndRegisterView(SuperuserRequiredMixin, View):
         bk_app_token.bk_app = bk_app
         bk_app_token.save()
 
-    def _save_app(self, saas_app, secret_key):
-        app_code = saas_app.code
-        app_name = saas_app.name
+    def _save_app(self, app_code, app_name, secret_key):
         app = App.objects.filter(code=app_code).first()
         if not app:
             app = App()
@@ -340,9 +349,7 @@ class UploadAndRegisterView(SuperuserRequiredMixin, View):
         app.is_use_celery_beat = False
         app.is_saas = True
         app.save()
-        saas_app.app = app
-        saas_app.save()
-        return app
+        return app, app.auth_token
 
     def _save_secure_info(self, app_code):
         secure_info = SecureInfo.objects.filter(app_code=app_code).first()

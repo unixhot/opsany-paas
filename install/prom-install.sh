@@ -13,6 +13,7 @@ CTIME=$(date "+%Y-%m-%d-%H-%M")
 CDIR=$(pwd)
 SHELL_NAME="proxy-install.sh"
 SHELL_LOG="${CDIR}/${SHELL_NAME}.log"
+ADMIN_PASSWORD=""
 
 # Shell Log Record
 shell_log(){
@@ -191,7 +192,15 @@ prometheus_uninstall(){
     rm -rf ${INSTALL_PATH}/consul-volume/*
 }
 
-
+prom_init(){
+  # DOMAIN_NAME LOCAL_IP ADMIN_PASSWORD PROM_SERVER_PASSWD CONSUL_TOKEN
+  if [ -z "$ADMIN_PASSWORD" ];then
+        source ${INSTALL_PATH}/conf/.passwd_env
+  fi
+  python3 ../saas/init-ee-prometheus.py --domain $DOMAIN_NAME --local_ip $LOCAL_IP --username admin --password $ADMIN_PASSWORD \
+  --prom_username  admin --prom_password $PROM_SERVER_PASSWD --consul_token $CONSUL_TOKEN \
+  --alertmanager_username admin --alertmanager_password $PROM_SERVER_PASSWD
+}
 
 
 # Main
@@ -204,12 +213,14 @@ main(){
             prometheus_install
             alertmanager_install
             blackbox-exporter_install
+            prom_init
 		;;
     base)
             install_check
             install_init
             consul_install
             prometheus_install
+            prom_init
         ;;
     alertmanager)
             alertmanager_install

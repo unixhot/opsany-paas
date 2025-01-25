@@ -1,0 +1,13 @@
+---
+name: demo
+pack: opsany_workflow
+runner_type: "python-script"
+description: test demo
+enabled: true
+entry_point: demo.py
+parameters:
+    name:
+        type: string
+        description: Greeting you want to say to opsany (i.e. Hello, Hi, Yo, etc.)
+        required: true
+        position: 1

@@ -279,6 +279,26 @@ st2web_install(){
     ${PAAS_DOCKER_REG}/st2web:${ST2_VERSION}
 }
 
+# 初始化 1. st2 packs  2. control st2
+st2_init(){
+    # DOMAIN_NAME(192.168.56.11) ADMIN_PASSWORD DEVOPS_SECRET_KEY
+    if [ -z "$ADMIN_PASSWORD" ];then
+        source ${INSTALL_PATH}/conf/.passwd_env
+    fi
+    if [ -z "$DEVOPS_SECRET_KEY"];then
+        DEVOPS_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.devops_secret_key)
+    fi
+    cd $CDIR/
+    /bin/cp -rf conf/stackstorm/packs/ ${INSTALL_PATH}/st2-volume/
+    chmod -R 777 ${INSTALL_PATH}/st2-volume/packs/
+    /bin/cp -rf conf/stackstorm/opsany_core.yaml ${INSTALL_PATH}/st2-volume/packs-configs/
+    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/st2-volume/packs-configs/opsany_core.yaml
+    sed -i "s/DEVOPS_SECRET_KEY/$DEVOPS_SECRET_KEY/g" ${INSTALL_PATH}/st2-volume/packs-configs/opsany_core.yaml
+    tar -xzf conf/stackstorm/opsany_core_env.tar.gz -C ${INSTALL_PATH}/st2-volume/virtualenvs
+    docker exec opsany-st2-client /bin/sh -c "st2ctl reload --register-all"
+    python3 ../saas/init-ce-st2.py --domain $DOMAIN_NAME --username admin --password $ADMIN_PASSWORD  --st2_url http://${LOCAL_IP}:8005 --st2_username st2admin  --st2_password OpsAny@2023
+}
+
 st2_uninstall(){
     shell_log "=====Uninstall StackStorm======"
     docker stop opsany-st2-stream
@@ -339,6 +359,7 @@ main(){
         st2timersengine_install
         st2client_install
         st2web_install
+        st2_init
         ;;
     all)
         install_init
@@ -359,6 +380,7 @@ main(){
         st2timersengine_install
         st2client_install
         st2web_install
+        st2_init
         ;;
     uninstall)
         st2_uninstall

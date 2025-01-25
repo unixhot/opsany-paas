@@ -1,0 +1,32 @@
+---
+name: gitlab_clone_project
+pack: opsany_core
+runner_type: "python-script"
+description: clone gitlab project
+enabled: true
+entry_point: gitlab_clone_project.py
+parameters:
+  host_list:
+    type: array
+    description: Executing the host list
+    required: true
+  project_dir:
+    type: string
+    description: project directory
+    required: true
+  project_url:
+    type: string
+    description: project url
+    required: true
+  project_branch:
+    type: string
+    description: project branch
+    required: true
+  api_token:
+    type: string
+    description: api token
+    required: true
+  depth:
+    type: string
+    description: depth
+    required: false

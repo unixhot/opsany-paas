@@ -1,0 +1,20 @@
+---
+name: nexus_project
+pack: opsany_core
+runner_type: "python-script"
+description: download nexus project
+enabled: true
+entry_point: nexus_project.py
+parameters:
+  host_list:
+    type: array
+    description: Executing the host list
+    required: true
+  project_dir:
+    type: string
+    description: project directory
+    required: true
+  download_url:
+    type: string
+    description: download url
+    required: true

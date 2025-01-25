@@ -233,23 +233,23 @@ class UserInfo(BaseModel):
         # return list(set(host_credential_queryset))
 
     def get_user_credential_queryset(self):
-        # 通过用户查询授权的凭据
+        # 通过用户查询授权的凭证
         # 1. 获取访问策略
         strategy_access_queryset = self.get_user_strategy_access_queryset()
         credential_strategy_rel_queryset = []
         credential_group_rel_queryset = []
-        # 2. 获取策略相关凭据
+        # 2. 获取策略相关凭证
         for strategy_access in strategy_access_queryset:
             credential_strategy_rel_queryset.extend(
                 strategy_access.strategy_access_credential_or_credential_group.get_queryset())
         credential_queryset = [credential_strategy.credential for credential_strategy in
                                credential_strategy_rel_queryset if credential_strategy.credential]
-        # 3. 获取策略相关凭据组
+        # 3. 获取策略相关凭证组
         credential_group_queryset = [credential_strategy.credential_group for credential_strategy in
                                      credential_strategy_rel_queryset if credential_strategy.credential_group]
         for credential_group in credential_group_queryset:
             credential_group_rel_queryset.extend(credential_group.credential_group_queryset.get_queryset())
-        # 4. 增加凭据组内凭据
+        # 4. 增加凭证组内凭证
         for credential_group_query in credential_group_rel_queryset:
             credential_queryset.append(credential_group_query.credential)
         return list(set(credential_queryset))
@@ -1064,7 +1064,7 @@ class StrategyCommandUserGroupRelationshipModel(BaseModel):
         return dic
 
 
-# 凭据分组
+# 凭证分组
 class CredentialGroupModel(BaseModel):
     name = models.CharField(max_length=100, verbose_name="分组名称")
     description = models.CharField(max_length=2000, null=True, blank=True, verbose_name="描述")
@@ -1072,7 +1072,7 @@ class CredentialGroupModel(BaseModel):
 
     class Meta:
         db_table = "credential_group"
-        verbose_name = "凭据分组"
+        verbose_name = "凭证分组"
         verbose_name_plural = verbose_name
 
         indexes = [
@@ -1183,20 +1183,20 @@ class CredentialGroupModel(BaseModel):
         return {"password_credential": password_credential, "ssh_credential": ssh_credential}
 
 
-# 凭据
+# 凭证
 class CredentialModel(BaseModel):
     LOGIN_AUTO = "auto"
     LOGIN_HAND = "hand"
     CREDENTIAL_PASSWORD = "password"
     CREDENTIAL_SSH_KEY = "ssh_key"
     LOGIN_TYPE = [(LOGIN_AUTO, '自动登录'), (LOGIN_HAND, '手动登录')]
-    CREDENTIAL_TYPE = [(CREDENTIAL_PASSWORD, '密码凭据'), (CREDENTIAL_SSH_KEY, 'SSH秘钥')]
-    name = models.CharField(max_length=100, verbose_name="凭据名称")
+    CREDENTIAL_TYPE = [(CREDENTIAL_PASSWORD, '密码凭证'), (CREDENTIAL_SSH_KEY, 'SSH秘钥')]
+    name = models.CharField(max_length=100, verbose_name="凭证名称")
     login_type = models.CharField(max_length=20, choices=LOGIN_TYPE, default=LOGIN_AUTO, verbose_name="登录方式")
     credential_type = models.CharField(max_length=20, choices=CREDENTIAL_TYPE, default=CREDENTIAL_PASSWORD,
-                                       verbose_name="凭据类型")
+                                       verbose_name="凭证类型")
     credential_group = models.ForeignKey(CredentialGroupModel, on_delete=models.CASCADE, null=True, blank=True,
-                                         verbose_name="凭据分组")
+                                         verbose_name="凭证分组")
     login_name = models.CharField(max_length=128, null=True, blank=True, verbose_name="资源账户")
     login_password = models.CharField(max_length=500, null=True, blank=True, verbose_name="密码")
     ssh_key = models.TextField(null=True, blank=True, verbose_name="SSH Key")
@@ -1206,7 +1206,7 @@ class CredentialModel(BaseModel):
 
     class Meta:
         db_table = "credential"
-        verbose_name = "凭据"
+        verbose_name = "凭证"
         verbose_name_plural = verbose_name
 
         indexes = [
@@ -1249,7 +1249,7 @@ class CredentialModel(BaseModel):
         return dic
 
     def get_credential_group(self):
-        """获取当前凭据关联的全部分组"""
+        """获取当前凭证关联的全部分组"""
         credential_group_queryset = self.credential_queryset.get_queryset()
         credential_group = [credential_group.credential_group.to_base_dict() for credential_group in
                             credential_group_queryset]
@@ -1262,16 +1262,16 @@ class CredentialModel(BaseModel):
         return host_list
 
 
-# 凭据，凭据分组关联表
+# 凭证，凭证分组关联表
 class CredentialGroupRelationshipModel(BaseModel):
     credential = models.ForeignKey(CredentialModel, on_delete=models.CASCADE, related_name="credential_queryset",
-                                   verbose_name="关联凭据")
+                                   verbose_name="关联凭证")
     credential_group = models.ForeignKey(CredentialGroupModel, on_delete=models.CASCADE,
-                                         related_name="credential_group_queryset", null=True, verbose_name="关联凭据分组")
+                                         related_name="credential_group_queryset", null=True, verbose_name="关联凭证分组")
 
     class Meta:
         db_table = "credential_group_relationship"
-        verbose_name = "凭据，凭据分组关联表"
+        verbose_name = "凭证，凭证分组关联表"
         verbose_name_plural = verbose_name
         unique_together = (("credential", "credential_group"),)
 
@@ -1285,7 +1285,7 @@ class CredentialGroupRelationshipModel(BaseModel):
         return dic
 
 
-# 凭据凭据分组关联访问策略
+# 凭证凭证分组关联访问策略
 class CredentialGroupStrategyAccessRelationshipModel(BaseModel):
     strategy_access = models.ForeignKey(StrategyAccessModel, on_delete=models.CASCADE, verbose_name="关联策略",
                                         related_name="strategy_access_credential_or_credential_group")
@@ -1296,7 +1296,7 @@ class CredentialGroupStrategyAccessRelationshipModel(BaseModel):
 
     class Meta:
         db_table = "credential_Group_strategy_access_relationship"
-        verbose_name = "凭据凭据分组关联访问策略"
+        verbose_name = "凭证凭证分组关联访问策略"
         verbose_name_plural = verbose_name
 
     def to_dict(self):
@@ -1309,7 +1309,7 @@ class CredentialGroupStrategyAccessRelationshipModel(BaseModel):
         return dic
 
 
-# 凭据凭据分组关联命令策略
+# 凭证凭证分组关联命令策略
 class CredentialGroupStrategyCommandRelationshipModel(BaseModel):
     strategy_command = models.ForeignKey(StrategyCommandModel, on_delete=models.CASCADE, verbose_name="关联策略",
                                          related_name="strategy_command_credential_or_credential_group")
@@ -1320,7 +1320,7 @@ class CredentialGroupStrategyCommandRelationshipModel(BaseModel):
 
     class Meta:
         db_table = "credential_Group_strategy_command_relationship"
-        verbose_name = "凭据凭据分组关联命令策略"
+        verbose_name = "凭证凭证分组关联命令策略"
         verbose_name_plural = verbose_name
 
     def to_dict(self):
@@ -1592,7 +1592,7 @@ class HostGroupModel(BaseModel):
 class NetworkProxyModel(BaseModel):
     CREDENTIAL_PASSWORD = "password"
     CREDENTIAL_SSH_KEY = "ssh_key"
-    CREDENTIAL_TYPE = [(CREDENTIAL_PASSWORD, '密码凭据'), (CREDENTIAL_SSH_KEY, 'SSH秘钥')]
+    CREDENTIAL_TYPE = [(CREDENTIAL_PASSWORD, '密码凭证'), (CREDENTIAL_SSH_KEY, 'SSH秘钥')]
     name = models.CharField(max_length=255, verbose_name="网路代理名称")
     linux_ip = models.CharField(max_length=150, null=True, blank=True, verbose_name="Linux IP地址")
     linux_port = models.IntegerField(default=22, null=True, blank=True, verbose_name="Linux端口")
@@ -1600,7 +1600,7 @@ class NetworkProxyModel(BaseModel):
     linux_login_password = models.CharField(max_length=500, null=True, blank=True, verbose_name="Linux密码")
     linux_timeout = models.IntegerField(default=10, null=True, blank=True, verbose_name="Linux超时时间")
     credential_type = models.CharField(max_length=20, choices=CREDENTIAL_TYPE, default=CREDENTIAL_PASSWORD,
-                                       verbose_name="凭据类型")
+                                       verbose_name="凭证类型")
     ssh_key = models.TextField(null=True, blank=True, verbose_name="SSH Key")
     passphrase = models.CharField(max_length=500, null=True, blank=True, verbose_name="通行码")
     # 1 正常 2 未使用 3 异常 4 未知
@@ -1995,7 +1995,7 @@ class HostModel(BaseModel):
         return credential_queryset
 
 
-# 主机与凭据，凭据组关联
+# 主机与凭证，凭证组关联
 class HostCredentialRelationshipModel(BaseModel):
     host = models.ForeignKey(HostModel, related_name="host_credential_or_credential_group", on_delete=models.CASCADE)
     credential = models.ForeignKey(CredentialModel, on_delete=models.CASCADE, related_name="credential_host", null=True,
@@ -2007,7 +2007,7 @@ class HostCredentialRelationshipModel(BaseModel):
 
     class Meta:
         db_table = "host_credential_relationship"
-        verbose_name = "主机与凭据，凭据组关联"
+        verbose_name = "主机与凭证，凭证组关联"
         verbose_name_plural = verbose_name
         unique_together = (("host", "credential", "credential_group"),)
 
@@ -2206,7 +2206,7 @@ class CommandLogModel(BaseModel):
         }
 
 
-# 访问策略关联   凭据与主机的中间关系   替代CredentialGroupStrategyAccessRelationshipModel
+# 访问策略关联   凭证与主机的中间关系   替代CredentialGroupStrategyAccessRelationshipModel
 class StrategyAccessCredentialHostModel(BaseModel):
     strategy_access = models.ForeignKey(StrategyAccessModel, on_delete=models.CASCADE, verbose_name="关联策略",
                                         related_name="new_strategy_access_credential_or_credential_group")
@@ -2226,7 +2226,7 @@ class StrategyAccessCredentialHostModel(BaseModel):
         return dt
 
 
-# 命令策略关联   凭据与主机的中间关系      替代CredentialGroupStrategyCommandRelationshipModel
+# 命令策略关联   凭证与主机的中间关系      替代CredentialGroupStrategyCommandRelationshipModel
 class StrategyCommandCredentialHostModel(BaseModel):
     strategy_command = models.ForeignKey(StrategyCommandModel, on_delete=models.CASCADE, verbose_name="关联策略",
                                          related_name="new_strategy_command_credential_or_credential_group")

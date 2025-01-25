@@ -1,0 +1,27 @@
+---
+name: send_message
+pack: opsany_core
+runner_type: "python-script"
+description: send message
+enabled: true
+entry_point: send_message.py
+parameters:
+  name:
+    type: string
+    description: step name
+    required: true
+  message_title:
+    type: string
+    description: message title
+    required: true
+  message_info:
+    type: string
+    description: message text
+    required: true
+  task_name:
+    type: string
+    description: task name
+    required: true
+  notify_object_list:
+    type: array
+    description: message notify object

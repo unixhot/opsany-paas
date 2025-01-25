@@ -13,4 +13,6 @@ class GetUserInfo:
             bk_token = request.COOKIES.get("bk_token")
         esb_obj = EsbApi(bk_token)
         user_info = esb_obj.get_user_info()
+        if not user_info:
+            return None
         return UserInfo.fetch_one(username=user_info.get("username"))

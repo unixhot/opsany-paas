@@ -97,6 +97,14 @@ prometheus_install(){
 }
 
 
+prom_init(){
+  # DOMAIN_NAME LOCAL_IP ADMIN_PASSWORD PROM_SERVER_PASSWD CONSUL_TOKEN
+  python3 ../saas/init-ee-prometheus.py --domain $DOMAIN_NAME --local_ip $LOCAL_IP --username admin --password $ADMIN_PASSWORD \
+  --prom_username  admin --prom_password $PROM_SERVER_PASSWD --consul_token $CONSUL_TOKEN \
+  --alertmanager_username admin --alertmanager_password $PROM_SERVER_PASSWD
+}
+
+
 # Main
 main(){
     case "$1" in
@@ -105,6 +113,7 @@ main(){
             install_init
             consul_install
             prometheus_install
+            prom_init
 		;;
 	help|*)
 		echo $"Usage: $0 {install|help}"

@@ -56,21 +56,21 @@ class InitData:
     # 初始化业务树
     DEFAULT_BUSINESS_TREE = [
             {
-                "BUSINESS_name": "Default",
+                "BUSINESS_name": "default",
                 "BUSINESS_VISIBLE_NAME": "默认分组",
                 "BUSINESS_STATUS": "已上线",
-                "BUSINESS_ID": "Default",
+                "BUSINESS_ID": "default",
                 "BUSINESS_COMMENT": " <p>默认分组</p>",
                 "children": [
                     {
-                        "APPLICATION_name": "Default",
+                        "APPLICATION_name": "default",
                         "APPLICATION_VISIBLE_NAME": "默认应用",
                         "APPLICATION_STATUS": "运行中",
-                        "APPLICATION_ID": "Default",
+                        "APPLICATION_ID": "default",
                         "APPLICATION_COMMENT": " <p>默认应用</p>",
                         "children": [
                             {
-                                "SERVICE_name": "Default",
+                                "SERVICE_name": "default",
                                 "SERVICE_VISIBLE_NAME": "默认服务",
                                 "SERVICE_STATUS": "运行中",
                                 "SERVICE_COMMENT": " <p>默认服务</p>",

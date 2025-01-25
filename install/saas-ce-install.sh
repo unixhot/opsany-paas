@@ -14,7 +14,7 @@ CDIR=$(pwd)
 SHELL_NAME="saas-ce-install.sh"
 SHELL_LOG="${SHELL_NAME}.log"
 ADMIN_PASSWORD="admin"
-SAAS_VERSION=2.2.3
+SAAS_VERSION=2.2.4
 
 # Shell Log Record
 shell_log(){
@@ -480,10 +480,17 @@ saas_monitor_deploy(){
     docker exec opsany-paas-websocket /bin/sh -c "python3 /opt/opsany/saas/init-ce-monitor.py --domain $DOMAIN_NAME --private_ip $LOCAL_IP --paas_username admin --paas_password ${ADMIN_PASSWORD} --grafana_password admin --grafana_change_password $GRAFANA_ADMIN_PASSWORD"
 
     # Install Grafana Zabbix Plugin
-    cd /tmp && wget https://opsany.oss-cn-beijing.aliyuncs.com/alexanderzobnin-zabbix-app-4.3.1.zip
-    unzip -q alexanderzobnin-zabbix-app-4.3.1.zip
-    docker cp /tmp/alexanderzobnin-zabbix-app opsany-base-grafana:/var/lib/grafana/plugins/
-    docker restart opsany-base-grafana
+    ZABBIX_GRAFANE_PLUGIN_NAME="alexanderzobnin-zabbix-app-4.3.1.zip"
+    if [ -f "${ZABBIX_GRAFANE_PLUGIN_NAME}" ]; then
+        cd /tmp && unzip -q ${ZABBIX_GRAFANE_PLUGIN_NAME}
+        docker cp /tmp/alexanderzobnin-zabbix-app opsany-base-grafana:/var/lib/grafana/plugins/
+        docker restart opsany-base-grafana
+    else
+        cd /tmp && wget https://opsany.oss-cn-beijing.aliyuncs.com/${ZABBIX_GRAFANE_PLUGIN_NAME}
+        unzip -q ${ZABBIX_GRAFANE_PLUGIN_NAME}
+        docker cp /tmp/alexanderzobnin-zabbix-app opsany-base-grafana:/var/lib/grafana/plugins/
+        docker restart opsany-base-grafana
+    fi
 }
 
 saas_cmp_deploy(){
@@ -1079,7 +1086,7 @@ main(){
         saas_repo_deploy
         admin_password_init
         ;;
-	help|*)
+    help|*)
 	    echo $"Usage: $0 {ops|dev|devops|base|all|help}"
 	    ;;
     esac

@@ -1,0 +1,35 @@
+---
+# Pack reference. It can only contain lowercase letters, digits and underscores.
+# This attribute is only needed if "name" attribute contains special characters.
+ref: opsany_workflow
+# User-friendly pack name. If this attribute contains spaces or any other special characters, then
+# the "ref" attribute must also be specified (see above).
+name: opsany_workflow
+# User-friendly pack description.
+description: opsany workflow core System
+# Keywords which are used when searching for packs.
+keywords:
+  - opsany
+  - workflow
+  - develop
+  - event
+  - core
+# Pack version which must follow semver format (<major>.<minor>.<patch> e.g. 1.0.0)
+version: 1.0.0
+# A list of major Python versions pack is tested with and works with.
+python_versions:
+  - "3"
+# New in StackStorm 3.2
+# Specify a list of dependency packs to install. If the pack is in StackStorm Exchange you can use
+# the pack name, or you can specify a full Git repository URL. Optionally, you can specify the
+# exact version, tag, or branch.
+#dependencies:
+#  - core
+# Name of the pack author.
+author: Jason Zhao
+# Email of the pack author.
+email: zhaoshundong@opsany.com
+# Optional list of additional contributors to the pack.
+contributors:
+  - "Jason Zhao <zhaoshundong@opsany.com>"
+

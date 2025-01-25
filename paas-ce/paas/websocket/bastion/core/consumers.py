@@ -408,10 +408,12 @@ class WebSSH(WebsocketConsumer):
             password = data.get("password")
             credential_host = HostCredentialRelationshipModel.fetch_one(id=credential_host_id)
             self.host = HostModel.fetch_one(id=host_id)
-            if not self.host or not credential_host:
-                self.close_connect(WebSocketStatusCode.PARAM_ERROR)
+            if not self.host:
+                return False, WebSocketStatusCode.PARAM_ERROR
+            if not credential_host:
+                return False, WebSocketStatusCode.PARAM_ERROR
             if self.host.system_type != HostModel.SYSTEM_LINUX:
-                self.close_connect(WebSocketStatusCode.HOST_TYPE_ERROR)
+                return False, WebSocketStatusCode.HOST_TYPE_ERROR
             status, code = self._create_ssh_link(credential_host.credential, self.host, password, timeout=timeout)
         else:
             status, code = self._create_cache_ssh_link(data, timeout)
@@ -426,8 +428,9 @@ class WebSSH(WebsocketConsumer):
         # 验证token
         self.ssh = paramiko.SSHClient()
         status, code, data = self.check_token()
-        if not status and status is not None:
+        if status in [False]:
             self.close_connect(code)
+            return
         try:
             status, code = self.create_ssh_link(data)
             if status:
@@ -446,6 +449,8 @@ class WebSSH(WebsocketConsumer):
     # InterActiveShellThread
     def start_ssh(self):
         chan = self.ssh.invoke_shell(width=self.session_log.width, height=self.session_log.height, term='xterm')
+        # chan.setblocking(1)  # 设置为阻塞模式
+        # chan.settimeout(None)  # 设置超时为 None，意味着无超时
         sshterminal = SshTerminalThread(self, chan, self.user.username, self.token)
         # sshterminal.setDaemon = True
         sshterminal.start()
@@ -486,7 +491,7 @@ class WebSSH(WebsocketConsumer):
     def receive(self, text_data=None, bytes_data=None, **kwargs):
         try:
             status, code, data = self.check_token(check_user=True)
-            if not status and status is not None:
+            if status in [False]:
                 self.close_connect(code)
                 return
             if text_data is not None:           # 普通命令执行

@@ -1,0 +1,16 @@
+---
+name: control_execute_command
+pack: opsany_core
+runner_type: "python-script"
+description: control execute command
+enabled: true
+entry_point: control_execute_command.py
+parameters:
+    host_list:
+      type: array
+      description: Executing the host list
+      required: true
+    shell_command:
+      type: string
+      description: shell command(ls && date)
+      required: true

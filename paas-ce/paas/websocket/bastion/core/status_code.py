@@ -4,7 +4,7 @@ class WebSocketStatusCode:
     # 校验用户错误，即登陆用户与当前请求用户不是同一用户
     USER_ERROR = "ws_errcode:2"                         # 用户校验失败，请尝试重新登录或者联系管理员
     # 没有通过访问策略
-    ACCESS_ERROR = "ws_errcode:3"                       # 您的当次访问已不符合访问策略要求              (其实就是超过了访问时间的时间段)
+    ACCESS_ERROR = "ws_errcode:3"                       # 您的当次访问已不符合访问策略要求 (其实就是超过了访问时间的时间段)
     # 主机类型错误
     HOST_TYPE_ERROR = "ws_errcode:4"                    # 您选择的主机不支持SSH协议
     # 连接超时
@@ -21,6 +21,8 @@ class WebSocketStatusCode:
     PROXY_LINK_ERROR = "ws_errcode:9"                   # 无法连接到代理服务器
     # Proxy连接失败
     SSH_LINK_ERROR = "ws_errcode:10"                   # 连接服务器失败或登录认证失败
+    HOST_NOT_FOUND_ERROR = "ws_errcode:11"              # 当前主机已不存在
+    CRED_NOT_FOUND_ERROR = "ws_errcode:12"              # 当前凭证已不存在
 
 
 class MySQLWebSocketStatusCode:
