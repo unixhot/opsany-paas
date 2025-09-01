@@ -147,6 +147,9 @@ esb_init(){
     #bastion
     sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/bastion/toolkit/configs.py
     sed -i "s#/t/bastion#/o/bastion#g" ${INSTALL_PATH}/esb/apis/bastion/toolkit/configs.py
+    # llmops
+    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/llmops/toolkit/configs.py
+    sed -i "s#/t/llmops#/o/llmops#g" ${INSTALL_PATH}/esb/apis/llmops/toolkit/configs.py
     #dashboard
     sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/dashboard/toolkit/configs.py
     sed -i "s#/t/dashboard#/o/dashboard#g" ${INSTALL_PATH}/esb/apis/dashboard/toolkit/tools.py
@@ -381,12 +384,6 @@ mongodb_init(){
     kubectl cp ${INSTALL_PATH}/init/mongodb-init/mongodb_init.js opsany-base-mongodb-0:/opt/ -n opsany
     kubectl cp ${INSTALL_PATH}/init/cmdb-init opsany-base-mongodb-0:/opt/ -n opsany
     kubectl exec -it opsany-base-mongodb-0 -n opsany -- mongosh -u root -p $MONGO_INITDB_ROOT_PASSWORD /opt/mongodb_init.js 
-    kubectl exec -it opsany-base-mongodb-0 -n opsany -- bash -c "mongoimport -u cmdb -p ${MONGO_CMDB_PASSWORD} --db cmdb --drop --collection field_group < /opt/cmdb-init/field_group.json"
-    kubectl exec -it opsany-base-mongodb-0 -n opsany -- bash -c "mongoimport -u cmdb -p ${MONGO_CMDB_PASSWORD} --db cmdb --drop --collection icon_model < /opt/cmdb-init/icon_model.json"
-    kubectl exec -it opsany-base-mongodb-0 -n opsany -- bash -c "mongoimport -u cmdb -p ${MONGO_CMDB_PASSWORD} --db cmdb --drop --collection link_relationship_model < /opt/cmdb-init/link_relationship_model.json"
-    kubectl exec -it opsany-base-mongodb-0 -n opsany -- bash -c "mongoimport -u cmdb -p ${MONGO_CMDB_PASSWORD} --db cmdb --drop --collection model_group < /opt/cmdb-init/model_group.json"
-    kubectl exec -it opsany-base-mongodb-0 -n opsany -- bash -c "mongoimport -u cmdb -p ${MONGO_CMDB_PASSWORD} --db cmdb --drop --collection model_field < /opt/cmdb-init/model_field.json"
-    kubectl exec -it opsany-base-mongodb-0 -n opsany -- bash -c "mongoimport -u cmdb -p ${MONGO_CMDB_PASSWORD} --db cmdb --drop --collection model_info < /opt/cmdb-init/model_info.json"
     shell_log "======MongoDB Initialize End======"
 }
 

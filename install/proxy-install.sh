@@ -135,7 +135,7 @@ proxy_config(){
 proxy_start(){
     # Proxy
     shell_log "======Start Proxy======"
-    docker pull ${PAAS_DOCKER_REG}/opsany-paas-proxy:2.2.3
+    docker pull ${PAAS_DOCKER_REG}/opsany-paas-proxy:2.3.0
     docker run --restart=always --name opsany-paas-proxy -d \
         -p 4505:4505 -p 4506:4506 -p 8010:8010 \
         -v ${INSTALL_PATH}/logs/proxy:/opt/opsany/logs/proxy \
@@ -153,7 +153,7 @@ proxy_start(){
         -v ${INSTALL_PATH}/conf/proxy/saltmaster.ini:/etc/supervisord.d/saltmaster.ini \
         -v ${INSTALL_PATH}/proxy-volume/pki:/opt/opsany/pki \
         -v /etc/localtime:/etc/localtime:ro \
-        ${PAAS_DOCKER_REG}/opsany-paas-proxy:2.2.3
+        ${PAAS_DOCKER_REG}/opsany-paas-proxy:2.3.0
 
     #openresty
     shell_log "======Start openresty Service======"
@@ -182,6 +182,7 @@ uninstall_proxy(){
     docker stop opsany-proxy-guacd
     docker stop opsany-proxy-openresty
     docker stop opsany-proxy
+    docker stop opsany-paas-proxy
 
     # Remove Proxy
     docker rm -f opsany-proxy-mysql
@@ -189,6 +190,7 @@ uninstall_proxy(){
     docker rm -f opsany-proxy-guacd
     docker rm -f opsany-proxy-openresty
     docker rm -f opsany-proxy
+    docker rm -f opsany-paas-proxy
     # Remove Install Path
     #rm -rf ${INSTALL_PATH}
 }

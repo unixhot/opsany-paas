@@ -7,7 +7,7 @@ http://opensource.org/licenses/MIT
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 """ # noqa
 from django import forms
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from esb.bkcore.models import ComponentSystem, ESBChannel, SystemDocCategory
 from esb.bkcore.constants import DEFAULT_DOC_CATEGORY
@@ -20,39 +20,39 @@ class ComponentSystemForm(forms.ModelForm):
     """Form for ComponentSystem"""
 
     name = forms.RegexField(
-        label=_(u'系统名称'),
+        label=_('系统名称'),
         regex=r'^[a-zA-Z][a-zA-Z0-9_]*$',
         required=True,
         max_length=32,
         error_messages={
-            'invalid': _(u'输入的系统名称不符合要求')
+            'invalid': _('输入的系统名称不符合要求')
         },
-        help_text=_(u'系统唯一标识，由英文字母、下划线(_)或数字组成，并且以字母开头')
+        help_text=_('系统唯一标识，由英文字母、下划线(_)或数字组成，并且以字母开头')
     )
     execute_timeout = forms.IntegerField(
-        label=_(u'执行类超时时长'),
+        label=_('执行类超时时长'),
         required=False,
         error_messages={
-            'invalid': _(u'输入格式不正确')
+            'invalid': _('输入格式不正确')
         },
         min_value=1,
         max_value=86400,
-        help_text=_(u'单位秒，未设置时超时时长为30秒'),
+        help_text=_('单位秒，未设置时超时时长为30秒'),
         widget=forms.NumberInput(attrs={'style': 'width: 450px;'})
     )
     query_timeout = forms.IntegerField(
-        label=_(u'查询类超时时长'),
+        label=_('查询类超时时长'),
         required=False,
         error_messages={
-            'invalid': _(u'输入格式不正确')
+            'invalid': _('输入格式不正确')
         },
         min_value=1,
         max_value=86400,
-        help_text=_(u'单位秒，未设置时超时时长为30秒'),
+        help_text=_('单位秒，未设置时超时时长为30秒'),
         widget=forms.NumberInput(attrs={'style': 'width: 450px;'})
     )
     remark = forms.CharField(
-        label=_(u'备注'),
+        label=_('备注'),
         required=False,
         widget=forms.Textarea(attrs={'rows': '5'}),
     )
@@ -66,7 +66,7 @@ class ComponentSystemForm(forms.ModelForm):
         doc_category_name = self.data.get('doc_category') or DEFAULT_DOC_CATEGORY
         category_name_map = dict([
             (category['label'], name)
-            for name, category in SYSTEM_DOC_CATEGORY.iteritems()
+            for name, category in SYSTEM_DOC_CATEGORY.items()
         ])
         doc_category_name = category_name_map.get(doc_category_name) or doc_category_name
         obj, _ = SystemDocCategory.objects.get_or_create(name=doc_category_name)
@@ -82,17 +82,17 @@ class ComponentSystemForm(forms.ModelForm):
 
     def clean(self):
         data = self.cleaned_data
-        for key, val in data.iteritems():
-            if isinstance(val, basestring):
+        for key, val in data.items():
+            if isinstance(val, str):
                 data[key] = val.strip()
         return data
 
     def clean_name(self):
         name = self.cleaned_data['name'].upper()
         if name in DEFAULT_SYSTEM_NAMES:
-            raise forms.ValidationError(_(u'默认系统名称，不能使用'))
+            raise forms.ValidationError(_('默认系统名称，不能使用'))
         if ComponentSystem.objects.filter(name=name).exists():
-            raise forms.ValidationError(_(u'系统名称已存在'))
+            raise forms.ValidationError(_('系统名称已存在'))
         return self.cleaned_data['name']
 
 
@@ -101,11 +101,11 @@ class EditComponentSystemForm(ComponentSystemForm):
     def clean_name(self):
         name = self.cleaned_data['name'].upper()
         if ComponentSystem.objects.exclude(id=self.instance.id).filter(name=name).exists():
-            raise forms.ValidationError(_(u'系统名称已存在'))
+            raise forms.ValidationError(_('系统名称已存在'))
         # 如果是默认系统，则系统名不能修改
         system_name = self.instance.name.upper()
         if system_name in DEFAULT_SYSTEM_NAMES and name != system_name:
-            raise forms.ValidationError(_(u'默认系统名称，不能修改'))
+            raise forms.ValidationError(_('默认系统名称，不能修改'))
         if name != system_name and ESBChannel.objects.filter(component_system=self.instance).exists():
-            raise forms.ValidationError(_(u'系统下存在通道，不能修改'))
+            raise forms.ValidationError(_('系统下存在通道，不能修改'))
         return self.cleaned_data['name']

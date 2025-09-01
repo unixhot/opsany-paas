@@ -23,21 +23,21 @@ class QCloudSmsClient(object):
         return random.randint(100000, 999999)
 
     def get_cur_time(self):
-        return long(time.time())
+        return int(time.time())
 
     def calculate_sig(self, app_key, rnd, cur_time, phone_numbers):
         text = 'appkey=%s&random=%s&time=%s&mobile=%s' % (
             app_key, rnd, cur_time, ','.join(phone_numbers))
-        print 'text', text
+        print('text', text)
         return hashlib.sha256(text).hexdigest()
 
     def post(self, path, data):
         result = self.http_client.post(configs.host, path, data=json.dumps(data))
-        print result
+        print(result)
         if result.get('ErrorCode'):
             return {
                 'result': False,
-                'message': result.get('ErrorInfo', u'An unknown error has occurred'),
+                'message': result.get('ErrorInfo', 'An unknown error has occurred'),
                 'data': result
             }
         if result['result'] == 0:

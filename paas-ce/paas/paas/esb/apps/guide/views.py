@@ -8,10 +8,10 @@ Unless required by applicable law or agreed to in writing, software distributed 
 """ # noqa
 import copy
 import markdown
-from markdown.extensions.headerid import HeaderIdExtension
+#from markdown.extensions.headerid import HeaderIdExtension
 from django.views.generic import View
 from django.shortcuts import render
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from .utils import mdfile_by_name
 from esb.common.decorators import is_user_super
@@ -22,17 +22,17 @@ menu_active_item = 'user_guide'
 
 
 PAGES = [
-    ('esb_introduction', _(u'API网关介绍')),
-    ('add_new_component', _(u'组件编码')),
-    ('buffet_component', _(u'自助接入')),
-    ('use_component', _(u'API调用说明')),
-    ('custom_conf_manage', _(u'自定义配置管理')),
-    ('cmsi_component_guide', _(u'CMSI消息组件')),
+    ('esb_introduction', _('API网关介绍')),
+    ('add_new_component', _('组件编码')),
+    ('buffet_component', _('自助接入')),
+    ('use_component', _('API调用说明')),
+    ('custom_conf_manage', _('自定义配置管理')),
+    ('cmsi_component_guide', _('CMSI消息组件')),
 ]
 
 ZH_PAGES = copy.deepcopy(PAGES)
 ZH_PAGES.extend([
-    ('weixin_component_guide', _(u'微信消息组件')),
+    ('weixin_component_guide', _('微信消息组件')),
 ])
 
 
@@ -41,7 +41,7 @@ class Page(View):
     @is_user_super
     def get(self, request, name):
         with open(mdfile_by_name(name)) as fp:
-            md_content = unicode(fp.read(), 'utf-8')
+            md_content = fp.read()
 
             html_part = markdown.markdown(
                 md_content,
@@ -49,7 +49,7 @@ class Page(View):
                     'tables',
                     'attr_list',
                     'fenced_code',
-                    HeaderIdExtension(level=1),
+                    #HeaderIdExtension(level=1),
                     'markdown.extensions.codehilite',
                     'markdown.extensions.toc'
                 ],

@@ -7,11 +7,11 @@ http://opensource.org/licenses/MIT
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 """ # noqa
 
-from __future__ import unicode_literals
 
-from functools import wraps
 
-from django.utils.decorators import available_attrs
+from functools import WRAPPER_ASSIGNMENTS, wraps
+
+#from django.utils.decorators import available_attrs
 
 
 def escape_exempt(view_func):
@@ -22,4 +22,4 @@ def escape_exempt(view_func):
         return view_func(*args, **kwargs)
 
     wrapped_view.escape_exempt = True
-    return wraps(view_func, assigned=available_attrs(view_func))(wrapped_view)
+    return wraps(view_func, assigned=WRAPPER_ASSIGNMENTS)(wrapped_view)

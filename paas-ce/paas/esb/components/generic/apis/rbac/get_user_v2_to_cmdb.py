@@ -36,7 +36,7 @@ class GetUserV2ToCmdb(Component):
             "content": "Copyright © 2019-2022 OpsAny. All Rights Reserved"
         }
     } 
- 	
+
     ```
     """
 
@@ -75,7 +75,7 @@ class GetUserV2ToCmdb(Component):
         )
 
         # 对结果进行解析
-	code = response['code']
+        code = response['code']
         if code == 200:
             result = {
                 'code': response['code'],

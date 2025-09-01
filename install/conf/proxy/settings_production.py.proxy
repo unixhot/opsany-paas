@@ -36,6 +36,9 @@ if REDIS_USERNAME == "REDIS_USERNAME":  # 当该变量没有被替换时设置�
     REDIS_USERNAME = ""
 
 BROKER_URL = "redis://{USER}:{PASSWORD}@{HOST}:{PORT}/0".format(USER=REDIS_USERNAME, PASSWORD=REDIS_PASSWORD, HOST=REDIS_HOST, PORT=REDIS_PORT)
+CELERY_BROKER_URL = BROKER_URL
+CELERY_RESULT_BACKEND = CELERY_BROKER_URL
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 
 CACHES = {
     "default": {
@@ -69,9 +72,6 @@ PLAYBOOK_ROOT = os.getenv("PLAYBOOK_ROOT", "/srv/playbook/")
 TEST_PING_SCRIPT_PATH = os.path.join(BASE_DIR, "proxy/utils/test_ping_v2.py")
 
 # Saltstack config
-SALTSTACK_API_URL = "https://127.0.0.1:8005"
-SALTSTACK_API_USERNAME = "saltapi"
-SALTSTACK_API_PASSWORD = "OpsAny@2020"
 CONTROL_KEY = os.getenv("CONTROL_KEY", "CONTROL_SECRET_KEY_PROXY")
 FILE_ROOT = os.getenv("FILE_ROOT", "/srv/salt/")
 PILLAR_ROOT = os.getenv("PILLAR_ROOT", "/srv/pillar/")

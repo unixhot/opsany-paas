@@ -97,7 +97,7 @@ class SendSms(Component, SetupConfMixin):
         self.qcloud_app_key = getattr(self, 'qcloud_app_key', '') or getattr(configs, 'qcloud_app_key', '')
          
         data = self.request.kwargs
-        print 'sms.data', data
+        print('sms.data', data)
         if data['receiver']:
             tools.validate_receiver(data['receiver'], contact_way=self.contact_way)
         if data['receiver__username']:
@@ -118,7 +118,7 @@ class SendSms(Component, SetupConfMixin):
             if result['result'] and data.get('_extra_user_error_msg'):
                 result = {
                     'result': False,
-                    'message': u'Some users failed to send sms. %s' % data['_extra_user_error_msg']
+                    'message': 'Some users failed to send sms. %s' % data['_extra_user_error_msg']
                 }
 
             self.response.payload = result
@@ -130,13 +130,13 @@ class SendSms(Component, SetupConfMixin):
                 'sdk_app_id': self.qcloud_app_id,
                 'app_key': self.qcloud_app_key,
             }
-            print 'params', params
+            print('params', params)
             result = self.invoke_other('generic.qcloud_sms.send_multi_sms', kwargs=params)
 
             if result['result'] and data.get('_extra_user_error_msg'):
                 result = {
                     'result': False,
-                    'message': u'Some users failed to send sms. %s' % data['_extra_user_error_msg']
+                    'message': 'Some users failed to send sms. %s' % data['_extra_user_error_msg']
                 }
             self.response.payload = result
         else:

@@ -8,7 +8,7 @@ Unless required by applicable law or agreed to in writing, software distributed 
 """ # noqa
 
 
-from __future__ import unicode_literals
+
 
 from django.db import migrations, models
 
@@ -35,6 +35,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='app',
             name='tags',
-            field=models.ForeignKey(blank=True, to='app.AppTags', help_text='\u5e94\u7528\u5206\u7c7b', null=True),
+            field=models.ForeignKey(on_delete=models.CASCADE, blank=True, to='app.AppTags', help_text='\u5e94\u7528\u5206\u7c7b', null=True),
         ),
     ]

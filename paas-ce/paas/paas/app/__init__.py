@@ -6,18 +6,20 @@ Licensed under the MIT License (the "License"); you may not use this file except
 http://opensource.org/licenses/MIT
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 """ # noqa
-from __future__ import print_function, unicode_literals
 
 
-from django.db.models.signals import post_syncdb
-from app import models as m
+default_app_config = 'app.apps.appConfig'
+
+from django.apps import apps
+from django.db.models.signals import post_migrate
+#from app import models as m
 from django.db import transaction
-from app.models import AppTags
 
 
 @transaction.atomic
 def init_data(**kwargs):
     # 初始化 应用分类
+    from app.models import AppTags
     with transaction.atomic():
         try:
             AppTags.objects.get_or_create(name="基础服务", code='Service')
@@ -33,5 +35,5 @@ def init_data(**kwargs):
             print("Init app tags fail")
 
 
-init_data()
-post_syncdb.connect(init_data, sender=m)
+#init_data()
+#post_migrate.connect(init_data, sender=m)

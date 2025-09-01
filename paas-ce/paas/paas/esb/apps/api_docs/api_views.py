@@ -9,7 +9,7 @@ Unless required by applicable law or agreed to in writing, software distributed 
 from django.views.generic import View
 from django.http import Http404
 from django.db.models import Q
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from esb.bkcore.models import ComponentAPIDoc, ESBChannel, ComponentSystem, FeedbackForComponentDocs
 from esb.common.django_utils import JsonResponse
@@ -80,7 +80,7 @@ class GetApisBySystem(BaseApiCls):
             for api in api_info_by_system
         ]
         return JsonResponse({
-            'system_summary': system_info.remark_display or _(u'暂无系统简介'),
+            'system_summary': system_info.remark_display or _('暂无系统简介'),
             'api_info_by_system': list(api_info_by_system),
         })
 
@@ -102,12 +102,12 @@ class GetApiDocByApiId(BaseApiCls):
 class SubmitTheAdvice(BaseApiCls):
 
     def post(self, request):
-        data = dict(request.POST.items())
+        data = dict(list(request.POST.items()))
         FeedbackForComponentDocs(
             operator=request.user.username,
             board='',
             component_id=data['api_id'],
-            content=data.get('content', _(u"满足需求")),
+            content=data.get('content', _("满足需求")),
         ).save()
         return JsonResponse({'result': True})
 
@@ -115,7 +115,7 @@ class SubmitTheAdvice(BaseApiCls):
 class CheckComponentExist(BaseApiCls):
 
     def get(self, request):
-        data = dict(request.GET.items())
+        data = dict(list(request.GET.items()))
         try:
             system_obj = ComponentSystem.objects.get(name=data['system'])
         except Exception:

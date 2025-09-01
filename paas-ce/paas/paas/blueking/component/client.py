@@ -14,7 +14,7 @@ import json
 import time
 import random
 import logging
-import urlparse
+import urllib.parse
 
 from . import conf
 from . import collections
@@ -156,7 +156,7 @@ class ComponentClientWithSignature(BaseComponentClient):
         if method == 'POST':
             params = {}
 
-        url_path = urlparse.urlparse(url).path
+        url_path = urllib.parse.urlparse(url).path
         # signature always in GET params
         params.update({
             'bk_timestamp': int(time.time()),

@@ -9,17 +9,17 @@ class UserAgentMiddleware(object):
 
     def process_request(self, request):
         request.is_mobile = lambda: bool(settings.RE_MOBILE.search(
-            request.META.get('HTTP_USER_AGENT', '')))
+            request.headers.get('user-agent', '')))
 
         request.is_rio = lambda: bool(
-            request.META.get('HTTP_STAFFNAME', '') and settings.RIO_TOKEN and
-            settings.RE_WECHAT.search(request.META.get('HTTP_USER_AGENT', ''))
+            request.headers.get('staffname', '') and settings.RIO_TOKEN and
+            settings.RE_WECHAT.search(request.headers.get('user-agent', ''))
         )
 
         request.is_wechat = lambda: bool(settings.RE_WECHAT.search(
-            request.META.get('HTTP_USER_AGENT', '')) and not request.is_rio())
+            request.headers.get('user-agent', '')) and not request.is_rio())
 
-        request.is_bk_jwt = lambda: bool(request.META.get('HTTP_X_BKAPI_JWT', ''))
+        request.is_bk_jwt = lambda: bool(request.headers.get('x-bkapi-jwt', ''))
 
 
 class SiteUrlconfMiddleware(object):

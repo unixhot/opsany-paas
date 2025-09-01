@@ -9,7 +9,7 @@ Unless required by applicable law or agreed to in writing, software distributed 
 开发环境配置
 """ # noqa
 
-
+# True/False
 DEBUG = True
 
 # use the static root 'static' in production envs
@@ -20,46 +20,41 @@ if not DEBUG:
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'open_paas',
-        'USER': 'root',
-        'PASSWORD': '',
+        'NAME': 'opsany_paas',
+        'USER': 'opsany',
+        'PASSWORD': 'OpsAny2025.Dev',
         'HOST': '127.0.0.1',
         'PORT': '3306',
     }
 }
 
 # domain
-PAAS_DOMAIN = 'www.bking.com:8001'
+PAAS_DOMAIN = 'dev.opsany.cn'
 # 跳转到本地开发使用的login服务, 仅本地开发用. 注意生产环境使用nginx反向代理不需要配置LOGIN_DOMAIN变量(删除即可)
-LOGIN_DOMAIN = 'www.bking.com:8003'
+#LOGIN_DOMAIN = '10.0.0.188:8003'
 
 # inner domain, use consul domain,  for api
-PAAS_INNER_DOMAIN = ''
-HTTP_SCHEMA = 'http'
-
+PAAS_INNER_DOMAIN = '10.0.0.188'
+# http/https
+HTTP_SCHEMA = 'https'
 
 # cookie 名称
 BK_COOKIE_NAME = 'bk_token'
 # cookie有效期
 BK_COOKIE_AGE = 60 * 60 * 24
 # cookie访问域
-BK_COOKIE_DOMAIN = '.bking.com'
+BK_COOKIE_DOMAIN = 'dev.opsany.cn'
 
 # 控制台地址
-ENGINE_HOST = "http://127.0.0.1:8000"
+ENGINE_HOST = "http://10.0.0.188:8000"
 # 登陆服务地址
-LOGIN_HOST = "http://127.0.0.1:8003"
-
-# host for cc
-HOST_CC = ''
-# host for job
-HOST_JOB = ''
-# host for DATA，数据平台监控告警系统
-HOST_DATA = ''
-# host for gse
-HOST_GSE = ''
+LOGIN_HOST = "http://10.0.0.188:8003"
 
 SECRET_KEY = 'XEz7VLlQNdIq9iFl1t6LtWobQEcG4ayoPa2esHwatkHZxiuDf0'
 
 # ESB Token
 ESB_TOKEN = '41f076b7-afce-46eb-9e85-dab245eb0931'
+CSRF_TRUSTED_ORIGINS = [
+    'https://dev.opsany.cn',
+    'http://dev.opsany.cn',
+]

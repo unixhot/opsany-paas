@@ -33,6 +33,7 @@ except Exception:
 PROJECT_PATH = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT, PROJECT_MODULE_NAME = os.path.split(PROJECT_PATH)
 BASE_DIR = os.path.dirname(os.path.dirname(PROJECT_PATH))
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
@@ -56,7 +57,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'account',
-    'app',
+    'app.apps.appConfig',
     'app_env',
     'release',
     'engine',
@@ -65,7 +66,6 @@ INSTALLED_APPS = (
     'resource',
     'bk_app',
     'user_center',
-
     'esb.bkcore',
     'esb.mainsite',
     'esb.apps.manager',
@@ -74,12 +74,12 @@ INSTALLED_APPS = (
     'esb.apps.api_docs',
 )
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
+  #  'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
@@ -99,12 +99,13 @@ MAKO_TEMPLATE_MODULE_DIR = os.path.join(PROJECT_ROOT, 'templates_module')
 
 TEMPLATE_CONTEXT_PROCESSORS = (
     'django.template.context_processors.debug',
-    'django.core.context_processors.request',
+    'django.template.context_processors.request',
     'django.contrib.auth.context_processors.auth',
-    'django.core.context_processors.csrf',
+    'django.template.context_processors.csrf',
     'common.context_processors.site_settings',      # 自定义模版context，可以在页面中使用STATIC_URL等变量
-    'django.core.context_processors.i18n',
+    'django.template.context_processors.i18n',
     'django.contrib.messages.context_processors.messages',
+    'django.template.context_processors.request',
 )
 
 TEMPLATES = [
@@ -176,7 +177,7 @@ DATABASES = {
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.8/topics/i18n/
-LANGUAGE_CODE = 'zh-CN'
+#LANGUAGE_CODE = 'zh-CN'
 # TIME_ZONE = 'Asia/Shanghai'
 TIME_ZONE = 'Etc/GMT%+d' % ((time.altzone if time.daylight else time.timezone) / 3600)
 USE_I18N = True
@@ -236,7 +237,7 @@ LOGGING = {
     'handlers': {
         'null': {
             'level': 'DEBUG',
-            'class': 'django.utils.log.NullHandler',
+            'class': 'logging.NullHandler',
         },
         'console': {
             'level': 'DEBUG',
@@ -270,7 +271,7 @@ LOGGING = {
             'propagate': True,
         },
         'root': {
-            'handlers': ['root'],
+            'handlers': ['root', 'console'],
             'level': LOGGER_LEVEL,
             'propagate': True,
         },

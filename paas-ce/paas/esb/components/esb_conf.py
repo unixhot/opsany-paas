@@ -13,7 +13,12 @@ import os
 
 from django.conf import settings
 
-from components.component import ApiChannelForAPIS, ESBApiChannelForAPIS, FTAApiChannelForAPIS
+try:
+    from components.component import ApiChannelForAPIS, ESBApiChannelForAPIS, FTAApiChannelForAPIS
+except:
+    pass
+
+# from components.component import ApiChannelForAPIS, ESBApiChannelForAPIS, FTAApiChannelForAPIS
 from esb.bkapp.validators import AppAuthValidator
 
 
@@ -53,7 +58,7 @@ config = {
             },
         ],
         'default_channel_classes': None,
-        'doc_common_args': u"""
+        'doc_common_args': """
             #### {{ _("通用参数") }}
 
             | {{ _("字段") }} | {{ _("类型") }} | {{ _("必选") }} |  {{ _("描述") }} |
@@ -65,7 +70,7 @@ config = {
         'channel_groups': {
             'default': {
                 'channel_classes': {
-                    'api': ApiChannelForAPIS,
+                    'api': "ApiChannelForAPIS",
                 },
                 'rewrite_channels': {
                     # cmsi
@@ -466,7 +471,7 @@ config = {
                             'dest_path': '/fta/callback/{instance_id}/',
                             'dest_http_method': 'POST',
                             'name': 'callback_instance_id',
-                            'label': u'callback_instance_id',
+                            'label': 'callback_instance_id',
                         }
                     }),
                     ('/fta/callback/{instance_id}/{node_idx}/', {
@@ -477,7 +482,7 @@ config = {
                             'dest_path': '/fta/callback/{instance_id}/{node_idx}/',
                             'dest_http_method': 'POST',
                             'name': 'callback_instance_id_node_idx',
-                            'label': u'callback_instance_id_node_idx',
+                            'label': 'callback_instance_id_node_idx',
                         }
                     }),
 
@@ -491,7 +496,7 @@ config = {
             },
             'esb': {
                 'channel_classes': {
-                    'api': ESBApiChannelForAPIS,
+                    'api': "ESBApiChannelForAPISi",
                 },
                 'preset_channels': (
                     # weixin
@@ -503,7 +508,7 @@ config = {
             },
             'fta': {
                 'channel_classes': {
-                    'api': FTAApiChannelForAPIS,
+                    'api': "FTAApiChannelForAPIS",
                 },
                 'preset_channels': (
                     ('/fta/event/api/{fta_application_id}/', {
@@ -514,7 +519,7 @@ config = {
                             'dest_path': '/event/api/{fta_application_id}/',
                             'dest_http_method': 'POST',
                             'name': 'event_api_fta_application_id',
-                            'label': u'event_api_fta_application_id',
+                            'label': 'event_api_fta_application_id',
                         }
                     }),
                     ('/fta/event/nagios/{fta_application_id}/', {
@@ -525,7 +530,7 @@ config = {
                             'dest_path': '/event/nagios/{fta_application_id}/',
                             'dest_http_method': 'POST',
                             'name': 'event_nagios_fta_application_id',
-                            'label': u'event_nagios_fta_application_id',
+                            'label': 'event_nagios_fta_application_id',
                         }
                     }),
                     ('/fta/event/open-falcon/{fta_application_id}/', {
@@ -536,7 +541,7 @@ config = {
                             'dest_path': '/event/open-falcon/{fta_application_id}/',
                             'dest_http_method': 'GET',
                             'name': 'event_open_falcon_fta_application_id',
-                            'label': u'event_open_falcon_fta_application_id',
+                            'label': 'event_open_falcon_fta_application_id',
                         }
                     }),
                     ('/fta/event/zabbix/v3.0/{fta_application_id}/', {
@@ -547,7 +552,7 @@ config = {
                             'dest_path': '/event/zabbix/v3.0/{fta_application_id}/',
                             'dest_http_method': 'POST',
                             'name': 'event_zabbix_v3_fta_application_id',
-                            'label': u'event_zabbix_v3_fta_application_id',
+                            'label': 'event_zabbix_v3_fta_application_id',
                         }
                     }),
                     ('/fta/event/aws/{fta_application_id}/', {
@@ -558,7 +563,7 @@ config = {
                             'dest_path': '/event/aws/{fta_application_id}/',
                             'dest_http_method': 'POST',
                             'name': 'fta_event_aws_fta_app_id',
-                            'label': u'fta_event_aws_fta_app_id',
+                            'label': 'fta_event_aws_fta_app_id',
                         }
                     }),
                     ('/fta/event/icinga2/{fta_application_id}/', {
@@ -569,7 +574,7 @@ config = {
                             'dest_path': '/event/icinga2/{fta_application_id}/',
                             'dest_http_method': 'POST',
                             'name': 'fta_event_icinga2_fta_app_id',
-                            'label': u'fta_event_icinga2_fta_app_id',
+                            'label': 'fta_event_icinga2_fta_app_id',
                         }
                     }),
                     ('/fta/status/process/', {
@@ -580,7 +585,7 @@ config = {
                             'dest_path': '/fta/status/process/',
                             'dest_http_method': 'GET',
                             'name': 'fta_status_process',
-                            'label': u'fta_status_process',
+                            'label': 'fta_status_process',
                         }
                     }),
 

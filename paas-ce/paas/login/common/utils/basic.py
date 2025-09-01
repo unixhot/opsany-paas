@@ -6,13 +6,13 @@ Licensed under the MIT License (the "License"); you may not use this file except
 http://opensource.org/licenses/MIT
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 """ # noqa
-from __future__ import unicode_literals
+
 
 
 def first_error_message(form):
     error_data = form.errors.as_data()
-    field = error_data.items()[0][0]
-    error_message = error_data.items()[0][1][0].message
+    field = list(error_data.items())[0][0]
+    error_message = list(error_data.items())[0][1][0].message
     message = "{}: {}".format(field, error_message)
 
     return message

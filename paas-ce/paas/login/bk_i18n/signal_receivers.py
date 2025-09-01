@@ -6,7 +6,7 @@ Licensed under the MIT License (the "License"); you may not use this file except
 http://opensource.org/licenses/MIT
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 """ # noqa
-from __future__ import unicode_literals
+
 
 from django.conf import settings
 from django.dispatch import receiver
@@ -24,7 +24,7 @@ def _get_language_from_request(request, user):
     """
     supported_lang_codes = get_languages()
     # session 有language，说明在登录页面有进行修改或设置，则需要同步到用户个人信息中
-    lang_code = request.session.get(translation.LANGUAGE_SESSION_KEY)
+    lang_code = request.session.get(settings.LANGUAGE_SESSION_KEY)
     if lang_code in supported_lang_codes and lang_code is not None and check_for_language(lang_code):
         return lang_code
 
@@ -34,7 +34,7 @@ def _get_language_from_request(request, user):
 
     # session 情况不满足同步到用户个人信息，且目前个人信息中无language设置
     # 查询header头
-    accept = request.META.get('HTTP_ACCEPT_LANGUAGE', '')
+    accept = request.headers.get('accept-language', '')
     for accept_lang, unused in parse_accept_lang_header(accept):
         if accept_lang == '*':
             break
@@ -70,9 +70,10 @@ def update_user_i18n_info(sender, request, user, *args, **kwargs):
         # 蓝鲸约定的语言代号与Django的有不同，需要进行转换
         bk_lang_code = DJANGO_LANG_TO_BK_LANG[lang_code]
         BkUser.objects.set_user_i18n_info(user, language=bk_lang_code)
-    lang_code = BK_LANG_TO_DJANGO_LANG[bk_lang_code]
+    #lang_code = BK_LANG_TO_DJANGO_LANG[bk_lang_code]
+    lang_code = 'zh-hans'
     # set session for render html when logged in not redirect
-    request.session[translation.LANGUAGE_SESSION_KEY] = lang_code
+    request.session[settings.LANGUAGE_SESSION_KEY] = lang_code
     translation.activate(lang_code)
     request.LANGUAGE_CODE = translation.get_language()
     request.session[settings.TIMEZONE_SESSION_KEY] = time_zone

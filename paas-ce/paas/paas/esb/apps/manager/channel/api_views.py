@@ -63,7 +63,7 @@ class ChannelListSearchView(View):
             {
                 'id': channel.id,
                 'name': channel.name_display,
-                'label': u'[%s] %s' % (channel.component_system.name, channel.name_display),
+                'label': '[%s] %s' % (channel.component_system.name, channel.name_display),
                 'path': channel.path,
                 'method': channel.method,
                 'component_codename': channel.component_codename,

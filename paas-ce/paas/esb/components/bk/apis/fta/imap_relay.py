@@ -77,7 +77,7 @@ class ImapRelay(Component):
         password = forms.CharField(label='email password', required=True)
         imap_host = forms.CharField(label='imap address', required=True)
         imap_port = forms.IntegerField(label='imap port', required=True)
-        secure = forms.BooleanField(label=u'imap SSL is on or not', required=False)
+        secure = forms.BooleanField(label='imap SSL is on or not', required=False)
 
         # Email 拉取参数
         charset = forms.CharField(label='charset', required=False)

@@ -18,11 +18,13 @@ from common.base_utils import str_bool, FancyDict
 from common.errors import APIError
 from esb.response import format_resp_dict
 
+class DebugHelperMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
 
-class DebugHelperMiddleware(object):
-    """
-    Helper for debug
-    """
+    def __call__(self, request):
+        response = self.get_response(request)
+        return response
 
     def process_request(self, request):
         if not settings.DEBUG:
@@ -39,18 +41,24 @@ class DebugHelperMiddleware(object):
             request.__esb_skip_comp_perm__ = True
 
 
-class APICommonMiddleware(object):
+class APICommonMiddleware:
     """
     Common middleware for ESB API
     """
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        # 在这里处理请求前的逻辑
+        response = self.get_response(request)
+        # 在这里处理响应后的逻辑
+        return response
 
     def process_request(self, request):
         # 设置一些默认值
-        request.g = FancyDict(
-            path_vars=None,
-            comp_path=None,
-            ts_request_start=time.time()
-        )
+        request.path_vars = None
+        request.comp_path = None
+        request.ts_request_start = time.time()
 
     def process_exception(self, request, exception):
         """

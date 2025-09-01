@@ -45,6 +45,9 @@ spec:
               mountPath: /opt/opsany/logs
             - name: opsany-paas-grafana-data
               mountPath: /var/lib/grafana
+            - name: localtime
+              mountPath: /etc/localtime
+              readOnly: true
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: grafana
@@ -97,3 +100,7 @@ spec:
         - name: opsany-paas-grafana-data
           persistentVolumeClaim:
             claimName: opsany-paas-grafana-data
+        - name: localtime
+          hostPath:
+            path: /etc/localtime
+            type: File

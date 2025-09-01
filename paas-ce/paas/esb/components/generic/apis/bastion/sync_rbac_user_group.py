@@ -28,7 +28,7 @@ class SyncRbacUserGroup(Component):
     | sync_type | list | 是  | 同步类型 |
     | data_info | string | 是  | 同步数据 |
     ### 请求参数示例
- 	    {
+    {
         "bk_app_code": "esb-test-app",
         "bk_app_secret": "xxx",
         "bk_token": "xxx-xxx-xxx-xxx-xxx",

@@ -8,7 +8,7 @@ Unless required by applicable law or agreed to in writing, software distributed 
 """ # noqa
 
 
-from __future__ import unicode_literals
+
 
 from django.db import models, migrations
 import uuid
@@ -48,7 +48,7 @@ class Migration(migrations.Migration):
                 ('value', models.CharField(max_length=200)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
-                ('bk_app', models.ForeignKey(to='engine.BkApp')),
+                ('bk_app', models.ForeignKey(on_delete=models.CASCADE, to='engine.BkApp')),
             ],
             options={
                 'ordering': ('created_at',),
@@ -64,7 +64,7 @@ class Migration(migrations.Migration):
                 ('status', models.CharField(max_length=200)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
-                ('bk_app', models.ForeignKey(to='engine.BkApp')),
+                ('bk_app', models.ForeignKey(on_delete=models.CASCADE, to='engine.BkApp')),
             ],
             options={
                 'ordering': ('created_at',),
@@ -79,7 +79,7 @@ class Migration(migrations.Migration):
                 ('log', models.TextField()),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
-                ('bk_app_event', models.ForeignKey(to='engine.BkAppEvent')),
+                ('bk_app_event', models.ForeignKey(on_delete=models.CASCADE, to='engine.BkAppEvent')),
             ],
             options={
                 'ordering': ('created_at',),
@@ -94,7 +94,7 @@ class Migration(migrations.Migration):
                 ('key', models.UUIDField(default=uuid.uuid4, editable=False)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
-                ('bk_app', models.ForeignKey(to='engine.BkApp')),
+                ('bk_app', models.ForeignKey(on_delete=models.CASCADE, to='engine.BkApp')),
             ],
             options={
                 'ordering': ('created_at',),
@@ -125,7 +125,7 @@ class Migration(migrations.Migration):
                 ('is_master', models.BooleanField(default=True)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
-                ('bk_app', models.ForeignKey(to='engine.BkApp')),
+                ('bk_app', models.ForeignKey(on_delete=models.CASCADE, to='engine.BkApp')),
             ],
             options={
                 'ordering': ('created_at',),
@@ -159,6 +159,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='bkhostingship',
             name='bk_server',
-            field=models.ForeignKey(to='engine.BkServer'),
+            field=models.ForeignKey(on_delete=models.CASCADE, to='engine.BkServer'),
         ),
     ]

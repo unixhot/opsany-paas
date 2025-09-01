@@ -142,7 +142,7 @@ class GetAppAgentStatus(Component):
             self.response.payload = result
             return
 
-        for host in result['data'].values():
+        for host in list(result['data'].values()):
             _host = {
                 'Ip': host['ip'],
                 'PlatId': host['bk_cloud_id'],

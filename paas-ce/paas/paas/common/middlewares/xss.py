@@ -7,13 +7,14 @@ http://opensource.org/licenses/MIT
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 """ # noqa
 
-from __future__ import unicode_literals
+
 
 import json
 import re
 
 from common.log import logger
 from common.middlewares.utils.pxfilter import XssHtml
+from django.utils.deprecation import MiddlewareMixin
 from settings import SITE_URL
 
 
@@ -64,7 +65,7 @@ def url_escape(url):
     return url
 
 
-class CheckXssMiddleware(object):
+class CheckXssMiddleware(MiddlewareMixin):
     """
     XSS攻击统一处理中间件
     """
@@ -100,7 +101,7 @@ class CheckXssMiddleware(object):
         """
         data_copy = query_dict.copy()
         new_data = {}
-        for _get_key, _get_value in data_copy.items():
+        for _get_key, _get_value in list(data_copy.items()):
             # json串不进行转义
             try:
                 json.loads(_get_value)
@@ -150,7 +151,7 @@ class CheckXssMiddleware(object):
         """
         result_type = 'html'
         try:
-            for script_path, script_v in check_path_list.items():
+            for script_path, script_v in list(check_path_list.items()):
                 is_path = re.match(r'^%s' % script_path, path)
                 if is_path and param in script_v:
                     result_type = escape_type

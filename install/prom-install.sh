@@ -63,8 +63,7 @@ install_init(){
     /bin/cp -r ./conf/prometheus/* ${INSTALL_PATH}/prometheus-volume/conf/
     /bin/cp conf/consul.hcl ${INSTALL_PATH}/consul-volume/config/
     chmod -R 777 ${INSTALL_PATH}/prometheus-volume/
-    pip3 install requests==2.25.1 grafana-api==1.0.3 mysql-connector==2.2.9 SQLAlchemy==1.4.22 bcrypt==3.2.2 \
-             -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
+    #pip3 install requests==2.25.1 grafana-api==1.0.3 mysql-connector==2.2.9 SQLAlchemy==1.4.22 bcrypt==3.2.2 -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
     shell_log "End: Install Init"
 }
 
@@ -85,7 +84,9 @@ consul_install(){
 
 prometheus_install(){
     # Prometheus Server Basic Auth
-    PROM_SERVER_HASH=$(python3 ../saas/prom-pass.py $PROM_SERVER_PASSWD)
+    PROM_SERVER_HASH=$(docker exec opsany-paas-websocket /bin/sh -c "python3 /opt/opsany/saas/prom-pass.py $PROM_SERVER_PASSWD")
+
+    # Prometheus Config
     sed -i "s#PROM_SERVER_HASH#$PROM_SERVER_HASH#g" ${INSTALL_PATH}/prometheus-volume/conf/web.yml
     sed -i "s#LOCAL_IP#$PROXY_LOCAL_IP#g" ${INSTALL_PATH}/prometheus-volume/conf/prometheus.yml
     sed -i "s#PROM_SERVER_PASSWD#$PROM_SERVER_PASSWD#g" ${INSTALL_PATH}/prometheus-volume/conf/prometheus.yml
@@ -197,9 +198,7 @@ prom_init(){
   if [ -z "$ADMIN_PASSWORD" ];then
         source ${INSTALL_PATH}/conf/.passwd_env
   fi
-  python3 ../saas/init-ee-prometheus.py --domain $DOMAIN_NAME --local_ip $LOCAL_IP --username admin --password $ADMIN_PASSWORD \
-  --prom_username  admin --prom_password $PROM_SERVER_PASSWD --consul_token $CONSUL_TOKEN \
-  --alertmanager_username admin --alertmanager_password $PROM_SERVER_PASSWD
+  docker exec opsany-paas-websocket /bin/sh -c "python3 /opt/opsany/saas/init-ce-prometheus.py --domain $DOMAIN_NAME --local_ip $LOCAL_IP --username admin --password $ADMIN_PASSWORD --prom_username  admin --prom_password $PROM_SERVER_PASSWD --consul_token $CONSUL_TOKEN --alertmanager_username admin --alertmanager_password $PROM_SERVER_PASSWD"
 }
 
 
@@ -207,7 +206,7 @@ prom_init(){
 main(){
     case "$1" in
 	all)
-            install_check
+            #install_check
             install_init
             consul_install
             prometheus_install
@@ -216,7 +215,7 @@ main(){
             prom_init
 		;;
     base)
-            install_check
+            #install_check
             install_init
             consul_install
             prometheus_install

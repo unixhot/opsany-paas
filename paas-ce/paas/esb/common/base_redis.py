@@ -48,5 +48,5 @@ def get_redis_pool(redis_conf, redis_sentinel_conf):
 try:
     redisdb = redis.Redis(connection_pool=get_redis_pool(redis_config, redis_sentinel_config))
 except Exception:
-    logger.exception(u'%s redis connection fail.', bk_error_codes.REDIS_CONNECTION_ERROR.code)
+    logger.exception('%s redis connection fail.', bk_error_codes.REDIS_CONNECTION_ERROR.code)
     redisdb = None

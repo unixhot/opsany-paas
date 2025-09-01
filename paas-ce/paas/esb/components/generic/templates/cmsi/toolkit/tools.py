@@ -10,13 +10,13 @@ from common.errors import CommonAPIError
 
 
 def valid_email(email):
-    if not isinstance(email, basestring) or email.find('@') < 0:
+    if not isinstance(email, str) or email.find('@') < 0:
         return False
     return True
 
 
 def valid_phone(phone):
-    if not isinstance(phone, (basestring, int)) or not str(phone).isdigit():
+    if not isinstance(phone, (str, int)) or not str(phone).isdigit():
         return False
     return True
 
@@ -36,13 +36,13 @@ def get_user_contact(user, contact_way):
 def validate_receiver(receiver, contact_way='phone'):
     valid_receiver = []
     error_contact_user = []
-    print '--------------------------------------'
-    print 'receiver', receiver
-    print 'contact_way', contact_way
+    print('--------------------------------------')
+    print('receiver', receiver)
+    print('contact_way', contact_way)
     for user_contact in receiver:
         if contact_way == 'email':
-            print '------------------------------'
-            print 'is_email'
+            print('------------------------------')
+            print('is_email')
             is_valid = valid_email(user_contact)
         elif contact_way == 'phone':
             is_valid = valid_phone(user_contact)
@@ -70,7 +70,7 @@ def get_receiver_with_username(receiver__username=None,    # noqa
     from components.bk.apis.bk_login.get_batch_user import GetBatchUser
     user_result = GetBatchUser().invoke(kwargs={'username_list': username_list})
     if not user_result['result']:
-        raise CommonAPIError(u'Failed to get users contact information based on username, %s' % user_result['message'])
+        raise CommonAPIError('Failed to get users contact information based on username, %s' % user_result['message'])
 
     result = {}
     not_exist_user = []
@@ -104,14 +104,14 @@ def get_receiver_with_username(receiver__username=None,    # noqa
 
     _extra_user_error_msg = []
     if not_exist_user:
-        _extra_user_error_msg.append(u'The following users are not blueking users: %s' % ','.join(not_exist_user))
+        _extra_user_error_msg.append('The following users are not blueking users: %s' % ','.join(not_exist_user))
     if error_contact_user:
-        _extra_user_error_msg.append(u'The following users contact format are incorrect: %s'
+        _extra_user_error_msg.append('The following users contact format are incorrect: %s'
                                      % ','.join(error_contact_user))
     result['_extra_user_error_msg'] = ';'.join(_extra_user_error_msg)
 
     if receiver__username and not result.get('receiver'):
-        raise CommonAPIError(u'All users message failed to be sent. %s' % result['_extra_user_error_msg'])
+        raise CommonAPIError('All users message failed to be sent. %s' % result['_extra_user_error_msg'])
 
     return result
 
@@ -120,7 +120,7 @@ def get_user_contact_with_username(username_list=None, contact_way='phone'):
     from components.bk.apis.bk_login.get_batch_user import GetBatchUser
     user_result = GetBatchUser().invoke(kwargs={'username_list': username_list})
     if not user_result['result']:
-        raise CommonAPIError(u'Failed to get users contact information based on username, %s' % user_result['message'])
+        raise CommonAPIError('Failed to get users contact information based on username, %s' % user_result['message'])
 
     user_contact_info = {}
     not_exist_user = []
@@ -139,14 +139,14 @@ def get_user_contact_with_username(username_list=None, contact_way='phone'):
 
     _extra_user_error_msg = []
     if not_exist_user:
-        _extra_user_error_msg.append(u'The following users are not blueking users: %s' % ','.join(not_exist_user))
+        _extra_user_error_msg.append('The following users are not blueking users: %s' % ','.join(not_exist_user))
     if error_contact_user:
-        _extra_user_error_msg.append(u'The following users contact format are incorrect: %s'
+        _extra_user_error_msg.append('The following users contact format are incorrect: %s'
                                      % ','.join(error_contact_user))
     _extra_user_error_msg = ';'.join(_extra_user_error_msg)
 
     if not user_contact_info:
-        raise CommonAPIError(u'All users contact information failed to get, %s' % _extra_user_error_msg)
+        raise CommonAPIError('All users contact information failed to get, %s' % _extra_user_error_msg)
 
     return {
         'user_contact_info': user_contact_info,

@@ -6,15 +6,15 @@ Licensed under the MIT License (the "License"); you may not use this file except
 http://opensource.org/licenses/MIT
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 """ # noqa
-from __future__ import unicode_literals
-import urlparse
+
+import urllib.parse
 
 from django.conf import settings
 from django.utils import timezone
 
 
 def site_settings(request):
-    real_static_url = urlparse.urljoin(settings.SITE_URL, '.' + settings.STATIC_URL)
+    real_static_url = urllib.parse.urljoin(settings.SITE_URL, '.' + settings.STATIC_URL)
     cur_domain = request.get_host()
     return {
         'LOGIN_URL': settings.LOGIN_URL,

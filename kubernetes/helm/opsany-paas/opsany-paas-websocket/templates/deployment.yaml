@@ -46,6 +46,9 @@ spec:
             - name: opsany-paas-websocket-supervisor
               mountPath: /etc/supervisord.d/websocket.ini
               subPath: websocket.ini
+            - name: localtime
+              mountPath: /etc/localtime
+              readOnly: true
           ports:
             - name: websocket
               containerPort: 8004
@@ -89,4 +92,8 @@ spec:
         - name: opsany-uploads
           persistentVolumeClaim:
             claimName: opsany-uploads
+        - name: localtime
+          hostPath:
+            path: /etc/localtime
+            type: File
 

@@ -30,7 +30,7 @@ class GetAllHostInfoForPanel(Component):
         "request_id": xxxxxxxxxxxxxxxxxxxxxxxx,
         "message": "相关信息信息获取成功",
         "data": [
-        	...
+            ...
         ]
     }
     ```

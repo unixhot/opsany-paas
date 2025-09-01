@@ -296,7 +296,7 @@ st2_init(){
     sed -i "s/DEVOPS_SECRET_KEY/$DEVOPS_SECRET_KEY/g" ${INSTALL_PATH}/st2-volume/packs-configs/opsany_core.yaml
     tar -xzf conf/stackstorm/opsany_core_env.tar.gz -C ${INSTALL_PATH}/st2-volume/virtualenvs
     docker exec opsany-st2-client /bin/sh -c "st2ctl reload --register-all"
-    python3 ../saas/init-ce-st2.py --domain $DOMAIN_NAME --username admin --password $ADMIN_PASSWORD  --st2_url http://${LOCAL_IP}:8005 --st2_username st2admin  --st2_password OpsAny@2023
+    docker exec opsany-paas-websocket /bin/sh -c "python3 /opt/opsany/saas/init-ce-st2.py --domain $DOMAIN_NAME --username admin --password $ADMIN_PASSWORD  --st2_url http://${LOCAL_IP}:8005 --st2_username st2admin  --st2_password OpsAny@2023"
 }
 
 st2_uninstall(){

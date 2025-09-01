@@ -23,70 +23,72 @@ Including another URLconf
 """
 
 from django.conf import settings
-from django.conf.urls import include, url
+from django.urls import include, path, re_path
 from django.contrib import admin
 from django.http import HttpResponse
 from django.views.generic import RedirectView
-from django.views.i18n import javascript_catalog
+from django.views.i18n import JavaScriptCatalog
 
-# from account.decorators import login_exempt
+from account.decorators import login_exempt
 
 
-# wx_verify_code = "UijoHCddBrZiTBvU"
-# wx_verify_code_url = "WW_verify_UijoHCddBrZiTBvU.txt"
+wx_verify_code = "glbPQflGmIr9nFCj"
+wx_verify_code_url = "WW_verify_glbPQflGmIr9nFCj.txt"
 
-# @login_exempt
-# def wx_verify(request):
-#     return HttpResponse(content=wx_verify_code)
+@login_exempt
+def wx_verify(request):
+    return HttpResponse(content=wx_verify_code)
 
 
 urlpatterns = [
     # 首页, 重定向到首页, pattern => /platform/  permanent => 301
-    url(r'^$', RedirectView.as_view(pattern_name="platform", permanent=True)),
-    # url(wx_verify_code_url, wx_verify),
+    path(wx_verify_code_url, wx_verify),
+    path('', RedirectView.as_view(pattern_name="platform", permanent=True)),
+    path(wx_verify_code_url, wx_verify),
     # url(r'^$', RedirectView.as_view(url='/o/workbench/', permanent=True)),
 
     # 首页
-    url(r'^platform/', include("home.urls")),
+    path('platform/', include("home.urls")),
 
     # 用户账号相关
-    url(r'^accounts/', include("account.urls")),
+    path('accounts/', include("account.urls")),
 
     # 服务器信息
-    url(r'^engine/', include("engine.urls")),
+    path('engine/', include("engine.urls")),
 
     # 应用相关
-    url(r'^app/', include("app.urls")),
+    path('app/', include("app.urls")),
 
     # SaaS 服务相关
-    url(r'^saas/', include("saas.urls")),
+    path('saas/', include("saas.urls")),
 
     # 发布相关
-    url(r'^release/', include("release.urls")),
+    path('release/', include("release.urls")),
 
     # 资源下载
-    url(r'^resource/', include("resource.urls")),
+    path('resource/', include("resource.urls")),
     # 指南
-    url(r'^guide/', include("guide.urls")),
+    path('guide/', include("guide.urls")),
 
     # API 相关
-    url(r'^paas/api/', include("api.urls")),
+    path('paas/api/', include("api.urls")),
     # ESB
-    url(r'^esb/', include("esb.configs.urls")),
+    path('esb/', include("esb.configs.urls")),
     # 服务检测
-    url(r'^healthz/', include("healthz.urls")),
+    path('healthz/', include("healthz.urls")),
 
     # 个人中心 - 微信相关
-    url(r'^console/user_center/', include("user_center.urls")),
+    path('console/user_center/', include("user_center.urls")),
 
     # admin
-    url(r'^admin/', include(admin.site.urls)),
+    path('admin/', admin.site.urls),
 
     # 反搜索
-    url(r'^robots\.txt$', lambda r: HttpResponse('User-agent: *\nDisallow: /', content_type='text/plain')),
+    re_path(r'^robots\.txt$', lambda r: HttpResponse('User-agent: *\nDisallow: /', content_type='text/plain')),
 
     # i18n
-    url(r'^jsi18n/(?P<packages>\S+?)/$', javascript_catalog, name='javascript-catalog'),
+    #re_path(r'^jsi18n/(?P<packages>\S+?)/$', JavaScriptCatalog.as_view, name='javascript-catalog'),
+    path('jsi18n/i18n/', JavaScriptCatalog.as_view(), name='javascript-catalog'),
 ]
 
 # for upload/download
@@ -95,7 +97,7 @@ from account.decorators import login_exempt  # noqa
 import django.views  # noqa
 
 static_serve = login_exempt(django.views.static.serve)
-urlpatterns.append(url(r'^media/(?P<path>.*)$', static_serve, {'document_root': settings.MEDIA_ROOT}))
+urlpatterns.append(re_path(r'^media/(?P<path>.*)$', static_serve, {'document_root': settings.MEDIA_ROOT}))
 
 # for static
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns  # noqa

@@ -6,11 +6,11 @@
 
 - 数据库: MySQL、MongoDB、Redis、Elasticsearch
 - 消息队列：RabbitMQ、Redis
-- Python版本: python3.7
+- Python版本: python3.12.4
 
 1. 部署说明
 
-- `paas-ce` web侧一共4个项目: paas/appengine/login/esb; 均是基于Django开发的
+- `paas-ce` web侧一共5个项目: paas/appengine/login/esb/websocket; 均是基于Django开发的
 - 4个项目共用一个数据库
 - 项目部署过程一致; 过程中需要注意每个项目的配置文件及拉起的端口号(每个项目需要使用不同的端口号)
 - 可以部署在同一台机器上, 使用不同端口号即可
@@ -19,11 +19,11 @@
 
 预先分配每个服务的端口号, 假设部署机器IP为`192.168.0.101`
 
-- appengine: 192.168.0.101:7000 Python2
-- paas: 192.168.0.101:7001 Python2
-- esb: 192.168.0.101:7002 Python2
-- login: 192.168.0.101:7003 Python2
-- websocket: 192.168.0.101:7004 Python3
+- appengine: 192.168.0.101:8000 Python2
+- paas: 192.168.0.101:8001 Python2
+- esb: 192.168.0.101:8002 Python2
+- login: 192.168.0.101:8003 Python2
+- websocket: 192.168.0.101:8004 Python3
 
 服务间是相互依赖的, 所以部署配置文件中需要将预先分配的服务地址填写到对应变量中。
 

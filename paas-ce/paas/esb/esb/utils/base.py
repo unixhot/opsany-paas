@@ -97,7 +97,7 @@ class PathVars(object):
 
     def __init__(self, val_dict=None, val_list=None):
         self.val_dict = val_dict or {}
-        self.val_list = val_list or self.val_dict.values()
+        self.val_list = val_list or list(self.val_dict.values())
 
     @classmethod
     def from_matched_obj(cls, matched_obj):

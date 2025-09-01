@@ -80,7 +80,7 @@ class BkErrorCodes(object):
     def __init__(self):
         self._error_codes_dict = dict([
             (code_name, ErrorCode(code_name, **error_code))
-            for code_name, error_code in bk_error_codes_conf.iteritems()
+            for code_name, error_code in bk_error_codes_conf.items()
         ])
 
     def __getattr__(self, code_name):

@@ -51,7 +51,7 @@ class Guide(Component):
 
     # Form处理参数校验
     class Form(BaseComponentForm):
-       	platform_code = forms.Field(required=True)
+        platform_code = forms.Field(required=True)
 
         # clean方法返回的数据可通过组件的form_data属性获取
         def clean(self):

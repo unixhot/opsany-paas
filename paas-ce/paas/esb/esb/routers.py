@@ -19,6 +19,11 @@ from esb.channel.confapis import get_confapis_channel_manager
 from esb.component import get_components_manager
 from esb.component.buffet import get_buffet_comp_manager
 
+try:
+    from components.component import ApiChannelForAPIS, ESBApiChannelForAPIS, FTAApiChannelForAPIS
+except:
+    pass
+
 
 # 把当前目录切换到项目目录，因为后面用到的路径都是相对路径
 try:
@@ -34,7 +39,7 @@ def router_view(channel_type, request, path):
     # Get ESBChannel by path
     path = '/%s/' % path.strip('/')
     path = channel_manager.get_rewrite_path_by_path(path) or path
-    request.g.comp_path = path
+    request.comp_path = path
 
     channel_conf = get_channel_conf(path, request)
     esb_channel = channel_conf['channel']
@@ -49,7 +54,7 @@ def router_view(channel_type, request, path):
 
     # Dynamic contribute channel object
     channel_class = channel_conf['classes'][channel_type]
-    channel_obj = channel_class(
+    channel_obj = eval(channel_class)(
         comp_cls, path=path, is_active=True,
         comp_conf=channel_conf.get('comp_conf'),
         channel_conf=channel_conf.get('channel_conf', {}),
@@ -68,9 +73,8 @@ def router_view(channel_type, request, path):
         timeout_time = settings.REQUEST_TIMEOUT_SECS
     # 针对本次请求存储timeout和系统名
     # 系统名用于访问频率控制
-    request.g.timeout = timeout_time
-    request.g.sys_name = comp_cls.sys_name
-
+    request.timeout = timeout_time
+    request.sys_name = comp_cls.sys_name
     return channel_obj.handle_request(request)
 
 
@@ -85,7 +89,7 @@ def get_channel_conf(path, request):
     # 添加可变参数的正则匹配
     channel_conf, path_vars = channel_manager.search_channel_by_repath(path, request.method)
     if channel_conf:
-        request.g.path_vars = path_vars
+        request.path_vars = path_vars
         return channel_conf
 
     # 检查 confapis 中，官方第三方系统定义的API
@@ -97,7 +101,7 @@ def get_channel_conf(path, request):
     # 添加可变参数的正则匹配
     channel_conf, path_vars = confapis_channel_manager.search_channel_by_repath(path, request.method)
     if channel_conf:
-        request.g.path_vars = path_vars
+        request.path_vars = path_vars
         return channel_conf
 
     raise Http404
@@ -130,14 +134,14 @@ def buffet_component_view(request, path):
     buffet_comp_manager = get_buffet_comp_manager()
 
     path = '/%s/' % path.strip('/')
-    request.g.comp_path = path
+    request.comp_path = path
 
     buffet_comp_conf, path_vars = buffet_comp_manager.search_buffet_component(path, request.method)
     if not buffet_comp_conf:
         raise Http404
 
     buffet_comp_obj = buffet_comp_conf['obj']
-    request.g.path_vars = path_vars
+    request.path_vars = path_vars
 
     # 动态生成一个component class
     comp_cls = make_buffet_component_class(buffet_comp_obj)
@@ -152,7 +156,7 @@ def buffet_component_view(request, path):
         timeout_time = timeout_handler_for_buffet(buffet_comp_obj)
     except Exception:
         timeout_time = settings.REQUEST_TIMEOUT_SECS
-    request.g.timeout = timeout_time
+    request.timeout = timeout_time
 
     return channel_obj.handle_request(request)
 

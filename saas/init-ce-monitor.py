@@ -14,13 +14,29 @@ class InitData:
     NAV_GROUP_LIST = [
         {
             "group_name": "自动化运维",
+            "group_language": {
+                "chinese_simplified": "自动化运维",
+                "chinese_traditional": "自动化运维",
+                "english": "AutoOps"
+            },
             "nav_list": [
                 {
                     "nav_name": "基础监控",
+                    "nav_code": "monitor",
                     "nav_url": "/o/monitor/",
                     "describe": "基础监控平台",
+                    "nav_describe_language": {
+                        "chinese_simplified": "基础监控平台",
+                        "chinese_traditional": "基礎監控平台",
+                        "english": "Monitor Platform"
+                    },
                     "group_name": "自动化运维",
-                    "icon_name": "monitor.png"
+                    "icon_name": "monitor.png",
+                    "nav_language": {
+                        "chinese_simplified": "基础监控",
+                        "chinese_traditional": "基础监控",
+                        "english": "Monitor"
+                    },
                 }
             ],
         }
@@ -69,12 +85,13 @@ class OpsAnyApi:
     def workbench_add_nav(self, nav_group_list):
         """工作台初始化导航菜单"""
         try:
-            NAV_API = "/o/workbench//api/workbench/v0_1/update-nav/"
+            NAV_API = "/o/workbench//api/workbench/v0_1/update-nav-v2/"
+            # NAV_API = "/api/workbench/v0_1/update-nav-v2/"
             NAV_GROUP_URL = self.paas_domain + NAV_API
             for nav_group in nav_group_list:
                 nav_group.update({"username": self.username})
 
-            response = self.session.post(url=NAV_GROUP_URL, data=json.dumps(nav_group_list), verify=False)
+            response = self.session.post(url=NAV_GROUP_URL, data=json.dumps({"group_list": nav_group_list}), verify=False)
             if response.status_code == 200:
                 res = response.json()
             else:
@@ -268,5 +285,5 @@ if __name__ == '__main__':
         options.grafana_password,
         options.grafana_change_password,
     )
-    
+
     # python3 init-ce-monitor.py  --domain 192.168.56.11 --private_ip 192.168.56.11 --paas_username admin --paas_password 123456.coM --grafana_password grafana_password --grafana_change_password new_password

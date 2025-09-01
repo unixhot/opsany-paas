@@ -11,6 +11,9 @@ Unless required by applicable law or agreed to in writing, software distributed 
 
 DEBUG = False
 
+# Log settings
+LOG_LEVEL = 'ERROR'
+
 # use the static root 'static' in production envs
 if not DEBUG:
     STATIC_ROOT = 'static'
@@ -43,6 +46,10 @@ HTTP_SCHEMA = 'https'
 
 # cookie访问域
 BK_COOKIE_DOMAIN = 'DOMAIN_NAME'
+CSRF_TRUSTED_ORIGINS = [
+    'https://DOMAIN_NAME',
+    'http://DOMAIN_NAME',
+]
 
 SECRET_KEY = 'jO149njrTj4kEx6ZbUH8Zc53bfQJctINWaEzTWIsOoxSDNwK2I'
 

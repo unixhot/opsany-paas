@@ -15,7 +15,8 @@ import json
 from django import forms
 from django.core import validators
 from django.core.exceptions import ValidationError
-from django.utils.encoding import force_unicode, smart_unicode
+from django.utils.encoding import smart_str
+from django.utils.encoding import force_str as force_unicode
 from django.forms import Field
 from django.forms.utils import ErrorDict
 
@@ -28,8 +29,8 @@ def get_error_prompt(form):
     Get error messages for form
     """
     content = []
-    fields = form.fields.keys()
-    for k, v in sorted(form.errors.items(), key=lambda x: fields.index(x[0])
+    fields = list(form.fields.keys())
+    for k, v in sorted(list(form.errors.items()), key=lambda x: fields.index(x[0])
                        if x[0] in fields else -1):
         _msg = force_unicode(v[0])
         b_field = form._safe_get_field(k)
@@ -39,10 +40,10 @@ def get_error_prompt(form):
             for c in reversed(b_field.field.__class__.__mro__):
                 messages.update(getattr(c, 'default_error_messages', {}))
 
-        if b_field and _msg in messages.values():
-            content.append(u'%s [%s] %s' % (b_field.label, b_field.name, _msg))
+        if b_field and _msg in list(messages.values()):
+            content.append('%s [%s] %s' % (b_field.label, b_field.name, _msg))
         else:
-            content.append(u'%s' % _msg)
+            content.append('%s' % _msg)
     return force_unicode(content[0])
 
 
@@ -76,7 +77,7 @@ class BaseComponentForm(forms.Form):
     @classmethod
     def from_request(cls, request):
         if hasattr(request, 'g'):
-            return cls(request.g.kwargs)
+            return cls(request.kwargs)
         return cls(request.kwargs)
 
     def get_cleaned_data_or_error(self, status=None):
@@ -117,11 +118,11 @@ class BaseComponentForm(forms.Form):
         """
         Get cleaned_data of key when key in self.data
         """
-        keys = keys or self.fields.keys()
+        keys = keys or list(self.fields.keys())
         if isinstance(keys, dict):
             return dict([
                 (key_dst, self.cleaned_data[key_src])
-                for key_src, key_dst in keys.items()
+                for key_src, key_dst in list(keys.items())
                 if key_src in self.data
             ])
         else:
@@ -152,7 +153,7 @@ class ListField(Field):
         "Returns a Unicode object."
         if value in validators.EMPTY_VALUES:
             return ''
-        return smart_unicode(value)
+        return smart_str(value)
 
     def to_python(self, value):
         # 如果传入的数据类型本身就是list（ 比如用json loads过来的数据结构来校验），直接返回

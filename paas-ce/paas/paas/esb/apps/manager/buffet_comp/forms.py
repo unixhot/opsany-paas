@@ -7,14 +7,14 @@ http://opensource.org/licenses/MIT
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 """ # noqa
 from django import forms
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from esb.bkcore.models import ESBBuffetComponent, ESBBuffetMapping, ComponentSystem
 
 
 def clean_data(data):
-    for key, val in data.iteritems():
-        if isinstance(val, basestring):
+    for key, val in data.items():
+        if isinstance(val, str):
             data[key] = val.strip()
     return data
 
@@ -34,85 +34,85 @@ class ESBBuffetComponentForm(forms.Form):
     )
 
     TYPE_CHOICE = (
-        (1, _(u'执行API')),
-        (2, _(u'查询API')),
+        (1, _('执行API')),
+        (2, _('查询API')),
     )
 
-    name = forms.CharField(label=_(u'API名称'), max_length=256, required=True)
+    name = forms.CharField(label=_('API名称'), max_length=256, required=True)
     system = forms.ModelChoiceField(
-        label=_(u'所属系统'),
+        label=_('所属系统'),
         queryset=ComponentSystem.objects.all(),
         required=True,
         empty_label=None,
     )
 
     dest_url = forms.URLField(
-        label=_(u'目标接口地址'),
+        label=_('目标接口地址'),
         required=True,
         max_length=2048,
-        help_text=_(u'可使用 http://domain.com/users/{username}/ 形式的路径变量')
+        help_text=_('可使用 http://domain.com/users/{username}/ 形式的路径变量')
     )
     dest_http_method = forms.ChoiceField(
-        label=_(u'目标接口请求类型'),
+        label=_('目标接口请求类型'),
         choices=HTTP_METHOD_CHOICES,
         required=True,
     )
     favor_post_ctype = forms.ChoiceField(
-        label=_(u'编码POST参数方式'),
+        label=_('编码POST参数方式'),
         choices=FAVOR_CTYPE_CHOICES,
         required=False,
-        help_text=_(u'默认使用 json 编码请求参数，选择 form 后使用 form-urlencoded 编码')
+        help_text=_('默认使用 json 编码请求参数，选择 form 后使用 form-urlencoded 编码')
     )
     extra_headers = forms.CharField(
-        label=_(u'额外请求头信息'),
+        label=_('额外请求头信息'),
         required=False,
         widget=forms.HiddenInput()
     )
     extra_params = forms.CharField(
-        label=_(u'额外请求参数'),
+        label=_('额外请求参数'),
         required=False,
         widget=forms.HiddenInput()
     )
 
     registed_path = forms.RegexField(
-        label=_(u'注册到的API路径'),
+        label=_('注册到的API路径'),
         regex=r'^/[/a-zA-Z0-9_{}-]+$',
-        help_text=_(u'以斜杠开头，只能包含斜杠、大小写字母、数字、下划线，如："/host/get_host_list/"，可额外包含路径变量，如 "/users/{username}/"；注册到的请求类型+注册到的API路径，在自助接入中需全局唯一'),  # noqa
+        help_text=_('以斜杠开头，只能包含斜杠、大小写字母、数字、下划线，如："/host/get_host_list/"，可额外包含路径变量，如 "/users/{username}/"；注册到的请求类型+注册到的API路径，在自助接入中需全局唯一'),  # noqa
         required=True,
         max_length=255,
         error_messages={
-            'invalid': _(u'输入的路径不符合要求'),
+            'invalid': _('输入的路径不符合要求'),
         })
     registed_http_method = forms.ChoiceField(
-        label=_(u'注册到的请求类型'),
+        label=_('注册到的请求类型'),
         choices=HTTP_METHOD_CHOICES,
         required=True
     )
 
     mappings_input = forms.ModelChoiceField(
-        label=_(u'对请求参数应用mapping'),
+        label=_('对请求参数应用mapping'),
         queryset=ESBBuffetMapping.objects.all(),
         required=False
     )
     mappings_output = forms.ModelChoiceField(
-        label=_(u'对返回结果应用mapping'),
+        label=_('对返回结果应用mapping'),
         queryset=ESBBuffetMapping.objects.all(),
         required=False
     )
     timeout_time = forms.IntegerField(
-        label=_(u'超时时长'),
+        label=_('超时时长'),
         required=False,
         error_messages={
-            'invalid': _(u'输入格式不正确')
+            'invalid': _('输入格式不正确')
         },
         min_value=1,
         max_value=86400,
         initial=None,
-        help_text=_(u'单位秒，未设置时以所属系统超时时长为准'),
+        help_text=_('单位秒，未设置时以所属系统超时时长为准'),
         widget=forms.NumberInput(attrs={'style': 'width: 450px;'})
     )
     type = forms.ChoiceField(
-        label=_(u'API类型'),
+        label=_('API类型'),
         choices=TYPE_CHOICE,
         required=True,
         initial=2,
@@ -127,7 +127,7 @@ class ESBBuffetComponentForm(forms.Form):
 
         if ESBBuffetComponent.objects.filter(
                 registed_path=value, registed_http_method=method).exists():
-            self._errors['registed_path'] = self.error_class([_(u'路径 %s 已经被占用了，请修改') % value])
+            self._errors['registed_path'] = self.error_class([_('路径 %s 已经被占用了，请修改') % value])
             del data['registed_path']
         return data
 
@@ -147,7 +147,7 @@ class EditESBBuffetComponentForm(ESBBuffetComponentForm):
 
         if ESBBuffetComponent.objects.exclude(id=id).filter(
                 registed_path=value, registed_http_method=method).exists():
-            self._errors['registed_path'] = self.error_class([_(u'路径 %s 已经被占用了，请修改') % value])
+            self._errors['registed_path'] = self.error_class([_('路径 %s 已经被占用了，请修改') % value])
             del data['registed_path']
         return data
 
@@ -158,18 +158,18 @@ class ESBBuffetMappingForm(forms.Form):
         (1, 'jinja2'),
     ]
 
-    name = forms.CharField(label=u'名称', max_length=40, required=True)
+    name = forms.CharField(label='名称', max_length=40, required=True)
     source_type = forms.ChoiceField(
-        label=u'源码类型', choices=SOURCE_TYPE_CHOICES, required=True,
-        help_text=(u'目前只支持使用 Jinja2 模板作为 Mappings')
+        label='源码类型', choices=SOURCE_TYPE_CHOICES, required=True,
+        help_text=('目前只支持使用 Jinja2 模板作为 Mappings')
     )
-    source = forms.CharField(label=u'源码', required=True, widget=forms.Textarea())
+    source = forms.CharField(label='源码', required=True, widget=forms.Textarea())
 
     def clean(self):
         data = clean_data(self.cleaned_data)
         name = data.get('name') or ''
         if ESBBuffetMapping.objects.filter(name=name).exists():
-            self._errors['name'] = self.error_class([u'名称 {0} 已被占用，请修改'.format(name)])
+            self._errors['name'] = self.error_class(['名称 {0} 已被占用，请修改'.format(name)])
             del data['name']
         return data
 
@@ -182,6 +182,6 @@ class EditESBBuffetMappingForm(ESBBuffetMappingForm):
         id = data['id']
         name = data['name']
         if ESBBuffetMapping.objects.exclude(id=id).filter(name=name).exists():
-            self._errors['name'] = self.error_class([u'名称 {0} 已被占用，请修改'.format(name)])
+            self._errors['name'] = self.error_class(['名称 {0} 已被占用，请修改'.format(name)])
             del data['name']
         return data

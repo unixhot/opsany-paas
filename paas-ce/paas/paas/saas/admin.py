@@ -7,35 +7,35 @@ http://opensource.org/licenses/MIT
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 """ # noqa
 
-from __future__ import unicode_literals
+
 
 from django.contrib import admin
 
 from saas.models import (SaaSApp, SaaSAppVersion, SaaSUploadFile)
 
 
+@admin.register(SaaSApp)
 class SaaSAppAdmin(admin.ModelAdmin):
     list_display = ('code', 'name', 'created_time')
     search_fields = ('name', 'code')
     list_filter = ('code', )
 
 
-admin.site.register(SaaSApp, SaaSAppAdmin)
 
 
+@admin.register(SaaSAppVersion)
 class SaaSAppVersionAdmin(admin.ModelAdmin):
     list_display = ('version', 'saas_app')
     search_fields = ('version', 'saas_app')
     list_filter = ('saas_app', )
 
 
-admin.site.register(SaaSAppVersion, SaaSAppVersionAdmin)
 
 
+@admin.register(SaaSUploadFile)
 class SaaSUploadFileAdmin(admin.ModelAdmin):
     list_display = ('name', 'size', 'md5')
     search_fields = ('name', 'size', 'md5')
     exclude = ('file', )
 
 
-admin.site.register(SaaSUploadFile, SaaSUploadFileAdmin)

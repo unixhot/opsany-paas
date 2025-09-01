@@ -57,6 +57,9 @@ spec:
               mountPath: /srv/playbook
             - name: opsany-paas-proxy-ansible-pki
               mountPath: /opt/opsany/pki
+            - name: localtime
+              mountPath: /etc/localtime
+              readOnly: true
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: paas-proxy
@@ -141,4 +144,8 @@ spec:
         - name: opsany-paas-proxy-ansible-pki
           persistentVolumeClaim:
             claimName: opsany-paas-proxy-ansible-pki
+        - name: localtime
+          hostPath:
+            path: /etc/localtime
+            type: File
 

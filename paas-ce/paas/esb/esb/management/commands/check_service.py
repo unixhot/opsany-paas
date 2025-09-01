@@ -36,5 +36,5 @@ class Command(BaseCommand):
             ]
         }
         result = GetAgentStatus().invoke(kwargs=kwargs)
-        print 'check_job_ssl:', json.dumps(result)
+        print('check_job_ssl:', json.dumps(result))
         assert result['result'], result['message']

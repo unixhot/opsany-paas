@@ -14,6 +14,9 @@ RUN_MODE = 'PRODUCT'
 # 只对正式环境日志级别进行配置，可以在这里修改
 LOG_LEVEL = 'ERROR'
 
+# 工单外部连接是否认证 True 免认证 False 强认证
+WORK_ORDER_URL_APPROVE_NO_AUTH = True
+
 # V2
 # import logging
 # logging.getLogger('root').setLevel('INFO')

@@ -13,8 +13,7 @@ CTIME=$(date "+%Y-%m-%d-%H-%M")
 CDIR=$(pwd)
 SHELL_NAME="saas-ce-install.sh"
 SHELL_LOG="${SHELL_NAME}.log"
-ADMIN_PASSWORD="admin"
-SAAS_VERSION=2.2.4
+SAAS_VERSION=2.3.0
 
 # Shell Log Record
 shell_log(){
@@ -48,10 +47,16 @@ else
     export MYSQL_PWD=${MYSQL_ROOT_PASSWORD}
 fi
 
+if [ -f ${INSTALL_PATH}/conf/.passwd_env ];then
+    source ${INSTALL_PATH}/conf/.passwd_env
+else
+    export ADMIN_PASSWORD="admin"
+fi
+
 # Install initialization
 install_init(){
     #SaaS Log Directory
-    mkdir -p ${INSTALL_PATH}/logs/{rbac,workbench,cmdb,control,job,monitor,cmp,bastion,devops,pipeline,repo,code,deploy,proxy}
+    mkdir -p ${INSTALL_PATH}/logs/{rbac,workbench,cmdb,control,job,monitor,cmp,bastion,devops,pipeline,repo,code,deploy,proxy,llmops}
 }
 
 # Start Proxy
@@ -97,7 +102,6 @@ proxy_install(){
         -v ${INSTALL_PATH}/conf/proxy/settings_production.py.proxy:/opt/opsany-proxy/config/prod.py \
         -v ${INSTALL_PATH}/conf/proxy/invscript_proxy.py:/opt/opsany-proxy/invscript_proxy.py \
         -v ${INSTALL_PATH}/conf/proxy/proxy.ini:/etc/supervisord.d/proxy.ini \
-        -v ${INSTALL_PATH}/conf/proxy/saltapi.ini:/etc/supervisord.d/saltapi.ini \
         -v ${INSTALL_PATH}/conf/proxy/saltmaster.ini:/etc/supervisord.d/saltmaster.ini \
         -v ${INSTALL_PATH}/prometheus-volume/conf/alertmanager.yml:/opt/opsany/alertmanager.yml \
         -v /etc/localtime:/etc/localtime:ro \
@@ -124,6 +128,7 @@ mongodb_init(){
     sed -i "s/MONGO_EVENT_PASSWORD/${MONGO_EVENT_PASSWORD}/g" ${INSTALL_PATH}/init/mongodb-init/mongodb_init.js
     sed -i "s/MONGO_PROM_PASSWORD/${MONGO_PROM_PASSWORD}/g" ${INSTALL_PATH}/init/mongodb-init/mongodb_init.js
     sed -i "s/MONGO_KBASE_PASSWORD/${MONGO_KBASE_PASSWORD}/g" ${INSTALL_PATH}/init/mongodb-init/mongodb_init.js
+    sed -i "s/MONGO_LLMOPS_PASSWORD/${MONGO_LLMOPS_PASSWORD}/g" ${INSTALL_PATH}/init/mongodb-init/mongodb_init.js
 
     docker cp ${INSTALL_PATH}/init/mongodb-init/mongodb_init.js opsany-base-mongodb:/opt/
     docker exec -e MONGO_INITDB_ROOT_USERNAME=$MONGO_INITDB_ROOT_USERNAME \
@@ -481,7 +486,7 @@ saas_monitor_deploy(){
 
     # Install Grafana Zabbix Plugin
     ZABBIX_GRAFANE_PLUGIN_NAME="alexanderzobnin-zabbix-app-4.3.1.zip"
-    if [ -f "${ZABBIX_GRAFANE_PLUGIN_NAME}" ]; then
+    if [ -f "/tmp/${ZABBIX_GRAFANE_PLUGIN_NAME}" ]; then
         cd /tmp && unzip -q ${ZABBIX_GRAFANE_PLUGIN_NAME}
         docker cp /tmp/alexanderzobnin-zabbix-app opsany-base-grafana:/var/lib/grafana/plugins/
         docker restart opsany-base-grafana
@@ -581,7 +586,9 @@ saas_bastion_deploy(){
     sed -i "s/REDIS_SERVER_PORT/${REDIS_SERVER_PORT}/g" ${INSTALL_PATH}/conf/opsany-saas/bastion/bastion-prod.py
     sed -i "s/REDIS_SERVER_USER/${REDIS_SERVER_USER}/g" ${INSTALL_PATH}/conf/opsany-saas/bastion/bastion-prod.py
     sed -i "s/REDIS_SERVER_PASSWORD/${REDIS_SERVER_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-saas/bastion/bastion-prod.py
-    
+    sed -i "s/BASTION_FOOT_CLIENT_IP/${DOMAIN_NAME}/g" ${INSTALL_PATH}/conf/opsany-saas/bastion/bastion-prod.py
+    sed -i "s/BASTION_FOOT_CLIENT_PORT/8013/g" ${INSTALL_PATH}/conf/opsany-saas/bastion/bastion-prod.py
+
     # Starter container
     docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-bastion:${SAAS_VERSION}
     docker run -d --restart=always --name opsany-saas-ce-bastion \
@@ -710,6 +717,9 @@ saas_repo_deploy(){
     sed -i "s/REDIS_SERVER_PORT/${REDIS_SERVER_PORT}/g" ${INSTALL_PATH}/conf/opsany-saas/repo/repo-prod.py
     sed -i "s/REDIS_SERVER_USER/${REDIS_SERVER_USER}/g" ${INSTALL_PATH}/conf/opsany-saas/repo/repo-prod.py
     sed -i "s/REDIS_SERVER_PASSWORD/${REDIS_SERVER_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-saas/repo/repo-prod.py
+    sed -i "s#REPO_HARBOR_URL#${REPO_HARBOR_URL}#g" ${INSTALL_PATH}/conf/opsany-saas/repo/repo-prod.py
+    sed -i "s/REPO_HARBOR_USERNAME/${REPO_HARBOR_USERNAME}/g" ${INSTALL_PATH}/conf/opsany-saas/repo/repo-prod.py
+    sed -i "s/REPO_HARBOR_PASSWORD/${REPO_HARBOR_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-saas/repo/repo-prod.py
     
     # Starter container
     docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-repo:${SAAS_VERSION}
@@ -906,6 +916,71 @@ saas_code_deploy(){
     
 }
 
+saas_llmops_deploy(){
+    shell_log "======llmops: Start llmops======"
+    cd ${CDIR}
+    #llmops
+    export MYSQL_PWD=${MYSQL_ROOT_PASSWORD}
+    mysql -h "${MYSQL_SERVER_IP}" -P ${MYSQL_SERVER_PORT} -u root -e "create database llmops DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
+    mysql -h "${MYSQL_SERVER_IP}" -P ${MYSQL_SERVER_PORT} -u root -e "CREATE USER 'llmops'@'%' identified by "\"${MYSQL_OPSANY_LLMOPS_PASSWORD}\"";"
+    mysql -h "${MYSQL_SERVER_IP}" -P ${MYSQL_SERVER_PORT} -u root -e "grant all on llmops.* to llmops@'%';" 
+
+     #llmops
+    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/llmops/toolkit/configs.py
+    sed -i "s#/t/llmops#/o/llmops#g" ${INSTALL_PATH}/esb/apis/llmops/toolkit/tools.py
+    if [ -d ${INSTALL_PATH}/conf/opsany-saas/llmops ];then
+        /bin/cp -r ./conf/opsany-saas/llmops/* ${INSTALL_PATH}/conf/opsany-saas/llmops/
+    else
+        /bin/cp -r ./conf/opsany-saas/llmops ${INSTALL_PATH}/conf/opsany-saas/
+         mkdir -p ${INSTALL_PATH}/logs/llmops
+    fi
+
+    # Register llmops
+    if [ -f ${INSTALL_PATH}/conf/.passwd_env ];then
+        source ${INSTALL_PATH}/conf/.passwd_env
+    fi
+
+    if [ -f ${INSTALL_PATH}/conf/.llmops_secret_key ];then
+        LLMOPS_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.llmops_secret_key)
+    else
+        LLMOPS_SECRET_KEY=$(uuid -v4)
+        echo $LLMOPS_SECRET_KEY > ${INSTALL_PATH}/conf/.llmops_secret_key
+    fi
+
+    docker exec opsany-paas-websocket /bin/sh -c "python3 /opt/opsany/saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code llmops --saas_app_name 大模型开发平台 --saas_app_version ${SAAS_VERSION} --saas_app_secret_key ${LLMOPS_SECRET_KEY}"
+
+    # llmops Configure
+    LLMOPS_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.llmops_secret_key)
+    sed -i "s/DOMAIN_NAME/${DOMAIN_NAME}/g" ${INSTALL_PATH}/conf/opsany-saas/llmops/llmops-init.py
+    sed -i "s/LLMOPS_SECRET_KEY/${LLMOPS_SECRET_KEY}/g" ${INSTALL_PATH}/conf/opsany-saas/llmops/llmops-init.py
+    sed -i "s/MYSQL_SERVER_IP/${MYSQL_SERVER_IP}/g" ${INSTALL_PATH}/conf/opsany-saas/llmops/llmops-prod.py
+    sed -i "s/MYSQL_SERVER_PORT/${MYSQL_SERVER_PORT}/g" ${INSTALL_PATH}/conf/opsany-saas/llmops/llmops-prod.py
+    sed -i "s/MYSQL_OPSANY_LLMOPS_PASSWORD/${MYSQL_OPSANY_LLMOPS_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-saas/llmops/llmops-prod.py
+    sed -i "s/MONGO_SERVER_IP/${MONGO_SERVER_IP}/g" ${INSTALL_PATH}/conf/opsany-saas/llmops/llmops-prod.py
+    sed -i "s/MONGO_SERVER_PORT/${MONGO_SERVER_PORT}/g" ${INSTALL_PATH}/conf/opsany-saas/llmops/llmops-prod.py
+    sed -i "s/MONGO_LLMOPS_PASSWORD/${MONGO_LLMOPS_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-saas/llmops/llmops-prod.py
+
+    # Starter container
+    docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-llmops:${SAAS_VERSION}
+    docker run -d --restart=always --name opsany-saas-ce-llmops \
+       -p 7000:80 \
+       -v ${INSTALL_PATH}/conf/opsany-saas/llmops/llmops-supervisor.ini:/etc/supervisord.d/llmops.ini \
+       -v ${INSTALL_PATH}/conf/opsany-saas/llmops/llmops-uwsgi.ini:/opt/opsany/uwsgi/llmops.ini \
+       -v ${INSTALL_PATH}/conf/opsany-saas/llmops/llmops-init.py:/opt/opsany/llmops/config/__init__.py \
+       -v ${INSTALL_PATH}/conf/opsany-saas/llmops/llmops-prod.py:/opt/opsany/llmops/config/prod.py \
+       -v ${INSTALL_PATH}/conf/opsany-saas/llmops/llmops-nginx.conf:/etc/nginx/http.d/default.conf \
+       -v ${INSTALL_PATH}/logs:/opt/opsany/logs \
+       -v ${INSTALL_PATH}/uploads:/opt/opsany/uploads \
+       -v /etc/localtime:/etc/localtime:ro \
+       ${PAAS_DOCKER_REG}/opsany-saas-ce-llmops:${SAAS_VERSION}
+
+    # Django migrate
+    docker exec -e BK_ENV="production" opsany-saas-ce-llmops /bin/sh -c \
+    "python /opt/opsany/llmops/manage.py migrate --noinput && python /opt/opsany/llmops/manage.py createcachetable django_cache > /dev/null" >> ${SHELL_LOG}
+    # Add Nav
+    docker exec opsany-paas-websocket /bin/sh -c "python3 /opt/opsany/saas/init-llmops-ollama-script.py --domain https://${DOMAIN_NAME} --paas_username admin --paas_password ${ADMIN_PASSWORD} --add_type nav"
+}
+
 zabbix_install(){
    shell_log "=====Start Zabbix Server 7.0 LTS======"
    mkdir -p ${INSTALL_PATH}/{zabbix-volume/alertscripts,zabbix-volume/externalscripts,zabbix-volume/snmptraps}
@@ -949,6 +1024,15 @@ zabbix_install(){
      -d ${PAAS_DOCKER_REG}/zabbix-agent2:7.0.3-ubuntu
 }
 
+zabbix_auto(){
+    shell_log "=====Zabbix Automatic Integration======"
+    cd ${CDIR}
+    if [ -f ${INSTALL_PATH}/conf/.passwd_env ];then
+        source ${INSTALL_PATH}/conf/.passwd_env
+    fi
+    docker exec opsany-paas-websocket /bin/sh -c "python3 /opt/opsany/saas/init-ce-monitor-zabbix.py --domain $DOMAIN_NAME --private_ip $LOCAL_IP --paas_username admin --paas_password $ADMIN_PASSWORD --zabbix_ip $LOCAL_IP --zabbix_password zabbix --grafana_ip $LOCAL_IP --grafana_password $GRAFANA_ADMIN_PASSWORD --zabbix_api_password ${ZABBIX_API_PASSWORD}  --modify_zabbix_password ${ZABBIX_ADMIN_PASSWORD} --zabbix_version 7.0"
+}
+    
 saas_base_init(){
     shell_log "======Init: OpsAny User Initialize======"
     cd ${CDIR}
@@ -976,19 +1060,10 @@ saas_base_init(){
     cd $CDIR/init/
     docker exec opsany-paas-websocket /bin/sh -c "cd /opt/opsany/init/ && python3 init_dashboard.py --grafana_url https://${DOMAIN_NAME}/grafana/ --grafana_username admin --grafana_password $GRAFANA_ADMIN_PASSWORD"
 
-    shell_log "======Init: Download Agent+Docs Package======"
+    shell_log "======Init: Download Agent Package======"
     cd $INSTALL_PATH/uploads/
-    wget https://opsany.oss-cn-beijing.aliyuncs.com/opsany-agent-2.2.3.tar.gz
-    tar zxf opsany-agent-2.2.3.tar.gz
-    wget https://opsany.oss-cn-beijing.aliyuncs.com/opsany-docs-2.2.3.tar.gz
-    tar zxf opsany-docs-2.2.3.tar.gz
-
-    shell_log "=====Zabbix Automatic Integration======"
-    cd ${CDIR}
-    if [ -z "$ADMIN_PASSWORD" ];then
-        source ${INSTALL_PATH}/conf/.passwd_env
-    fi
-    docker exec opsany-paas-websocket /bin/sh -c "python3 /opt/opsany/saas/init-ce-monitor-zabbix.py --domain $DOMAIN_NAME --private_ip $LOCAL_IP --paas_username admin --paas_password $ADMIN_PASSWORD --zabbix_ip $LOCAL_IP --zabbix_password zabbix --grafana_ip $LOCAL_IP --grafana_password $GRAFANA_ADMIN_PASSWORD --zabbix_api_password ${ZABBIX_API_PASSWORD}  --modify_zabbix_password ${ZABBIX_ADMIN_PASSWORD} --zabbix_version 7.0"
+    wget https://opsany.oss-cn-beijing.aliyuncs.com/opsany-agent-2.3.0.tar.gz
+    tar zxf opsany-agent-2.3.0.tar.gz
 }
 
 admin_password_init(){
@@ -1005,10 +1080,11 @@ admin_password_init(){
 # Main
 main(){
     case "$1" in
-    base)
+      base)
         install_init
         mongodb_init
         proxy_install
+        #zabbix_install
         saas_rbac_deploy
         saas_workbench_deploy
         saas_cmdb_deploy
@@ -1018,54 +1094,68 @@ main(){
         saas_bastion_deploy
         saas_monitor_deploy
         saas_base_init
+        #saas_llmops_deploy
         admin_password_init
         ;;
-    ops)
+      ops)
         install_init
         mongodb_init
         proxy_install
+        zabbix_install
         saas_rbac_deploy
         saas_workbench_deploy
         saas_cmdb_deploy
         saas_control_deploy
-        saas_monitor_deploy
-        zabbix_install
         saas_job_deploy
-	    saas_cmp_deploy
-	    saas_bastion_deploy
+	saas_cmp_deploy
+        saas_monitor_deploy
+	saas_bastion_deploy
+        saas_llmops_deploy
         saas_base_init
+        zabbix_auto
         admin_password_init
         ;;
-    monitor)
-        saas_monitor_deploy
+      zabbix_install)
+        zabbix_install
         ;;
-    repo)
+      zabbix_add)
+        zabbix_auto
+        ;;
+      monitor)
+        zabbix_install
+        saas_monitor_deploy
+        zabbix_auto
+        ;;
+      repo)
         saas_repo_deploy
         ;;
-    code)
+      llmops)
+        saas_llmops_deploy
+        ;;
+      code)
         saas_code_deploy
         ;;
-    pipeline)
+      pipeline)
         saas_pipeline_deploy
         ;;
-    deploy)
+      deploy)
         saas_deploy_deploy
         ;;
-    devops)
-	    saas_devops_deploy
+      devops)
+        saas_devops_deploy
         saas_pipeline_deploy
         saas_deploy_deploy
         saas_repo_deploy
         #saas_code_deploy
 	    ;;
-    dev)
-	    saas_devops_deploy
+      dev)
+        saas_devops_deploy
         saas_pipeline_deploy
         saas_deploy_deploy
         saas_repo_deploy
         #saas_code_deploy
         ;;
-    all)
+      all)
         install_init
         mongodb_init
         proxy_install
@@ -1073,21 +1163,23 @@ main(){
         saas_workbench_deploy
         saas_cmdb_deploy
         saas_control_deploy
-        saas_monitor_deploy
         zabbix_install
         saas_job_deploy
+        saas_monitor_deploy
         saas_cmp_deploy
         saas_bastion_deploy
         saas_base_init
+        zabbix_auto
         #saas_code_deploy
         saas_devops_deploy
         saas_pipeline_deploy
         saas_deploy_deploy
         saas_repo_deploy
+        saas_llmops_deploy
         admin_password_init
         ;;
-    help|*)
-	    echo $"Usage: $0 {ops|dev|devops|base|all|help}"
+      help|*)
+	    echo $"Usage: $0 {base|ops|dev|all|help|zabbix_install|zabbix_add|llmops}"
 	    ;;
     esac
 }

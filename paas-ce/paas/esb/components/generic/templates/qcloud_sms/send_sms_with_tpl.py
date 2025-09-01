@@ -27,7 +27,7 @@ class SendSmsWithTpl(Component, SetupConfMixin):
         tpl_id = forms.IntegerField(label='template id', required=True)
         params = TypeCheckField(label='template params', promise_type=list, required=False)
         nation_code = forms.CharField(label='nation code', required=False)
-        phone_number = forms.CharField(label=u'phone number', required=True)
+        phone_number = forms.CharField(label='phone number', required=True)
         extend = forms.CharField(label='extend', required=False)
         ext = forms.CharField(label='ext', required=False)
 

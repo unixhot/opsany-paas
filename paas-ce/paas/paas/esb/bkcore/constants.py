@@ -6,33 +6,33 @@ Licensed under the MIT License (the "License"); you may not use this file except
 http://opensource.org/licenses/MIT
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 """ # noqa
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 
 SYSTEMS = [
     {
         'name': 'BK_LOGIN',
-        'label': _(u'统一登录'),
+        'label': _('统一登录'),
     },
     {
         'name': 'CC',
-        'label': _(u'配置平台'),
+        'label': _('配置平台'),
     },
     {
         'name': 'GSE',
-        'label': _(u'管控平台'),
+        'label': _('管控平台'),
     },
     {
         'name': 'JOB',
-        'label': _(u'作业平台'),
+        'label': _('作业平台'),
     },
     {
         'name': 'CMSI',
-        'label': _(u'消息管理'),
+        'label': _('消息管理'),
     },
     {
         'name': 'SOPS',
-        'label': _(u'标准运维'),
+        'label': _('标准运维'),
     },
 ]
 
@@ -50,10 +50,10 @@ SYSTEM_CHANNELS = {
 FUNCTION_CONTROLLERS = [
     {
         'func_code': 'user_auth::skip_user_auth',
-        'func_name': _(u'是否跳过用户身份验证'),
+        'func_name': _('是否跳过用户身份验证'),
         'wlist': 'bk_paas_log_alert',
     }
 ]
 
 
-DEFAULT_DOC_CATEGORY = _(u'默认分类')
+DEFAULT_DOC_CATEGORY = _('默认分类')

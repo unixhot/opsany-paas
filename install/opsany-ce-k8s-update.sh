@@ -141,6 +141,9 @@ esb_update(){
     #bastion
     sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/bastion/toolkit/configs.py
     sed -i "s#/t/bastion#/o/bastion#g" ${INSTALL_PATH}/esb/apis/bastion/toolkit/configs.py
+    # llmops
+    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/llmops/toolkit/configs.py
+    sed -i "s#/t/llmops#/o/llmops#g" ${INSTALL_PATH}/esb/apis/llmops/toolkit/configs.py
     #prom
     sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/prom/toolkit/configs.py
     sed -i "s#/t/prom#/o/prom#g" ${INSTALL_PATH}/esb/apis/prom/toolkit/tools.py
@@ -220,6 +223,7 @@ proxy_update(){
     shell_log "======Update Proxy======"
     UPDATE_VERSION=$1
     # Proxy config
+    MYSQL_SERVER_IP=$(kubectl get svc | grep opsany-base-mysql | awk -F ' ' '{print $3}' | grep '^[1-10]')
     CONTROL_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.control_secret_key)
     /bin/cp conf/proxy/proxy.ini ${INSTALL_PATH}/conf/proxy/proxy.ini
     /bin/cp conf/proxy/saltapi.ini ${INSTALL_PATH}/conf/proxy/saltapi.ini
@@ -649,7 +653,6 @@ saas_repo_update(){
     shell_log "======Repo Update END======"               
 }
 
-
 saas_code_update(){
     shell_log "======Update code======"
     # Dashboard Configure
@@ -673,6 +676,29 @@ saas_code_update(){
     shell_log "======Repo Update END======"             
 }
 
+saas_llmops_update(){
+    shell_log "======Update llmops======"
+    # llmops Configure
+    UPDATE_VERSION=$1
+    LLMOPS_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.llmops_secret_key)
+    /bin/cp conf/opsany-saas/llmops/* ${INSTALL_PATH}/conf/opsany-saas/llmops/
+    sed -i "s/DOMAIN_NAME/${DOMAIN_NAME}/g" ${INSTALL_PATH}/conf/opsany-saas/llmops/llmops-init.py
+    sed -i "s/LLMOPS_SECRET_KEY/${LLMOPS_SECRET_KEY}/g" ${INSTALL_PATH}/conf/opsany-saas/llmops/llmops-init.py
+    sed -i "s/MYSQL_SERVER_IP/${MYSQL_SERVER_IP}/g" ${INSTALL_PATH}/conf/opsany-saas/llmops/llmops-prod.py
+    sed -i "s/MYSQL_SERVER_PORT/${MYSQL_SERVER_PORT}/g" ${INSTALL_PATH}/conf/opsany-saas/llmops/llmops-prod.py
+    sed -i "s/MYSQL_OPSANY_LLMOPS_PASSWORD/${MYSQL_OPSANY_LLMOPS_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-saas/llmops/llmops-prod.py
+    /bin/cp ${INSTALL_PATH}/conf/opsany-saas/llmops/*  ${INSTALL_PATH}/kubernetes/helm/opsany-saas/opsany-saas-llmops/
+    /bin/cp -r ../kubernetes/helm/opsany-saas/opsany-saas-llmops/* ${INSTALL_PATH}/kubernetes/helm/opsany-saas/opsany-saas-llmops/
+    helm upgrade opsany-saas-llmops ${INSTALL_PATH}/kubernetes/helm/opsany-saas/opsany-saas-llmops/ -n opsany
+
+    # Django migrate
+    sleep 10
+    helm list -n opsany | grep opsany-saas-llmops
+    kubectl get pod -n opsany | grep opsany-saas-llmops
+    update_saas_version llmops 代码仓库 ${LLMOPS_SECRET_KEY}
+    shell_log "======Repo Update END======"             
+}
+
 # Main
 main(){
     UPDATE_VERSION=$2
@@ -685,6 +711,17 @@ main(){
 	    saas_job_update $2
 	    saas_cmp_update $2
 	    saas_bastion_update $2
+        saas_llmops_update $2
+		;;
+    ops)
+	    saas_rbac_update $2
+	    saas_workbench_update $2
+	    saas_cmdb_update $2
+	    saas_control_update $2
+	    saas_job_update $2
+	    saas_cmp_update $2
+	    saas_bastion_update $2
+        saas_llmops_update $2
 		;;
     paas)
         paas_update $2
@@ -746,6 +783,9 @@ main(){
     websocket)
         websocket_update $2
         ;;
+    llmops)
+        llmops_update $2
+        ;;
     dev)
         saas_devops_update $2
         saas_pipeline_update $2
@@ -767,9 +807,10 @@ main(){
         saas_deploy_update $2
         saas_repo_update $2
         saas_code_update $2
+        saas_llmops_update $2
         ;;
 	help|*)
-	    echo $"Usage: $0 {(paas|login|esb|appengine|proxy|websocket|rbac|workbench|cmdb|control|job|cmp|bastion|base|monitor|devops|all|help) version}"
+	    echo $"Usage: $0 {(ops|dev|all|help) version}"
 	    ;;
     esac
 }

@@ -34,6 +34,9 @@ spec:
           volumeMounts:
             - name: opsany-uploads
               mountPath: /srv/guacamole
+            - name: localtime
+              mountPath: /etc/localtime
+              readOnly: true
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: gucad
@@ -65,3 +68,7 @@ spec:
         - name: opsany-uploads
           persistentVolumeClaim:
             claimName: opsany-uploads
+        - name: localtime
+          hostPath:
+            path: /etc/localtime
+            type: File

@@ -36,7 +36,7 @@ class GetCopyrightConfig(Component):
             "content": "Copyright © 2019-2022 OpsAny. All Rights Reserved"
         }
     } 
- 	
+
     ```
     """
 

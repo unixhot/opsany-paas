@@ -28,7 +28,7 @@ def get_client_by_request(request, **kwargs):
     :returns: 一个初始化好的ComponentClint对象
     """
 
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         bk_token = request.COOKIES.get('bk_token', '')
     else:
         bk_token = ''
@@ -57,7 +57,7 @@ def get_client_by_user(user, **kwargs):
         else:
             username = user
     except Exception:
-        logger.exception(u'Get user failed, User: %s' % user)
+        logger.exception('Get user failed, User: %s' % user)
 
     common_args = {'username': username}
     common_args.update(kwargs)

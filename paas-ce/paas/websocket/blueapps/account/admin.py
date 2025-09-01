@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 from django.contrib import admin
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from blueapps.account.forms import UserCreationForm
 from blueapps.account.models import User
 
 
+@admin.register(User)
 class UserAdmin(admin.ModelAdmin):
 
     fieldsets = (
@@ -27,4 +28,3 @@ class UserAdmin(admin.ModelAdmin):
                     'is_superuser', 'last_login']
 
 
-admin.site.register(User, UserAdmin)

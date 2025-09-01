@@ -6,15 +6,17 @@ Licensed under the MIT License (the "License"); you may not use this file except
 http://opensource.org/licenses/MIT
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 """ # noqa
-from __future__ import unicode_literals
+
 import datetime
+import ipaddress
 import time
 import unicodedata
-import urllib
+import urllib.request, urllib.parse, urllib.error
 import uuid
 import json
+
 from django.conf import settings
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 # Avoid shadowing the login() and logout() views below.
 from django.contrib.auth import (login as auth_login,
                                  logout as auth_logout)
@@ -24,7 +26,7 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.shortcuts import resolve_url, render
 from django.template.response import TemplateResponse
-from django.utils.six.moves.urllib.parse import urlparse
+from six.moves.urllib.parse import urlparse
 from django.utils import timezone
 
 from common.log import logger
@@ -33,6 +35,7 @@ from bkaccount.models import Loignlog, BkToken
 from bkaccount.forms import AuthenticationAndRegisterForm
 from bkaccount.opsany_user_auth import OpsAnyRbacUserAuth
 from bkaccount.models import BkUser
+
 
 class AccountSingleton(object):
     """
@@ -123,6 +126,10 @@ class Account(AccountSingleton):
         return bk_token, datetime.datetime.fromtimestamp(expire_time, timezone.get_current_timezone())
 
     def _decrypt_token(self, bk_token):
+        logger.info(f"Received bk_token in _decrypt_token: {bk_token}, type: {type(bk_token)}")
+        if bk_token == 'None' or bk_token is None or not bk_token:
+            logger.info("Invalid bk_token detected, returning without decrypt")
+            return False, _("参数bk_token非法"), None
         try:
             plain_bk_token = decrypt(bk_token)
         except Exception as error:
@@ -149,9 +156,11 @@ class Account(AccountSingleton):
         if not bk_token:
             error_msg = _("缺少参数bk_token")
             return False, None, error_msg
+
         if bk_token == "None":
             error_msg = _("参数bk_token为None")
             return False, None, error_msg
+
         ok, error_msg, token_info = self._decrypt_token(bk_token)
         if not ok:
             return False, None, error_msg
@@ -204,10 +213,9 @@ class Account(AccountSingleton):
         """
         记录用户登录日志
         """
-        
         host = request.get_host()
         login_browser = request.META.get('HTTP_USER_AGENT') or 'unknown'
-        # 获取用户ip
+        # 获取用户ip request.META.get('HTTP_X_REAL_IP')
         login_ip = request.META.get('HTTP_X_FORWARDED_FOR') or request.META.get('REMOTE_ADDR')
         try:
             if login_ip and "," in login_ip:
@@ -220,8 +228,8 @@ class Account(AccountSingleton):
         try:
             auth_object.update_login_log(token, login_ip, login_browser, host)
         except Exception as e:
-            print "Login log error: {}".format(str(e))
-    
+            print("Login log error: {}".format(str(e)))
+
     def redirect_login(self, request):
         """
         重定向到登录页面.
@@ -243,6 +251,51 @@ class Account(AccountSingleton):
         return redirect_to_login(
             path, resolved_login_url, self.REDIRECT_FIELD_NAME)
 
+    def _check_white_list(self, username, request, auth_object):
+        import ipaddress
+        if username == "admin":
+            return True, "管理员admin忽略白名单!"
+        try:
+            status, res_data = auth_object.get_auth_config(auth_type="white_list")
+            if not status:
+                return True, "Success"
+            if not isinstance(res_data, dict):
+                return True, "Success"
+            enabled = res_data.get("enabled")
+            if enabled is False:
+                return True, "Success"
+            white_list = res_data.get("white_list") or ""
+            x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+            if x_forwarded_for:
+                ip = x_forwarded_for.split(',')[0]  # 第一个IP是原始客户端
+            else:
+                ip = request.META.get('REMOTE_ADDR')
+            networks = []
+            for entry in str(white_list).split(","):
+                try:
+                    # 尝试解析为CIDR网段
+                    if '/' in entry:
+                        networks.append(ipaddress.ip_network(entry, strict=False))
+                    # 解析为单IP (自动转换为/32或/128)
+                    else:
+                        networks.append(ipaddress.ip_address(entry))
+                except ValueError:
+                    continue
+                    # networks.append(entry)
+            ip_obj = ipaddress.ip_address(ip)
+            if any(
+                    (isinstance(net, ipaddress.IPv4Network) and (ip_obj in net)) or
+                    (isinstance(net, ipaddress.IPv6Network) and (ip_obj in net)) or
+                    (isinstance(net, ipaddress.IPv4Address) and (ip_obj == net)) or
+                    (isinstance(net, ipaddress.IPv6Address) and (ip_obj == net))
+                    for net in networks
+            ):
+                return True, "Success"
+            return False, "IP登录限制({}), 请联系管理员加入白名单!".format(ip)
+        except Exception as e:
+            logger.exception('Login _check_white_list, error: {}'.format(str(e)))
+            return True, str(e)
+
     def login(self, request, template_name='login/login.html',
               authentication_form=AuthenticationForm,
               #authentication_form=AuthenticationAndRegisterForm,
@@ -250,16 +303,18 @@ class Account(AccountSingleton):
         """
         登录页面和登录动作
         """
-             
+        params = request.GET.dict()
         redirect_field_name = self.REDIRECT_FIELD_NAME
-        redirect_to = request.POST.get(redirect_field_name, request.GET.get(redirect_field_name, '/'))
-        app_id = request.POST.get('app_id', request.GET.get('app_id', ''))
-        c_url = request.POST.get('c_url', request.GET.get('c_url', '/'))
-        tab_key = request.POST.get('tab_key', request.GET.get('tab_key', 0))
+        redirect_to = request.POST.get(redirect_field_name, params.get(redirect_field_name, '/'))
+        app_id = request.POST.get('app_id', params.get('app_id', ''))
+        c_url = request.POST.get('c_url', params.get('c_url', '/'))
+        tab_key = request.POST.get('tab_key',params.get('tab_key', 0))
         #tab_key = request.POST.get('tab_key', request.GET.get('tab_key', 1))
         # print("tab_key", tab_key)
         error_message = ""
-        if request.method == 'POST':
+        is_qw = params.get("code") and (params.get("auth_type") or params.get("domain") or (params.get("appid")))
+        is_sso = params.get("domain") and params.get("auth_type") and params.get("sso_code") and params.get("sso_sign")
+        if request.method == 'POST':  # 密码本地登录 LDAP AD登录 第三方密码登录
             # 改写request中密码内容
             request.POST = request.POST.copy()
             request.POST["password"] = request.POST["password"].strip()
@@ -282,47 +337,42 @@ class Account(AccountSingleton):
                 username = username + "@" + domain
 
             return_data = {"app_id": app_id, "next": next, "IMG_URL": settings.IMG_URL, "SITE_URL": settings.SITE_URL, "tab_key": tab_key}
-            if data.has_key("next") and data.has_key("app_id"):
+            if "next" in data and "app_id" in data:
                 if not geetest_challenge or not geetest_seccode or not geetest_validate:
                     return_data.update(**{"data": "1"})
                     return render(request, "login/login.html", return_data)
             auth_object = OpsAnyRbacUserAuth(username, password)
             google_auth_status = auth_object.get_user_google_auth_status()
             #print("google_auth_status", google_auth_status, username)
-
+            status, message = self._check_white_list(username, request, auth_object)
+            if not status:
+                return_data["error_message"] = message
+                return render(request, "login/login.html", return_data)
             if google_auth_status in ["8", "9"]:
                 return_data.update(**{"data": "2"})
                 return render(request, "login/login.html", return_data)
 
-            if "@" not in username:
+            if ("@" not in username) or ((not domain) and ("@" in username)):  # 密码本地登录 第三方用户本地密码登录
                 if form.is_valid():
                     # if google_auth_status == "1":
                     if google_auth_status in ["1", "3", "4", "5", "7"]:
                         if google_auth_status in ["3"]:
                             if google_auth_url:
-                                return_data["google_auth_url"] = google_auth_url
-                                return_data["secret"] = secret
+                                return_data.update(google_auth_url=google_auth_url, secret=secret)
                             else:
                                 google_auth_pic = auth_object.get_google_auth()
-                                return_data["google_auth_url"] = google_auth_pic.get("url", "")
-                                return_data["secret"] = google_auth_pic.get("secret", "")
+                                return_data.update(google_auth_url=google_auth_pic.get("url", ""), secret=google_auth_pic.get("secret", ""))
                         if google_auth_type == "bind_google_auth":
                             bind_google_auth = auth_object.bind_google_auth(secret=secret, verify_code=verify_code)
-                            return_data["bind_google_auth"] = bind_google_auth.get("data", {})
+                            return_data.update(bind_google_auth=bind_google_auth.get("data", {}))
                             if bind_google_auth.get("result"):
                                 return self.login_success_response(request, form, redirect_to, app_id)
                             else:
-                                return_data["username"] = username
-                                return_data["password"] = password
-                                return_data["mfa"] = "start"
-                                return_data["domain"] = domain
-                                return_data["c_url"] = c_url
-                                return_data["verfiy_code"] = verify_code
-                                return_data["seven_days_free"] = seven_days_free
-                                return_data["google_auth_status"] = google_auth_status
-                                return_data["geetest_challenge"] = geetest_challenge
-                                return_data["geetest_seccode"] = geetest_seccode
-                                return_data["geetest_validate"] = geetest_validate
+                                return_data.update(username=username, password=password, mfa="start", domain=domain,
+                                    c_url=c_url, verfiy_code=verify_code, seven_days_free=seven_days_free,
+                                    google_auth_status=google_auth_status, geetest_challenge=geetest_challenge,
+                                    geetest_seccode=geetest_seccode, geetest_validate=geetest_validate
+                                )
                                 return render(request, "login/login.html", return_data)
                         mfa = "start" if not mfa else mfa
                     if mfa == "start":
@@ -330,58 +380,38 @@ class Account(AccountSingleton):
                         if check_status:
                             return self.login_success_response(request, form, redirect_to, app_id)
                         else:
-                            return_data["username"] = username
-                            return_data["password"] = password
-                            return_data["mfa"] = "start"
-                            return_data["domain"] = domain
-                            return_data["c_url"] = c_url
-                            return_data["verfiy_code"] = ""
-                            return_data["seven_days_free"] = seven_days_free
-                            return_data["google_auth_status"] = google_auth_status
-                            return_data["geetest_challenge"] = geetest_challenge
-                            return_data["geetest_seccode"] = geetest_seccode
-                            return_data["geetest_validate"] = geetest_validate
-                            if verify_code:
-                                return_data["check_status"] = False
-                            else:
-                                return_data["check_status"] = None
+                            return_data.update(username=username, password=password, mfa="start", domain=domain,
+                                c_url=c_url, verfiy_code="", seven_days_free=seven_days_free,
+                                google_auth_status=google_auth_status, geetest_challenge=geetest_challenge,
+                                geetest_seccode=geetest_seccode, geetest_validate=geetest_validate,
+                                check_status=False if verify_code else None
+                            )
                             return render(request, "login/login.html", return_data)
                     else:
                         return self.login_success_response(request, form, redirect_to, app_id)
-            else:
+            else:  # ADAP AD登录
                 res, data = auth_object.check_users()
                 user = self.get_user(data, username)
                 #print("get_user", res, data, user)
-
                 if res:
-                    # if google_auth_status == "1":
                     if google_auth_status in ["1", "3", "4", "5", "7"]:
                         if google_auth_status in ["3"]:
                             if google_auth_url:
-                                return_data["google_auth_url"] = google_auth_url
-                                return_data["secret"] = secret
+                                return_data.update(google_auth_url=google_auth_url, secret=secret)
                             else:
                                 google_auth_pic = auth_object.get_google_auth()
-                                return_data["google_auth_url"] = google_auth_pic.get("url", "")
-                                return_data["secret"] = google_auth_pic.get("secret", "")
-                            
+                                return_data.update(google_auth_url=google_auth_pic.get("url", ""), secret=google_auth_pic.get("secret", ""))
                         if google_auth_type == "bind_google_auth":
                             bind_google_auth = auth_object.bind_google_auth(secret=secret, verify_code=verify_code)
-                            return_data["bind_google_auth"] = bind_google_auth.get("data", {})
+                            return_data.update(bind_google_auth=bind_google_auth.get("data", {}))
                             if bind_google_auth.get("result"):
                                 return self.login_success_response(request, user, redirect_to, app_id)
                             else:
-                                return_data["username"] = username
-                                return_data["password"] = password
-                                return_data["mfa"] = "start"
-                                return_data["domain"] = domain
-                                return_data["c_url"] = c_url
-                                return_data["verfiy_code"] = verify_code
-                                return_data["seven_days_free"] = seven_days_free
-                                return_data["google_auth_status"] = google_auth_status
-                                return_data["geetest_challenge"] = geetest_challenge
-                                return_data["geetest_seccode"] = geetest_seccode
-                                return_data["geetest_validate"] = geetest_validate
+                                return_data.update(username=username, password=password, mfa="start", domain=domain,
+                                    c_url=c_url, verfiy_code=verify_code, seven_days_free=seven_days_free,
+                                    google_auth_status=google_auth_status, geetest_challenge=geetest_challenge,
+                                    geetest_seccode=geetest_seccode, geetest_validate=geetest_validate
+                                )
                                 return render(request, "login/login.html", return_data)
                         mfa = "start" if not mfa else mfa
                     if mfa == "start":
@@ -389,35 +419,23 @@ class Account(AccountSingleton):
                         if check_status:
                             return self.login_success_response(request, user, redirect_to, app_id)
                         else:
-                            return_data["username"] = username
-                            return_data["password"] = password
-                            return_data["mfa"] = "start"
-                            return_data["domain"] = domain
-                            return_data["c_url"] = c_url
-                            return_data["verfiy_code"] = ""
-                            return_data["seven_days_free"] = seven_days_free
-                            return_data["google_auth_status"] = google_auth_status
-                            return_data["geetest_challenge"] = geetest_challenge
-                            return_data["geetest_seccode"] = geetest_seccode
-                            return_data["geetest_validate"] = geetest_validate
-                            if verify_code:
-                                return_data["check_status"] = False
-                            else:
-                                return_data["check_status"] = None
+                            return_data.update(username=username, password=password, mfa="start", domain=domain,
+                                c_url=c_url, verfiy_code="", seven_days_free=seven_days_free,
+                                google_auth_status=google_auth_status, geetest_challenge=geetest_challenge,
+                                geetest_seccode=geetest_seccode, geetest_validate=geetest_validate,
+                                check_status=False if verify_code else None
+                            )
                             return render(request, "login/login.html", return_data)
                     else:
                         return self.login_success_response(request, user, redirect_to, app_id)
-        #elif request.method == 'GET' and request.GET.get("code") and request.GET.get("auth_type"):
-        elif (request.method == 'GET' and request.GET.get("code") and (request.GET.get("auth_type") or request.GET.get("domain") or (request.GET.get("appid")))) or \
-                (request.method == 'GET' and request.GET.get("domain") and request.GET.get("auth_type") and request.GET.get("sso_code") and request.GET.get("sso_sign")):
-
-            appid = request.GET.get("appid")
-            code = request.GET.get("code")
-            domain = request.GET.get("domain")
-            ad_domain = request.GET.get("ad_domain")
-            auth_type = request.GET.get("auth_type")
-            sso_code = request.GET.get("sso_code")
-            sso_sign = request.GET.get("sso_sign")
+        elif request.method == 'GET' and (is_qw or is_sso):
+            appid = params.get("appid")
+            code = params.get("code")
+            domain = params.get("domain")
+            ad_domain = params.get("ad_domain")
+            auth_type = params.get("auth_type")
+            sso_code = params.get("sso_code")
+            sso_sign = params.get("sso_sign")
             return_data = {"tab_key": tab_key, "app_id": "", "next": "", "IMG_URL": settings.IMG_URL, "SITE_URL": settings.SITE_URL}
             #if auth_type in ["3", "6"]:
             #    if auth_type == "6":
@@ -431,6 +449,10 @@ class Account(AccountSingleton):
                 auth_obj = OpsAnyRbacUserAuth(code=code, domain=domain, ad_domain=ad_domain)
             elif auth_type in ["3", "6"]:
                 auth_obj = OpsAnyRbacUserAuth(code=code, app_id=appid, ad_domain=ad_domain)
+            # status, message = self._check_white_list("get_username", request, auth_obj)
+            # if not status:
+            #     return_data["error_message"] = message
+            #     return render(request, "login/login.html", return_data)
             if auth_obj:
                 status, res = auth_obj.check_users()
                 if status and res.get("auth_status") and res.get("domain_status") and res.get("have_user"):
@@ -538,7 +560,7 @@ class Account(AccountSingleton):
         if app_id:
             query['app_id'] = app_id
         if len(query):
-            redirect_url = "{}?{}".format(self.BK_LOGIN_URL, urllib.urlencode(query))
+            redirect_url = "{}?{}".format(self.BK_LOGIN_URL, urllib.parse.urlencode(query))
         response = HttpResponseRedirect(redirect_url)
         response = self.set_bk_token_invalid(request, response)
         return response
@@ -635,3 +657,4 @@ class Account(AccountSingleton):
                 return JsonResponse({"code": 400, "error_code": 40000,
                                      "message": "ESB组件错误，请先联系管理员修复ESB后再做登录"})
         return JsonResponse({"code": 401, "error_code": 40100, "message": "账号密码错误"})
+

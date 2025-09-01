@@ -62,14 +62,14 @@ class GetAlarmRank(Component):
         # clean方法返回的数据可通过组件的form_data属性获取
         def clean(self):
             return self.get_cleaned_data_when_exist(keys=[
-            	"search_type",
-            	"group_id",
-            	"host_id", 
-            	"create_min_time", 
-            	"create_max_time",
-            	"search_data",
-            	"severity",
-            	])
+                "search_type",
+                "group_id",
+                "host_id",
+                "create_min_time",
+                "create_max_time",
+                "search_data",
+                "severity",
+            ])
 
     # 组件处理入口
     def handle(self):

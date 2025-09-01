@@ -7,31 +7,31 @@ http://opensource.org/licenses/MIT
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 """ # noqa
 
-from __future__ import unicode_literals
 
-from django.conf.urls import include, url
+
+from django.urls import include, path
 
 from user_center import views
 
 # 统计应用
 urlpatterns = [
-    url(r'^weixin/', include([
+    path('weixin/', include([
         # 微信公众号
-        url(r'^mp/', include([
-            url(r'^get_qrcode/$', views.get_qrcode_by_mp),
-            url(r'^callback/$', views.weixin_mp_callback),
+        path('mp/', include([
+            path('get_qrcode/', views.get_qrcode_by_mp),
+            path('callback/', views.weixin_mp_callback),
         ])),
 
         # 微信企业号/企业微信
-        url(r'^qy/', include([
-            url(r'^get_login_url/$', views.get_login_url_by_qy),
-            url(r'^login_callback/$', views.weixin_qy_login_callback),
+        path('qy/', include([
+            path('get_login_url/', views.get_login_url_by_qy),
+            path('login_callback/', views.weixin_qy_login_callback),
         ])),
 
         # 查询绑定状态
-        url(r'^get_bind_status/$', views.get_bind_status),
+        path('get_bind_status/', views.get_bind_status),
 
         # 解绑用户微信信息
-        url(r'^unbind_wx_user_info/$', views.unbind_wx_user_info),
+        path('unbind_wx_user_info/', views.unbind_wx_user_info),
     ])),
 ]

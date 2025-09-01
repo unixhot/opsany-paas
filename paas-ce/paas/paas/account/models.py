@@ -7,15 +7,15 @@ http://opensource.org/licenses/MIT
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 """ # noqa
 
-from __future__ import unicode_literals
+
 
 from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.core.mail import send_mail
 from django.db import models
 from django.utils import timezone
-from django.utils.http import urlquote
-from django.utils.translation import ugettext_lazy as _
+from urllib.parse import quote
+from django.utils.translation import gettext_lazy as _
 
 from account.manager import BkUserManager
 from common.constants import RoleCodeEnum
@@ -66,7 +66,7 @@ class BkUser(AbstractBaseUser, PermissionsMixin):
         return check_password(raw_password, self.password, setter)
 
     def get_absolute_url(self):
-        return "/users/{email}/".format(email=urlquote(self.email))
+        return "/users/{email}/".format(email=quote(self.email))
 
     def get_full_name(self):
         """Return the `username chinese_name`
@@ -89,7 +89,7 @@ class Loignlog(models.Model):
     """User login log
     """
 
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name="用户")
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="用户")
     login_time = models.DateTimeField("登录时间")
     login_browser = models.CharField("登录浏览器", max_length=200, blank=True, null=True)
     login_ip = models.CharField("用户登录ip", max_length=50, blank=True, null=True)

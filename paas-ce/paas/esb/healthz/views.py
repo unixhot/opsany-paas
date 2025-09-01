@@ -25,7 +25,7 @@ def healthz(request):
     except CheckException as e:
         return JsonResponse(failed_resp(message=e.get_message()))
     except Exception as e:
-        return JsonResponse(failed_resp(message=u'ESB 服务检查异常：%s' % e))
+        return JsonResponse(failed_resp(message='ESB 服务检查异常：%s' % e))
     return JsonResponse(ok_resp(message='OK'))
 
 
@@ -38,7 +38,7 @@ def check_settings():
     ]
     for key in no_empty_settings_key:
         if not getattr(settings, key, ''):
-            raise CheckException(u'settings 配置中 %s 不能为空' % key)
+            raise CheckException('settings 配置中 %s 不能为空' % key)
 
 
 def check_db():
@@ -48,10 +48,10 @@ def check_db():
         systems = ComponentSystem.objects.all()
         system_names = [system.name for system in systems]
     except Exception as ex:
-        raise CheckException(u'数据库连接出现异常：%s' % ex)
+        raise CheckException('数据库连接出现异常：%s' % ex)
 
     if not system_names:
-        raise CheckException(u'组件系统及通道数据未初始化，请执行 "python manage.py sync_system_and_channel_data" 进行初始化')
+        raise CheckException('组件系统及通道数据未初始化，请执行 "python manage.py sync_system_and_channel_data" 进行初始化')
 
 
 def check_redis():
@@ -67,7 +67,7 @@ def check_redis():
         client.expire(key, 60)
         client.get(key)
     except Exception as ex:
-        raise CheckException(u'Redis [%s:%s] [use_sentinel=%s] 连接出现异常：%s' % (
+        raise CheckException('Redis [%s:%s] [use_sentinel=%s] 连接出现异常：%s' % (
             settings.REDIS_HOST, settings.REDIS_PORT, getattr(settings, 'USE_SENTINEL', False), ex))
 
 
@@ -85,7 +85,7 @@ def check_bk_login_api():
         if not result['result']:
             raise Exception(result['message'])
     except Exception as ex:
-        raise CheckException(u'系统 BK_LOGIN 接口访问异常：%s' % ex)
+        raise CheckException('系统 BK_LOGIN 接口访问异常：%s' % ex)
 
 
 def check_cc_api():
@@ -95,7 +95,7 @@ def check_cc_api():
         if not result['result']:
             raise Exception(result['message'])
     except Exception as ex:
-        raise CheckException(u'系统 CC 接口访问异常：%s' % ex)
+        raise CheckException('系统 CC 接口访问异常：%s' % ex)
 
 
 def check_fta_api():
@@ -110,4 +110,4 @@ def check_fta_api():
         })
         comp.invoke()
     except Exception as ex:
-        raise CheckException(u'系统 FTA 接口访问异常：%s' % ex)
+        raise CheckException('系统 FTA 接口访问异常：%s' % ex)

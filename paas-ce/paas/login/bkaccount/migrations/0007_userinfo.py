@@ -7,7 +7,7 @@ http://opensource.org/licenses/MIT
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 """ # noqa
 
-from __future__ import unicode_literals
+
 
 from django.db import migrations, models
 from django.conf import settings
@@ -26,7 +26,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('wx_userid', models.CharField(max_length=64, null=True, verbose_name='\u4f01\u4e1a\u53f7\u7528\u6237USERID/\u516c\u4f17\u53f7\u7528\u6237OPENID', blank=True)),
                 ('bind_time', models.DateTimeField(auto_now_add=True, verbose_name='\u5fae\u4fe1\u7ed1\u5b9a\u65f6\u95f4', null=True)),
-                ('user', models.OneToOneField(to=settings.AUTH_USER_MODEL)),
+                ('user', models.OneToOneField(on_delete=models.CASCADE, to=settings.AUTH_USER_MODEL)),
             ],
             options={
                 'db_table': 'login_userinfo',

@@ -40,6 +40,9 @@ spec:
               subPath: paas.ini
             - name: opsany-logs
               mountPath: /opt/opsany/logs
+            - name: localtime
+              mountPath: /etc/localtime
+              readOnly: true
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: paas-paas
@@ -75,3 +78,7 @@ spec:
         - name: opsany-logs
           persistentVolumeClaim:
             claimName: opsany-logs
+        - name: localtime
+          hostPath:
+            path: /etc/localtime
+            type: File

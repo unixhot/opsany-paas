@@ -212,7 +212,7 @@ class Rule(object):
 
     @classmethod
     def period_to_seonds(cls, period):
-        for unit, seconds in cls.time_unit_to_seconds.items():
+        for unit, seconds in list(cls.time_unit_to_seconds.items()):
             if unit in period:
                 period_seconds = period[unit] * seconds
                 break

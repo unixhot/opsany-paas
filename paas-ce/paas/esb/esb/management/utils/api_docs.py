@@ -51,14 +51,14 @@ class ApiDocManager(object):
         return all_doc_md_md5
 
 
-API_PATH = u"""
+API_PATH = """
 ### {{ _("请求地址") }}
 
 {{ api_path }}
 
 """
 
-API_METHOD = u"""
+API_METHOD = """
 ### {{ _("请求方法") }}
 
 {{ api_method }}
@@ -113,7 +113,7 @@ class APIDoc(object):
 
     def get_doc_html(self):
         doc_html = {}
-        for language, _doc_md in self.doc_md.items():
+        for language, _doc_md in list(self.doc_md.items()):
             doc_html[language] = self.format_md_to_html(_doc_md)
         return doc_html
 
@@ -125,7 +125,7 @@ class APIDoc(object):
 
     def update_doc_md(self):
         doc_md = {}
-        for language, _doc_md in self.api_data['doc_md'].items():
+        for language, _doc_md in list(self.api_data['doc_md'].items()):
             with translation.override(language):
                 common_args_desc = self.get_doc_common_args()
                 self.jinja2_context['common_args_desc'] = textwrap.dedent(common_args_desc)
@@ -160,7 +160,7 @@ class APIDoc(object):
         return self.insert_to_doc_md(doc_md, API_METHOD)
 
     def insert_to_doc_md(self, doc_md, content):
-        return u'%s\n%s' % (smart_unicode(content), doc_md)
+        return '%s\n%s' % (smart_unicode(content), doc_md)
 
     def format(self, content, context):
         return self.jinja2_engine.from_string(content).render(context=context)
@@ -172,7 +172,7 @@ class APIDoc(object):
                 'tables',
                 'attr_list',
                 'fenced_code',
-                'smart_strong',
+                # 'smart_strong',
                 'codehilite',
                 'toc'
             ],

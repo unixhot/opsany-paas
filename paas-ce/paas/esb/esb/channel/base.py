@@ -84,7 +84,7 @@ class BaseChannel(object):
         """
         create request_id
         """
-        return uuid.uuid4().get_hex()
+        return uuid.uuid4().hex
 
     def validate_request(self, request):
         """
@@ -93,8 +93,8 @@ class BaseChannel(object):
         for validator in self.request_validators:
             try:
                 validator.validate(request)
-            except ValidationError, e:
-                raise CommonAPIError(e.message)
+            except ValidationError as e:
+                raise CommonAPIError(str(e))
 
     def log_request(self, request, response):
         """
@@ -108,20 +108,20 @@ class BaseChannel(object):
         Patch the incoming django request instance and set a lot of useful
         variables
         """
-        request.g.system_name = self.comp.sys_name
-        request.g.component_name = self.comp.get_component_name()
-        request.g.component_alias_name = self.comp.get_alias_name()
-        request.g.client_ip = get_client_ip(request)
-        request.g.request_id = self.request_id_generator_func(request)
-        request.g.component_status = COMPONENT_STATUSES.EXECUTING
-        request.g.channel_type = self.channel_type
-        request.g.use_test_env = self.get_use_test_env(request)
-        request.g.api_type = self.comp.api_type
-        request.g.headers = self.get_headers(request)
-        request.g.channel_conf = self.channel_conf
+        request.system_name = self.comp.sys_name
+        request.component_name = self.comp.get_component_name()
+        request.component_alias_name = self.comp.get_alias_name()
+        request.client_ip = get_client_ip(request)
+        request.request_id = self.request_id_generator_func(request)
+        request.component_status = COMPONENT_STATUSES.EXECUTING
+        request.channel_type = self.channel_type
+        request.use_test_env = self.get_use_test_env(request)
+        request.api_type = self.comp.api_type
+        request.headers = self.get_headers(request)
+        request.channel_conf = self.channel_conf
 
         # To be override
-        request.g.kwargs = FancyDict()
+        request.kwargs = FancyDict()
 
     def get_use_test_env(self, request):
         """
@@ -129,7 +129,7 @@ class BaseChannel(object):
 
         - pass "x-use-test-env" in header
         """
-        header_flag = request.META.get('HTTP_X_USE_TEST_ENV')
+        header_flag = request.headers.get('x-use-test-env')
         if header_flag is not None:
             return str_bool(header_flag)
         return False
@@ -137,7 +137,7 @@ class BaseChannel(object):
     def get_headers(self, request):
         """"""
         headers = {}
-        for key, value in self.request.META.iteritems():
+        for key, value in self.request.META.items():
             if key.startswith('HTTP_') and value and key not in self.IGNORE_HEADERS:
                 headers[self.capitalize_header(key[5:])] = value
         return headers
@@ -146,7 +146,7 @@ class BaseChannel(object):
     def capitalize_header(header):
         """capitalize django header
         """
-        return '-'.join(string.capitalize(s) for s in header.split('_'))
+        return '-'.join(s.capitalize() for s in header.split('_'))
 
     def handle_request(self, request):
         """
@@ -155,53 +155,56 @@ class BaseChannel(object):
         :param request: request object from django
         """
         self.request = request
+        if not hasattr(request, "ts_request_start"):
+            request.ts_request_start = time.time()
         self.patch_request_common(self.request)
-
         try:
             # Hook before request, before_handle_request may return response,
             # if it returns a response, do not call component then.
+            t1 = time.time()
             response = self.before_handle_request()
+            t2 = time.time()
             if not response:
                 self.validate_request(request)
 
                 self.comp.set_request(CompRequest(wsgi_request=request))
 
                 response = self.comp.invoke()
-        except APIError, e:
+        except APIError as e:
             response = e.code.as_dict()
-            request.g.component_status = COMPONENT_STATUSES.ARGUMENT_ERROR
-        except RequestThirdPartyException, e:
+            request.component_status = COMPONENT_STATUSES.ARGUMENT_ERROR
+        except RequestThirdPartyException as e:
             response = error_codes.REQUEST_THIRD_PARTY_ERROR.format_prompt(e.get_message(), replace=True).code.as_dict()
-            request.g.component_status = COMPONENT_STATUSES.EXCEPTION
-        except RequestSSLException, e:
+            request.component_status = COMPONENT_STATUSES.EXCEPTION
+        except RequestSSLException as e:
             response = error_codes.REQUEST_SSL_ERROR.format_prompt(e.get_message(), replace=True).code.as_dict()
-            request.g.component_status = COMPONENT_STATUSES.EXCEPTION
-        except TestHostNotFoundException, e:
+            request.component_status = COMPONENT_STATUSES.EXCEPTION
+        except TestHostNotFoundException as e:
             response = error_codes.TEST_HOST_NOT_FOUND.code.as_dict()
-            request.g.component_status = COMPONENT_STATUSES.EXCEPTION
-        except RequestBlockedException, e:
-            response = error_codes.REQUEST_BLOCKED.format_prompt(e.message).code.as_dict()
-            request.g.component_status = COMPONENT_STATUSES.EXCEPTION
+            request.component_status = COMPONENT_STATUSES.EXCEPTION
+        except RequestBlockedException as e:
+            response = error_codes.REQUEST_BLOCKED.format_prompt(str(e)).code.as_dict()
+            request.component_status = COMPONENT_STATUSES.EXCEPTION
         except Exception:
-           logger.exception('Request exception, request_id=%s, path=%s' % (request.g.request_id, request.path))
+           logger.exception('Request exception, request_id=%s, path=%s' % (request.request_id, request.path))
            response = CommonAPIError('Component error, please contact the component developer to handle it.')\
                .code.as_dict()
-           request.g.component_status = COMPONENT_STATUSES.EXCEPTION
+           request.component_status = COMPONENT_STATUSES.EXCEPTION
         else:
            if response and isinstance(response, dict) and response.get('result'):
-               request.g.component_status = COMPONENT_STATUSES.SUCCESS
+               request.component_status = COMPONENT_STATUSES.SUCCESS
            else:
-               request.g.component_status = COMPONENT_STATUSES.FAILURE
+               request.component_status = COMPONENT_STATUSES.FAILURE
 
         self.response = response
-        self.request.g.ts_request_end = time.time()
+        self.request.ts_request_end = time.time()
         self.log_request(self.request, self.response)
         # Hook after request
         self.after_handle_request()
 
         # Turn dict response to django response
         if isinstance(self.response, dict):
-            self.response['request_id'] = request.g.request_id
+            self.response['request_id'] = request.request_id
             self.response = format_resp_dict(self.response)
             self.response = JsonResponse(self.response)
         elif not isinstance(self.response, (HttpResponse, str)):
@@ -231,13 +234,13 @@ class ApiChannel(BaseChannel):
     channel_type = 'api'
 
     def before_handle_request(self):
-        self.request.g.kwargs = FancyDict(get_request_params(self.request))
-        # request.g.kwargs 之后会被修改，为了保留最原始的请求参数，创建一个copy
-        self.request.g.kwargs_copy = copy.copy(self.request.g.kwargs)
-        self.request.g.request_type = 'app'
+        self.request.kwargs = FancyDict(get_request_params(self.request))
+        # request.kwargs 之后会被修改，为了保留最原始的请求参数，创建一个copy
+        self.request.kwargs_copy = copy.copy(self.request.kwargs)
+        self.request.request_type = 'app'
+        if not getattr(self.request, "app_code", None):
+            self.request.app_code = self.request.kwargs.get('bk_app_code') or self.request.kwargs.get('app_code', '')  # noqa
 
-        if not self.request.g.get('app_code'):
-            self.request.g.app_code = self.request.g.kwargs.get('bk_app_code') or self.request.g.kwargs.get('app_code', '')  # noqa
 
     def after_handle_request(self):
         pass
@@ -339,7 +342,7 @@ class ChannelManager(object):
             path = '/%s' % path
 
         channels = self.preset_channels_with_path_vars.get(method, {})
-        for value in channels.values():
+        for value in list(channels.values()):
             matched_obj = value['re_path'].match(path)
             if matched_obj:
                 # 把匹配到的path变量作为结果返回
@@ -364,8 +367,8 @@ class ChannelManager(object):
             }
             for channel in ESBChannel.objects.all()
         ]
-        for channels in self.preset_channels.values():
-            result.extend(channels.values())
+        for channels in list(self.preset_channels.values()):
+            result.extend(list(channels.values()))
         return result
 
     def register_channel_groups(self, channel_classes, channels, rewrite_channels):
@@ -421,7 +424,7 @@ def get_channel_manager():
         manager = ChannelManager()
         # 配置中如果定义了默认的channel_classes,使用默认值
         default_channel_classes = channel_config.get('default_channel_classes')
-        for group_name, channel_group_conf in channel_config['channel_groups'].items():
+        for group_name, channel_group_conf in list(channel_config['channel_groups'].items()):
             manager.register_channel_groups(
                 channel_group_conf['channel_classes'],
                 channel_group_conf['preset_channels'],

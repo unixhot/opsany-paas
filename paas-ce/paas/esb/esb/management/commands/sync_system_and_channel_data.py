@@ -72,7 +72,7 @@ class Command(BaseCommand):
         force_update_fields = ['component_system_id', 'type', 'is_hidden', 'timeout_time']
 
         conf_client = conf_tools.ConfClient()
-        for system_name, channels in conf_client.channels.items():
+        for system_name, channels in list(conf_client.channels.items()):
             system = ComponentSystem.objects.get(name=system_name)
             for channel in channels:
                 is_hidden = channel.get('is_hidden', False)
@@ -146,7 +146,7 @@ class Command(BaseCommand):
         for component in conf_client.buffet_components:
             system = ComponentSystem.objects.get(name=component['system_name'])
 
-            if 'extra_headers' in component and not isinstance(component['extra_headers'], basestring):
+            if 'extra_headers' in component and not isinstance(component['extra_headers'], str):
                 component['extra_headers'] = json.dumps(component['extra_headers'])
 
             obj, created = ESBBuffetComponent.objects.get_or_create(

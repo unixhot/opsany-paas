@@ -1302,3 +1302,10 @@ pillar_roots:
 ############################################
 # Allow the raw_shell parameter to be used when calling Salt SSH client via API
 #netapi_allow_raw_shell: True
+netapi_enable_clients:
+  - local
+  - runner
+  - wheel
+  - local_async
+  - runner_async
+  - wheel_async

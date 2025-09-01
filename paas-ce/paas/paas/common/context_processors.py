@@ -10,7 +10,7 @@ context_processor for common(setting)
 ** 除setting外的其他context_processor内容，均采用组件的方式(string)
 """ # noqa
 
-from __future__ import unicode_literals
+
 
 import datetime
 

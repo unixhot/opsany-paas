@@ -11,12 +11,15 @@ Unless required by applicable law or agreed to in writing, software distributed 
 
 DEBUG = True
 
+# 设置验证类型
+#LOGIN_TYPE = 'jwt_login'
+
 # use the static root 'static' in production envs
 if not DEBUG:
     STATIC_ROOT = 'static'
 
 # 本地开发登录页面静态资源, 注意: 生产环境使用nginx反向代理需要改成 SITE_URL = "/login/"
-SITE_URL = "/"
+SITE_URL = "/login/"
 
 STATIC_URL = "/static/"
 
@@ -24,9 +27,9 @@ STATIC_URL = "/static/"
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',   # 默认用mysql
-        'NAME': 'open_paas',
-        'USER': 'root',
-        'PASSWORD': '',
+        'NAME': 'opsany_paas',
+        'USER': 'opsany',
+        'PASSWORD': 'OpsAny2025.Dev',
         'HOST': '127.0.0.1',
         'PORT': '3306',
     }
@@ -37,15 +40,19 @@ USERNAME = 'admin'
 PASSWORD = 'admin'
 
 # inner domain, use consul domain,  for api
-PAAS_INNER_DOMAIN = ''
-HTTP_SCHEMA = 'http'
+PAAS_INNER_DOMAIN = '10.0.0.188'
+HTTP_SCHEMA = 'https'
 
 
 # cookie访问域
-BK_COOKIE_DOMAIN = '.bking.com'
+BK_COOKIE_DOMAIN ='dev.opsany.cn'
 
 SECRET_KEY = 'jO149njrTj4kEx6ZbUH8Zc53bfQJctINWaEzTWIsOoxSDNwK2I'
 
 # ESB Token
 ESB_TOKEN = '41f076b7-afce-46eb-9e85-dab245eb0931'
-RBAC_APP_SECRET = "RBAC_SECRET_KEY"
+RBAC_APP_SECRET = "1a17c4e0-bbd6-4862-9e38-b055941734c8"
+CSRF_TRUSTED_ORIGINS = [
+    'https://dev.opsany.cn',
+    'http://dev.opsany.cn',
+]

@@ -7,7 +7,7 @@ http://opensource.org/licenses/MIT
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 """ # noqa
 
-from __future__ import unicode_literals
+
 import json
 
 from django.utils.decorators import method_decorator
@@ -204,7 +204,7 @@ class LightAppView(View):
             light_app.save()
         except Exception as e:
             # 保存logo时出错
-            logger.exception(u"save app logo fail: %s" % e)
+            logger.exception("save app logo fail: %s" % e)
             return ApiV2FailJsonResponse("logo 数据格式不合法", code=ApiErrorCodeEnumV2.PARAM_NOT_VALID.value)
 
         return ApiV2OKJsonResponse("app logo修改成功", data={})

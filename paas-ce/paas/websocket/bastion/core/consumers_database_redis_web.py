@@ -16,7 +16,7 @@ try:
 except NameError:
     unicode = str
 import socket
-from channels.generic.websocket import WebsocketConsumer
+from channels.generic.websocket import AsyncWebsocketConsumer
 from django_redis import get_redis_connection
 
 from bastion import constant
@@ -24,7 +24,7 @@ from bastion import constant
 try:
     from django.utils.encoding import smart_unicode
 except ImportError:
-    from django.utils.encoding import smart_text as smart_unicode
+    from django.utils.encoding import smart_str as smart_unicode
 
 from bastion.core.terminal.component import SSHBaseComponent
 from bastion.core.status_code import MySQLWebSocketStatusCode
@@ -36,7 +36,7 @@ from bastion.utils.encryption import PasswordEncryption
 app_logging = logging.getLogger("app")
 
 
-class DatabaseRedisWeb(WebsocketConsumer):
+class DatabaseRedisWeb(AsyncWebsocketConsumer):
     data_type_dict = {
         "command": "输入Redis命令",
         "result": "后获取剩余结果",

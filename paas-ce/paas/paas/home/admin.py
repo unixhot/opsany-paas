@@ -7,7 +7,7 @@ http://opensource.org/licenses/MIT
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 """ # noqa
 
-from __future__ import unicode_literals
+
 
 from django import forms
 from django.contrib import admin
@@ -17,13 +17,13 @@ from home.models import UsefulLinks, UserSettings
 
 
 # Register your models here.
+@admin.register(UserSettings)
 class UserSettingsAdmin(admin.ModelAdmin):
     list_display = ('username', 'apps')
     search_fields = ('username',)
     list_filter = ('username',)
 
 
-admin.site.register(UserSettings, UserSettingsAdmin)
 
 
 class UsefulLinksForm(forms.ModelForm):
@@ -38,6 +38,7 @@ class UsefulLinksForm(forms.ModelForm):
         fields = '__all__'
 
 
+@admin.register(UsefulLinks)
 class UsefulLinksAdmin(admin.ModelAdmin):
     list_display = ('name', 'link', 'link_type', 'is_active')
     search_fields = ('name',)
@@ -46,4 +47,3 @@ class UsefulLinksAdmin(admin.ModelAdmin):
     form = UsefulLinksForm
 
 
-admin.site.register(UsefulLinks, UsefulLinksAdmin)

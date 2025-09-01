@@ -66,7 +66,7 @@ class GetCmdbModelTree(Component):
             host=configs.host,
             path='{}cmdb-model-tree/'.format(base_api_url),
             params=data,
-            headers=self.request.wsgi_request.g.headers
+            headers=self.request.wsgi_request.g.headers if hasattr(self.request.wsgi_request, "g") else self.request.wsgi_request.headers
         )
         # 对结果进行解析
         code = response['code']

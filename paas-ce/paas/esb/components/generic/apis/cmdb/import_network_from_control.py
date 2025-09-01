@@ -82,7 +82,6 @@ class ImportNetworkFromControl(Component):
         # 设置当前操作者
         params['operator'] = self.current_user.username
         # print(self.request.wsgi_request.COOKIES)
-        print(self.request.wsgi_request.g.headers)
         # 请求系统接口
         response = self.outgoing.http_client.post(
             host=configs.host,
@@ -90,7 +89,7 @@ class ImportNetworkFromControl(Component):
             # params=json.dumps(params),
             data=json.dumps(params),
             # cookies=self.request.wsgi_request.COOKIES,
-            headers=self.request.wsgi_request.g.headers
+            headers=self.request.wsgi_request.g.headers if hasattr(self.request.wsgi_request, "g") else self.request.wsgi_request.headers
         )
 
         # 对结果进行解析

@@ -34,17 +34,17 @@ class RequestThirdPartyException(BaseException):
         self.interface_name = interface_name
 
     def __str__(self):
-        return u'Component request third-party system [%s] interface [%s] error: %s, '\
+        return 'Component request third-party system [%s] interface [%s] error: %s, '\
             'please try again later or contact component developer to handle this'\
-            % (self.system_name, self.interface_name, self.raw_exc.message)
+            % (self.system_name, self.interface_name, self.raw_exc)
 
     def get_message(self):
         """
         返回到终端用户的错误信息
         """
-        return u'Component request third-party system [%s] interface [%s] error: %s, '\
+        return 'Component request third-party system [%s] interface [%s] error: %s, '\
             'please try again later or contact component developer to handle this'\
-            % (self.system_name, self.interface_name, self.raw_exc.message)
+            % (self.system_name, self.interface_name, self.raw_exc)
 
 
 class RequestSSLException(BaseException):
@@ -63,8 +63,8 @@ class RequestSSLException(BaseException):
         返回到终端用户的错误信息
         """
         if isinstance(self.raw_exc.cert, tuple):
-            self.raw_exc.cert = u', '.join(self.raw_exc.cert)
-        return u'Component request third-party system [%s] interface [%s] SSL error: '\
+            self.raw_exc.cert = ', '.join(self.raw_exc.cert)
+        return 'Component request third-party system [%s] interface [%s] SSL error: '\
             'SSL configuration file [%s] does not exist or is illegal, '\
             'please get the certificates from the documentation and unzip it into [%s]' % (
                 self.system_name, self.interface_name, self.raw_exc.cert, self.raw_exc.SSL_ROOT_DIR)

@@ -8,18 +8,30 @@ Unless required by applicable law or agreed to in writing, software distributed 
 """ # noqa
 from controller.settings_default import * # noqa
 
-DEBUG = False
+DEBUG = True
 
 # Database
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'dev_paas',
-        'USER': 'paas',
-        'PASSWORD': 'dev_paas',
+        'NAME': 'opsany_paas',
+        'USER': 'opsany',
+        'PASSWORD': 'OpsAny2025.Dev',
         'HOST': '127.0.0.1',
         'PORT': '3306',
     }
 }
 
 SECRET_KEY = 'XEz7VLlQNdIq9iFl1t6LtWobQEcG4ayoPa2esHwatkHZxiuDf0'
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+STATIC_URL = '/static/'
+CSRF_TRUSTED_ORIGINS = [
+    'https://dev.opsany.cn',
+    'http://dev.opsany.cn',
+    'http://10.0.0.188:8001',
+    'http://10.0.0.56:8001',
+    #'https://10.0.0.188:8001',
+    'http://115.227.17.162:8001',
+    'http://127.0.0.1:8001',
+    'http://0.0.0.0:8001',
+]

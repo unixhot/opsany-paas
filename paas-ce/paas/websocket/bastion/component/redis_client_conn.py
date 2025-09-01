@@ -1,40 +1,33 @@
+import aioredis
 import json
+from django.conf import settings
 
-from redis import Redis, StrictRedis
-from django_redis import get_redis_connection
+async def get_async_redis_connection(alias="default"):
+    redis_config = settings.CACHES[alias]
+    conn = await aioredis.from_url(
+        f"redis://{redis_config['LOCATION']}",
+        decode_responses=True
+    )
+    return conn
 
-
-def get_redis_dict_data(conn, token):
-    if not isinstance(conn, (Redis, StrictRedis)):
-        conn = get_redis_connection(str(conn))
-    data_b = conn.get(token)
+async def get_redis_dict_data_async(conn, token):
+    if not isinstance(conn, aioredis.Redis):
+        conn = await get_async_redis_connection(str(conn))
+    data = await conn.get(token)
+    if not data:
+        return None
     try:
-        data = data_b.decode("utf-8")
-    except Exception as e:
-        return data_b
-    try:
-        data = eval(data)
-    except Exception as e:
-        try:
-            data = json.loads(data)
-        except Exception as e:
-            return data
-    return data
+        return json.loads(data)
+    except json.JSONDecodeError:
+        return data
 
-def get_redis_str_data(conn, token):
-    if not isinstance(conn, (Redis, StrictRedis)):
-        conn = get_redis_connection(str(conn))
-    data_b = conn.get(token)
-    try:
-        data = data_b.decode("utf-8")
-    except Exception as e:
-        return data_b
-    return data
+async def get_redis_str_data_async(conn, token):
+    if not isinstance(conn, aioredis.Redis):
+        conn = await get_async_redis_connection(str(conn))
+    return await conn.get(token)
 
-def set_redis_data(conn, key, value, ex=None):
-    if not isinstance(conn, (Redis, StrictRedis)):
-        conn = get_redis_connection(str(conn))
-    res = conn.set(key, value)
-    if ex and isinstance(ex, int):
-        conn.expire(key, ex)
-    return res
+async def set_redis_data_async(conn, key, value, ex=None):
+    if not isinstance(conn, aioredis.Redis):
+        conn = await get_async_redis_connection(str(conn))
+    await conn.set(key, value, ex=ex)
+    return True

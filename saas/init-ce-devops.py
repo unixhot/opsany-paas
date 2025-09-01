@@ -19,39 +19,90 @@ import argparse
 
 class InitData:
     # 导航分组
-    NAV_GROUP = {
-        "group_name": "应用管理",
-        "nav_list": [
-            {
-                "nav_name": "应用平台",
-                "nav_url": "/o/devops/",
-                "describe": "应用DevOps平台",
-                "group_name": "应用管理",
-                "icon_name": "devops.png"
+    NAV_GROUP = [
+        {
+            "group_name": "DevOps",
+            "group_language": {
+                "chinese_simplified": "DevOps",
+                "chinese_traditional": "DevOps",
+                "english": "DevOps"
             },
-            {
-                "nav_name": "流水线",
-                "nav_url": "/o/pipeline/",
-                "describe": "流水线编排",
-                "group_name": "应用管理",
-                "icon_name": "pipeline.png"
-            },
-            {
-                "nav_name": "持续部署",
-                "nav_url": "/o/deploy/",
-                "describe": "部署编排灵活",
-                "group_name": "应用管理",
-                "icon_name": "deploy.png"
-            },
-            {
-                "nav_name": "制品仓库",
-                "nav_url": "/o/repo/",
-                "describe": "应用制品仓库",
-                "group_name": "应用管理",
-                "icon_name": "repo.png"
-            },
-        ]
-    }
+            "nav_list": [
+                {
+                    "nav_name": "应用平台",
+                    "nav_code": "devops",
+                    "nav_url": "/o/devops/",
+                    "describe": "应用DevOps平台",
+                    "nav_describe_language": {
+                        "chinese_simplified": "应用DevOps平台",
+                        "chinese_traditional": "應用DevOps平台",
+                        "english": "DevOps Platform"
+                    },
+                    "group_name": "应用管理",
+                    "icon_name": "devops.png",
+                    "nav_language": {
+                        "chinese_simplified": "应用平台",
+                        "chinese_traditional": "應用平台",
+                        "english": "Devops"
+                    },
+                },
+                {
+                    "nav_name": "流水线",
+                    "nav_code": "pipeline",
+                    "nav_url": "/o/pipeline/",
+                    "describe": "流水线编排",
+                    "nav_describe_language": {
+                        "chinese_simplified": "流水线编排",
+                        "chinese_traditional": "流水線编排",
+                        "english": "Pipeline Orchestration"
+                    },
+                    "group_name": "应用管理",
+                    "icon_name": "pipeline.png",
+                    "nav_language": {
+                        "chinese_simplified": "流水线",
+                        "chinese_traditional": "流水線",
+                        "english": "Pipeline"
+                    },
+                },
+                {
+                    "nav_name": "持续部署",
+                    "nav_code": "deploy",
+                    "nav_url": "/o/deploy/",
+                    "describe": "部署编排灵活",
+                    "nav_describe_language": {
+                        "chinese_simplified": "部署编排灵活",
+                        "chinese_traditional": "部署編排靈活",
+                        "english": "Deployment Orchestration"
+                    },
+                    "group_name": "应用管理",
+                    "icon_name": "deploy.png",
+                    "nav_language": {
+                        "chinese_simplified": "持续部署",
+                        "chinese_traditional": "持續部署",
+                        "english": "Deploy"
+                    },
+                },
+                {
+                    "nav_name": "制品仓库",
+                    "nav_code": "repo",
+                    "nav_url": "/o/repo/",
+                    "describe": "应用制品仓库",
+                    "nav_describe_language": {
+                        "chinese_simplified": "应用制品仓库",
+                        "chinese_traditional": "應用建置成品倉庫",
+                        "english": "Application Repository"
+                    },
+                    "group_name": "应用管理",
+                    "icon_name": "repo.png",
+                    "nav_language": {
+                        "chinese_simplified": "制品仓库",
+                        "chinese_traditional": "制品仓库",
+                        "english": "Repo"
+                    },
+                },
+            ]
+        }
+    ]
     
     # 初始化业务树
     DEFAULT_BUSINESS_TREE = [
@@ -80,6 +131,7 @@ class InitData:
                 ]
             }
         ]
+
 
 class OpsAnyApi:
     def __init__(self, paas_domain, username, password):
@@ -120,14 +172,16 @@ class OpsAnyApi:
     def workbench_add_nav(self):
         """工作台初始化导航菜单"""
         try:
-            NAV_API = "/o/workbench//api/workbench/v0_1/update-nav/"
+            NAV_API = "/o/workbench//api/workbench/v0_1/update-nav-v2/"
+            # NAV_API = "/api/workbench/v0_1/update-nav-v2/"
             NAV_GROUP_URL = self.paas_domain + NAV_API
 
             data = InitData()
             nav_data = data.NAV_GROUP
-            nav_data.update({"username": self.username})
+            for nav in nav_data:
+                nav.update({"username": self.username})
 
-            response = self.session.post(url=NAV_GROUP_URL, data=json.dumps(nav_data), verify=False)
+            response = self.session.post(url=NAV_GROUP_URL, data=json.dumps({"group_list": nav_data}), verify=False)
             if response.status_code == 200:
                 res = response.json()
             else:
@@ -194,3 +248,4 @@ if __name__ == '__main__':
 
 
 # python init-ce-devops.py --domain https://www.opsany_url.cn --username opsany_username  --password opsany_password
+# python init-ce-devops.py --domain http://192.168.0.11:8004 --username opsany_username  --password opsany_password

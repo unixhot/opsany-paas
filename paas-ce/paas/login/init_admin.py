@@ -1,14 +1,18 @@
 # -*- coding: utf-8 -*-
+import random
+import string
 
 
 def init_password():
+    characters = string.ascii_letters + string.digits
+    password = "Ops" +"".join(random.choices(characters, k=9))
     user = BkUser.objects.filter(username="admin").first()
     if user:
-        user.set_password("123456")
+        user.set_password(password)
         user.save()
-        print "success"
+        print(f"reset admin password success: \033[1;32m{password}\033[0m")
     else:
-        print "error"
+        print("reset admin password error: admin was not found.")
 
 
 if __name__ == '__main__':

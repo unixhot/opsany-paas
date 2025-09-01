@@ -57,7 +57,7 @@ class BaseComponent(object):
         if not self.request.wsgi_request:
             return AnonymousUser()
 
-        username = self.request.wsgi_request.g.get('current_user_username')
+        username = getattr(self.request.wsgi_request, 'current_user_username', '')
         if username:
             return User(username)
         else:
@@ -106,7 +106,7 @@ class BaseComponent(object):
         self.before_handle()
         try:
             self.handle()
-        except APIError, e:
+        except APIError as e:
             self.response.payload = e.code.as_dict()
         self.after_handle()
         return self.response.get_payload()
@@ -250,18 +250,18 @@ class CompRequest(object):
         self.wsgi_request = wsgi_request
         # Load data from wsgi_request if given
         if self.wsgi_request:
-            self.kwargs = copy.copy(self.wsgi_request.g.kwargs)
+            self.kwargs = copy.copy(getattr(self.wsgi_request, "kwargs", {}))
             self.kwargs = self._clean_sensitive_params(self.kwargs)
-            self.use_test_env = self.wsgi_request.g.use_test_env
-            self.request_id = self.wsgi_request.g.request_id
-            self.channel_type = self.wsgi_request.g.channel_type
-            self.is_dummy = str_bool(self.wsgi_request.g.kwargs.get('dummy'))
-            self.app_code = self.wsgi_request.g.get('app_code', '')
+            self.use_test_env = self.wsgi_request.use_test_env
+            self.request_id = self.wsgi_request.request_id
+            self.channel_type = self.wsgi_request.channel_type
+            self.is_dummy = str_bool(self.wsgi_request.kwargs.get('dummy'))
+            self.app_code = getattr(self.wsgi_request, 'app_code', '')
             # 路径匹配中的变量
-            self.path_vars = self.wsgi_request.g.path_vars
+            self.path_vars = getattr(self.wsgi_request, "path_vars", None)
             # 超时时长
-            self.timeout = self.wsgi_request.g.timeout
-            self.headers = self.wsgi_request.g.headers
+            self.timeout = self.wsgi_request.timeout
+            self.headers = self.wsgi_request.headers
             self.bk_language = self.headers.get('Blueking-Language', 'en')
         else:
             self.kwargs = copy.copy(input) or FancyDict()
@@ -293,7 +293,7 @@ class CompRequest(object):
     def _get_clean_raw_query(self, ctype):
         query = self.wsgi_request.GET.copy()
         query = self._clean_sensitive_params(query)
-        return query.urlencode() if ctype == 'form' else json.dumps(dict(query.items()))
+        return query.urlencode() if ctype == 'form' else json.dumps(dict(list(query.items())))
 
     def _get_clean_raw_body(self, ctype):
         if self.wsgi_request.body and self.wsgi_request.body.strip().startswith('{'):
@@ -303,7 +303,7 @@ class CompRequest(object):
         else:
             body = self.wsgi_request.POST.copy()
             body = self._clean_sensitive_params(body)
-            return body.urlencode() if ctype == 'form' else json.dumps(dict(body.items()))
+            return body.urlencode() if ctype == 'form' else json.dumps(dict(list(body.items())))
 
     def _clean_sensitive_params(self, params):
         for key in self.SENSITIVE_PARAMS_KEY:
@@ -378,6 +378,8 @@ class ComponentsManager(object):
         for current_folder, folders, files in os.walk(path):
             for filename in files:
                 filename = os.path.join(current_folder, filename)
+                if "__pycache__" in filename:
+                    continue
                 if self.should_register(filename):
                     try:
                         module = import_module(fpath_to_module(filename))

@@ -69,7 +69,7 @@ class UpdateAllBusiness(Component):
             path='{}update-all-business/'.format(base_api_url),
             data=json.dumps(params),
             # cookies=self.request.wsgi_request.COOKIES,
-            headers=self.request.wsgi_request.g.headers
+            headers=self.request.wsgi_request.g.headers if hasattr(self.request.wsgi_request, "g") else self.request.wsgi_request.headers
         )
 
         # 对结果进行解析

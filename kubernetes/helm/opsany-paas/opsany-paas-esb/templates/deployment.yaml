@@ -42,6 +42,9 @@ spec:
               mountPath: /opt/opsany/logs
             - name: opsany-paas-esb-code
               mountPath: /opt/opsany/paas/esb/components/generic/apis/
+            - name: localtime
+              mountPath: /etc/localtime
+              readOnly: true
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: paas-esb
@@ -80,3 +83,7 @@ spec:
         - name: opsany-paas-esb-code
           persistentVolumeClaim:
             claimName: opsany-paas-esb-code
+        - name: localtime
+          hostPath:
+            path: /etc/localtime
+            type: File

@@ -7,7 +7,7 @@ http://opensource.org/licenses/MIT
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 """  # noqa
 
-from __future__ import unicode_literals
+
 
 from django.core.exceptions import ImproperlyConfigured
 from django.http import JsonResponse
@@ -44,7 +44,7 @@ class MakoTemplateResponseMixin(object):
 
         if isinstance(template_names, (list, tuple)):
             template_name = template_names[0]
-        elif isinstance(template_names, basestring):
+        elif isinstance(template_names, str):
             template_name = template_names
         else:
             raise ValueError("template_names should be string or tuple/list")

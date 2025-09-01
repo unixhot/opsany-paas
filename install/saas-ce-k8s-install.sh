@@ -49,7 +49,7 @@ fi
 # Install initialization
 install_init(){
     #SaaS Log Directory
-    mkdir -p /data/k8s-nfs/opsany-logs/{rbac,workbench,cmdb,control,job,monitor,cmp,bastion,code,devops,pipeline,repo,deploy}
+    mkdir -p /data/k8s-nfs/opsany-logs/{rbac,workbench,cmdb,control,job,monitor,cmp,bastion,code,devops,pipeline,repo,deploy,llmops}
 
     # Register rbac
     if [ -f ${INSTALL_PATH}/conf/.rbac_secret_key ];then
@@ -168,6 +168,14 @@ install_init(){
     fi
     python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code deploy --saas_app_name 持续部署 --saas_app_version 2.2.1 --saas_app_secret_key ${DEPLOY_SECRET_KEY}
 
+    # Register llmops
+    if [ -f ${INSTALL_PATH}/conf/.llmops_secret_key ];then
+        LLMOPS_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.llmops_secret_key)
+    else
+        LLMOPS_SECRET_KEY=$(uuid -v4)
+        echo $LLMOPS_SECRET_KEY > ${INSTALL_PATH}/conf/.llmops_secret_key
+    fi
+    python3 ../saas/register_online_saas.py --paas_domain https://${DOMAIN_NAME} --username admin --password ${ADMIN_PASSWORD} --saas_app_code llmops --saas_app_name 大模型开发平台 --saas_app_version 2.3.0 --saas_app_secret_key ${LLMOPS_SECRET_KEY}
 }
 
 # SaaS Deploy
@@ -402,6 +410,24 @@ saas_deploy_deploy(){
     /bin/cp ${INSTALL_PATH}/conf/opsany-saas/deploy/*  ${INSTALL_PATH}/kubernetes/helm/opsany-saas/opsany-saas-deploy/
 }
 
+saas_llmops_deploy(){
+    shell_log "======Config llmops======"
+    LLMOPS_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.llmops_secret_key)
+    sed -i "s/DOMAIN_NAME/${DOMAIN_NAME}/g" ${INSTALL_PATH}/conf/opsany-saas/llmops/llmops-init.py
+    sed -i "s/LLMOPS_SECRET_KEY/${LLMOPS_SECRET_KEY}/g" ${INSTALL_PATH}/conf/opsany-saas/llmops/llmops-init.py
+    sed -i "s/MYSQL_SERVER_IP/${MYSQL_SERVER_IP}/g" ${INSTALL_PATH}/conf/opsany-saas/llmops/llmops-prod.py
+    sed -i "s/MYSQL_SERVER_PORT/${MYSQL_SERVER_PORT}/g" ${INSTALL_PATH}/conf/opsany-saas/llmops/llmops-prod.py
+    sed -i "s/MYSQL_OPSANY_LLMOPS_PASSWORD/${MYSQL_OPSANY_LLMOPS_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-saas/llmops/llmops-prod.py
+    sed -i "s/MONGO_SERVER_IP/${MONGO_SERVER_IP}/g" ${INSTALL_PATH}/conf/opsany-saas/llmops/llmops-prod.py
+    sed -i "s/MONGO_SERVER_PORT/${MONGO_SERVER_PORT}/g" ${INSTALL_PATH}/conf/opsany-saas/llmops/llmops-prod.py
+    sed -i "s/MONGO_LLMOPS_PASSWORD/${MONGO_LLMOPS_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-saas/llmops/llmops-prod.py
+    sed -i "s/REDIS_SERVER_IP/${REDIS_SERVER_IP}/g" ${INSTALL_PATH}/conf/opsany-saas/llmops/llmops-prod.py
+    sed -i "s/REDIS_SERVER_PORT/${REDIS_SERVER_PORT}/g" ${INSTALL_PATH}/conf/opsany-saas/llmops/llmops-prod.py
+    sed -i "s/REDIS_SERVER_USER/${REDIS_SERVER_USER}/g" ${INSTALL_PATH}/conf/opsany-saas/llmops/llmops-prod.py
+    sed -i "s/REDIS_SERVER_PASSWORD/${REDIS_SERVER_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-saas/llmops/llmops-prod.py
+    /bin/cp ${INSTALL_PATH}/conf/opsany-saas/llmops/*  ${INSTALL_PATH}/kubernetes/helm/opsany-saas/opsany-saas-llmops/
+}
+
 saas_init(){
     shell_log "======OpsAny User Initialize======"
     sleep 3
@@ -459,6 +485,7 @@ main(){
         saas_pipeline_deploy
         saas_repo_deploy
         saas_deploy_deploy
+        saas_llmops_deploy
         ;;
     config)
         saas_rbac_deploy
@@ -474,6 +501,7 @@ main(){
         saas_pipeline_deploy
         saas_repo_deploy
         saas_deploy_deploy
+        saas_llmops_deploy
         ;;
     init)
         saas_init

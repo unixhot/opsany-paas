@@ -9,7 +9,7 @@ Unless required by applicable law or agreed to in writing, software distributed 
 """
 使用 SQLAlchemy 来和其他数据库打交道
 """
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
 from sqlalchemy import create_engine
 from django.conf import settings
@@ -24,7 +24,7 @@ def make_sa_conn_string(config_dict, driver_type='pymysql'):
     return 'mysql+%(driver_type)s://%(user)s:%(password)s@%(host)s:%(port)s/%(db)s?charset=utf8' % {
         'driver_type': driver_type,
         'user': config_dict['USER'],
-        'password': urllib.quote(config_dict['PASSWORD']),
+        'password': urllib.parse.quote(config_dict['PASSWORD']),
         'host': config_dict['HOST'],
         'port': config_dict['PORT'],
         'db': config_dict['NAME'],

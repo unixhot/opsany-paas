@@ -29,6 +29,8 @@ class UpdateUserInfo(Component):
     | ch_name      | string |  是  | 中文名  |
     | phone    | string |  是  |  电话   |
     | email    | string |  是  | 电子邮箱   |
+    | set_password    | string |  否  | 是否已设置密码   |
+    | params    | string |  否  | 额外参数   |
 
     ### 请求参数示例
 
@@ -50,10 +52,12 @@ class UpdateUserInfo(Component):
         ch_name = forms.Field(required=False)
         phone = forms.Field(required=False)
         email = forms.Field(required=False)
+        set_password = forms.BooleanField(required=False)
+        params = forms.Field(required=False)
 
         # clean方法返回的数据可通过组件的form_data属性获取
         def clean(self):
-            return self.get_cleaned_data_when_exist(keys=["username", "ch_name", "phone", "email"])
+            return self.get_cleaned_data_when_exist(keys=["username", "ch_name", "phone", "email", "set_password", "params"])
 
     # 组件处理入口
     def handle(self):

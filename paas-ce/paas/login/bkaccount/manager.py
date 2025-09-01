@@ -6,9 +6,9 @@ Licensed under the MIT License (the "License"); you may not use this file except
 http://opensource.org/licenses/MIT
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 """ # noqa
-from __future__ import unicode_literals
 
-from django.utils.translation import ugettext as _
+
+from django.utils.translation import gettext as _
 from django.db import models
 from django.db.models import Q
 from django.db import IntegrityError
@@ -279,7 +279,7 @@ class BkUserManager(BaseUserManager):
             if role in ROLECODE_LIST:
                 self._modify_or_create_user_role(user, role)
         except IntegrityError as e:
-            print e
+            print(e)
             return False, user_id, _("用户已经存在")
         except Exception as error:
             logger.exception("user info save failed, error: {}".format(error))
@@ -358,7 +358,7 @@ class BkUserManager(BaseUserManager):
             user_info.bind_time = timezone.now()
             user_info.save()
         except Exception as error:
-            logger.exception(u"user wechat info bind failed, error: {}".format(error))
+            logger.exception("user wechat info bind failed, error: {}".format(error))
             return False, _("绑定用户微信信息失败")
         return True, ''
 

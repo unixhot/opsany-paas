@@ -11,7 +11,7 @@ app engine 部署相关
 # NOTE: 异常统一在这一层处理
 """ # noqa
 
-from __future__ import unicode_literals
+
 
 import json
 
@@ -41,8 +41,10 @@ def _get_app_env(app_code, is_with_db_info=False):
     bk_paas_host = "%s://%s" % (settings.HTTP_SCHEMA, settings.PAAS_DOMAIN)
     cc_host = "%s://%s" % (settings.HTTP_SCHEMA, settings.HOST_CC)
     job_host = '%s://%s' % (settings.HTTP_SCHEMA, settings.HOST_JOB)
-    bk_paas_inner_host = "http://%s" % settings.PAAS_INNER_DOMAIN
-
+    #bk_paas_inner_host = "http://%s" % settings.PAAS_INNER_DOMAIN
+    #bk_paas_inner_host = "http://%s" % settings.PAAS_INNER_DOMAIN + ":8003"
+    bk_paas_inner_host = "https://dev.opsany.cn"
+    print(111111111111, settings.HTTP_SCHEMA, settings.PAAS_DOMAIN, bk_paas_host)
     envs = {"APP_ID": app_code,
             "APP_TOKEN": app.auth_token,
             "BK_PAAS_HOST": bk_paas_host,
@@ -56,7 +58,7 @@ def _get_app_env(app_code, is_with_db_info=False):
         envs.update(db_info)
 
     # 值转成字符串
-    for key, value in envs.iteritems():
+    for key, value in envs.items():
         envs[key] = str(value)
 
     return envs

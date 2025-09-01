@@ -21,7 +21,7 @@ Unless required by applicable law or agreed to in writing, software distributed 
 
 """ # noqa
 
-from __future__ import unicode_literals
+
 
 from common.constants import LogoImgRelatedDirEnum
 from common.log import logger

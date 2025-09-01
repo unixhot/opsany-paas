@@ -22,45 +22,54 @@ Including another URLconf
     2. Add a URL to urlpatterns:  url(r'^blog/', include(blog_urls))
 """ # noqa
 
-from __future__ import unicode_literals
+
 
 from bkaccount import views, views_api_v2
 
-from django.conf.urls import include, url
+from django.urls import include, path, re_path
 from django.http import HttpResponse
-from django.views.i18n import javascript_catalog
+from django.views.i18n import JavaScriptCatalog
 from django.views import i18n as django_i18n_views
+from rest_framework_simplejwt.views import (
+            TokenObtainPairView,
+                TokenRefreshView,
+                )
 
 
 base_urlpatterns = [
     # 登录页面
-    url(r'^$', views.LoginView.as_view()),
-    url(r'^logout/$', views.LogoutView.as_view()),
+    path('', views.LoginView.as_view()),
+    path('logout/', views.LogoutView.as_view()),
     # 用户管理
-    url(r'^accounts/', include("bkaccount.urls")),
+    path('accounts/', include("bkaccount.urls")),
 
     # 登陆模块 API，V2
-    url(r'^api/v2/is_login/$', views_api_v2.CheckLoginView.as_view()),
-    url(r'^api/v2/get_user/$', views_api_v2.UserView.as_view()),
-    url(r'^api/v2/get_batch_users/$', views_api_v2.BatchUsersView.as_view()),
-    url(r'^api/login-register/', views_api_v2.LoginRegisterView.as_view()),
-    url(r'^api/login/', views_api_v2.LoginApiView.as_view()),
-    url(r'^api/v2/get_all_users/$', views_api_v2.AllUsersView.as_view()),
+    path('api/v2/is_login/', views_api_v2.CheckLoginView.as_view()),
+    path('api/v2/get_user/', views_api_v2.UserView.as_view()),
+    path('api/v2/get_batch_users/', views_api_v2.BatchUsersView.as_view()),
+    re_path(r'^api/login-register/', views_api_v2.LoginRegisterView.as_view()),
+    re_path(r'^api/login/', views_api_v2.LoginApiView.as_view()),
+    path('api/v2/get_all_users/', views_api_v2.AllUsersView.as_view()),
 ]
 
 urlpatterns = [
-    url(r'^', include(base_urlpatterns)),
+    path('', include(base_urlpatterns)),
     # 支持本地开发
-    url(r'^login/', include(base_urlpatterns)),
+    path('login/', include(base_urlpatterns)),
     # 检查统一登录是否正常运行
-    url(r'^healthz/', include("healthz.urls")),
+    path('healthz/', include("healthz.urls")),
     # 反搜索
-    url(r'^robots\.txt$', lambda r: HttpResponse('User-agent: *\nDisallow: /', content_type='text/plain')),
+    re_path(r'^robots\.txt$', lambda r: HttpResponse('User-agent: *\nDisallow: /', content_type='text/plain')),
 
     # 无登录态下切换语言
-    url(r'^i18n/setlang/$', django_i18n_views.set_language, name='set_language'),
+    path('i18n/setlang/', django_i18n_views.set_language, name='set_language'),
     # 处理JS翻译
-    url(r'^jsi18n/(?P<packages>\S+?)/$', javascript_catalog, name='javascript-catalog'),
+    #re_path(r'^jsi18n/(?P<packages>\S+?)/$', JavaScriptCatalog.as_view(), name='javascript-catalog'),
+    path('jsi18n/i18n/', JavaScriptCatalog.as_view(), name='javascript-catalog'),
+    
+    # 增加JWT验证
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]
 
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns  # noqa

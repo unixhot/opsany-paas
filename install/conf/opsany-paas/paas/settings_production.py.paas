@@ -12,6 +12,9 @@ Unless required by applicable law or agreed to in writing, software distributed 
 
 DEBUG = False
 
+# Log settings
+LOG_LEVEL = 'ERROR'
+
 # use the static root 'static' in production envs
 if not DEBUG:
     STATIC_ROOT = 'static'
@@ -43,6 +46,10 @@ BK_COOKIE_NAME = 'bk_token'
 BK_COOKIE_AGE = 60 * 60 * 24
 # cookie访问域
 BK_COOKIE_DOMAIN = 'DOMAIN_NAME'
+CSRF_TRUSTED_ORIGINS = [
+    'https://DOMAIN_NAME',
+    'http://DOMAIN_NAME',
+]
 
 # 控制台地址
 ENGINE_HOST = "http://PAAS_APPENGINE_IP:8000"

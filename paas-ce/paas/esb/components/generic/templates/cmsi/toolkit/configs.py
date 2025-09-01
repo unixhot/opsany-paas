@@ -51,22 +51,22 @@ qcloud_app_key = 'eba8d646e9a6df4eb0421417f759a68e'
 msg_type = [
     {
         "type": "weixin",
-        "label": u"微信",
+        "label": "微信",
         "label_en": "weixin"
     },
     {
         "type": "mail",
-        "label": u"邮件",
+        "label": "邮件",
         "label_en": "mail"
     },
     {
         "type": "sms",
-        "label": u"短信",
+        "label": "短信",
         "label_en": "sms"
     },
     {
         "type": "voice",
-        "label": u"语音",
+        "label": "语音",
         "label_en": "voice"
     }
 ]

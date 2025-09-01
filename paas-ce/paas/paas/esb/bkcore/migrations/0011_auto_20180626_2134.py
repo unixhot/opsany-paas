@@ -7,7 +7,7 @@ http://opensource.org/licenses/MIT
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 """ # noqa
 
-from __future__ import unicode_literals
+
 
 from django.db import migrations, models
 import django.utils.timezone
@@ -72,7 +72,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='esbbuffetcomponent',
             name='system',
-            field=models.ForeignKey(verbose_name='\u7cfb\u7edf', blank=True, to='bkcore.ComponentSystem', null=True),
+            field=models.ForeignKey(on_delete=models.CASCADE, verbose_name='\u7cfb\u7edf', blank=True, to='bkcore.ComponentSystem', null=True),
         ),
         migrations.AlterField(
             model_name='esbbuffetcomponent',
@@ -92,7 +92,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='esbchannel',
             name='component_system',
-            field=models.ForeignKey(verbose_name='\u6240\u5c5e\u7cfb\u7edf', to='bkcore.ComponentSystem', null=True),
+            field=models.ForeignKey(on_delete=models.CASCADE, verbose_name='\u6240\u5c5e\u7cfb\u7edf', to='bkcore.ComponentSystem', null=True),
         ),
         migrations.AlterField(
             model_name='esbchannel',

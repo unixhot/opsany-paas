@@ -20,7 +20,7 @@ https://docs.djangoproject.com/en/1.8/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
-from django.conf.global_settings import *  # noqa
+#from django.conf.global_settings import *  # noqa
 
 try:
     import pymysql
@@ -51,18 +51,17 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
-    'esb',
-    'esb.bkcore',
+    'esb.apps.ESBConfig',
+    'esb.bkcore.apps.BkcoreConfig',
 )
+from datetime import datetime
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
-    # 'django.middleware.csrf.CsrfViewMiddleware',
+#    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
@@ -96,7 +95,7 @@ TEMPLATES = [
         'DIRS': [],
         'APP_DIRS': True,
         'OPTIONS': {
-            'environment': 'esb.jinja2.environment',
+            'environment': 'esb.jinja2_esb.environment',
         }
     },
 ]
@@ -107,7 +106,6 @@ TEMPLATES = [
 # LANGUAGE_CODE = 'zh-hans'
 LANGUAGE_CODE = 'en'
 USE_I18N = True
-USE_L10N = True
 
 # timezone
 TIME_ZONE = 'Asia/Shanghai'
@@ -121,8 +119,8 @@ def _(s):
 
 
 LANGUAGES = (
-    ('en', _(u'English')),
-    ('zh-hans', _(u'简体中文')),
+    ('en', _('English')),
+    ('zh-hans', _('简体中文')),
 )
 LOCALE_PATHS = (
     os.path.join(BASE_DIR, 'locale'),
@@ -167,7 +165,7 @@ def get_loggings(log_level):
         'handlers': {
             'null': {
                 'level': 'DEBUG',
-                'class': 'django.utils.log.NullHandler',
+                'class': 'logging.NullHandler',
             },
             'console': {
                 'level': 'INFO',
@@ -239,9 +237,9 @@ HTTP_SCHEMA = 'https'
 ESB_SITE_ESB_CONF = 'components.esb_conf.config'
 
 # JOB是否启用SSL验证
-JOB_SSL = True
+#JOB_SSL = True
 # 如果用户未配置config/default.py中的SSL_ROOT_DIR，则使用此目录
-DEFAULT_SSL_ROOT_DIR = '/data/paas/ssl_dir'
+#DEFAULT_SSL_ROOT_DIR = '/data/paas/ssl_dir'
 
 from configs.default import *  # noqa
 

@@ -12,13 +12,15 @@ is_bk_token_valid
 redirect_login
 """ # noqa
 
-from __future__ import unicode_literals
+
 
 from django.conf import settings
 from django.contrib.auth.views import redirect_to_login
 from django.http import HttpResponse
-from django.utils.six.moves.urllib.parse import urlparse
+from six.moves.urllib.parse import urlparse
 
+def is_ajax(request):
+    return request.headers.get('X-Requested-With') == 'XMLHttpRequest'
 
 def redirect_login(request):
     """
@@ -28,8 +30,8 @@ def redirect_login(request):
     middleware
     """
     # ajax跳401
-    if request.is_ajax():
-        return HttpResponse(status=401)
+    #if request.is_ajax():
+    #    return HttpResponse(status=401)
 
     # 非ajax请求 跳转至平台登录
     return _redirect_login(request)
@@ -70,8 +72,8 @@ def _http_referer(request):
     """
     获取 HTTP_REFERER 头，得到登出后要重新登录跳转的url
     """
-    if 'HTTP_REFERER' in request.META:
-        http_referer = request.META['HTTP_REFERER']
+    if 'referer' in request.headers:
+        http_referer = request.headers['referer']
     else:
         http_referer = settings.LOGIN_REDIRECT_URL
     return http_referer

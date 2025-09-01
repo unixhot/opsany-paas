@@ -25,7 +25,7 @@ def get_signature(method, path, app_secret, params=None, data=None):
         kwargs['data'] = data
     kwargs = '&'.join([
         '%s=%s' % (k, v)
-        for k, v in sorted(kwargs.items(), key=lambda x: x[0])
+        for k, v in sorted(list(kwargs.items()), key=lambda x: x[0])
     ])
     orignal = '%s%s?%s' % (method, path, kwargs)
     app_secret = app_secret.encode('utf-8') if isinstance(app_secret, str) else app_secret

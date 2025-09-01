@@ -95,7 +95,7 @@ class UpdateSetProperty(Component):
                 'Capacity': data.get('capacity'),
                 'Des': data.get('des')
             }
-            return {key: val for key, val in ret_data.iteritems() if val or val == 0}
+            return {key: val for key, val in ret_data.items() if val or val == 0}
 
     def handle(self):
         client = tools.CCClient(self)

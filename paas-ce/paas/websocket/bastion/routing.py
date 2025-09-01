@@ -1,4 +1,4 @@
-from django.urls import re_path
+from django.urls import path
 
 from channels.auth import AuthMiddlewareStack
 from channels.routing import ProtocolTypeRouter, URLRouter
@@ -13,16 +13,16 @@ from bastion.core.consumers_namespace_pod import PodConsumer
 
 websocket_urlpatterns = [
     # 堡垒机登录
-    re_path(r'^ws/bastion/terminalchannel/$', WebSSH),  # linux： ssh
-    re_path(r'^ws/bastion/guacamole/$', GuacamoleWebsocket),  # Windows：rdp
-    re_path(r'^ws/bastion/network/guacamole/$', GuacamoleNetWorkWebsocket),  # 网络设备: telnet
-    re_path(r'^ws/bastion/databases/$', Database),  # 数据库SHELL： ssh
-    re_path(r'^ws/bastion/databases/web/$', DatabaseMysqlWeb),
-    re_path(r'^ws/bastion/database/mysql/web/$', DatabaseMysqlWeb),  # 数据库-MySQL-WEB: SSHTunnelForwarder
-    re_path(r'^ws/bastion/database/redis/web/$', DatabaseRedisWeb),  # 数据库Redis-WEB: SSHTunnelForwarder
+    path('ws/bastion/terminalchannel/', WebSSH.as_asgi()), 
+    path('ws/bastion/guacamole/', GuacamoleWebsocket.as_asgi()),
+    path('ws/bastion/network/guacamole/', GuacamoleNetWorkWebsocket.as_asgi()), 
+    path('ws/bastion/databases/', Database.as_asgi()), 
+    path('ws/bastion/databases/web/', DatabaseMysqlWeb.as_asgi()),
+    path('ws/bastion/database/mysql/web/', DatabaseMysqlWeb.as_asgi()), 
+    path('ws/bastion/database/redis/web/', DatabaseRedisWeb.as_asgi()), 
     
     # k8s容器登录
-    re_path(r'^ws/bastion/namespace/pod/container/login/$', PodConsumer),  # 容器平台登录到Pdo中
+    path('ws/bastion/namespace/pod/container/login/', PodConsumer.as_asgi()),
 ]
 application = ProtocolTypeRouter({
     # (http->django views is added by default)

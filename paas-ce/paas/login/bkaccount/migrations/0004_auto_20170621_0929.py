@@ -7,7 +7,7 @@ http://opensource.org/licenses/MIT
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 """ # noqa
 
-from __future__ import unicode_literals
+
 
 from django.db import migrations, models
 import django.utils.timezone
@@ -38,8 +38,8 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('create_time', models.DateTimeField(default=django.utils.timezone.now, verbose_name='create_time')),
-                ('role', models.ForeignKey(to='bkaccount.BkRole')),
-                ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL)),
+                ('role', models.ForeignKey(on_delete=models.CASCADE, to='bkaccount.BkRole')),
+                ('user', models.ForeignKey(on_delete=models.CASCADE, to=settings.AUTH_USER_MODEL)),
             ],
             options={
                 'db_table': 'login_bkuser_role',

@@ -42,7 +42,7 @@ class GetHostByInstance(Component):
         "request_id": xxxxxxxxxxxxxxxxxxxxxxxx,
         "message": "相关信息获取成功",
         "data": {
-        	...
+            ...
         }
     }
     ```
@@ -74,7 +74,7 @@ class GetHostByInstance(Component):
             host=configs.host,
             path='{}get-host-by-instance/'.format(base_api_url),
             data=json.dumps(data),
-            headers=self.request.wsgi_request.g.headers
+            headers=self.request.wsgi_request.g.headers if hasattr(self.request.wsgi_request, "g") else self.request.wsgi_request.headers
         )
         # 对结果进行解析
         code = response['code']

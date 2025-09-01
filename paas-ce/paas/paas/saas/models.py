@@ -7,7 +7,7 @@ http://opensource.org/licenses/MIT
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 """ # noqa
 
-from __future__ import unicode_literals
+
 
 import os
 import time
@@ -34,10 +34,10 @@ class SaaSApp(models.Model):
     app = models.ForeignKey(to=App, blank=True, null=True, on_delete=models.CASCADE)
 
     # 正在执行上线的版本, 可能上线失败
-    current_version = models.ForeignKey(to="SaaSAppVersion", related_name="current_versions", blank=True, null=True)
+    current_version = models.ForeignKey(on_delete=models.CASCADE, to="SaaSAppVersion", related_name="current_versions", blank=True, null=True)
 
     # 在线上运行的版本
-    online_version = models.ForeignKey(to="SaaSAppVersion", related_name="online_versions", blank=True, null=True)
+    online_version = models.ForeignKey(on_delete=models.CASCADE, to="SaaSAppVersion", related_name="online_versions", blank=True, null=True)
 
     # 应用创建时间
     created_time = models.DateTimeField("创建时间", auto_now_add=True, blank=True, null=True)
@@ -189,7 +189,7 @@ class SaaSAppVersion(models.Model):
     # 所属的saas app, 当saas app被删除, 级联删除
     saas_app = models.ForeignKey(to="SaaSApp", blank=False, null=False, on_delete=models.CASCADE)
     # 对应文件
-    upload_file = models.ForeignKey(to="SaaSUploadFile", blank=False, null=False)
+    upload_file = models.ForeignKey(on_delete=models.CASCADE, to="SaaSUploadFile", blank=False, null=False)
 
     objects = SaaSAppVersionManager()
 
@@ -225,7 +225,7 @@ class SaaSAppVersion(models.Model):
         language = settings.get("language", 'python')
         is_use_celery = settings.get("is_use_celery", False)
         author = settings.get("author", '')
-        category = settings.get("category", u'其它')
+        category = settings.get("category", '其它')
         desktop = settings.get("desktop") or {}
         env = settings.get("env") or []
         # _UFO

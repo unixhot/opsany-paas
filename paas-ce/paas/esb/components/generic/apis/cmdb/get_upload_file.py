@@ -58,19 +58,13 @@ class GetUploadFile(Component):
         # 设置当前操作者
         params['operator'] = self.current_user.username
         
-        print("esb_params", params)
-
        # 请求系统接口
         response = self.outgoing.http_client.get(
             host=configs.host,
             path='{}get-file-devops/'.format(base_api_url),
             params=params,
-            headers=self.request.wsgi_request.g.headers
+            headers=self.request.wsgi_request.g.headers if hasattr(self.request.wsgi_request, "g") else self.request.wsgi_request.headers
         )
-        print("123456789", response)
-	with open("e.jpg", "a") as f:
-	    f.write(response)
-        print(1234567890)
         # 对结果进行解析
         #code = response['code']
         #if code == 200:

@@ -6,11 +6,12 @@ defined in the ASGI_APPLICATION setting.
 
 import os
 import django
-from channels.routing import get_default_application
+#from channels.routing import get_default_application
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "settings")
 django.setup()
-application = get_default_application()
+#application = get_default_application()
+from bastion.routing import application
 
 """
 uvicorn --proxy-headers --host 192.168.0.13 --port 8012 asgi:application --log-level=info --access-log

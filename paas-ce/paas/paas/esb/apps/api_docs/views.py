@@ -9,7 +9,7 @@ Unless required by applicable law or agreed to in writing, software distributed 
 from django.views.generic import View
 from django.shortcuts import render
 from django.http import Http404
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from esb.bkcore.models import ESBChannel, ComponentSystem
 from esb.configs.default import menu_items
@@ -22,7 +22,7 @@ class TranslateTest(View):
 
     def get(self, request):
         from django.http import HttpResponse
-        return HttpResponse(_(u'系统名称'))
+        return HttpResponse(_('系统名称'))
 
 
 class BaseDocsCategory(View):
@@ -113,7 +113,7 @@ class ApiInfoBySystem(BaseDocsCategory):
         data = {
             'curr_api_info': curr_api_info,
             'api_info_by_system': list(curr_api_info),
-            'system_summary': system_info.get('system_remark') or _(u'暂无系统简介'),
+            'system_summary': system_info.get('system_remark') or _('暂无系统简介'),
             'flag': False,
             'menu_items': menu_items,
             'menu_active_item': menu_active_item,

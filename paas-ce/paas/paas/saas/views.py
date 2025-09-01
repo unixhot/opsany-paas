@@ -7,7 +7,6 @@ http://opensource.org/licenses/MIT
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 """  # noqa
 
-from __future__ import unicode_literals
 
 import datetime
 import json
@@ -30,6 +29,7 @@ from common.utils import first_error_message, md5_for_file
 from app.models import App, SecureInfo, DesktopSettings
 from engine.models import BkApp, BkAppToken
 from release.models import Record
+from release.utils import sync_app_state
 from saas.models import SaaSApp, SaaSUploadFile, SaaSAppVersion
 from saas.utils import (delete_saas_app, extract_logo_file, saas_online_task,
                         save_saas_app_info, upload_response_tpl,

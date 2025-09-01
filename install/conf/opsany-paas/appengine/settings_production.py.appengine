@@ -10,6 +10,9 @@ from controller.settings_default import * # noqa
 
 DEBUG = False
 
+# Log settings
+LOG_LEVEL = 'ERROR'
+
 # Database
 DATABASES = {
     'default': {

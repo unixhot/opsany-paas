@@ -22,7 +22,7 @@ class RunPipelineV3(Component):
 
     #### 接口参数
 
-    | 字段    | 类型     | 必选   | 描述       |
+    | 字段    | 类型     | 必选   | 描述    |
     | ----- | ------ | ---- | -------- |
     | application_name | string | 是  | 应用唯一标识 |
     | job_name | string | 是  | 流水线名称 |

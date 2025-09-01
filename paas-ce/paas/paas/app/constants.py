@@ -7,7 +7,7 @@ http://opensource.org/licenses/MIT
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 """ # noqa
 
-from __future__ import unicode_literals
+
 
 from enum import Enum
 
@@ -60,10 +60,10 @@ class VCSTypeEnum(Enum):
 
 
 VCS_TYPE_CHOICES = [
-    (VCSTypeEnum.GIT.value, u'Git'),
-    (VCSTypeEnum.SVN.value, u'SVN'),
+    (VCSTypeEnum.GIT.value, 'Git'),
+    (VCSTypeEnum.SVN.value, 'SVN'),
 ]
-VCS_TYPE_VALID_VALUES = dict(VCS_TYPE_CHOICES).keys()
+VCS_TYPE_VALID_VALUES = list(dict(VCS_TYPE_CHOICES).keys())
 
 
 class DBTypeEnum(Enum):
@@ -81,7 +81,7 @@ DB_TYPE_CHOICES = [
     (DBTypeEnum.DB2.value, 'DB2'),
     (DBTypeEnum.SQLSERVER.value, 'SQL Server'),
 ]
-DB_TYPE_VALID_VALUES = dict(DB_TYPE_CHOICES).keys()
+DB_TYPE_VALID_VALUES = list(dict(DB_TYPE_CHOICES).keys())
 
 # app desktop info
 DESKTOP_DEFAULT_APP_IS_DISPLAY = True

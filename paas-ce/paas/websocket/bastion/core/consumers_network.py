@@ -7,7 +7,7 @@ import datetime
 import settings
 import threading
 import os
-from channels.generic.websocket import WebsocketConsumer
+from channels.generic.websocket import AsyncWebsocketConsumer
 from django_redis import get_redis_connection
 
 from bastion.component.redis_client_conn import get_redis_dict_data
@@ -15,7 +15,7 @@ from bastion.component.redis_client_conn import get_redis_dict_data
 try:
     from django.utils.encoding import smart_unicode
 except ImportError:
-    from django.utils.encoding import smart_text as smart_unicode
+    from django.utils.encoding import smart_str as smart_unicode
 
 from bastion.core.terminal.component import SSHBaseComponent
 from bastion.core.status_code import WebSocketStatusCode
@@ -29,7 +29,7 @@ from bastion.core.guacamole.client import GuacamoleClient
 app_logging = logging.getLogger("app")
 
 
-class GuacamoleNetWorkWebsocket(WebsocketConsumer):
+class GuacamoleNetWorkWebsocket(AsyncWebsocketConsumer):
     GUACD_CLIENT = None
     width = 1920
     height = 1080

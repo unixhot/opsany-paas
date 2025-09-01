@@ -101,7 +101,7 @@ class ComponentClient(object):
 
     def get_comp_doc(self):
         comp_doc = self.comp_class.__doc__ or ''
-        return comp_doc if isinstance(comp_doc, unicode) else comp_doc.decode('utf-8')
+        return comp_doc if isinstance(comp_doc, str) else comp_doc.decode('utf-8')
 
     def get_comp_doc_md(self):
         if self.is_comp_doc_md_from_mdfile():

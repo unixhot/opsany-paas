@@ -9,11 +9,11 @@ Unless required by applicable law or agreed to in writing, software distributed 
 import json
 
 from django.shortcuts import render
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.http import HttpResponseRedirect
 from django.views.generic import View
 from django.http import Http404
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from esb.bkcore.models import ESBChannel, ComponentSystem
 from esb.common.decorators import is_user_super
@@ -32,12 +32,12 @@ class ChannelListView(View):
     @is_user_super
     def get(self, request):
         channel_exists = ESBChannel.objects.exists()
-        systems = [{'name': '', 'label': u'All'}]
+        systems = [{'name': '', 'label': 'All'}]
         channel_system_ids = ESBChannel.objects.values_list('component_system_id', flat=True).distinct()
         systems.extend([
             {
                 'name': system.name,
-                'label': u'[%s] %s' % (system.name, system.label_display),
+                'label': '[%s] %s' % (system.name, system.label_display),
             }
             for system in ComponentSystem.objects.filter(id__in=channel_system_ids).order_by('name')
         ])
@@ -104,7 +104,7 @@ class EditChannelView(View):
             rate_limit_conf = json.loads(channel.rate_limit_conf)
             default_rate_limit_conf = rate_limit_conf['app_ratelimit']['__default'][0]
             rate_limit_tokens = default_rate_limit_conf.pop('tokens', '')
-            rate_limit_unit = default_rate_limit_conf.keys()[0]
+            rate_limit_unit = list(default_rate_limit_conf.keys())[0]
         except Exception:
             rate_limit_tokens = ''
             rate_limit_unit = 'second'
@@ -179,8 +179,8 @@ class EditChannelView(View):
                 'group_field': 'wx_type',
                 # 参数分组可选值
                 'groups': [
-                    {'value': 'qywx', 'label': _(u'企业微信')},
-                    {'value': 'mp', 'label': _(u'微信公众号')},
+                    {'value': 'qywx', 'label': _('企业微信')},
+                    {'value': 'mp', 'label': _('微信公众号')},
                 ],
                 # 字段配置
                 'comp_conf': [

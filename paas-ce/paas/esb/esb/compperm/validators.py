@@ -17,8 +17,8 @@ class ComponentPermValidator(BaseValidator):
         if getattr(request, '__esb_skip_comp_perm__', False):
             return
 
-        app_code = request.g.app_code
-        channel_conf = request.g.channel_conf
+        app_code = request.app_code
+        channel_conf = request.channel_conf
 
         if channel_conf.get('perm_level') in (None, 0) or channel_conf.get('id') is None:
             return

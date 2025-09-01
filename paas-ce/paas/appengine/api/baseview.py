@@ -18,7 +18,7 @@ class BaseView(View):
 
     def dispatch(self, request, *args, **kwargs):
         if request.method == "POST":
-            if "application/json" in self.request.META["CONTENT_TYPE"]:
+            if "application/json" in self.request.headers["content-type"]:
                 if request.body:
                     request.json_data = json.loads(request.body)
                 else:
@@ -29,8 +29,8 @@ class BaseView(View):
 class AppView(BaseView):
 
     def dispatch(self, request, *args, **kwargs):
-        x_app_token = self.request.META.get("HTTP_X_APP_TOKEN")
-        x_app_code = self.request.META.get("HTTP_X_APP_CODE")
+        x_app_token = self.request.headers.get("x-app-token")
+        x_app_code = self.request.headers.get("x-app-code")
         path_info = self.request.META.get("PATH_INFO")
 
         if path_info == "/v1/apps/" and request.method == "POST":
@@ -46,7 +46,7 @@ class AppView(BaseView):
             bk_app = models.BkAppToken.objects.get(key=x_app_token).bk_app
             if x_app_code != bk_app.app_code:
                 return HttpResponseForbidden("app_token with app_code not match")
-        except Exception, e:
+        except Exception as e:
             return HttpResponseForbidden("invalid app_token: %s" % e)
 
         return super(AppView, self).dispatch(request, *args, **kwargs)
@@ -54,8 +54,8 @@ class AppView(BaseView):
 
 class AgentView(BaseView):
     def dispatch(self, request, *args, **kwargs):
-        x_server_id = self.request.META.get('HTTP_X_ID')
-        x_token = self.request.META.get('HTTP_X_TOKEN')
+        x_server_id = self.request.headers.get('x-id')
+        x_token = self.request.headers.get('x-token')
         if not x_token:
             return HttpResponseForbidden("server token missing")
 

@@ -14,7 +14,7 @@ from .toolkit import configs
 
 class GetMsgType(Component, SetupConfMixin):
     suggest_method = HTTP_METHOD.GET
-    label = u'查询消息发送类型'
+    label = '查询消息发送类型'
     label_en = 'Get message type'
 
     sys_name = configs.SYSTEM_NAME

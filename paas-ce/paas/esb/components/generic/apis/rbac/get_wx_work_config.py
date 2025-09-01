@@ -27,7 +27,7 @@ class GetWxWorkConfig(Component):
     ### 返回结果示例
 
     ```python
- 	
+
     ```
     """
 

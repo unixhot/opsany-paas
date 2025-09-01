@@ -9,7 +9,7 @@ Unless required by applicable law or agreed to in writing, software distributed 
 资源下载
 """ # noqa
 
-from __future__ import unicode_literals
+
 
 from resource.models import Resource
 from common.views.mako import MakoTemplateView

@@ -20,31 +20,31 @@ FUNCTION_CONTROLLERS = [
 SYSTEM_DOC_CATEGORY = [
     {
         'name': 'default',
-        'label': u'默认分类',
+        'label': '默认分类',
         'priority': 1,
         'systems': []
     },
     {
         'name': 'user_base_service',
-        'label': u'基础用户服务',
+        'label': '基础用户服务',
         'priority': 10,
         'systems': ['BK_LOGIN', 'BK_PAAS', 'CMSI']
     },
     {
         'name': 'config_service',
-        'label': u'配置管理',
+        'label': '配置管理',
         'priority': 20,
         'systems': ['CC']
     },
     {
         'name': 'host_management',
-        'label': u'主机管控',
+        'label': '主机管控',
         'priority': 30,
         'systems': ['JOB', 'GSE']
     },
     {
         'name': 'management_tools',
-        'label': u'管理工具',
+        'label': '管理工具',
         'priority': 50,
         'systems': ['SOPS', 'MONITOR']
     },

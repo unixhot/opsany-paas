@@ -86,7 +86,7 @@ class SendMail(Component, SetupConfMixin):
     host = configs.host
     contact_way = 'email'
     smtp_timeout = 10
-    print '----------------------success--------------------'
+    print('----------------------success--------------------')
 
 
     class Form(BaseComponentForm):
@@ -157,7 +157,7 @@ class SendMail(Component, SetupConfMixin):
         data = self.request.kwargs
         # 检验接收者邮箱格式
         if data['receiver']:
-            print 'self.contact_way', self.contact_way
+            print('self.contact_way', self.contact_way)
             tools.validate_receiver(data['receiver'], contact_way=self.contact_way)
         if data['cc']:
             tools.validate_receiver(data['cc'], contact_way=self.contact_way)
@@ -184,7 +184,7 @@ class SendMail(Component, SetupConfMixin):
             if result['result'] and data.get('_extra_user_error_msg'):
                 result = {
                     'result': False,
-                    'message': u'Some users failed to send email. %s' % data['_extra_user_error_msg'],
+                    'message': 'Some users failed to send email. %s' % data['_extra_user_error_msg'],
                 }
             self.response.payload = result
 
@@ -205,7 +205,7 @@ class SendMail(Component, SetupConfMixin):
             if result['result'] and data.get('_extra_user_error_msg'):
                 result = {
                     'result': False,
-                    'message': u'Some users failed to send email. %s' % data['_extra_user_error_msg']
+                    'message': 'Some users failed to send email. %s' % data['_extra_user_error_msg']
                 }
 
             self.response.payload = result

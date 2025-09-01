@@ -15,7 +15,7 @@ Rules:
 """ # noqa
 
 
-from __future__ import unicode_literals
+
 
 import requests
 from common.log import logger
@@ -44,6 +44,8 @@ def _http_request(method, url, headers=None, data=None, timeout=None, verify=Non
         elif method == "PUT":
             resp = requests.put(url=url, headers=headers, json=data, timeout=timeout,
                                 verify=verify, cert=cert, cookies=cookies)
+            print("requests.put", url, headers, data, resp.headers)
+
         else:
             return False, None
     except requests.exceptions.RequestException:

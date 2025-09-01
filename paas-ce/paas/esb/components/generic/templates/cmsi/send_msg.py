@@ -17,7 +17,7 @@ from .toolkit import configs
 
 class SendMsg(Component, SetupConfMixin):
     suggest_method = HTTP_METHOD.POST
-    label = u'通用消息发送'
+    label = '通用消息发送'
     label_en = 'Send message'
 
     sys_name = configs.SYSTEM_NAME

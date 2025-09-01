@@ -1,8 +1,8 @@
--- MySQL dump 10.14  Distrib 5.5.68-MariaDB, for Linux (x86_64)
+-- MariaDB dump 10.19  Distrib 10.11.11-MariaDB, for debian-linux-gnu (x86_64)
 --
--- Host: localhost    Database: dev_paas
+-- Host: localhost    Database: opsany_paas
 -- ------------------------------------------------------
--- Server version	5.5.68-MariaDB
+-- Server version	10.11.11-MariaDB-0ubuntu0.24.04.2
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -35,7 +35,7 @@ CREATE TABLE `esb_component_system` (
   `query_timeout` int(11) DEFAULT NULL,
   `doc_category_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8 ROW_FORMAT=COMPACT;
+) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci ROW_FORMAT=COMPACT;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -44,7 +44,35 @@ CREATE TABLE `esb_component_system` (
 
 LOCK TABLES `esb_component_system` WRITE;
 /*!40000 ALTER TABLE `esb_component_system` DISABLE KEYS */;
-INSERT INTO `esb_component_system` VALUES (1,'BK_LOGIN','统一登录','','admin','','','',NULL,NULL,NULL),(2,'CC','配置平台','','admin','','','',NULL,NULL,NULL),(3,'GSE','管控平台','','admin','','','',NULL,NULL,NULL),(4,'JOB','作业平台','','admin','','','',NULL,NULL,NULL),(5,'CMSI','消息管理','','admin','','','',NULL,NULL,NULL),(6,'SOPS','标准运维','','admin','','','',NULL,NULL,NULL),(7,'CMDB','OpsAny 资源平台','','admin','','','',NULL,NULL,3),(8,'CONTROL','OpsAny 管控平台','','admin','','','',NULL,NULL,3),(9,'WORKBENCH','OpsAny 工作台','','admin','','','',30,30,3),(10,'TASK','OpsAny 作业平台','','admin','','','',NULL,NULL,3),(11,'rbac','OpsAny 企业管理后台','','admin','','','',NULL,NULL,3),(12,'MONITOR','OpsAny 监控平台','','admin','','','',30,30,3),(13,'CMP','OpsAny 云管平台','','admin','','','',NULL,NULL,3),(14,'DEVOPS','OpsAny 应用平台','','admin','','','',NULL,NULL,3),(15,'BASTION','OpsAny 堡垒机','','admin','','','',NULL,NULL,3),(16,'PROM','OpsAny 应用监控','','admin','','','',NULL,NULL,3),(17,'AUTO','OpsAny 智能巡检','','admin','','','',NULL,NULL,4),(18,'K8S','OpsAny 容器平台','','admin','','','',NULL,NULL,4),(19,'EVENT','OpsAny 事件中心','','admin','','','',NULL,NULL,4),(20,'DASHBOARD','OpsAny 可视化大屏','','admin','','','',NULL,NULL,4),(21,'KBASE','OpsAny 知识库','','huxingqi','','','',300,300,3),(22,'log','日志平台','','huxingqi','','','',100,100,3),(23,'APM','APM平台','','huxingqi','','','',300,60,3),(24,'REPO','OpsAny制品仓库','','xiongqianyuan','','','',300,60,3),(25,'DEPLOY','持续部署','','huxingqi','','','',60,60,4),(26,'PIPELINE','流水线','','xiongqianyuan','','','',60,60,3),(27,'CODE','代码仓库','','xiongqianyuan','','','',300,60,3);
+INSERT INTO `esb_component_system` VALUES
+(1,'BK_LOGIN','统一登录','','admin','','','',NULL,NULL,NULL),
+(2,'CC','配置平台','','admin','','','',NULL,NULL,NULL),
+(3,'GSE','管控平台','','admin','','','',NULL,NULL,NULL),
+(4,'JOB','作业平台','','admin','','','',NULL,NULL,NULL),
+(5,'CMSI','消息管理','','admin','','','',NULL,NULL,NULL),
+(6,'SOPS','标准运维','','admin','','','',NULL,NULL,NULL),
+(7,'CMDB','OpsAny 资源平台','','admin','','','',NULL,NULL,3),
+(8,'CONTROL','OpsAny 管控平台','','admin','','','',NULL,NULL,3),
+(9,'WORKBENCH','OpsAny 工作台','','admin','','','',30,30,3),
+(10,'TASK','OpsAny 作业平台','','admin','','','',NULL,NULL,3),
+(11,'rbac','OpsAny 企业管理后台','','admin','','','',NULL,NULL,3),
+(12,'MONITOR','OpsAny 监控平台','','admin','','','',30,30,3),
+(13,'CMP','OpsAny 云管平台','','admin','','','',NULL,NULL,3),
+(14,'DEVOPS','OpsAny 应用平台','','admin','','','',NULL,NULL,3),
+(15,'BASTION','OpsAny 堡垒机','','admin','','','',NULL,NULL,3),
+(16,'PROM','OpsAny 应用监控','','admin','','','',NULL,NULL,3),
+(17,'AUTO','OpsAny 智能巡检','','admin','','','',NULL,NULL,4),
+(18,'K8S','OpsAny 容器平台','','admin','','','',NULL,NULL,4),
+(19,'EVENT','OpsAny 事件中心','','admin','','','',NULL,NULL,4),
+(20,'DASHBOARD','OpsAny 可视化大屏','','admin','','','',NULL,NULL,4),
+(21,'KBASE','OpsAny 知识库','','huxingqi','','','',300,300,3),
+(22,'log','日志平台','','huxingqi','','','',100,100,3),
+(23,'APM','APM平台','','huxingqi','','','',300,60,3),
+(24,'REPO','OpsAny制品仓库','','xiongqianyuan','','','',300,60,3),
+(25,'DEPLOY','持续部署','','huxingqi','','','',60,60,4),
+(26,'PIPELINE','流水线','','xiongqianyuan','','','',60,60,3),
+(27,'CODE','代码仓库','','xiongqianyuan','','','',300,60,3),
+(28,'LLMOPS','大模型开发平台','','huxingqi','','','',300,60,3);
 /*!40000 ALTER TABLE `esb_component_system` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -57,4 +85,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-01-24 18:12:50
+-- Dump completed on 2025-07-31 14:30:35

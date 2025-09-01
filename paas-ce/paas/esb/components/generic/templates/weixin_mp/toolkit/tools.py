@@ -29,7 +29,7 @@ class WEIXINClient(object):
         else:
             return {
                 'result': False,
-                'message': u'weixin official api errcode: %(errcode)s, errmsg: %(errmsg)s' % result,
+                'message': 'weixin official api errcode: %(errcode)s, errmsg: %(errmsg)s' % result,
                 'data': result
             }
 

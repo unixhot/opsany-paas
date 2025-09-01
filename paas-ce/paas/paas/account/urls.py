@@ -7,16 +7,16 @@ http://opensource.org/licenses/MIT
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 """ # noqa
 
-from django.conf.urls import include, url
+from django.urls import include, path
 
 from account import views
 
 urlpatterns = [
-    url(r'^logout/$', views.LogoutView.as_view(), name='logout'),
-    url(r'^profile/$', views.ProfileView.as_view(), name='profile'),
+    path('logout/', views.LogoutView.as_view(), name='logout'),
+    path('profile/', views.ProfileView.as_view(), name='profile'),
 
-    url(r'^user/', include([
-        url(r'^info/$', views.ModifyUserInfoView.as_view(), name='modify_user_info'),
-        url(r'^password/$', views.PasswordChangeView.as_view(), name='change_password'),
+    path('user/', include([
+        path('info/', views.ModifyUserInfoView.as_view(), name='modify_user_info'),
+        path('password/', views.PasswordChangeView.as_view(), name='change_password'),
     ]))
 ]

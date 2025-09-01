@@ -39,7 +39,7 @@ class GetCacheToken(Component):
     ### 返回结果示例
 
     ```python
- 	{
+    {
         "bk_app_code": "esb-test-app",
         "bk_app_secret": "xxx",
         "bk_token": "xxx-xxx-xxx-xxx-xxx",
@@ -91,7 +91,7 @@ class GetCacheToken(Component):
         )
 
         # 对结果进行解析
-	code = response['code']
+        code = response['code']
         if code == 200:
             result = {
                 'code': response['code'],

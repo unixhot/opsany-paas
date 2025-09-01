@@ -30,6 +30,9 @@ def real_load_config():
     """Load config dict by run_version
     """
     # 直接从配置文件中加载config
+    from datetime import datetime
     module_name, config_name = settings.ESB_SITE_ESB_CONF.rsplit('.', 1)
+
+
     config = getattr(import_module(module_name), config_name, None)
     return config

@@ -7,7 +7,7 @@ http://opensource.org/licenses/MIT
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 """ # noqa
 
-from __future__ import unicode_literals
+
 
 import json
 import os
@@ -77,7 +77,7 @@ def validate_and_extract_tar_file(filename, path):
     校验tar.gz文件, 并解压获取app.yml
     """
     def match_func(name):
-        if not isinstance(name, unicode):
+        if not isinstance(name, str):
             name = name.decode("utf-8")
         return name.endswith("app.yml") and len(name.split("/")) == 2
 
@@ -92,7 +92,7 @@ def extract_logo_file(filename, path, saas_app_code):
     app_logo_name = "%s.png" % saas_app_code
 
     def match_func(name):
-        if not isinstance(name, unicode):
+        if not isinstance(name, str):
             name = name.decode("utf-8")
         # support logo file in x/{app_code}.png or x/src/{app_code}.png
         return name.endswith(app_logo_name) and (len(name.split("/")) in (2, 3))

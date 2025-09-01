@@ -145,8 +145,8 @@ class SendWeixin(Component, SetupConfMixin):
     def get_qy_msg_content(self, data):
         new_data = [
             data['heading'],
-            u'Content: %s' % data['message'].decode('utf-8') if isinstance(data['message'], str) else data['message'],
-            u'Date: %s' % data['date'],
+            'Content: %s' % data['message'].decode('utf-8') if isinstance(data['message'], str) else data['message'],
+            'Date: %s' % data['date'],
         ]
         if data.get('remark'):
             new_data.append(data['remark'])
@@ -207,6 +207,6 @@ class SendWeixin(Component, SetupConfMixin):
         if result['result'] and data.get('_extra_user_error_msg'):
             result = {
                 'result': False,
-                'message': u'Some users failed to send wechat message. %s' % data['_extra_user_error_msg']
+                'message': 'Some users failed to send wechat message. %s' % data['_extra_user_error_msg']
             }
         self.response.payload = result

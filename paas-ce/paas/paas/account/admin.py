@@ -7,11 +7,11 @@ http://opensource.org/licenses/MIT
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 """ # noqa
 
-from __future__ import unicode_literals
+
 
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from account.forms import BkUserChangeForm, BkUserCreationForm
 from account.models import Loignlog
@@ -44,6 +44,7 @@ class BkUserAdmin(UserAdmin):
     ordering = ('username',)
 
 
+@admin.register(Loignlog)
 class LoignlogAdmin(admin.ModelAdmin):
     """
     The forms to add and change login log instances.
@@ -57,4 +58,3 @@ class LoignlogAdmin(admin.ModelAdmin):
 
 
 # admin.site.register(BkUser, BkUserAdmin)
-admin.site.register(Loignlog, LoignlogAdmin)

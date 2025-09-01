@@ -11,9 +11,9 @@ All outgoing requests:
 """
 import json
 import time
-import urlparse
+import urllib.parse
 import socket
-from urlparse import urljoin
+from urllib.parse import urljoin
 
 import requests
 from requests.exceptions import ReadTimeout, SSLError
@@ -72,8 +72,8 @@ def encode_dict(d, encoding='utf-8'):
     :param str encoding: 需要转换的目标编码
     """
     result = {}
-    for k, v in d.iteritems():
-        if isinstance(v, unicode):
+    for k, v in d.items():
+        if isinstance(v, str):
             result[k] = v.encode(encoding)
         else:
             result[k] = v
@@ -99,7 +99,7 @@ class BasicHttpClient(object):
         """
         使用一个完整的 url 来替代 host 和 path 参数
         """
-        parsed_url = urlparse.urlparse(url)
+        parsed_url = urllib.parse.urlparse(url)
         host = '%s://%s' % (parsed_url.scheme, parsed_url.netloc)
         return self.request(method, host, parsed_url.path, *args, **kwargs)
 
@@ -188,7 +188,7 @@ class BasicHttpClient(object):
             try:
                 result = self.format_resp(resp_text, response_type=response_type)
             except Exception as e:
-                logger.exception(u'%s resp_text: %s, response_type: %s',
+                logger.exception('%s resp_text: %s, response_type: %s',
                                  bk_error_codes.THIRD_PARTY_RESP_ERROR.code, resp_text, response_type)
                 request_exception = e
 
@@ -274,7 +274,7 @@ class HttpClient(BasicHttpClient):
 
     def prepare_bk_header(self, headers={}):
         if self.component.request:
-            from exdb.bkpaas import AppSecureInfo
+            from .exdb.bkpaas import AppSecureInfo
             app_token = ""
             app_code = str(self.component.sys_name).lower()
             try:
@@ -283,8 +283,8 @@ class HttpClient(BasicHttpClient):
                     app_token_list = app_info.get("secure_key_list", [])
                     if app_token_list:
                         app_token = app_token_list[0]
-            except Exception, e:
-                print "prepare_bk_header_error", str(e)
+            except Exception as e:
+                print("prepare_bk_header_error", str(e))
             bkapi_headers = {
                 'X-Bkapi-Request-Id': self.component.request.request_id,
                 'X-APP-CODE': app_code,
@@ -340,7 +340,7 @@ class HttpClient(BasicHttpClient):
         else:
             response_to_log = r.resp_text
         params = params or data
-        if not isinstance(params, basestring):
+        if not isinstance(params, str):
             params = json.dumps(params)
         datetime_end = timezone.now()
         msecs_cost = (datetime_end - datetime_start).total_seconds() * 1000
@@ -365,8 +365,8 @@ class HttpClient(BasicHttpClient):
             }
             # 添加访问记录
             logger_api.info(json.dumps(api_log))
-        except Exception, e:
-            logger.warning(u'logger api exception: %s' % e)
+        except Exception as e:
+            logger.warning('logger api exception: %s' % e)
 
         # 为了记录这一次请求的api log，延迟抛出异常
         # UPDATE: xx系统xx接口出错,状态码: xx,错误消息:xx
@@ -374,7 +374,7 @@ class HttpClient(BasicHttpClient):
             if isinstance(r.request_exception, SSLError):
                 r.request_exception.cert = cert
                 r.request_exception.SSL_ROOT_DIR = get_ssl_root_dir()
-                logger.error(u'%s request third party SSLError, system_name: %s, ssl_root_dir: %s',
+                logger.error('%s request third party SSLError, system_name: %s, ssl_root_dir: %s',
                              bk_error_codes.REQUEST_SSL_ERROR.code, system_name, r.request_exception.SSL_ROOT_DIR)
                 raise RequestSSLException(
                     r.request_exception,
@@ -393,7 +393,7 @@ class HttpClient(BasicHttpClient):
         """
         使用一个完整的 url 来替代 host 和 path 参数
         """
-        parsed_url = urlparse.urlparse(url)
+        parsed_url = urllib.parse.urlparse(url)
         host = '%s://%s' % (parsed_url.scheme, parsed_url.netloc)
         path = '%s?%s' % (parsed_url.path, parsed_url.query) if parsed_url.query else parsed_url.path
         return self.request(method, host, path, *args, **kwargs)
@@ -442,7 +442,7 @@ class RequestHelperClient(BasicHttpClient):
                 resp = getattr(handler, action)(*args, **kwargs)
             else:
                 resp = handler(*args, **kwargs)
-        except Exception, e:
+        except Exception as e:
             logger.exception('%s error occured when request sys_name: %s, component_name: %s',
                              bk_error_codes.REQUEST_THIRD_PARTY_ERROR.code, system_name, component_name)
             # for SOAPTimeoutError
@@ -461,7 +461,7 @@ class RequestHelperClient(BasicHttpClient):
                 result = resp.get('result')
             else:
                 resp_status_code = 200
-                if isinstance(resp, basestring):
+                if isinstance(resp, str):
                     resp_text = resp
                 else:
                     try:
@@ -476,7 +476,7 @@ class RequestHelperClient(BasicHttpClient):
             response_to_log = resp_text[:RESP_LIMIT_SIZE]
         else:
             response_to_log = resp_text
-        if not isinstance(request_params, basestring):
+        if not isinstance(request_params, str):
             try:
                 request_params = json.dumps(request_params)
             except Exception:
@@ -504,8 +504,8 @@ class RequestHelperClient(BasicHttpClient):
             }
             # 添加访问记录
             logger_api.info(json.dumps(api_log))
-        except Exception, e:
-            logger.warning(u'logger api exception: %s' % e)
+        except Exception as e:
+            logger.warning('logger api exception: %s' % e)
 
         # 为了记录这一次请求的api log，延迟抛出异常
         # UPDATE: xx系统xx接口出错,状态码: xx,错误消息:xx

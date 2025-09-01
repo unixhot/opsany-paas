@@ -63,9 +63,6 @@ PLAYBOOK_ROOT = os.getenv("PLAYBOOK_ROOT", "/srv/playbook/")
 TEST_PING_SCRIPT_PATH = os.path.join(BASE_DIR, "proxy/utils/test_ping_v2.py")
 
 # Saltstack config
-SALTSTACK_API_URL = "https://127.0.0.1:8005"
-SALTSTACK_API_USERNAME = "saltapi"
-SALTSTACK_API_PASSWORD = "OpsAny@2020"
 CONTROL_KEY = os.getenv("CONTROL_KEY", "CONTROL_SECRET_KEY_PROXY")
 FILE_ROOT = os.getenv("FILE_ROOT", "/srv/salt/")
 PILLAR_ROOT = os.getenv("PILLAR_ROOT", "/srv/pillar/")

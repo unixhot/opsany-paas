@@ -7,7 +7,7 @@ http://opensource.org/licenses/MIT
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 """ # noqa
 
-from __future__ import unicode_literals
+
 
 
 from django.db import models, migrations
@@ -55,7 +55,7 @@ class Migration(migrations.Migration):
                 ('mappings_output', models.CharField(default=b'', max_length=1024, blank=True, help_text='JSON\u683c\u5f0f\u6570\u636e', null=True, verbose_name='\u8f93\u51faMappings')),
                 ('last_modified_time', models.DateTimeField(auto_now=True)),
                 ('created_time', models.DateTimeField(auto_now_add=True)),
-                ('system', models.ForeignKey(verbose_name='\u6240\u5c5e\u7cfb\u7edf', blank=True, to='bkcore.ComponentSystem', null=True)),
+                ('system', models.ForeignKey(on_delete=models.CASCADE, verbose_name='\u6240\u5c5e\u7cfb\u7edf', blank=True, to='bkcore.ComponentSystem', null=True)),
             ],
             options={
                 'db_table': 'esb_buffet_component',
@@ -89,7 +89,7 @@ class Migration(migrations.Migration):
                 ('is_active', models.BooleanField(default=True, verbose_name='\u662f\u5426\u5f00\u542f')),
                 ('last_modified_time', models.DateTimeField(auto_now=True, verbose_name='\u6700\u540e\u66f4\u65b0')),
                 ('created_time', models.DateTimeField(auto_now_add=True, verbose_name='\u521b\u5efa\u65f6\u95f4')),
-                ('component_system', models.ForeignKey(verbose_name='\u6240\u5c5e\u7ec4\u4ef6\u7cfb\u7edf', to='bkcore.ComponentSystem', null=True)),
+                ('component_system', models.ForeignKey(on_delete=models.CASCADE, verbose_name='\u6240\u5c5e\u7ec4\u4ef6\u7cfb\u7edf', to='bkcore.ComponentSystem', null=True)),
             ],
             options={
                 'db_table': 'esb_channel',

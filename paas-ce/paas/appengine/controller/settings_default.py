@@ -41,12 +41,12 @@ INSTALLED_APPS = (
     'api',
 )
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    # 'django.middleware.csrf.CsrfViewMiddleware',
+    #'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
+    #'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
@@ -83,7 +83,6 @@ TIME_ZONE = 'Etc/GMT%+d' % ((time.altzone if time.daylight else time.timezone) /
 
 USE_I18N = True
 
-USE_L10N = True
 
 #  USE_TZ = True
 
@@ -91,7 +90,7 @@ APP_URL_REGEX = '[a-z_0-9-]+'
 
 # logging
 
-LOGGER_LEVEL = 'DEBUG'
+LOGGER_LEVEL = 'INFO'
 
 PROJECT_PATH = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT, PROJECT_MODULE_NAME = os.path.split(PROJECT_PATH)
@@ -102,6 +101,10 @@ if not os.path.exists(LOGGING_DIR):
     os.mkdir(LOGGING_DIR)
 
 LOG_CLASS = 'logging.handlers.RotatingFileHandler'
+
+
+
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -119,7 +122,7 @@ LOGGING = {
     'handlers': {
         'null': {
             'level': 'DEBUG',
-            'class': 'django.utils.log.NullHandler',
+            'class': 'logging.NullHandler',
         },
         'mail_admins': {
             'level': 'ERROR', 'class': 'django.utils.log.AdminEmailHandler'
@@ -140,22 +143,22 @@ LOGGING = {
     'loggers': {
         'django': {
             'handlers': ['null'],
-            'level': 'ERROR',
+            'level': 'DEBUG',
             'propagate': True,
         },
         'django.request': {
             'handlers': ['console'],
-            'level': 'ERROR',
+            'level': 'DEBUG',
             'propagate': True,
         },
         'root': {
-            'handlers': ['root'],
+            'handlers': ['root', 'console'],
             'level': LOGGER_LEVEL,
             'propagate': True,
         },
         'django.db.backends': {
             'handlers': ['wb_mysql'],
-            'level': 'ERROR',
+            'level': 'DEBUG',
             'propagate': True,
         },
     }

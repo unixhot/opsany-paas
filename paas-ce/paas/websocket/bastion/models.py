@@ -10,7 +10,6 @@ from bastion.utils.base_model import BaseModel
 app_logging = logging.getLogger("app")
 
 
-
 class UserConfigModel(BaseModel):
     # 1 所有用户授权无均可以使用堡垄机 导入全部用户和用户组
     # 2 仅允许导入的用肩授权后使用堡垒机 导入全部用户和用户组
@@ -1554,7 +1553,7 @@ class HostGroupModel(BaseModel):
         dt["children"] = children
         return dt
 
-    def to_all_host_group_console_dict(self, user_query=None, search_data=None, user=None, host_queryset_v2=None,  group_type="host", host_credential_queryset=None):
+    def to_all_host_group_console_dict(self, user_query=None, search_data=None, user=None, host_queryset_v2=None, group_type="host", host_credential_queryset=None):
         if not host_credential_queryset:
             host_credential_queryset = []
         dt = {
@@ -1572,8 +1571,9 @@ class HostGroupModel(BaseModel):
         # host_credential_queryset = user_query.get_host_credential_queryset_v3()
         host_queryset = self.get_access_host_to_group_console(user_query, search_data, host_credential_queryset)
         if self.children_group.get_queryset():
-            children = [children.to_all_host_group_console_dict(user_query, search_data, user=user, host_queryset_v2=host_queryset_v2, group_type=group_type, host_credential_queryset=host_credential_queryset) for children in
-                        self.children_group.get_queryset()]
+            children = [children.to_all_host_group_console_dict(user_query, search_data, user=user,
+                host_queryset_v2=host_queryset_v2, group_type=group_type,
+                host_credential_queryset=host_credential_queryset) for children in self.children_group.get_queryset()]
             host_queryset.extend(self.get_access_host_to_group_console(user_query, search_data, host_credential_queryset))
         for host_query in list(set(host_queryset)):
             dic = host_query.to_console_dict()
@@ -1611,11 +1611,11 @@ class NetworkProxyModel(BaseModel):
     windows_port = models.IntegerField(default=22, null=True, blank=True, verbose_name="Windows端口")
     windows_timeout = models.IntegerField(default=10, null=True, blank=True, verbose_name="Windows超时时间")
     description = models.TextField(max_length=2000, null=True, blank=True, verbose_name="网路代理描述")
-    
+
     # 1 正常 2 未使用 3 异常 4 未知
     windows_state = models.IntegerField(default=4, null=True, blank=True, verbose_name="Linux代理状态")
     windows_message = models.TextField(null=True, blank=True, verbose_name="Linux信息")
-    
+
     user = models.ForeignKey(UserInfo, on_delete=models.SET_NULL, null=True, verbose_name="创建人")
 
     class Meta:
@@ -1630,7 +1630,7 @@ class NetworkProxyModel(BaseModel):
             "credential_type": self.credential_type
         }
         return dic
-    
+
     def to_check_ping(self, ping_type="all"):
         dic = {
             "id": self.id,
@@ -1646,7 +1646,7 @@ class NetworkProxyModel(BaseModel):
             "ping_type": ping_type,
         }
         return dic
-    
+
     def to_dict(self):
         dic = {
             "id": self.id,
@@ -1757,7 +1757,7 @@ class HostModel(BaseModel):
         db_table = "host"
         verbose_name = "主机资源"
         verbose_name_plural = verbose_name
-        
+
         indexes = [
             models.Index(fields=['host_name_code']),
             models.Index(fields=['host_name']),
@@ -2175,7 +2175,7 @@ class CommandLogModel(BaseModel):
         ordering = [
             ('-create_time')
         ]
-        
+
         indexes = [
             models.Index(fields=['command']),
             models.Index(fields=['block_type']),
@@ -2252,7 +2252,7 @@ class SessionLogInfoModel(BaseModel):
 
     class Meta:
         db_table = "session_log_info"
-        
+
         indexes = [
             models.Index(fields=['log_name']),
         ]

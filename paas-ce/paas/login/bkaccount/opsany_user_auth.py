@@ -39,7 +39,10 @@ class OpsAnyRbacUserAuth(object):
             "auth_type": self.auth_type,
         }
         res = requests.post(url, json=req, headers={"Cookie": "bk_token=None"}, verify=False)
-        data = res.json().get("data")
+        try:
+            data = res.json().get("data")
+        except Exception as e:
+            return False, {"message": "Link Error."}
         if data:
             return data.get("auth_status"), data
         return False, {"message": "Auth Error."}
@@ -55,7 +58,10 @@ class OpsAnyRbacUserAuth(object):
         }
         url = self.BK_URL + API
         response = requests.get(url, params=req, headers={"Cookie": "bk_token=None"}, verify=False)
-        end_data = json.loads(response.text)
+        try:
+            end_data = json.loads(response.text)
+        except Exception as e:
+            return 6
         if end_data.get("result"):
             end_data = end_data.get("data")
             return end_data
@@ -76,7 +82,10 @@ class OpsAnyRbacUserAuth(object):
         }
         url = self.BK_URL + API
         response = requests.get(url, params=req, headers={"Cookie": "bk_token={}".format(bk_token)}, timeout=3, verify=False)
-        end_data = json.loads(response.text)
+        try:
+            end_data = json.loads(response.text)
+        except Exception as e:
+            return "Failed" 
         if end_data.get("result"):
             end_data = end_data.get("data")
             return end_data
@@ -92,7 +101,10 @@ class OpsAnyRbacUserAuth(object):
         }
         URL = self.BK_URL + API
         response = requests.get(url=URL, params=req, headers={"Cookie": "bk_token=None"}, verify=False)
-        end_data = json.loads(response.text)
+        try:
+            end_data = json.loads(response.text)
+        except Exception as e:
+            return {}
         dt = {}
         if end_data.get("result"):
             end_data = end_data.get("data", {})
@@ -145,7 +157,12 @@ class OpsAnyRbacUserAuth(object):
         }
         url = self.BK_URL + API
         response = requests.post(url, data=json.dumps(req), headers={"Cookie": "bk_token=None"}, verify=False)
-        end_data = json.loads(response.text)
+        print("responseresponseresponse", response.content.decode())
+
+        if 1:
+            end_data = json.loads(response.text)
+        #except Exception as e:
+        #    return False, "Failed"
         if end_data.get("result"):
             end_data = end_data.get("data")
             return True, end_data
@@ -162,7 +179,10 @@ class OpsAnyRbacUserAuth(object):
         }
         url = self.BK_URL + API
         response = requests.post(url, data=json.dumps(req), headers={"Cookie": "bk_token=None"}, verify=False)
-        end_data = json.loads(response.text)
+        try:
+            end_data = json.loads(response.text)
+        except Exception as e:
+            return True, []
         if end_data.get("result"):
             end_data = end_data.get("data")
             return True, end_data

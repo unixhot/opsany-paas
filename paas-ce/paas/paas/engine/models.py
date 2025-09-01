@@ -7,7 +7,7 @@ http://opensource.org/licenses/MIT
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 """ # noqa
 
-from __future__ import unicode_literals
+
 
 import json
 import uuid
@@ -86,18 +86,18 @@ class BkAppToken(models.Model):
 
 
 class BkServer(models.Model):
-    name = models.CharField(u'名称', max_length=20)
-    s_id = models.UUIDField(u'服务ID', default=uuid.uuid4, editable=False)
+    name = models.CharField('名称', max_length=20)
+    s_id = models.UUIDField('服务ID', default=uuid.uuid4, editable=False)
     token = models.UUIDField(default=uuid.uuid4, editable=False)
-    ip_address = models.CharField(u'IP地址', max_length=36)
-    ip_port = models.CharField(u'Agent端口', max_length=36, default='4245')
-    app_port = models.CharField(u'App端口', max_length=36, default='8085')
-    category = models.CharField(u'分类', max_length=36, choices=SERVER_CATEGORY_CHOICES,
+    ip_address = models.CharField('IP地址', max_length=36)
+    ip_port = models.CharField('Agent端口', max_length=36, default='4245')
+    app_port = models.CharField('App端口', max_length=36, default='8085')
+    category = models.CharField('分类', max_length=36, choices=SERVER_CATEGORY_CHOICES,
                                 default=ServerCategoryEnum.TEST.value)
-    info = models.CharField(u'备注', max_length=200)
-    is_active = models.BooleanField(u'启用', default=False)
+    info = models.CharField('备注', max_length=200)
+    is_active = models.BooleanField('启用', default=False)
     apps = models.ManyToManyField(BkApp, blank=True, through='BkHostingShip')
-    mac = models.CharField(u'MAC地址', max_length=36, default='')
+    mac = models.CharField('MAC地址', max_length=36, default='')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -111,11 +111,11 @@ class BkServer(models.Model):
 
 
 class ThirdServer(models.Model):
-    category = models.CharField(u'分类', max_length=36, choices=THIRD_SERVER_CATEGORY_CHOICES,
+    category = models.CharField('分类', max_length=36, choices=THIRD_SERVER_CATEGORY_CHOICES,
                                 default=ExternalServerCategoryEnum.MQ.value)
     server_info = models.TextField("服务器信息")
-    info = models.CharField(u'备注', max_length=200)
-    is_active = models.BooleanField(u'启用', default=False)
+    info = models.CharField('备注', max_length=200)
+    is_active = models.BooleanField('启用', default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -156,8 +156,8 @@ class ThirdServer(models.Model):
 
 class BkHostingShip(models.Model):
 
-    bk_app = models.ForeignKey(BkApp)
-    bk_server = models.ForeignKey(BkServer)
+    bk_app = models.ForeignKey(BkApp, on_delete=models.CASCADE)
+    bk_server = models.ForeignKey(BkServer, on_delete=models.CASCADE)
     is_active = models.BooleanField(default=True)
     is_master = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -174,7 +174,7 @@ class BkHostingShip(models.Model):
 
 class BkAppEnv(models.Model):
 
-    bk_app = models.ForeignKey(BkApp)
+    bk_app = models.ForeignKey(BkApp, on_delete=models.CASCADE)
     mode = models.CharField(max_length=200)
     key = models.CharField(max_length=200)
     value = models.CharField(max_length=200)
@@ -190,7 +190,7 @@ class BkAppEnv(models.Model):
 class BkAppEvent(models.Model):
 
     id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True)
-    bk_app = models.ForeignKey(BkApp)
+    bk_app = models.ForeignKey(BkApp, on_delete=models.CASCADE)
     event_type = models.CharField(max_length=200)
     status = models.CharField(max_length=200)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -211,7 +211,7 @@ class BkAppEvent(models.Model):
 
 class BkAppEventLog(models.Model):
 
-    bk_app_event = models.ForeignKey(BkAppEvent)
+    bk_app_event = models.ForeignKey(BkAppEvent, on_delete=models.CASCADE)
     log = models.TextField()
 
     created_at = models.DateTimeField(auto_now_add=True)

@@ -6,7 +6,7 @@ Licensed under the MIT License (the "License"); you may not use this file except
 http://opensource.org/licenses/MIT
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 """ # noqa
-from __future__ import unicode_literals
+
 
 from django.conf import settings
 from django.utils import translation
@@ -15,9 +15,10 @@ from django.contrib.auth.models import AnonymousUser
 
 from bk_i18n.constants import BK_LANG_TO_DJANGO_LANG
 from bkaccount.accounts import Account
+from django.utils.deprecation import MiddlewareMixin
 
 
-class LoginMiddleware(object):
+class LoginMiddleware(MiddlewareMixin):
     def process_request(self, request):
         """设置user
         """
@@ -35,7 +36,10 @@ class LoginMiddleware(object):
             # 设置timezone session
             request.session[settings.TIMEZONE_SESSION_KEY] = user.time_zone
             # 设置language session
-            request.session[translation.LANGUAGE_SESSION_KEY] = BK_LANG_TO_DJANGO_LANG[user.language]
+            language = user.language
+            if language == "zh-cn":
+                language = "zh-hans"
+            request.session[settings.LANGUAGE_SESSION_KEY] = BK_LANG_TO_DJANGO_LANG[language]
 
         request.user = user or AnonymousUser()
 
@@ -53,7 +57,7 @@ class LoginMiddleware(object):
         if getattr(view, 'login_exempt', False):
             return None
 
-        if request.user.is_authenticated():
+        if request.user.is_authenticated:
             return None
 
         account = Account()

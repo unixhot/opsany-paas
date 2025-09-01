@@ -25,11 +25,11 @@ class GetLinkInst(Component):
     | 字段    | 类型     | 必选   | 描述       |
     | ----- | ------ | ---- | -------- |
     | model_code | str | 否   | 模型code |
-	| model_code_name | str | 是 | 模型名称 |
-	| field_code | str | 是    | 模型字段 |
-	| search | str | 是   | 搜索 |  
-	| current | int | 否    | 当前页 |
-	| pageSize | int | 否    | 每页数量 |
+    | model_code_name | str | 是 | 模型名称 |
+    | field_code | str | 是    | 模型字段 |
+    | search | str | 是   | 搜索 |
+    | current | int | 否    | 当前页 |
+    | pageSize | int | 否    | 每页数量 |
     | search_type | str | 否   | 筛选字段 |
     | search_data | str | 否   | 筛选数据 |
 
@@ -79,7 +79,7 @@ class GetLinkInst(Component):
             host=configs.host,
             path='{}get-link-inst/'.format(base_api_url),
             params=params,
-            headers=self.request.wsgi_request.g.headers
+            headers=self.request.wsgi_request.g.headers if hasattr(self.request.wsgi_request, "g") else self.request.wsgi_request.headers
         )
 
 

@@ -20,9 +20,7 @@ except Exception:
 PROJECT_PATH = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT, PROJECT_MODULE_NAME = os.path.split(PROJECT_PATH)
 BASE_DIR = os.path.dirname(os.path.dirname(PROJECT_PATH))
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/1.8/howto/deployment/checklist/
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'o7(025idh*fj@)ohujum-ilfxl^n=@d&$xz!_$$7s$8jopd5r#'
@@ -42,17 +40,18 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'rest_framework_simplejwt',
     'bkaccount',
     'bk_i18n',
 )
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
@@ -61,6 +60,29 @@ MIDDLEWARE_CLASSES = (
     'bk_i18n.middlewares.ApiLanguageMiddleware',
     'bk_i18n.middlewares.TimezoneMiddleware',
 )
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ],
+}
+
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ROTATE_REFRESH_TOKENS': False,
+    'BLACKLIST_AFTER_ROTATION': True,
+    'ALGORITHM': 'HS256',
+    'SIGNING_KEY': SECRET_KEY,
+    'VERIFYING_KEY': None,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'USER_ID_FIELD': 'id',
+    'USER_ID_CLAIM': 'user_id',
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
+    'TOKEN_TYPE_CLAIM': 'token_type',
+}
 
 ROOT_URLCONF = 'urls'
 
@@ -71,11 +93,11 @@ MAKO_TEMPLATE_MODULE_DIR = os.path.join(PROJECT_ROOT, 'templates_module')
 
 TEMPLATE_CONTEXT_PROCESSORS = (
     'django.template.context_processors.debug',
-    'django.core.context_processors.request',
+    'django.template.context_processors.request',
     'django.contrib.auth.context_processors.auth',
-    'django.core.context_processors.csrf',
+    'django.template.context_processors.csrf',
     'common.context_processors.site_settings',
-    'django.core.context_processors.i18n',
+    'django.template.context_processors.i18n',
     'django.contrib.messages.context_processors.messages',
 )
 
@@ -95,7 +117,6 @@ TEMPLATES = [
 ]
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/1.8/howto/static-files/
 SITE_URL = '/login/'
 
 IMG_URL = '/uploads/login/'
@@ -119,7 +140,7 @@ CSRF_FAILURE_VIEW = 'bkaccount.views.csrf_failure'
 ##################
 # Login Config   #
 ##################
-# 蓝鲸登录方式：bk_login，自定义登录方式：custom_login
+# 登录方式：bk_login，自定义登录方式：custom_login
 LOGIN_TYPE = 'bk_login'
 CUSTOM_LOGIN_VIEW = ''
 CUSTOM_AUTHENTICATION_BACKEND = ''
@@ -129,7 +150,7 @@ try:
     LOGIN_TYPE = getattr(custom_conf_module, 'LOGIN_TYPE', 'bk_login')
     CUSTOM_LOGIN_VIEW = getattr(custom_conf_module, 'CUSTOM_LOGIN_VIEW', '')
     CUSTOM_AUTHENTICATION_BACKEND = getattr(custom_conf_module, 'CUSTOM_AUTHENTICATION_BACKEND', '')
-except ImportError, e:
+except ImportError as e:
     LOGIN_TYPE = 'bk_login'
 ##################
 # AUTHENTICATION #
@@ -145,19 +166,21 @@ LOGIN_COMPLETE_URL = SimpleLazyObject(lambda: "%s://%s%s" % (
     getattr(getattr(sys.modules['django.conf'], 'settings'), 'SITE_URL')))
 
 AUTH_USER_MODEL = 'bkaccount.BkUser'
+# 添加 JWT 认证后端
+JWT_AUTHENTICATION_BACKEND = 'bkaccount.backends.JWTAuthenticationBackend'
 
 AUTHENTICATION_BACKENDS_DICT = {
     'bk_login': ('bkaccount.backends.BkBackend', 'django.contrib.auth.backends.ModelBackend'),
     'custom_login': ('bkaccount.backends.BkBackend', CUSTOM_AUTHENTICATION_BACKEND),
+    'jwt_login': (JWT_AUTHENTICATION_BACKEND, 'django.contrib.auth.backends.ModelBackend'),
 }
 
 AUTHENTICATION_BACKENDS = AUTHENTICATION_BACKENDS_DICT.get(
-    LOGIN_TYPE, ('bkaccount.backends.BkBackend', 'django.contrib.auth.backends.ModelBackend'))
+    LOGIN_TYPE, (JWT_AUTHENTICATION_BACKEND, 'bkaccount.backends.BkBackend', 'django.contrib.auth.backends.ModelBackend'))
 
 WSGI_APPLICATION = 'wsgi.application'
 
 # Database
-# https://docs.djangoproject.com/en/1.8/ref/settings/#databases
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -166,24 +189,23 @@ DATABASES = {
 }
 
 # Internationalization
-# https://docs.djangoproject.com/en/1.8/topics/i18n/
 # TIME_ZONE = 'Etc/GMT%+d' % ((time.altzone if time.daylight else time.timezone) / 3600)
 USE_I18N = True
 USE_L10N = True
 
 # timezone
 # Default time zone for localization in the UI.
-# http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 TIME_ZONE = 'Asia/Shanghai'
 USE_TZ = True
 TIMEZONE_SESSION_KEY = 'django_timezone'
+LANGUAGE_SESSION_KEY = '_language'
 
 # language
 # 避免循环引用
 _ = lambda s: s  # noqa
 LANGUAGES = (
-    ('en', _(u'English')),
-    ('zh-hans', _(u'简体中文')),
+    ('en', _('English')),
+    ('zh-hans', _('简体中文')),
 )
 LANGUAGE_CODE = 'zh-hans'
 LANGUAGE_COOKIE_DOMAIN = SimpleLazyObject(lambda: getattr(getattr(sys.modules['django.conf'], 'settings'),
@@ -238,7 +260,7 @@ LOGGING = {
     'handlers': {
         'null': {
             'level': 'DEBUG',
-            'class': 'django.utils.log.NullHandler',
+            'class': 'logging.NullHandler',
         },
         'mail_admins': {
             'level': 'ERROR', 'class': 'django.utils.log.AdminEmailHandler'
@@ -270,7 +292,7 @@ LOGGING = {
         },
         'django.request': {
             'handlers': ['console'],
-            'level': 'ERROR',
+            'level': 'DEBUG',
             'propagate': True,
         },
         'root': {

@@ -31,9 +31,9 @@ class MonitorToScreenApi(Component):
     ### 请求参数示例
 
     ```python
-    {
-        "bk_app_code": "esb-test-app",
-        "bk_app_secret": "xxx",
+    {  # tab与4空格
+    	"bk_app_code": "esb-test-app",  # 一个tab
+    		"bk_app_secret": "xxx",  # 2个tab
         "bk_token": "xxx-xxx-xxx-xxx-xxx",
         "username":  xx,
         "api":  xx,

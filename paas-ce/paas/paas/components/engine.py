@@ -7,7 +7,7 @@ http://opensource.org/licenses/MIT
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 """ # noqa
 
-from __future__ import unicode_literals
+
 
 from django.conf import settings
 
@@ -41,7 +41,7 @@ def _call_appengine_api(http_func, url, data, headers=None, timeout=None,
     # process result
     if not ok:
         message = "调用appengine api失败: method={} info={}".format(
-            http_func.func_name, kwargs
+            http_func.__name__, kwargs
         )
         logger.error(message)
         return False, message, None
@@ -236,5 +236,6 @@ def activate_service(category, server_id):
     }
     ok, message, _ = _call_appengine_api(http_put, url, data={}, headers=headers, timeout=10,
                                          caller='check_services_status', max_retry_count=1)
-
+    print("1111111111111111", url)
+    print("1111111111111111", ok, message, _)
     return ok, message

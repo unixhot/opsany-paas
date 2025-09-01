@@ -48,16 +48,16 @@ class SendMultiSms(Component, SetupConfMixin):
     def handle(self):
         sdk_app_id = self.request.kwargs.get('sdk_app_id')
         app_key = self.request.kwargs.get('app_key')
-        print 'qcloud_sms', sdk_app_id, app_key
+        print('qcloud_sms', sdk_app_id, app_key)
         client = tools.QCloudSmsClient(self.outgoing.http_client)
         rnd = client.get_random()
         cur_time = client.get_cur_time()
         self.form_data['time'] = cur_time
         self.form_data['sig'] = client.calculate_sig(app_key, rnd, cur_time, self.request.kwargs['phone_numbers'])
-        print 'self.form_data', self.form_data
+        print('self.form_data', self.form_data)
         result = client.post(
             '/v5/tlssmssvr/sendmultisms2?sdkappid=%s&random=%s' % (sdk_app_id, rnd),
             data=self.form_data,
         )
-        print '/v5/tlssmssvr/sendmultisms2?sdkappid=%s&random=%s' % (sdk_app_id, rnd)
+        print('/v5/tlssmssvr/sendmultisms2?sdkappid=%s&random=%s' % (sdk_app_id, rnd))
         self.response.payload = result

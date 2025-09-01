@@ -5,7 +5,7 @@ from django.conf import settings
 try:
     from django.urls import reverse
 except Exception:
-    from django.core.urlresolvers import reverse
+    from django.urls import reverse
 
 from blueapps.account.utils.http import build_redirect_url
 from blueapps.core.exceptions import RioVerifyError, BkJwtVerifyError

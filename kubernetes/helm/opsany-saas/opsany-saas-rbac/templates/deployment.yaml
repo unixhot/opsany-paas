@@ -29,6 +29,7 @@ spec:
       initContainers: 
         - name: migrate
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           command: ["python", "/opt/opsany/rbac/manage.py","migrate"] 
           env:  # 添加环境变量
             - name: BK_ENV

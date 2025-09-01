@@ -94,7 +94,7 @@ class EditApp(Component):
                 'life_cycle': 'LifeCycle',
             }
             params = {}
-            for bk_key, cc_key in to_cc_key_map.iteritems():
+            for bk_key, cc_key in to_cc_key_map.items():
                 if data.get(bk_key) is not None:
                     if bk_key in ['maintainers', 'product_pm', 'developer', 'tester', 'operator']:
                         params[cc_key] = ','.join(cleaned_data[bk_key])

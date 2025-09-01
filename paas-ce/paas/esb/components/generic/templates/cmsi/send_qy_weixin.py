@@ -62,7 +62,7 @@ class SendQyWeixin(Component, SetupConfMixin):
 
     class Form(BaseComponentForm):
         receiver = ListField(label='wechat receiver', required=True)
-        content = forms.CharField(label=u'message content', required=True)
+        content = forms.CharField(label='message content', required=True)
 
         def clean(self):
             return {

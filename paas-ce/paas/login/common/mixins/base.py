@@ -7,9 +7,9 @@ http://opensource.org/licenses/MIT
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 """ # noqa
 
-from __future__ import unicode_literals
 
-from django.utils.translation import ugettext as _
+
+from django.utils.translation import gettext as _
 
 from common.responses import FailJsonResponse
 
@@ -28,7 +28,7 @@ class SuperuserRequiredMixin(AccessMixin):
     """
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_superuser:
-            return FailJsonResponse(_(u"非管理员, 没有权限进行操作, 请找管理员申请权限!"))
+            return FailJsonResponse(_("非管理员, 没有权限进行操作, 请找管理员申请权限!"))
         return super(SuperuserRequiredMixin, self).dispatch(request, *args, **kwargs)
 
 
@@ -42,5 +42,5 @@ class SuperuserOrPutOwnerRequiredMixin(AccessMixin):
         user_id = kwargs.get('user_id')
         is_put_owner = request.method == "PUT" and user_id is not None and request.user.id == int(user_id)
         if not request.user.is_superuser and not is_put_owner:
-            return FailJsonResponse(_(u"非管理员, 没有权限进行操作, 请找管理员申请权限!"))
+            return FailJsonResponse(_("非管理员, 没有权限进行操作, 请找管理员申请权限!"))
         return super(SuperuserOrPutOwnerRequiredMixin, self).dispatch(request, *args, **kwargs)

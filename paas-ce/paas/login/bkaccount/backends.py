@@ -6,11 +6,11 @@ Licensed under the MIT License (the "License"); you may not use this file except
 http://opensource.org/licenses/MIT
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 """ # noqa
-from __future__ import unicode_literals
+
 
 from django.contrib.auth.backends import ModelBackend
 from django.contrib.auth import get_user_model
-
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from bkaccount.accounts import Account
 
 
@@ -31,3 +31,15 @@ class BkBackend(ModelBackend):
         except user_model.DoesNotExist:
             user = None
         return user
+
+
+class JWTAuthenticationBackend(JWTAuthentication):
+    def authenticate(self, request):
+        try:
+            user_auth_tuple = super().authenticate(request)
+            if user_auth_tuple is not None:
+                user, auth = user_auth_tuple
+                request.user = user
+            return user_auth_tuple
+        except Exception:
+            return None

@@ -8,6 +8,8 @@ OpsAny-PaaS是基于腾讯开源[bk-PaaS](https://github.com/Tencent/bk-PaaS) �
 
 我们在bk-PaaS的基础上做了以下修改和变更：
 
+- 升级Python2到Python 3.12。
+- 升级Django1.8到Django 4.2.16。
 - 修改了appengine的saas应用上传和部署逻辑，支持指定SAAS的Secret Key，不使用白名单机制。
 - 修改了login部分逻辑，用于和统一权限配合，增加MFA，移动端适配等。
 - 修改了paasagent的agent代码，增加了配置参数，修改了默认的SAAS配置文件。

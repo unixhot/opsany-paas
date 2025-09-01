@@ -6,8 +6,8 @@ Licensed under the MIT License (the "License"); you may not use this file except
 http://opensource.org/licenses/MIT
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 """ # noqa
-from __future__ import unicode_literals
-import urlparse
+
+import urllib.parse
 
 from django.contrib.auth import authenticate
 
@@ -47,7 +47,7 @@ def login(request):
     # oauth2.0 特有处理逻辑，防止csrf攻击
     # 处理state参数
     state = request.GET.get('state', '')
-    state_dict = dict(urlparse.parse_qsl(state))
+    state_dict = dict(urllib.parse.parse_qsl(state))
     app_id = state_dict.get('app_id')
     redirect_to = state_dict.get(account.REDIRECT_FIELD_NAME, '')
     state_from_session = request.session.get('state')

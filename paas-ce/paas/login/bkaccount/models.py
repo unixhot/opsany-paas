@@ -6,14 +6,14 @@ Licensed under the MIT License (the "License"); you may not use this file except
 http://opensource.org/licenses/MIT
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 """ # noqa
-from __future__ import unicode_literals
+
 
 from django.conf import settings
 from django.contrib.auth.models import (AbstractBaseUser, PermissionsMixin)
 from django.db import models
 from django.utils import timezone
-from django.utils.http import urlquote
-from django.utils.translation import ugettext_lazy as _
+from urllib.parse import quote
+from django.utils.translation import gettext_lazy as _
 
 from bkaccount.manager import (BkUserManager, LoginLogManager)
 from bkaccount.constants import (ROLECODE_CHOICES, RoleCodeEnum, LANGUAGE_CHOICES, TIME_ZONE_CHOICES)
@@ -100,7 +100,7 @@ class BkUser(AbstractBaseUser, PermissionsMixin):
         return ''
 
     def get_absolute_url(self):
-        return "/users/%s/" % urlquote(self.email)
+        return "/users/%s/" % quote(self.email)
 
     def get_full_name(self):
         """
@@ -120,8 +120,8 @@ class BkUserRole(models.Model):
     """
     用户角色多对多表
     """
-    user = models.ForeignKey(BkUser)
-    role = models.ForeignKey(BkRole)
+    user = models.ForeignKey(BkUser, on_delete=models.CASCADE)
+    role = models.ForeignKey(BkRole, on_delete=models.CASCADE)
     create_time = models.DateTimeField(_('create_time'), default=timezone.now)
 
     def __unicode__(self):
@@ -138,7 +138,7 @@ class Loignlog(models.Model):
     User login log
     """
 
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, verbose_name="用户")
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="用户")
     login_time = models.DateTimeField("登录时间")
     login_browser = models.CharField("登录浏览器", max_length=200, blank=True, null=True)
     login_ip = models.CharField("用户登录ip", max_length=50, blank=True, null=True)
@@ -179,7 +179,7 @@ class UserInfo(models.Model):
     """
     用户信息
     """
-    user = models.OneToOneField(BkUser)
+    user = models.OneToOneField(BkUser, on_delete=models.CASCADE)
     wx_userid = models.CharField("企业号用户USERID/公众号用户OPENID", max_length=64, blank=True, null=True)
     bind_time = models.DateTimeField("微信绑定时间", default=timezone.now, blank=True, null=True)
     language = models.CharField("语言", max_length=32, choices=LANGUAGE_CHOICES, blank=True, null=True)

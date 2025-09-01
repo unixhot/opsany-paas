@@ -7,7 +7,7 @@ http://opensource.org/licenses/MIT
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 """ # noqa
 from django.views.generic import View
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from esb.common.django_utils import JsonResponse
 from esb.bkcore.models import ComponentSystem, ESBChannel, ESBBuffetComponent
@@ -42,5 +42,5 @@ class AddSystemView(View):
             data['display_name'] = form.instance.get_display_name()
             return JsonResponse({'result': True, 'data': data})
 
-        error_message = ';'.join([','.join([_(err) for err in field_error]) for field_error in form.errors.values()])
+        error_message = ';'.join([','.join([_(err) for err in field_error]) for field_error in list(form.errors.values())])
         return JsonResponse({'result': False, 'error_message': error_message})

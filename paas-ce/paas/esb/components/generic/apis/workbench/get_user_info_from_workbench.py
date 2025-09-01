@@ -45,7 +45,7 @@ class GetUserInfoFromWorkbench(Component):
 
     # Form处理参数校验
     class Form(BaseComponentForm):
-    	pass
+        pass
 
         # clean方法返回的数据可通过组件的form_data属性获取
         def clean(self):
@@ -64,7 +64,7 @@ class GetUserInfoFromWorkbench(Component):
             host=configs.host,
             path='{}user-info/'.format(base_api_url),
             params=params,
-            headers=self.request.wsgi_request.g.headers
+            headers=self.request.wsgi_request.g.headers if hasattr(self.request.wsgi_request, "g") else self.request.wsgi_request.headers
         )
 
         # 对结果进行解析

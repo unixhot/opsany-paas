@@ -86,8 +86,8 @@ class GetHostList(Component):
 
     # Form处理参数校验
     class Form(BaseComponentForm):
-        bk_biz_id = forms.CharField(label=u'业务ID', required=True)
-        ip_list = TypeCheckField(label=u'主机IP地址', promise_type=list, required=False)
+        bk_biz_id = forms.CharField(label='业务ID', required=True)
+        ip_list = TypeCheckField(label='主机IP地址', promise_type=list, required=False)
 
         # clean方法返回的数据可通过组件的form_data属性获取
         def clean(self):

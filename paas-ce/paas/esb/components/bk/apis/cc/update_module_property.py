@@ -87,7 +87,7 @@ class UpdateModuleProperty(Component):
                 'BakOperator': data.get('bak_operator'),
                 'ModuleType': data.get('module_type')
             }
-            return {key: val for key, val in ret_data.iteritems() if val or val == 0}
+            return {key: val for key, val in ret_data.items() if val or val == 0}
 
     def handle(self):
         client = tools.CCClient(self)

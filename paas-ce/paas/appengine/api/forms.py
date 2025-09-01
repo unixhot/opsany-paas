@@ -10,7 +10,7 @@ from django import forms
 
 
 class AgentRegisterForm(forms.Form):
-    agent_ip = forms.IPAddressField(required=True)
+    agent_ip = forms.GenericIPAddressField(required=True)
     agent_port = forms.IntegerField(min_value=80)
     mode = forms.ChoiceField(choices=(("test", "test"), ("prod", "prod")))
     web_port = forms.IntegerField(min_value=80)
@@ -29,8 +29,8 @@ class AppEventLogsForm(forms.Form):
 
 
 class ServiceServerRegisterForm(forms.Form):
-    server_ip = forms.IPAddressField(required=True)
+    server_ip = forms.GenericIPAddressField(required=True)
 
 
 class AgentServerRegisterForm(forms.Form):
-    agent_ip = forms.IPAddressField(required=True)
+    agent_ip = forms.GenericIPAddressField(required=True)

@@ -9,7 +9,7 @@ Unless required by applicable law or agreed to in writing, software distributed 
 from django.shortcuts import render
 from django.views.generic import View
 from django.http import HttpResponseRedirect
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.conf import settings
 
 from esb.bkcore.models import ESBBuffetComponent, ESBBuffetMapping

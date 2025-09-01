@@ -41,11 +41,11 @@ class ConfClient(object):
     def channels(self):
         all_channels = self.default_channels
 
-        for system_name, system_channels in self.custom_channels.iteritems():
+        for system_name, system_channels in self.custom_channels.items():
             all_channels.setdefault(system_name, [])
             all_channels[system_name].extend(system_channels)
 
-        for system_name, system_channels in self.confapis_channels.iteritems():
+        for system_name, system_channels in self.confapis_channels.items():
             all_channels.setdefault(system_name, [])
             all_channels[system_name].extend(system_channels)
 
@@ -61,7 +61,7 @@ class ConfClient(object):
 
     @property
     def default_systems(self):
-        return BK_SYSTEMS.values() + getattr(x_constants, 'SYSTEMS', [])
+        return list(BK_SYSTEMS.values()) + getattr(x_constants, 'SYSTEMS', [])
 
     @property
     def default_channels(self):
@@ -101,7 +101,7 @@ class ConfClient(object):
         """
         channels = []
         channel_groups = config.ESB_CONFIG['config']['channel_groups']
-        for channel_group_conf in channel_groups.values():
+        for channel_group_conf in list(channel_groups.values()):
             channels.extend(channel_group_conf['preset_channels'])
         return channels
 
@@ -171,7 +171,7 @@ class ConfClient(object):
                 channel_client = ChannelClient(path, value)
                 api_info = channel_client.get_info()
             except Exception as ex:
-                error_msg = u'%s get api data fail, Exception: %s' % (value['comp_codename'], ex)
+                error_msg = '%s get api data fail, Exception: %s' % (value['comp_codename'], ex)
                 logger.error(error_msg.encode('utf-8'))
                 continue
 

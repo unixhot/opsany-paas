@@ -7,7 +7,7 @@ http://opensource.org/licenses/MIT
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 """ # noqa
 
-from __future__ import unicode_literals
+
 
 import json
 
@@ -35,7 +35,7 @@ class Record(models.Model):
     is_version = models.BooleanField("显示新特性", default=False, help_text="是否在新应用应用打开时显示该版本更新特性")
     version = models.CharField("版本号", max_length=50, blank=True, null=True, help_text="需要显示的版本号信息")
     message = models.TextField("操作返回信息", blank=True, null=True, help_text="执行提测或上线操作后脚本的返回信息")
-    event_id = models.CharField(u'Event_id', max_length=36, blank=True, null=True, db_index=True)
+    event_id = models.CharField('Event_id', max_length=36, blank=True, null=True, db_index=True)
     # 后台任务执行额外输出
     extra_data = models.TextField("额外执行结果数据", blank=True, null=True, help_text="json串存储")
 
@@ -67,7 +67,7 @@ class Version(models.Model):
     """
     存储app版本信息
     """
-    app = models.ForeignKey(App, verbose_name="应用")
+    app = models.ForeignKey(App, on_delete=models.CASCADE, verbose_name="应用")
     version = models.CharField("app版本号", max_length=30, help_text="格式：x.x.x，只允许包含数字")
     code_addr = models.CharField("拉取的代码地址", max_length=200, blank=True, null=True)
     publisher = models.CharField("版本发布者", max_length=30)
@@ -97,7 +97,7 @@ class VersionDetail(models.Model):
     """
     features = models.TextField("更新特性", help_text="记录该版本特性信息", blank=True, null=True, default=None)
     bug = models.TextField("修复bug", help_text="记录修复的bug信息", blank=True, null=True, default=None)
-    app_version = models.ForeignKey(Version)
+    app_version = models.ForeignKey(Version, on_delete=models.CASCADE)
 
     def __unicode__(self):
         return self.features

@@ -36,4 +36,3 @@ if AUTH_USER_MODEL == settings.AUTH_USER_MODEL:
     from django.contrib import auth
     auth.get_user_model = get_user_model
 
-default_app_config = 'blueapps.account.apps.AccountConfig'

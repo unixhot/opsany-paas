@@ -73,7 +73,7 @@ class PostAliInstInfo(Component):
 
     # Form处理参数校验
     class Form(BaseComponentForm):
-        region_list = forms.Field(label=u'region_list', required=False)
+        region_list = forms.Field(label='region_list', required=False)
 
         # clean方法返回的数据可通过组件的form_data属性获取
         def clean(self):

@@ -7,9 +7,9 @@ http://opensource.org/licenses/MIT
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 """ # noqa
 
-from __future__ import unicode_literals
 
-from django.conf.urls import include, url
+
+from django.urls import include, path, re_path
 
 from app import views
 from app_env import views as app_env_views
@@ -17,40 +17,40 @@ from common.constants import SAAS_CODE_REGEX
 
 urlpatterns = [
     # 创建应用 and create error
-    url(r'^$', views.CreateAppView.as_view()),
-    url(r'^error/$', views.CreateAppView.as_view()),
+    path('', views.CreateAppView.as_view()),
+    path('error/', views.CreateAppView.as_view()),
 
     # 应用列表
-    url(r'^list/', include([
-        url(r'^$', views.AppListPageView.as_view(), name="app_list"),
-        url(r'^query/$', views.AppListView.as_view()),
+    path('list/', include([
+        path('', views.AppListPageView.as_view(), name="app_list"),
+        path('query/', views.AppListView.as_view()),
     ])),
 
     # 校验
-    url(r'^check/', include([
-        url(r'^app_code/$', views.CheckAppCodeView.as_view(), name='check_app_code'),
-        url(r'^app_name/$', views.CheckAppNameView.as_view(), name='check_app_name'),
+    path('check/', include([
+        path('app_code/', views.CheckAppCodeView.as_view(), name='check_app_code'),
+        path('app_name/', views.CheckAppNameView.as_view(), name='check_app_name'),
     ])),
 
 
     # app基本信息, use SAAS_CODE_REGEX for both app and saas
-    url(r'^(?P<app_code>' + SAAS_CODE_REGEX + ')/', include([
+    re_path(r'^(?P<app_code>' + SAAS_CODE_REGEX + ')/', include([
         # update app
-        url(r'^$', views.ModifyAppView.as_view()),
+        path('', views.ModifyAppView.as_view()),
         # update logo
-        url(r'^logo/$', views.ModifyAppLogoView.as_view()),
+        path('logo/', views.ModifyAppLogoView.as_view()),
 
-        url(r'^info/$', views.AppInfoView.as_view()),
-        url(r'^status/$', views.AppStatusView.as_view()),
-        url(r'^vcs/password/$', views.VCSPasswordView.as_view()),
+        path('info/', views.AppInfoView.as_view()),
+        path('status/', views.AppStatusView.as_view()),
+        path('vcs/password/', views.VCSPasswordView.as_view()),
         # error tip
-        url(r'^error/(?P<error_id>\d+)/$', views.ErrorView.as_view()),
+        path('error/<int:error_id>/', views.ErrorView.as_view()),
 
-        url(r'^env/', include([
+        path('env/', include([
             # get/post
-            url(r'^$', app_env_views.AppEnvView.as_view()),
+            path('', app_env_views.AppEnvView.as_view()),
             # put/delete
-            url(r'^(?P<var_id>\d+)/$', app_env_views.AppEnvView.as_view()),
+            path('<int:var_id>/', app_env_views.AppEnvView.as_view()),
         ])),
 
     ])),

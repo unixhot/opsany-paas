@@ -6,16 +6,13 @@ Licensed under the MIT License (the "License"); you may not use this file except
 http://opensource.org/licenses/MIT
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 """ # noqa
-from django.conf.urls import patterns, url
+from django.urls import re_path
+from esb.routers import api_router_view, buffet_component_view
 
-
-urlpatterns = patterns(
-    '',
-    url(r'^compapi/(.*?)$', 'esb.routers.api_router_view'),
-
-    url(r'^self-service-api/(.*?)$', 'esb.routers.buffet_component_view'),
-)
-
+urlpatterns = [
+    re_path(r'^compapi/(.*?)$', api_router_view),
+    re_path(r'^self-service-api/(.*?)$', buffet_component_view),
+]
 
 # 处理404和500请求
 handler404 = 'esb.views.handler_404_view'

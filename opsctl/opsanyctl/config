@@ -1,0 +1,24 @@
+apiVersion: v1
+apiService:
+  url: https://domian
+  bk_app_code: cmdb
+  bk_app_secret: bk_app_secret
+  bk_username: admin
+config:
+  resourceIdDefaultField: "code,VISIBLE_NAME,name"  # 默认搜索三个字段, 指定 code 或者 name 可以保证查询到的数据唯一
+  resourceIdFieldSearch: false  # 默认关闭 RESOURCE_ID 字段 支持 fields=value方式精准字段获取资源
+  resourceDefaultLimit: 20  # 资源默认每页数量
+  apiResourcesDefaultLimit: 100  # 资源模型默认每页数量
+resourceShort:
+  ser: SERVER  # 物理机
+  virser: VIRTUAL_SERVER  # 虚拟机
+  clser: CLOUD_SERVER  # 云主机
+  idc: IDC  # 机房
+  reg: REGION  # 区域
+  rack: RACK  # 机柜
+  pub: PUBLIC_CLOUD  # 公有云账号
+  pubreg: CLOUD_REGION  # 区域
+  pubza: CLOUD_AZ  # 可用区
+  buss: BUSINESS  # 业务
+  app: APPLICATION  # 应用
+  serv: SERVICE  # 服务

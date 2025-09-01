@@ -91,7 +91,7 @@ class AddSet(Component):
                 'Capacity': data.get('capacity'),
                 'Description': data.get('des')
             }
-            property_data = {key: val for key, val in property_data.iteritems()
+            property_data = {key: val for key, val in property_data.items()
                              if val or val == 0}
             return {
                 'ApplicationID': data['app_id'],

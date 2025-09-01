@@ -18,13 +18,13 @@ try:
     unicode = str
 except NameError:
     unicode = str
-from channels.generic.websocket import WebsocketConsumer
+from channels.generic.websocket import AsyncWebsocketConsumer
 from django_redis import get_redis_connection
 
 try:
     from django.utils.encoding import smart_unicode
 except ImportError:
-    from django.utils.encoding import smart_text as smart_unicode
+    from django.utils.encoding import smart_str as smart_unicode
 
 from bastion.core.terminal.component import SSHBaseComponent
 from bastion.core.status_code import MySQLWebSocketStatusCode
@@ -36,7 +36,7 @@ from bastion.utils.encryption import PasswordEncryption
 app_logging = logging.getLogger("app")
 
 
-class DatabaseMysqlWeb(WebsocketConsumer):
+class DatabaseMysqlWeb(AsyncWebsocketConsumer):
     data_type_dict = {
         "sql": "sql语句查询",
         "sql_run": "心跳：sql正在执行",

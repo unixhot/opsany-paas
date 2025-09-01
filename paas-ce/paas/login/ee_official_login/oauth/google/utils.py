@@ -6,8 +6,8 @@ Licensed under the MIT License (the "License"); you may not use this file except
 http://opensource.org/licenses/MIT
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 """ # noqa
-from __future__ import unicode_literals
-import urllib
+
+import urllib.request, urllib.parse, urllib.error
 import random
 
 import requests
@@ -33,11 +33,11 @@ def gen_oauth_login_url(extra_param):
     # 由于google校验redirect_uri是精准匹配的，所有redirect_uri中无法带参数，只能放置在state中处理
     extra_param = {} if extra_param is None or not isinstance(extra_param, dict) else extra_param
     extra_param['security_token'] = gen_oauth_state_security_token()
-    state = '&'.join(["%s=%s" % (k, v) for k, v in extra_param.items() if v is not None and v != ""])
+    state = '&'.join(["%s=%s" % (k, v) for k, v in list(extra_param.items()) if v is not None and v != ""])
     # 跳转到 google 登录的URL
     google_oauth_login_url = '%s?%s' % (
         google_setting.GOOGLE_OAUTH_LOGIN_URL,
-        urllib.urlencode({'response_type': 'code',
+        urllib.parse.urlencode({'response_type': 'code',
                           'client_id': google_setting.CLIENT_ID,
                           'redirect_uri': bk_settings.LOGIN_COMPLETE_URL,
                           'scope': 'email',

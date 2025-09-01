@@ -10,7 +10,7 @@ import re
 import json
 
 from django import forms
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from esb.bkcore.models import ESBChannel, ComponentSystem
 from esb.common.base_utils import smart_int
@@ -20,54 +20,54 @@ class ESBChannelForm(forms.ModelForm):
     """Form for ESBChannel"""
 
     TYPE_CHOICE = (
-        (1, _(u'执行API')),
-        (2, _(u'查询API')),
+        (1, _('执行API')),
+        (2, _('查询API')),
     )
     PERM_LEVEL_CHOICE = (
-        (0, _(u'无限制')),
-        (1, _(u'普通权限')),
+        (0, _('无限制')),
+        (1, _('普通权限')),
     )
 
     component_system = forms.ModelChoiceField(
-        label=_(u'所属系统'),
+        label=_('所属系统'),
         queryset=ComponentSystem.objects.all(),
         required=True,
         empty_label=None,
     )
     path = forms.RegexField(
-        label=_(u'通道路径'),
+        label=_('通道路径'),
         max_length=255,
         required=True,
         regex=r'^/[/a-zA-Z0-9_-]+$',
-        help_text=_(u'通道路径，以斜杠开头，只能包含斜杠、字母、数字、下划线(_)、连接符(-)，一般设置为"/system_name/component_name/"，例如"/host/get_host_list/"；通道路径需唯一'),  # noqa
+        help_text=_('通道路径，以斜杠开头，只能包含斜杠、字母、数字、下划线(_)、连接符(-)，一般设置为"/system_name/component_name/"，例如"/host/get_host_list/"；通道路径需唯一'),  # noqa
         error_messages={
-            'invalid': _(u'输入的通道路径不符合要求')
+            'invalid': _('输入的通道路径不符合要求')
         }
     )
     component_codename = forms.RegexField(
-        label=_(u'对应组件代号'),
+        label=_('对应组件代号'),
         max_length=255,
         required=True,
         regex=r'^[a-z][a-z0-9._]+[a-z0-9_]$',
-        help_text=_(u'组件代号，只能包含小写字母、数字、下划线或点号，由三部分组成："前缀(generic).系统名小写.组件类名小写"，例如 "generic.host.get_host_list"'),  # noqa
+        help_text=_('组件代号，只能包含小写字母、数字、下划线或点号，由三部分组成："前缀(generic).系统名小写.组件类名小写"，例如 "generic.host.get_host_list"'),  # noqa
         error_messages={
-            'invalid': _(u'输入的组件代号不符合要求')
+            'invalid': _('输入的组件代号不符合要求')
         }
     )
     timeout_time = forms.IntegerField(
-        label=_(u'超时时长'),
+        label=_('超时时长'),
         required=False,
         error_messages={
-            'invalid': _(u'输入格式不正确')
+            'invalid': _('输入格式不正确')
         },
         min_value=1,
         max_value=86400,
         initial=None,
-        help_text=_(u'单位秒，未设置时以所属系统超时时长为准'),
+        help_text=_('单位秒，未设置时以所属系统超时时长为准'),
         widget=forms.NumberInput(attrs={'style': 'width: 450px;'})
     )
     type = forms.ChoiceField(
-        label=_(u'API类型'),
+        label=_('API类型'),
         choices=TYPE_CHOICE,
         required=True,
         initial=2,
@@ -85,7 +85,7 @@ class ESBChannelForm(forms.ModelForm):
         path = '/%s/' % path.strip('/')
 
         if ESBChannel.objects.filter(path=path).exists():
-            raise forms.ValidationError(_(u'通道路径已存在'))
+            raise forms.ValidationError(_('通道路径已存在'))
         return path
 
     def clean_component_codename(self):
@@ -99,7 +99,7 @@ class ESBChannelForm(forms.ModelForm):
             return component_codename
 
         if not re.match(r'^generic\.%s\.[a-z][a-z0-9_]*$' % component_system.name.lower(), component_codename):
-            raise forms.ValidationError(_(u'输入的组件代号不符合要求'))
+            raise forms.ValidationError(_('输入的组件代号不符合要求'))
 
         return component_codename
 
@@ -123,8 +123,8 @@ class ESBChannelForm(forms.ModelForm):
 
     def clean(self):
         data = self.cleaned_data
-        for key, val in data.iteritems():
-            if isinstance(val, basestring):
+        for key, val in data.items():
+            if isinstance(val, str):
                 data[key] = val.strip()
         return data
 
@@ -136,5 +136,5 @@ class EditESBChannelForm(ESBChannelForm):
         path = '/%s/' % path.strip('/')
 
         if ESBChannel.objects.exclude(id=self.instance.id).filter(path=path).exists():
-            raise forms.ValidationError(_(u'通道路径已存在'))
+            raise forms.ValidationError(_('通道路径已存在'))
         return path

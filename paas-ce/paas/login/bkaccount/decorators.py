@@ -6,11 +6,13 @@ Licensed under the MIT License (the "License"); you may not use this file except
 http://opensource.org/licenses/MIT
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 """ # noqa
-from __future__ import unicode_literals
-from functools import wraps
 
-from django.utils.decorators import available_attrs
+from functools import wraps, WRAPPER_ASSIGNMENTS
 
+#from django.utils.decorators import available_attrs
+
+def available_attrs(fn):
+    return WRAPPER_ASSIGNMENTS
 
 def login_exempt(view_func):
     """

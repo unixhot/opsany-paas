@@ -23,9 +23,9 @@ RATE_LIMIT_KEY_NAMESPACE = settings.RATE_LIMIT_KEY_NAMESPACE
 class ApiRateLimitValidator(BaseValidator):
 
     def validate(self, request):
-        app_code = request.g.app_code
-        comp_path = request.g.comp_path
-        channel_conf = request.g.channel_conf
+        app_code = request.app_code
+        comp_path = request.comp_path
+        channel_conf = request.channel_conf
 
         if not (channel_conf.get('rate_limit_required') and
                 channel_conf.get('rate_limit_conf') and
@@ -42,7 +42,7 @@ class ApiRateLimitValidator(BaseValidator):
             conf = copy.deepcopy(conf)
             tokens = int(conf.pop('tokens'))
             limiter.add_rule(tokens, conf)
-            rate_limit_message.extend(['%s/%s%s' % (tokens, val, key) for key, val in conf.iteritems()])
+            rate_limit_message.extend(['%s/%s%s' % (tokens, val, key) for key, val in conf.items()])
 
         try:
             result = limiter.acquire()

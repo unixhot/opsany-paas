@@ -1,0 +1,44 @@
+---
+# llmops-init.py
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ce-llmops-init
+data:
+{{ (.Files.Glob "llmops-init.py").AsConfig | indent 2 }}
+
+---
+# llmops-prod.py
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ce-llmops-prod
+data:
+{{ (.Files.Glob "llmops-prod.py").AsConfig | indent 2 }}
+
+---
+# llmops-nginx.conf
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ce-llmops-nginx
+data:
+{{ (.Files.Glob "llmops-nginx.conf").AsConfig | indent 2 }}
+
+---
+# llmops-supervisor.ini
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ce-llmops-supervisor
+data:
+{{ (.Files.Glob "llmops-supervisor.ini").AsConfig | indent 2 }}
+
+---
+# llmops-uwsgi.ini
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opsany-saas-ce-llmops-uwsgi
+data:
+{{ (.Files.Glob "llmops-uwsgi.ini").AsConfig | indent 2 }}

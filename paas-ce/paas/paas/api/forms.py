@@ -7,8 +7,8 @@ http://opensource.org/licenses/MIT
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 """ # noqa
 
-from __future__ import unicode_literals
-import urlparse
+
+import urllib.parse
 
 from django import forms
 from django.conf import settings
@@ -38,7 +38,7 @@ class LightAppBaseForm(forms.Form):
         判断url是否在当前域名下
         """
         try:
-            url_pares = urlparse.urlparse(url)
+            url_pares = urllib.parse.urlparse(url)
             hostname = url_pares.hostname
             paas_domain = settings.PAAS_DOMAIN.split(":")[0] if settings.PAAS_DOMAIN else ''
             if not hostname or hostname == paas_domain:

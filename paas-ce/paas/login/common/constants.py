@@ -9,7 +9,7 @@ Unless required by applicable law or agreed to in writing, software distributed 
 
 
 def enum(**enums):
-    return type(b"Enum", (), enums)
+    return type("Enum", (), enums)
 
 
 DATETIME_FORMAT_STRING = '%Y-%m-%d %H:%M:%S'

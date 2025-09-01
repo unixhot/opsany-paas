@@ -24,7 +24,7 @@ class AgentViewSet(BaseView):
     def put(self, request, agent_ip):
         try:
             bk_server = models.BkServer.objects.get(ip_address=agent_ip)
-        except Exception, e:
+        except Exception as e:
             return FailJsonResponse("active server ip %s exception: %s" % (agent_ip, e))
 
         if not bk_server.is_active and has_active_server(bk_server.category):
@@ -38,7 +38,7 @@ class AgentViewSet(BaseView):
             bk_server.mac = resp.get("mac", "")
             bk_server.save()
             return OKJsonResponse(data={"agent_ip": bk_server.ip_address})
-        except Exception, e:
+        except Exception as e:
             bk_server.is_active = False
             bk_server.save()
             err_msg = "active server ip %s exception: %s" % (agent_ip, e)
@@ -86,7 +86,7 @@ class AgentActiveViewSet(BaseView):
             bk_server.mac = resp.get("mac", "")
             bk_server.save()
             return OKJsonResponse(data={"server_id": server_id})
-        except Exception, e:
+        except Exception as e:
             bk_server.is_active = False
             bk_server.save()
             err_msg = "active server id %s exception: %s" % (server_id, e)
@@ -120,7 +120,7 @@ class AppViewSet(AppView):
     def get(self, request, app_code):
         try:
             bk_app = models.BkApp.objects.get(app_code=app_code)
-        except Exception, e:
+        except Exception as e:
             return FailJsonResponse(str(e))
         return OKJsonResponse(data=bk_app.serializer_data())
 
@@ -129,7 +129,7 @@ class AppReleaseViewSet(AppView):
     def post(self, request, app_code, mode):
         try:
             bk_app = models.BkApp.objects.get(app_code=app_code)
-        except Exception, e:
+        except Exception as e:
             return FailJsonResponse(str(e))
 
         # add saas fields in envs only for agent
@@ -158,7 +158,7 @@ class AppReleaseViewSet(AppView):
     def delete(self, request, app_code, mode):
         try:
             bk_app = models.BkApp.objects.get(app_code=app_code)
-        except Exception, e:
+        except Exception as e:
             return FailJsonResponse(str(e))
 
         deploy_controller = DeployController(bk_app, mode, {})
@@ -174,7 +174,7 @@ class AppLogsViewSet(AppView):
         try:
             bk_app = models.BkApp.objects.get(app_code=app_code)
             bk_app_event = models.BkAppEvent.objects.get(id=event_id, bk_app=bk_app)
-        except Exception, e:
+        except Exception as e:
             return FailJsonResponse(str(e))
         return OKJsonResponse(data=bk_app_event.serializer_data())
 
@@ -185,7 +185,7 @@ class AppEventLogsViewSet(AgentView):
         try:
             bk_app = models.BkApp.objects.get(app_code=app_code)
             bk_app_event = models.BkAppEvent.objects.get(id=event_id, bk_app=bk_app)
-        except Exception, e:
+        except Exception as e:
             return FailJsonResponse(str(e))
 
         form_data = forms.AppEventLogsForm(request.json_data)
@@ -220,14 +220,14 @@ class HealthCheckView(View):
     def get(self, request):
         try:
             self._check_db()
-        except Exception, e:
+        except Exception as e:
             err_msg = "database health check failed! database connection exception %s" % e
             logger.exception(err_msg)
             return FailJsonResponse(err_msg)
 
         try:
             self._check_agent()
-        except Exception, e:
+        except Exception as e:
             err_msg = "paasagent health check failed, error: %s" % e
             logger.exception(err_msg)
             return FailJsonResponse(err_msg)
@@ -241,7 +241,7 @@ class AgentHealthCheckView(View):
             bk_server = models.BkServer.objects.get(id=int(server_id))
             check_agent_health(bk_server)
             return OKJsonResponse()
-        except Exception, e:
+        except Exception as e:
             err_msg = "health check failed: %s" % e
             logger.exception(err_msg)
             return FailJsonResponse(err_msg)
@@ -253,7 +253,7 @@ class ServiceHealthCheckView(View):
             server_manager = servicemanager.ServiceManagerFactory(server_name)
             server_manager.health_check(server_id)
             return OKJsonResponse()
-        except Exception, e:
+        except Exception as e:
             logger.exception(e)
             return FailJsonResponse(str(e))
 
@@ -289,12 +289,13 @@ class ServiceServerViewSet(BaseView):
             server.is_active = True
             server.save()
             return OKJsonResponse()
-        except Exception, e:
+        except Exception as e:
             err_msg = "%s registered, but active failed: %s" % (server_ip, e)
             logger.exception(err_msg)
             return FailJsonResponse(err_msg)
 
     def put(self, request, service_name, server_id):
+        print("ServiceServerViewSet_PUT", request, service_name, server_id)
         if service_name != models.THIRD_SERVER_CATEGORY_MQ:
             return FailJsonResponse("not support %s server register" % service_name)
 
@@ -314,7 +315,7 @@ class ServiceServerViewSet(BaseView):
             service_server.is_active = True
             service_server.save()
             return OKJsonResponse()
-        except Exception, e:
+        except Exception as e:
             service_server.is_active = False
             service_server.save()
             err_msg = "%s registered, but active failed: %s" % (server_id, e)
@@ -361,7 +362,7 @@ class AgentRegistryView(View):
         agent_ip = data["agent_ip"]
         try:
             bk_server = models.BkServer.objects.get(ip_address=agent_ip)
-        except Exception, e:
+        except Exception as e:
             return JsonResponse({"msg": "active server ip %s exception: %s" % (agent_ip, e)}, status=400)
 
         try:
@@ -370,7 +371,7 @@ class AgentRegistryView(View):
             bk_server.mac = resp.get("mac", "")
             bk_server.save()
             return JsonResponse({"agent_ip": bk_server.ip_address})
-        except Exception, e:
+        except Exception as e:
             bk_server.is_active = False
             bk_server.save()
             err_msg = "active server ip %s exception: %s" % (agent_ip, e)
@@ -406,7 +407,7 @@ class MqRegistryView(View):
             server.is_active = True
             server.save()
             return JsonResponse({"mq_ip": server_ip})
-        except Exception, e:
+        except Exception as e:
             err_msg = "%s registered, but active failed: %s" % (server_ip, e)
             logger.exception(err_msg)
             return JsonResponse({"msg": err_msg}, status=400)

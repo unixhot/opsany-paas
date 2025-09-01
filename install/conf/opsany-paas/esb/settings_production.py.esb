@@ -24,7 +24,7 @@ DATABASES = {
 
 
 # Log settings
-LOG_LEVEL = 'INFO'
+LOG_LEVEL = 'ERROR'
 
 # esb app_token
 ESB_TOKEN = '41f076b7-afce-46eb-9e85-dab245eb0931'

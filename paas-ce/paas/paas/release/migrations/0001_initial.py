@@ -8,7 +8,7 @@ Unless required by applicable law or agreed to in writing, software distributed 
 """ # noqa
 
 
-from __future__ import unicode_literals
+
 
 from django.db import models, migrations
 
@@ -70,7 +70,7 @@ class Migration(migrations.Migration):
                 ('publisher', models.CharField(max_length=30, verbose_name='\u7248\u672c\u53d1\u5e03\u8005')),
                 ('pubdate', models.DateTimeField(auto_now_add=True, null=True, verbose_name='\u53d1\u5e03\u65f6\u95f4', db_index=True)),
                 ('desc', models.TextField(null=True, verbose_name='\u7248\u672c\u63cf\u8ff0', blank=True)),
-                ('app', models.ForeignKey(verbose_name='\u5e94\u7528', to='app.App')),
+                ('app', models.ForeignKey(on_delete=models.CASCADE, verbose_name='\u5e94\u7528', to='app.App')),
             ],
             options={
                 'db_table': 'paas_release_version',
@@ -84,7 +84,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('features', models.TextField(default=None, help_text='\u8bb0\u5f55\u8be5\u7248\u672c\u7279\u6027\u4fe1\u606f', null=True, verbose_name='\u66f4\u65b0\u7279\u6027', blank=True)),
                 ('bug', models.TextField(default=None, help_text='\u8bb0\u5f55\u4fee\u590d\u7684bug\u4fe1\u606f', null=True, verbose_name='\u4fee\u590dbug', blank=True)),
-                ('app_version', models.ForeignKey(to='release.Version')),
+                ('app_version', models.ForeignKey(on_delete=models.CASCADE, to='release.Version')),
             ],
             options={
                 'db_table': 'paas_release_versiondetail',

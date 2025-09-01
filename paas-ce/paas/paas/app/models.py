@@ -7,11 +7,12 @@ http://opensource.org/licenses/MIT
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 """ # noqa
 
-from __future__ import unicode_literals
+
 
 import time
 
 from django.conf import settings
+from django.apps import apps
 from django.db import models
 from django.db.models.deletion import SET_NULL
 
@@ -23,9 +24,9 @@ from common.utils import should_update_logo, get_app_logo
 from common.constants import LogoImgRelatedDirEnum
 
 # just for remove django warning
-import warnings
-from django.utils.deprecation import RemovedInDjango19Warning
-warnings.simplefilter('ignore', RemovedInDjango19Warning)
+#import warnings
+#from django.utils.deprecation import RemovedInDjango19Warning
+#warnings.simplefilter('ignore', RemovedInDjango19Warning)
 
 
 class AppTags(models.Model):

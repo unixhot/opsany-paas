@@ -7,13 +7,13 @@ http://opensource.org/licenses/MIT
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 """ # noqa
 
-from __future__ import unicode_literals
 
-from functools import wraps
+
+from functools import WRAPPER_ASSIGNMENTS, wraps
 
 from django.http import JsonResponse
-from django.utils.decorators import available_attrs
-from django.utils.translation import ugettext as _
+#from django.utils.decorators import available_attrs
+from django.utils.translation import gettext as _
 
 from user_center.weixin.utils import get_user_wx_info
 
@@ -22,7 +22,7 @@ def is_unbound_weixin(view_func):
     """
     检查是否未绑定
     """
-    @wraps(view_func, assigned=available_attrs(view_func))
+    @wraps(view_func, assigned=WRAPPER_ASSIGNMENTS)
     def _wrapped_view(request, *args, **kwargs):
         wx_type, wx_userid = get_user_wx_info(request)
         if not wx_type:

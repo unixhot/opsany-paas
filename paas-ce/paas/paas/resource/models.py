@@ -7,7 +7,7 @@ http://opensource.org/licenses/MIT
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 """ # noqa
 
-from __future__ import unicode_literals
+
 
 from django.db import models
 
@@ -17,14 +17,14 @@ from resource.manager import ResourceManager
 class Resource(models.Model):
     """资源下载
     """
-    name = models.CharField(u'名称', max_length=128)
-    version = models.CharField(u'版本', max_length=36, blank=True, null=True, default='--')
-    size = models.CharField(u'文件大小', max_length=36, blank=True, null=True, default='--')
+    name = models.CharField('名称', max_length=128)
+    version = models.CharField('版本', max_length=36, blank=True, null=True, default='--')
+    size = models.CharField('文件大小', max_length=36, blank=True, null=True, default='--')
     display = models.BooleanField("是否显示", default=True)
-    icon_url = models.CharField(u'下载图标', max_length=256, blank=True, null=True, help_text="填写外网地址")
+    icon_url = models.CharField('下载图标', max_length=256, blank=True, null=True, help_text="填写外网地址")
     doc_url = models.CharField("文档URL", max_length=256, blank=True, null=True, help_text="填写外网地址")
-    download_url = models.CharField(u'下载URL', max_length=256, blank=True, null=True, help_text="填写外网地址")
-    create_time = models.DateTimeField(u'创建时间', auto_now_add=True)
+    download_url = models.CharField('下载URL', max_length=256, blank=True, null=True, help_text="填写外网地址")
+    create_time = models.DateTimeField('创建时间', auto_now_add=True)
 
     objects = ResourceManager()
 

@@ -75,7 +75,7 @@ class KeepStrategyCmdb(Component):
         )
 
         # 对结果进行解析
-	code = response['code']
+        code = response['code']
         if code == 200:
             result = {
                 'code': response['code'],

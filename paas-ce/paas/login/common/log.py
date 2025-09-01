@@ -20,7 +20,7 @@ Usage:
     except Exception:
         logger.exception("wrong3")
 """ # noqa
-from __future__ import unicode_literals
+
 import logging
 
 logger = logging.getLogger("root")

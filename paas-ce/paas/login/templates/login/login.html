@@ -165,6 +165,8 @@
 							{% elif data == '2' and tab_key == '1'  %}
 							<i class="bk-icon icon-exclamation-circle-shape"></i><span
 								i18n="login_message2">{% trans '账户或者密码错误，请重新输入' %}</span>
+							{% elif error_message and tab_key == '1' %}
+                                <i class="bk-icon icon-exclamation-circle-shape"></i><span>{{ error_message }}</span>
 							{% elif form.errors or form.non_field_errors %}
 							<div></div>
 							{% if tab_key == '1' %}
@@ -268,7 +270,7 @@
 								<div i18n="MFABing_first_action_huawei">华为云：打开华为云APP > 点击“我的”> 选择【MFA】</div>
 							</div>
 						</div>
-						
+
 						<div  class="step_one_action">
 							<div class="step_one_action_title"><span i18n="MFABing_first_action_title2">方法2. 微信搜索小程序“腾讯身份验证器”</span> <img style="vertical-align: bottom;" src="{{STATIC_URL}}img/tuijian.png" alt="推荐"  /></div>
 							<div class="step_one_action_box">
@@ -415,9 +417,7 @@
 		<span i18n="Chrome">{% trans '您的浏览器非Chrome，建议您使用最新版本的Chrome浏览，以保证最好的体验效果' %}</span><i
 			class="bk-icon icon-close-circle-shape" id="close-chrome"></i>
 	</div>
-	<div id="demo_tips">
-		【演示用户：demo，密码：123456.coM】演示用户由于权限限制，仅可查看部分功能，完整功能请私有化部署社区版使用。
-	</div>
+
 	<div class="m-modal__wrapper" id="m-modal__wrapper">
 		<div class="m-modal__container">
 			<div class="m-modal__header">
@@ -597,13 +597,6 @@
 		})
 	}
 
-	//加载演示提示
-	function loadDemoTip(){
-		if(window.location.hostname == 'demo.opsany.com'){
-			$('#demo_tips').show()
-		}
-	}
-
 		//处理domain选择
 	$('.domain_options').on('click', '.domain_options_item', function (e) {
 		$('.select_box_content span').html($(e.target).html())
@@ -674,7 +667,6 @@
 	getOAuthList()
 	getSSOList()
 	getDomainList()
-	loadDemoTip()
 	$('.login-form-title-box-btn').click(e => {
 		$('.login-form-title-box-btn').each((index, item) => {
 			$(item).removeClass('login-form-title-box-btn-check')

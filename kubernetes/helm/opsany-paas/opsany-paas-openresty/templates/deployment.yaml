@@ -47,6 +47,9 @@ spec:
               mountPath: /opt/opsany/logs
             - name: opsany-uploads
               mountPath: /opt/opsany/uploads
+            - name: localtime
+              mountPath: /etc/localtime
+              readOnly: true
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
@@ -116,3 +119,7 @@ spec:
         - name: opsany-logs
           persistentVolumeClaim:
             claimName: opsany-logs
+        - name: localtime
+          hostPath:
+            path: /etc/localtime
+            type: File

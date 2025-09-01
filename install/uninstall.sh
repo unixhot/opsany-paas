@@ -79,6 +79,7 @@ uninstall_saas(){
     docker stop opsany-saas-ce-repo && docker rm -f opsany-saas-ce-repo
     docker stop opsany-saas-ce-pipeline && docker rm -f opsany-saas-ce-pipeline
     docker stop opsany-saas-ce-deploy && docker rm -f opsany-saas-ce-deploy
+    docker stop opsany-saas-ce-llmops && docker rm -f opsany-saas-ce-llmops
     echo -e "\033[32m---------------- SaaS Service Uninstall successfully  ----------------\033[0m"
 }
 

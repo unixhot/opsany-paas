@@ -18,5 +18,5 @@ class AppCodeWhiteListValidator(BaseValidator):
         super(AppCodeWhiteListValidator, self).__init__(*args, **kwargs)
 
     def validate(self, request):
-        if request.g.kwargs.app_code not in self.white_list:
-            raise ValidationError(u'APP 没有访问当前接口的权限')
+        if request.kwargs.app_code not in self.white_list:
+            raise ValidationError('APP 没有访问当前接口的权限')

@@ -35,12 +35,12 @@ class ConfigForm(object):
 
     @classmethod
     def clean(cls, data):
-        for field, conf in ConfigForm.fields.items():
+        for field, conf in list(ConfigForm.fields.items()):
             value = data.get(field)
             if conf.get('required') and not value:
-                raise Exception(u'param %s is required' % field)
+                raise Exception('param %s is required' % field)
             if conf.get('choices') and value and value not in conf['choices']:
-                raise Exception(u'param %s select a valid choice, %s is not available' % (field, value))
+                raise Exception('param %s select a valid choice, %s is not available' % (field, value))
 
         comp_conf_keys = [
             'dest_path', 'dest_http_method', 'api_type', 'name', 'label', 'label_en',
@@ -88,7 +88,7 @@ class ConfapisManager(object):
         ]
         """
         conf = []
-        map(conf.extend, self.apis_conf.values())
+        list(map(conf.extend, list(self.apis_conf.values())))
         return conf
 
     def reloadall(self):

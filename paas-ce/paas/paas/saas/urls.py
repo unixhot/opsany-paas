@@ -7,9 +7,9 @@ http://opensource.org/licenses/MIT
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 """ # noqa
 
-from __future__ import unicode_literals
 
-from django.conf.urls import include, url
+
+from django.urls import include, path, re_path
 
 from common.constants import SAAS_CODE_REGEX
 from saas import views
@@ -17,46 +17,46 @@ from saas import views
 urlpatterns = [
 
     # 应用列表
-    url(r'^list/', include([
-        url(r'^$', views.SaaSListPageView.as_view(), name="saas_list"),
-        url(r'^query/$', views.SaaSListView.as_view()),
+    path('list/', include([
+        path('', views.SaaSListPageView.as_view(), name="saas_list"),
+        path('query/', views.SaaSListView.as_view()),
     ])),
 
     # 应用基本信息
-    url(r'^(?P<app_code>' + SAAS_CODE_REGEX + ')/', include([
-        url(r'^info/$', views.InfoView.as_view()),
+    re_path(r'^(?P<app_code>' + SAAS_CODE_REGEX + ')/', include([
+        path('info/', views.InfoView.as_view()),
         # FIXME: change to restful-like api if more action on saas
         # 删除SaaS应用
-        url(r'^delete/$', views.DeleteSaaSView.as_view()),
+        path('delete/', views.DeleteSaaSView.as_view()),
 
-        url(r'^logo/$', views.ModifyAppLogoView.as_view()),
+        path('logo/', views.ModifyAppLogoView.as_view()),
 
         # 上传SaaS应用
-        url(r'^upload/$', views.UploadView.as_view()),
+        path('upload/', views.UploadView.as_view()),
 
         # 发布相关
         # 发布部署页面
-        url(r'^release/', include([
-            url(r'^$', views.ReleasePageView.as_view()),
+        path('release/', include([
+            path('', views.ReleasePageView.as_view()),
 
             # 发布记录页面
-            url(r'^record/$', views.RecordView.as_view()),
+            path('record/', views.RecordView.as_view()),
 
             # 下架页面
-            url(r'^offline/$', views.OfflinePageView.as_view()),
+            path('offline/', views.OfflinePageView.as_view()),
 
             # 执行发布
-            url(r'^online/(?P<saas_app_version_id>\d+)/$', views.OnlineView.as_view()),
+            path('online/<int:saas_app_version_id>/', views.OnlineView.as_view()),
         ])),
 
     ])),
 
-    url(r'^0/release/$', views.ReleasePageView.as_view(), {'app_code': 0}),
+    path('0/release/', views.ReleasePageView.as_view(), {'app_code': 0}),
 
     # for legency system,  keep below
     # saas/release/online,
     # saas/upload,
-    url(r'^release/online/(?P<saas_app_version_id>\d+)/$', views.OnlineView.as_view()),
-    url(r'^upload/(?P<app_code>' + SAAS_CODE_REGEX + ')/$', views.UploadView.as_view()),
-    url(r'^register-online-saas-app/$', views.UploadAndRegisterView.as_view()),
+    path('release/online/<int:saas_app_version_id>/', views.OnlineView.as_view()),
+    re_path(r'^upload/(?P<app_code>' + SAAS_CODE_REGEX + ')/$', views.UploadView.as_view()),
+    path('register-online-saas-app/', views.UploadAndRegisterView.as_view()),
 ]

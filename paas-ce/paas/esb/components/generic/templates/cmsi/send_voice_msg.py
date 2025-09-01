@@ -125,7 +125,7 @@ class SendVoiceMsg(Component, SetupConfMixin):
                     'username': username,
                     'mobile_phone': contact_info,
                 }
-                for username, contact_info in user_data['user_contact_info'].iteritems()
+                for username, contact_info in user_data['user_contact_info'].items()
             ]
             data['_extra_user_error_msg'] = user_data['_extra_user_error_msg']
 
@@ -141,7 +141,7 @@ class SendVoiceMsg(Component, SetupConfMixin):
                 result = {
                     'result': False,
                     'data': result.get('data'),
-                    'message': u'Some users failed to send voice. %s' % data['_extra_user_error_msg'],
+                    'message': 'Some users failed to send voice. %s' % data['_extra_user_error_msg'],
                 }
             self.response.payload = result
         elif self.qcloud_app_id and self.qcloud_app_key:
@@ -157,14 +157,14 @@ class SendVoiceMsg(Component, SetupConfMixin):
                 result = {
                     'result': False,
                     'data': ret,
-                    'message': u'Some users failed to send voice. %s' % data['_extra_user_error_msg'],
+                    'message': 'Some users failed to send voice. %s' % data['_extra_user_error_msg'],
                 }
             elif ret['failed']:
                 result = {
                     'result': False,
                     'data': ret,
                     'message': 'Some users failed to send voice. %s' % ",".join(
-                        map(lambda x: x['username'], ret['failed'])
+                        [x['username'] for x in ret['failed']]
                     )
                 }
             else:

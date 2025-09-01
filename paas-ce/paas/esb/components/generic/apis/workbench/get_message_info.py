@@ -52,8 +52,8 @@ class GetMessageInfo(Component):
 
     # Form处理参数校验
     class Form(BaseComponentForm):
-       	current = forms.Field(required=False)
-	pageSize = forms.Field(required=False)
+        current = forms.Field(required=False)
+        pageSize = forms.Field(required=False)
 
         # clean方法返回的数据可通过组件的form_data属性获取
         def clean(self):

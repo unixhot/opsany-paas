@@ -71,7 +71,7 @@ class GetUserSshKey(Component):
             host=configs.host,
             path='{}get-user-ssh-key/'.format(base_api_url),
             params=params,
-            headers=self.request.wsgi_request.g.headers
+            headers=self.request.wsgi_request.g.headers if hasattr(self.request.wsgi_request, "g") else self.request.wsgi_request.headers
         )
 
         # 对结果进行解析

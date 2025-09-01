@@ -7,13 +7,13 @@ http://opensource.org/licenses/MIT
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 """ # noqa
 
-from __future__ import unicode_literals
+
 
 from django.conf import settings
 
 from common.http import http_get, http_post, http_delete, http_put
 from common.log import logger
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 
 def _call_login_api(http_func, api, data, kwargs={}):
@@ -29,7 +29,7 @@ def _call_login_api(http_func, api, data, kwargs={}):
     data = resp.get("data", {}) if (ok and resp) else {}
 
     if not (ok and resp and resp.get("result")):
-        logger.error("请求login接口失败: method=%s, api=%s, message=%s", http_func.func_name, api, message)
+        logger.error("请求login接口失败: method=%s, api=%s, message=%s", http_func.__name__, api, message)
         return False, message, data
 
     return True, message, data

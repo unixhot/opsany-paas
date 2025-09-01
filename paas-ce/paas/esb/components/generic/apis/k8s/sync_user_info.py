@@ -38,7 +38,7 @@ class SyncUserInfo(Component):
         "message": "相关信息获取成功",
         "data": [
             {
-				...
+              ...
             }
         ]
     }

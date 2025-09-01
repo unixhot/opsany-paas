@@ -22,7 +22,7 @@ class DeployTaskCancel(Component):
 
     #### 接口参数
 
-    | 字段    | 类型     | 必选   | 描述       |
+    | 字段    | 类型     | 必选   | 描述   |
     | ----- | ------ | ---- | -------- |
     | task_code | string | 是  | 任务ID |
     | task_log_code | string | 是  | task_log_code |

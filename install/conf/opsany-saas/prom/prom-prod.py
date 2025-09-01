@@ -65,8 +65,10 @@ ELASTIC_SEARCH = {
 HEART_BEAT_INDEX = os.getenv("ELASTIC_INDEX", "ELASTIC_SEARCH_INDEX")
 HEART_BEAT_MONITOR_D = "{}/uploads/monitor/heartbeat-monitors.d/".format(default.UPLOAD_PATH)
 
-if not os.path.exists(HEART_BEAT_MONITOR_D):
+try:
     os.makedirs(HEART_BEAT_MONITOR_D)
+except Exception:
+    pass
 
 # 静态文件
 setattr(default, "HEART_BEAT_MONITOR_D", HEART_BEAT_MONITOR_D)

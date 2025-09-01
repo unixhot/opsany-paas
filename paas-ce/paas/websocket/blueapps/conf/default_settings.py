@@ -116,7 +116,6 @@ ALLOWED_HOSTS = ['*']
 TIME_ZONE = 'Asia/Shanghai'
 LANGUAGE_CODE = 'zh-hans'
 USE_I18N = True
-USE_L10N = True
 
 # Authentication & Authorization
 

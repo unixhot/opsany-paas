@@ -1,7 +1,7 @@
 import json
 import time
 
-from channels.generic.websocket import WebsocketConsumer
+from channels.generic.websocket import AsyncWebsocketConsumer
 from threading import Thread
 
 from django.conf import settings
@@ -46,7 +46,7 @@ class K8SStreamThread(Thread):
         return stop
 
 
-class PodConsumer(WebsocketConsumer):
+class PodConsumer(AsyncWebsocketConsumer):
     def connect(self):
         # self.scope["cookies"]["bk_token"] = "wBWDmiR5rM1pHcIf3lqWs7OERpXE8gFVgdoRngDyoCk"
         self._update_scope_user()

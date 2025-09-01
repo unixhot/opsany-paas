@@ -69,13 +69,13 @@ class GetInstByRelData(Component):
 
         # 设置当前操作者
         params['operator'] = self.current_user.username
-        
+
        # 请求系统接口
         response = self.outgoing.http_client.get(
             host=configs.host,
             path='{}get-inst-by-rel-data/'.format(base_api_url),
             params=params,
-            headers=self.request.wsgi_request.g.headers
+            headers=self.request.wsgi_request.g.headers if hasattr(self.request.wsgi_request, "g") else self.request.wsgi_request.headers
         )
 
 

@@ -37,9 +37,7 @@ def ServiceManagerFactory(service_name):
     raise NotImplementedError("%s not supported" % service_name)
 
 
-class ThirdServiceManager(object):
-    __metaclass__ = ABCMeta
-
+class ThirdServiceManager(object, metaclass=ABCMeta):
     @abstractmethod
     def apply(self, bk_app, mode, triggers):
         pass
@@ -90,7 +88,7 @@ class RabbitmqManager(ThirdServiceManager):
                 headers=headers,
                 auth=auth
             )
-        except Exception, e:
+        except Exception as e:
             raise Exception("create vhost failed: %s" % e)
 
         try:
@@ -103,7 +101,7 @@ class RabbitmqManager(ThirdServiceManager):
                 auth=auth,
                 json={"password": user_account['password'], "tags": "management"}
             )
-        except Exception, e:
+        except Exception as e:
             raise Exception("create account failed: %s" % e)
 
         try:
@@ -115,7 +113,7 @@ class RabbitmqManager(ThirdServiceManager):
                 auth=auth,
                 json={"configure": ".*", "write": ".*", "read": ".*"}
             )
-        except Exception, e:
+        except Exception as e:
             raise Exception("vhost authorization failed: %s" % e)
 
     def health_check(self, server_id):
@@ -131,5 +129,5 @@ class RabbitmqManager(ThirdServiceManager):
                 url="http://%s:%s/api/overview" % (server_data.get('ip_address'), server_data.get('ip_port')),
                 auth=(server_data.get("username"), server_data.get("password"))
             )
-        except Exception, e:
+        except Exception as e:
             raise Exception("administrator account information error or rabbitmq service exception: %s" % e)

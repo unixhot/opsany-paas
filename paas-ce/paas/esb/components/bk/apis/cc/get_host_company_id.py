@@ -80,7 +80,7 @@ class GetHostCompanyId(Component):
     host = configs.host
 
     class Form(BaseComponentForm):
-        ips = ListField(label=u'主机内网IP', required=True)
+        ips = ListField(label='主机内网IP', required=True)
 
         def clean(self):
             data = self.cleaned_data

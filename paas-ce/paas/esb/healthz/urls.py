@@ -7,11 +7,11 @@ http://opensource.org/licenses/MIT
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 """ # noqa
 
-from django.conf.urls import url
+from django.urls import path
 
 from healthz import views, views_check_codename
 
 urlpatterns = [
-    url(r'^$', views.healthz),
-    url(r'^check_custom_codename/$', views_check_codename.check_custom_codename),
+    path('', views.healthz),
+    path('check_custom_codename/', views_check_codename.check_custom_codename),
 ]

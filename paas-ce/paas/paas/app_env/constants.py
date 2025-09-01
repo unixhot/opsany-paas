@@ -7,9 +7,9 @@ http://opensource.org/licenses/MIT
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 """ # noqa
 
-from __future__ import unicode_literals
 
-from django.utils.translation import ugettext_lazy as _
+
+from django.utils.translation import gettext_lazy as _
 
 from common.constants import ModeEnum
 
@@ -23,7 +23,7 @@ ENV_MODE_TYPE_CHOICES = [
 def gen_mode_choice_html():
     mode_choices_html = ['<select class="form-control env_mode">']
     for key, value in ENV_MODE_TYPE_CHOICES:
-        mode_choices_html.append(u'<option value="{key}" > {value} </option>'.format(key=key, value=value))
+        mode_choices_html.append('<option value="{key}" > {value} </option>'.format(key=key, value=value))
     mode_choices_html.append('<select>')
     return ''.join(mode_choices_html)
 

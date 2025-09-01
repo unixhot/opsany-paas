@@ -8,7 +8,7 @@ Unless required by applicable law or agreed to in writing, software distributed 
 """ # noqa
 
 
-from __future__ import unicode_literals
+
 
 from django.db import migrations, models
 
@@ -23,11 +23,11 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='saasapp',
             name='online_version',
-            field=models.ForeignKey(related_name='online_versions', blank=True, to='saas.SaaSAppVersion', null=True),
+            field=models.ForeignKey(on_delete=models.CASCADE, related_name='online_versions', blank=True, to='saas.SaaSAppVersion', null=True),
         ),
         migrations.AlterField(
             model_name='saasapp',
             name='current_version',
-            field=models.ForeignKey(related_name='current_versions', blank=True, to='saas.SaaSAppVersion', null=True),
+            field=models.ForeignKey(on_delete=models.CASCADE, related_name='current_versions', blank=True, to='saas.SaaSAppVersion', null=True),
         ),
     ]

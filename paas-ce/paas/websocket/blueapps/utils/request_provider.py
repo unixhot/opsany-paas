@@ -55,25 +55,25 @@ class RequestProvider(MiddlewareMixin):
 
     def process_request(self, request):
         request.is_mobile = lambda: bool(settings.RE_MOBILE.search(
-            request.META.get('HTTP_USER_AGENT', '')))
+            request.headers.get('user-agent', '')))
 
         # 是否为合法的RIO请求
         request.is_rio = lambda: bool(
-            request.META.get('HTTP_STAFFNAME', '') and settings.RIO_TOKEN and
-            settings.RE_WECHAT.search(request.META.get('HTTP_USER_AGENT', ''))
+            request.headers.get('staffname', '') and settings.RIO_TOKEN and
+            settings.RE_WECHAT.search(request.headers.get('user-agent', ''))
         )
 
         # 是否为合法 WEIXIN 请求，必须符合两个条件，wx 客户端 & WX PAAS 域名
         request_origin_url = "%s://%s" % (request.scheme, request.get_host())
         request.is_wechat = lambda: (
             bool(settings.RE_WECHAT.search(
-                request.META.get('HTTP_USER_AGENT', ''))
+                request.headers.get('user-agent', ''))
             ) and request_origin_url == settings.WEIXIN_BK_URL and
             not request.is_rio()
         )
 
         # JWT请求
-        request.is_bk_jwt = lambda: bool(request.META.get('HTTP_X_BKAPI_JWT', ''))
+        request.is_bk_jwt = lambda: bool(request.headers.get('x-bkapi-jwt', ''))
 
         self._request_pool[get_ident()] = request
         return None

@@ -8,7 +8,7 @@ Unless required by applicable law or agreed to in writing, software distributed 
 """ # noqa
 
 
-from __future__ import unicode_literals
+
 
 from django.db import migrations, models
 from bk_app.utils import init_saas_app_db_info

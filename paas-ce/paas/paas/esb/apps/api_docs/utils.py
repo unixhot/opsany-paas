@@ -28,7 +28,7 @@ def get_system_category():
             'label': system.label_display,
             'desc': system.remark_display,
         })
-    doc_category = doc_category.values()
+    doc_category = list(doc_category.values())
     doc_category.sort(key=lambda x: x['priority'])
     for category in doc_category:
         category['systems'].sort(key=lambda x: x['name'])

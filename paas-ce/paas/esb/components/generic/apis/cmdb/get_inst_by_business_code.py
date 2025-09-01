@@ -56,7 +56,7 @@ class GetInstByBusinessCode(Component):
 
     # Form处理参数校验
     class Form(BaseComponentForm):
-       	code1 = forms.Field(required=False) 
+        code1 = forms.Field(required=False)
         code2 = forms.Field(required=False)
         code3 = forms.Field(required=False)
 

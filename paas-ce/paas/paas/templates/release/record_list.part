@@ -31,7 +31,7 @@
                     </tr>
                     <tr class='detail' style="display:none;">
                         <td colspan="6">
-                        <pre style='width: 954px;line-height: 10px;'>${record['detail']}<hr>${record['task_detail']}</pre>
+                        <pre style='width: 954px;line-height: 20px;'>${record['detail']}<hr>${record['task_detail']}</pre>
                         </td>
                     </tr>
                 % endfor

@@ -28,7 +28,7 @@ class DeployController(object):
         self._set_envs(envs)
 
     def _set_envs(self, envs):
-        for key, value in envs.iteritems():
+        for key, value in envs.items():
             models.BkAppEnv.objects.update_or_create(
                 bk_app=self.bk_app, mode=self.mode, key=key,
                 defaults={'key': key, 'value': value}
@@ -47,7 +47,7 @@ class DeployController(object):
             service_names = self._use_third_service()
             for service_name in service_names:
                 service_envs.update(self._apply_third_service(service_name))
-        except Exception, e:
+        except Exception as e:
             logger.exception(str(e))
             self._fail_bk_app_event(str(e))
             return self.bk_app_event.id, 20300, str(e)
@@ -59,7 +59,7 @@ class DeployController(object):
             bk_servers = self._assign_servers()
             self._request(bk_servers, "online")
             return self.bk_app_event.id, 0, "job delivered"
-        except Exception, e:
+        except Exception as e:
             logger.exception(str(e))
             self._fail_bk_app_event(str(e))
             return self.bk_app_event.id, 1, str(e)
@@ -101,7 +101,7 @@ class DeployController(object):
             assigned_servers = self.bk_app.bkserver_set.filter(category=category, is_active=True)
             self._request(assigned_servers, "offline")
             return self.bk_app_event.id, 0, "job delivered"
-        except Exception, e:
+        except Exception as e:
             self._fail_bk_app_event(str(e))
             return self.bk_app_event.id, 1, str(e)
 

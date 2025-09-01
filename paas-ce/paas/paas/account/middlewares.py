@@ -9,18 +9,19 @@ Unless required by applicable law or agreed to in writing, software distributed 
 Login middleware.
 """ # noqa
 
-from __future__ import unicode_literals
+
 
 from django.conf import settings
 from django.contrib.auth import authenticate
 from django.middleware.csrf import get_token as get_csrf_token
+from django.utils.deprecation import MiddlewareMixin
 
 from account.utils import redirect_login
 from common.constants import RoleCodeEnum
 from common.mymako import render_mako_context
 
 
-class LoginMiddleware(object):
+class LoginMiddleware(MiddlewareMixin):
 
     def process_view(self, request, view, args, kwargs):
         # 静态资源不做登录态验证
@@ -40,7 +41,7 @@ class LoginMiddleware(object):
         return redirect_login(request)
 
 
-class DeveloperLimitMiddleware(object):
+class DeveloperLimitMiddleware(MiddlewareMixin):
 
     def process_view(self, request, view, args, kwargs):
         # 静态资源不做登录态验证

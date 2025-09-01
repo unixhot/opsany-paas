@@ -16,9 +16,9 @@ is_py3 = (_ver[0] == 3)
 
 
 if is_py2:
-    from urlparse import urlparse
+    from urllib.parse import urlparse
 
-    str = unicode
+    str = str
 
 elif is_py3:
     from urllib.parse import urlparse  # noqa

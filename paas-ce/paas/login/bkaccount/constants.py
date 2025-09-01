@@ -7,11 +7,11 @@ http://opensource.org/licenses/MIT
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 """ # noqa
 
-from __future__ import unicode_literals
+
 import re
 
 import pytz
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from common.constants import enum
 
@@ -21,7 +21,7 @@ USERNAME_CHECK_PATTERN = re.compile(r'^[A-Za-z0-9][A-Za-z0-9#$%^&*.\-_/@]{2,30}[
 # 密码校验规则: 仅包含数字、字母或!@#$%^*()_-+=，长度在8-20个字符, 且必须同时包含大小写字母和数字
 PASSWORD_CHECK_PATTERN = re.compile(r'^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[A-Za-z0-9!@#\$%\^\*\(\)-_\+=]{8,20}$')
 # 中文名校验规则：数字、字母、中文汉字、下划线，长度在1-16个字符
-CHNAME_CHECK_PATTERN = re.compile(u"^[\u4e00-\u9fa5a-zA-Z0-9_]{1,16}$")
+CHNAME_CHECK_PATTERN = re.compile("^[\u4e00-\u9fa5a-zA-Z0-9_]{1,16}$")
 # Phone检验规则：11位数字
 PHONE_CHECK_PATTERN = re.compile(r'^\d{11}$')
 
@@ -34,11 +34,11 @@ RoleCodeEnum = enum(
 )
 
 ROLECODE_CHOICES = [
-    (RoleCodeEnum.STAFF, _(u"普通用户")),
-    (RoleCodeEnum.SUPERUSER, _(u"管理员")),
-    (RoleCodeEnum.DEVELOPER, _(u"开发者")),
-    (RoleCodeEnum.OPERATOR, _(u"职能化用户")),
-    (RoleCodeEnum.AUDITOR, _(u"审计员"))
+    (RoleCodeEnum.STAFF, _("普通用户")),
+    (RoleCodeEnum.SUPERUSER, _("管理员")),
+    (RoleCodeEnum.DEVELOPER, _("开发者")),
+    (RoleCodeEnum.OPERATOR, _("职能化用户")),
+    (RoleCodeEnum.AUDITOR, _("审计员"))
 ]
 
 ROLECODE_LIST = [
@@ -68,13 +68,13 @@ ApiErrorCodeEnumV2 = enum(
 )
 
 LanguageEnum = enum(
-    ZH_CN='zh-cn',
+    ZH_CN='zh-hans',
     EN='en'
 )
 
 LANGUAGE_CHOICES = [
-    (LanguageEnum.ZH_CN, _(u"中文")),
-    (LanguageEnum.EN, _(u"英文"))
+    (LanguageEnum.ZH_CN, _("中文")),
+    (LanguageEnum.EN, _("英文"))
 ]
 
 TIME_ZONE_LIST = pytz.common_timezones

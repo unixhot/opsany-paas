@@ -151,6 +151,9 @@ esb_update(){
     #bastion
     sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/bastion/toolkit/configs.py
     sed -i "s#/t/bastion#/o/bastion#g" ${INSTALL_PATH}/esb/apis/bastion/toolkit/configs.py
+    # llmops
+    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/llmops/toolkit/configs.py
+    sed -i "s#/t/llmops#/o/llmops#g" ${INSTALL_PATH}/esb/apis/llmops/toolkit/configs.py
     #prom
     sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/prom/toolkit/configs.py
     sed -i "s#/t/prom#/o/prom#g" ${INSTALL_PATH}/esb/apis/prom/toolkit/tools.py
@@ -231,9 +234,13 @@ proxy_update(){
     # Proxy config
     CONTROL_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.control_secret_key)
     /bin/cp conf/proxy/proxy.ini ${INSTALL_PATH}/conf/proxy/proxy.ini
-    /bin/cp conf/proxy/saltapi.ini ${INSTALL_PATH}/conf/proxy/saltapi.ini
+    #/bin/cp conf/proxy/saltapi.ini ${INSTALL_PATH}/conf/proxy/saltapi.ini
     /bin/cp conf/proxy/saltmaster.ini ${INSTALL_PATH}/conf/proxy/saltmaster.ini
     /bin/cp conf/proxy/settings_production.py.proxy ${INSTALL_PATH}/conf/proxy/
+    #/bin/cp conf/salt/master.d/api.conf ${INSTALL_PATH}/proxy-volume/etc/salt/master.d/
+    #/bin/cp conf/salt/master.d/user.conf ${INSTALL_PATH}/proxy-volume/etc/salt/master.d/
+    /bin/cp conf/salt/master ${INSTALL_PATH}/proxy-volume/etc/salt/
+    /bin/cp conf/salt/minion ${INSTALL_PATH}/proxy-volume/etc/salt/
     sed -i "s/REDIS_SERVER_IP/${REDIS_SERVER_IP}/g" ${INSTALL_PATH}/conf/proxy/settings_production.py.proxy
     sed -i "s/REDIS_SERVER_PASSWORD/${REDIS_SERVER_PASSWORD}/g" ${INSTALL_PATH}/conf/proxy/settings_production.py.proxy
     sed -i "s/MYSQL_SERVER_IP/${MYSQL_SERVER_IP}/g" ${INSTALL_PATH}/conf/proxy/settings_production.py.proxy
@@ -270,7 +277,6 @@ proxy_update(){
         -v ${INSTALL_PATH}/conf/proxy/settings_production.py.proxy:/opt/opsany-proxy/config/prod.py \
         -v ${INSTALL_PATH}/conf/proxy/invscript_proxy.py:/opt/opsany-proxy/invscript_proxy.py \
         -v ${INSTALL_PATH}/conf/proxy/proxy.ini:/etc/supervisord.d/proxy.ini \
-        -v ${INSTALL_PATH}/conf/proxy/saltapi.ini:/etc/supervisord.d/saltapi.ini \
         -v ${INSTALL_PATH}/conf/proxy/saltmaster.ini:/etc/supervisord.d/saltmaster.ini \
         -v ${INSTALL_PATH}/prometheus-volume/conf/alertmanager.yml:/opt/opsany/alertmanager.yml \
         -v /etc/localtime:/etc/localtime:ro \
@@ -280,7 +286,51 @@ proxy_update(){
     docker exec -e OPS_ANY_ENV=production \
         opsany-paas-proxy /bin/sh -c "/usr/local/bin/python3 /opt/opsany-proxy/manage.py migrate >> ${SHELL_LOG}"
 }
+saas_llmops_update(){
+    shell_log "======Update llmops======"
 
+    #llmops Configure
+    UPDATE_VERSION=$1
+    LLMOPS_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.llmops_secret_key)
+    /bin/cp conf/opsany-saas/llmops/* ${INSTALL_PATH}/conf/opsany-saas/llmops/
+    sed -i "s/DOMAIN_NAME/${DOMAIN_NAME}/g" ${INSTALL_PATH}/conf/opsany-saas/llmops/llmops-init.py
+    sed -i "s/LLMOPS_SECRET_KEY/${LLMOPS_SECRET_KEY}/g" ${INSTALL_PATH}/conf/opsany-saas/llmops/llmops-init.py
+    sed -i "s/MYSQL_SERVER_IP/${MYSQL_SERVER_IP}/g" ${INSTALL_PATH}/conf/opsany-saas/llmops/llmops-prod.py
+    sed -i "s/MYSQL_SERVER_PORT/${MYSQL_SERVER_PORT}/g" ${INSTALL_PATH}/conf/opsany-saas/llmops/llmops-prod.py
+    sed -i "s/MYSQL_OPSANY_LLMOPS_PASSWORD/${MYSQL_OPSANY_LLMOPS_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-saas/llmops/llmops-prod.py
+    sed -i "s/MONGO_SERVER_IP/${MONGO_SERVER_IP}/g" ${INSTALL_PATH}/conf/opsany-saas/llmops/llmops-prod.py
+    sed -i "s/MONGO_SERVER_PORT/${MONGO_SERVER_PORT}/g" ${INSTALL_PATH}/conf/opsany-saas/llmops/llmops-prod.py
+    sed -i "s/MONGO_LLMOPS_PASSWORD/${MONGO_LLMOPS_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-saas/llmops/llmops-prod.py
+    sed -i "s/REDIS_SERVER_IP/${REDIS_SERVER_IP}/g" ${INSTALL_PATH}/conf/opsany-saas/llmops/llmops-prod.py
+    sed -i "s/REDIS_SERVER_PORT/${REDIS_SERVER_PORT}/g" ${INSTALL_PATH}/conf/opsany-saas/llmops/llmops-prod.py
+    sed -i "s/REDIS_SERVER_USER/${REDIS_SERVER_USER}/g" ${INSTALL_PATH}/conf/opsany-saas/llmops/llmops-prod.py
+    sed -i "s/REDIS_SERVER_PASSWORD/${REDIS_SERVER_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-saas/llmops/llmops-prod.py
+
+    # llmops
+    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/llmops/toolkit/configs.py
+    sed -i "s#/t/llmops#/o/llmops#g" ${INSTALL_PATH}/esb/apis/llmops/toolkit/configs.py
+
+    # Starter container
+    docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-llmops:${UPDATE_VERSION}
+    docker stop opsany-saas-ce-llmops && docker rm opsany-saas-ce-llmops
+    docker run -d --restart=always --name opsany-saas-ce-llmops \
+       -p 7000:80 \
+       -v ${INSTALL_PATH}/conf/opsany-saas/llmops/llmops-supervisor.ini:/etc/supervisord.d/llmops.ini \
+       -v ${INSTALL_PATH}/conf/opsany-saas/llmops/llmops-uwsgi.ini:/opt/opsany/uwsgi/llmops.ini \
+       -v ${INSTALL_PATH}/conf/opsany-saas/llmops/llmops-init.py:/opt/opsany/llmops/config/__init__.py \
+       -v ${INSTALL_PATH}/conf/opsany-saas/llmops/llmops-prod.py:/opt/opsany/llmops/config/prod.py \
+       -v ${INSTALL_PATH}/conf/opsany-saas/llmops/llmops-nginx.conf:/etc/nginx/http.d/default.conf \
+       -v ${INSTALL_PATH}/conf/opsany-saas/llmops/llmops-nginx-main.conf:/etc/nginx/nginx.conf \
+       -v ${INSTALL_PATH}/logs/llmops:/opt/opsany/logs/llmops \
+       -v ${INSTALL_PATH}/uploads:/opt/opsany/uploads \
+       -v /etc/localtime:/etc/localtime:ro \
+       ${PAAS_DOCKER_REG}/opsany-saas-ce-llmops:${UPDATE_VERSION}
+    
+    # Django migrate
+    docker exec -e BK_ENV="production" opsany-saas-ce-llmops /bin/sh -c \
+    "python /opt/opsany/llmops/manage.py migrate --noinput >> ${SHELL_LOG} && python /opt/opsany/llmops/manage.py createcachetable django_cache > /dev/null"
+    update_saas_version llmops 大模型开发平台 ${LLMOPS_SECRET_KEY}
+}
 websocket_update(){
 # Websocket
     UPDATE_VERSION=$1
@@ -635,7 +685,9 @@ saas_bastion_update(){
     sed -i "s/REDIS_SERVER_PORT/${REDIS_SERVER_PORT}/g" ${INSTALL_PATH}/conf/opsany-saas/bastion/bastion-prod.py
     sed -i "s/REDIS_SERVER_USER/${REDIS_SERVER_USER}/g" ${INSTALL_PATH}/conf/opsany-saas/bastion/bastion-prod.py
     sed -i "s/REDIS_SERVER_PASSWORD/${REDIS_SERVER_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-saas/bastion/bastion-prod.py
-    
+    sed -i "s/BASTION_FOOT_CLIENT_IP/${DOMAIN_NAME}/g" ${INSTALL_PATH}/conf/opsany-saas/bastion/bastion-prod.py
+    sed -i "s/BASTION_FOOT_CLIENT_PORT/8013/g" ${INSTALL_PATH}/conf/opsany-saas/bastion/bastion-prod.py
+
     # Starter container
     docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-bastion:${UPDATE_VERSION}
     docker stop opsany-saas-ce-bastion && docker rm opsany-saas-ce-bastion
@@ -797,7 +849,10 @@ saas_repo_update(){
     sed -i "s/REDIS_SERVER_PORT/${REDIS_SERVER_PORT}/g" ${INSTALL_PATH}/conf/opsany-saas/repo/repo-prod.py
     sed -i "s/REDIS_SERVER_USER/${REDIS_SERVER_USER}/g" ${INSTALL_PATH}/conf/opsany-saas/repo/repo-prod.py
     sed -i "s/REDIS_SERVER_PASSWORD/${REDIS_SERVER_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-saas/repo/repo-prod.py
-    
+    sed -i "s#REPO_HARBOR_URL#${REPO_HARBOR_URL}#g" ${INSTALL_PATH}/conf/opsany-saas/repo/repo-prod.py
+    sed -i "s/REPO_HARBOR_USERNAME/${REPO_HARBOR_USERNAME}/g" ${INSTALL_PATH}/conf/opsany-saas/repo/repo-prod.py
+    sed -i "s/REPO_HARBOR_PASSWORD/${REPO_HARBOR_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-saas/repo/repo-prod.py
+
     # Starter container
     docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-repo:${UPDATE_VERSION}
     docker stop opsany-saas-ce-repo && docker rm opsany-saas-ce-repo
@@ -874,6 +929,7 @@ main(){
 	    saas_job_update $2
 	    saas_cmp_update $2
 	    saas_bastion_update $2
+        saas_monitor_update $2
 		;;
     paas)
         paas_update $2
@@ -929,6 +985,9 @@ main(){
     cmp)
         saas_cmp_update $2
 	    ;;
+    llmops)
+        saas_llmops_update $2
+	    ;;
     bastion)
         saas_bastion_update $2
 	    ;;
@@ -944,6 +1003,7 @@ main(){
 	    saas_cmp_update $2
 	    saas_bastion_update $2
         saas_monitor_update $2
+        saas_llmops_update $2
 		;;
     dev)
         saas_devops_update $2
@@ -965,6 +1025,7 @@ main(){
         saas_pipeline_update $2
         saas_deploy_update $2
         saas_repo_update $2
+        saas_llmops_update $2
         ;;
 	help|*)
 	    echo $"Usage: $0 {(paas|login|esb|appengine|proxy|websocket|rbac|workbench|cmdb|control|job|cmp|bastion|base|monitor|devops|all|help) version}"

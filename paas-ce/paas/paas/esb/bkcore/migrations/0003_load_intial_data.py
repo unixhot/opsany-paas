@@ -8,7 +8,7 @@ Unless required by applicable law or agreed to in writing, software distributed 
 """ # noqa
 
 
-from __future__ import unicode_literals
+
 
 from django.db import migrations
 
@@ -25,7 +25,7 @@ def init_system_channels(apps, schema_editor):
         ComponentSystem.objects.get_or_create(name=name, defaults=system)
 
     # init channels
-    for system_name, channels in SYSTEM_CHANNELS.iteritems():
+    for system_name, channels in SYSTEM_CHANNELS.items():
         system = ComponentSystem.objects.get(name=system_name)
         for channel in channels:
             path = channel.pop('path')

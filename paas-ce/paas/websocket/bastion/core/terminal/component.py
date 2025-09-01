@@ -31,7 +31,7 @@ except NameError:
 try:
     from django.utils.encoding import smart_unicode
 except ImportError:
-    from django.utils.encoding import smart_text as smart_unicode
+    from django.utils.encoding import smart_str as smart_unicode
 try:
     import termios
     import tty
@@ -397,6 +397,8 @@ class SshTerminalThread(threading.Thread):
                                 record_command = self.ssh_base_component.deal_command(
                                         ''.join(command).strip().replace('\\\r', '\r')
                                 )
+                                if isinstance(record_command, str):
+                                    record_command = str(record_command).encode('utf-16', errors='ignore').decode('utf-16')
                                 # 命令拦截匹配策略
                                 block_flag, block_type, block_info = CheckUserHostComponent().check_command(
                                         command=record_command.strip(), token=self.token
@@ -404,7 +406,7 @@ class SshTerminalThread(threading.Thread):
                                 if record_command.strip():
                                     SessionCommandHistoryModel.create(**{
                                         "session_log": session_obj,
-                                        "command": record_command.strip()
+                                        "command": str(record_command).strip()
                                     })
                                     if self.ssh_type == "database":
                                         quits = record_command.strip()
@@ -561,8 +563,12 @@ class InterActiveShellThread(threading.Thread):
                 if get_redis_str_data("cache", self.stop_key):
                     break
                 try:
-                    r, w, x = select.select([sshchan], [], [])
-                    data = sshchan.recv(4096)
+                    try:
+                        r, w, x = select.select([sshchan], [], [])
+                    except Exception as e:
+                        pass
+
+                    data = sshchan.recv(102400)
                     # print("dddddddddddddddddddddddd", data)
                     if self.database_client:
                         # app_logger.info("self.database_client: ||||{}||||".format(self.database_client))

@@ -53,17 +53,17 @@ class SendMessage(Component, SetupConfMixin):
             if invaliduser:
                 self.response.payload = {
                     'result': False,
-                    'message': u'WeChat message sending failed, invalid user: %s' % invaliduser
+                    'message': 'WeChat message sending failed, invalid user: %s' % invaliduser
                 }
             else:
-                self.response.payload = {'result': True, 'message': u'WeChat message sending succeeded'}
+                self.response.payload = {'result': True, 'message': 'WeChat message sending succeeded'}
         else:
             ret_data = result.get('data', {})
             message = 'WeChat message sending failed'
             if ret_data.get('invaliduser'):
-                message = u'%s, invalid user: %s' % (message, ret_data['invaliduser'])
+                message = '%s, invalid user: %s' % (message, ret_data['invaliduser'])
             if ret_data.get("errmsg"):
-                message = u'%s, %s' % (message, ret_data['errmsg'])
+                message = '%s, %s' % (message, ret_data['errmsg'])
             self.response.payload = {
                 'result': False,
                 'message': message,

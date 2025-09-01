@@ -7,7 +7,7 @@ http://opensource.org/licenses/MIT
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 """ # noqa
 
-from __future__ import unicode_literals
+
 
 import datetime
 import json
@@ -38,7 +38,7 @@ def record_user_operate(app_code, username, operate_type, before_data='', arfter
     if isinstance(extra_data, dict):
         extra_data = json.dumps(extra_data)
 
-    if not isinstance(extra_data, basestring):
+    if not isinstance(extra_data, str):
         extra_data = str(extra_data)
 
     result = UserOperateRecord.objects.create_operate_record(app_code, username, operate_type,

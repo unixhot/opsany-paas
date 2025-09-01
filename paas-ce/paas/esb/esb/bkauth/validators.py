@@ -20,8 +20,8 @@ class UserAuthValidator(BaseValidator):
         super(UserAuthValidator, self).__init__(*args, **kwargs)
 
     def validate(self, request):
-        kwargs = request.g.kwargs
-        app_code = request.g.app_code
+        kwargs = request.kwargs
+        app_code = request.app_code
 
         access_token = kwargs.get('bk_access_token')
         if access_token:
@@ -32,7 +32,7 @@ class UserAuthValidator(BaseValidator):
         bk_token = kwargs.get('bk_token')
         if bk_token:
             from components.bk.apis.bk_login.is_login import IsLogin
-            check_result = IsLogin().invoke(kwargs={'bk_token': bk_token}, request_id=request.g.request_id)
+            check_result = IsLogin().invoke(kwargs={'bk_token': bk_token}, request_id=request.request_id)
             if not check_result['result']:
                 raise ValidationError('User authentication failed, please check if the bk_token is valid')
             self.sync_current_username(request, check_result.get('data', {}).get('username', ''))
@@ -46,7 +46,7 @@ class UserAuthValidator(BaseValidator):
         raise ValidationError('User authentication failed, please provide a valid user identity, such as bk_token, bk_username')  # noqa
 
     def sync_current_username(self, request, username):
-        request.g.current_user_username = username
+        request.current_user_username = username
 
     def validate_bk_token(self):
         pass

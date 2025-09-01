@@ -7,15 +7,15 @@ http://opensource.org/licenses/MIT
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 """ # noqa
 
-from __future__ import unicode_literals
 
-from django.conf.urls import url
+
+from django.urls import path
 
 from guide import views
 
 urlpatterns = [
     # 服务介绍
-    url(r'^services/$', views.ServiceIntroductionView.as_view()),
+    path('services/', views.ServiceIntroductionView.as_view()),
     # 新手指南
-    url(r'^newbie/$', views.NewbieView.as_view()),
+    path('newbie/', views.NewbieView.as_view()),
 ]

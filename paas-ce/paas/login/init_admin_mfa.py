@@ -8,7 +8,7 @@ def init_admin_mfa(host, port, username, password, name="rbac"):
         cursor = db.cursor()
     except Exception as e:
         db = None
-        print("Link mysql error: {}".format(str(e)))
+        print(("Link mysql error: {}".format(str(e))))
     if db:
         sql = "UPDATE rbac_user SET google_auth_status=0, google_secret='' WHERE username='admin';"
         try:
@@ -17,7 +17,7 @@ def init_admin_mfa(host, port, username, password, name="rbac"):
             print("Init admin user mfa success")
         except Exception as e:
             db.rollback()
-            print("Init admin user mfa error, error info {}".format(str(e)))
+            print(("Init admin user mfa error, error info {}".format(str(e))))
         db.close()
 
 

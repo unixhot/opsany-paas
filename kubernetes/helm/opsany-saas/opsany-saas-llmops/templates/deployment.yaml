@@ -1,0 +1,148 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "opsany-saas-llmops.fullname" . }}
+  labels:
+    {{- include "opsany-saas-llmops.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "opsany-saas-llmops.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "opsany-saas-llmops.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      initContainers: 
+        - name: migrate
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["python", "/opt/opsany/llmops/manage.py","migrate"] 
+          env:  
+            - name: BK_ENV
+              value: "production"
+          volumeMounts:
+            - name: opsany-saas-ce-llmops-init
+              mountPath: /opt/opsany/llmops/config/__init__.py
+              subPath: llmops-init.py
+            - name: opsany-saas-ce-llmops-prod
+              mountPath: /opt/opsany/llmops/config/prod.py
+              subPath: llmops-prod.py
+            - name: opsany-saas-ce-llmops-supervisor
+              mountPath: /etc/supervisord.d/llmops.ini
+              subPath: llmops-supervisor.ini
+            - name: opsany-saas-ce-llmops-nginx
+              mountPath: /etc/nginx/http.d/default.conf
+              subPath: llmops-nginx.conf
+            - name: opsany-saas-ce-llmops-uwsgi
+              mountPath: /opt/opsany/uwsgi/llmops.ini
+              subPath: llmops-uwsgi.ini
+            - name: opsany-logs
+              mountPath: /opt/opsany/logs
+            - name: opsany-uploads
+              mountPath: /opt/opsany/uploads
+          
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          volumeMounts:
+            - name: opsany-saas-ce-llmops-init
+              mountPath: /opt/opsany/llmops/config/__init__.py
+              subPath: llmops-init.py
+            - name: opsany-saas-ce-llmops-prod
+              mountPath: /opt/opsany/llmops/config/prod.py
+              subPath: llmops-prod.py
+            - name: opsany-saas-ce-llmops-supervisor
+              mountPath: /etc/supervisord.d/llmops.ini
+              subPath: llmops-supervisor.ini
+            - name: opsany-saas-ce-llmops-nginx
+              mountPath: /etc/nginx/http.d/default.conf
+              subPath: llmops-nginx.conf
+            - name: opsany-saas-ce-llmops-uwsgi
+              mountPath: /opt/opsany/uwsgi/llmops.ini
+              subPath: llmops-uwsgi.ini
+            - name: opsany-logs
+              mountPath: /opt/opsany/logs
+            - name: opsany-uploads
+              mountPath: /opt/opsany/uploads
+
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+#          livenessProbe:
+#            httpGet:
+#              path: /o/llmops/healthz/
+#              port: http
+#          readinessProbe:
+#            httpGet:
+#              path: /o/llmops/healthz/
+#              port: http
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+        - name: opsany-saas-ce-llmops-init
+          configMap:
+            name: opsany-saas-ce-llmops-init
+            items:
+            - key: llmops-init.py
+              path: llmops-init.py
+        - name: opsany-saas-ce-llmops-prod
+          configMap:
+            name: opsany-saas-ce-llmops-prod
+            items:
+            - key: llmops-prod.py
+              path: llmops-prod.py
+        - name: opsany-saas-ce-llmops-nginx
+          configMap:
+            name: opsany-saas-ce-llmops-nginx
+            items:
+            - key: llmops-nginx.conf
+              path: llmops-nginx.conf
+        - name: opsany-saas-ce-llmops-uwsgi
+          configMap:
+            name: opsany-saas-ce-llmops-uwsgi
+            items:
+            - key: llmops-uwsgi.ini
+              path: llmops-uwsgi.ini
+        - name: opsany-saas-ce-llmops-supervisor
+          configMap:
+            name: opsany-saas-ce-llmops-supervisor
+            items:
+            - key: llmops-supervisor.ini
+              path: llmops-supervisor.ini
+        - name: opsany-uploads
+          persistentVolumeClaim:
+            claimName: opsany-uploads
+        - name: opsany-logs
+          persistentVolumeClaim:
+            claimName: opsany-logs
+

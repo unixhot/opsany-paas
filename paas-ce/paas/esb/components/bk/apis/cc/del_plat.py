@@ -61,7 +61,7 @@ class DelPlat(Component):
     host = configs.host
 
     class Form(BaseComponentForm):
-        plat_id = forms.IntegerField(label=u'子网ID', required=True)
+        plat_id = forms.IntegerField(label='子网ID', required=True)
 
         def clean(self):
             data = self.cleaned_data

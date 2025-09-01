@@ -58,7 +58,7 @@ def str_bool(value):
         >>> str_bool("false")
         False
     """
-    if isinstance(value, basestring):
+    if isinstance(value, str):
         value = value.strip()
         if value.lower() in ("0", "false"):
             return False
@@ -69,7 +69,7 @@ class FancyDict(dict):
     def __getattr__(self, key):
         try:
             return self[key]
-        except KeyError, k:
+        except KeyError as k:
             raise AttributeError(k)
 
     def __setattr__(self, key, value):
@@ -78,7 +78,7 @@ class FancyDict(dict):
     def __delattr__(self, key):
         try:
             del self[key]
-        except KeyError, k:
+        except KeyError as k:
             raise AttributeError(k)
 
 
@@ -101,7 +101,7 @@ def smart_upper(value):
         'requestFriendHandler'
     """
     value_list = value.split('_')
-    return ''.join(string.capitalize(word) if i != 0 else word
+    return ''.join(word.capitalize() if i != 0 else word
                    for i, word in enumerate(value_list))
 
 
@@ -109,7 +109,7 @@ def smart_str(s, encoding='utf-8'):
     """
     转换一个字符串或者unicode为指定的编码
     """
-    if isinstance(s, unicode):
+    if isinstance(s, str):
         return s.encode(encoding)
     elif s and encoding != 'utf-8':
         return s.decode('utf-8', 'ignore').encode(encoding, 'ignore')
@@ -121,7 +121,7 @@ def smart_unicode(s, encoding='utf-8'):
     """
     转换一个字符串或者unicode为unicode
     """
-    if isinstance(s, unicode):
+    if isinstance(s, str):
         return s
     return s.decode(encoding, 'ignore')
 
@@ -144,14 +144,14 @@ def smart_unicode_v2(s, encoding=None):
             encoding = chardet.detect(s)['encoding']
         return encoding or 'utf-8'
 
-    if isinstance(s, unicode):
+    if isinstance(s, str):
         return s
     if encoding is None:
         encoding = guess_encoding(s)
     try:
-        s = unicode(s, encoding, errors='replace')
+        s = str(s, encoding, errors='replace')
     except (LookupError, TypeError):
-        s = unicode(s, errors='replace')
+        s = str(s, errors='replace')
     return s
 
 
@@ -168,7 +168,7 @@ def get_not_empty_value(kwargs):
     获取非空数据，去除数据为空字段
     """
     data = {}
-    for k, v in kwargs.items():
+    for k, v in list(kwargs.items()):
         if v not in (None, '', [], {}):
             data[k] = v
     return data
@@ -191,7 +191,7 @@ def get_client_ip(request):
     """
     获取远程访问主机的IP地址
     """
-    client_ip = request.META.get('HTTP_X_FORWARDED_FOR')
+    client_ip = request.headers.get('x-forwarded-for')
     if not client_ip:
         client_ip = request.META.get('REMOTE_ADDR', '')
     try:
@@ -205,10 +205,10 @@ def get_client_ip(request):
 
 
 def get_client_real_ip(request):
-    real_ip = request.META.get('HTTP_X_REAL_IP')
+    real_ip = request.headers.get('x-real-ip')
     if real_ip:
         return real_ip
-    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    x_forwarded_for = request.headers.get('x-forwarded-for')
     if x_forwarded_for:
         return x_forwarded_for.rsplit(',', 1)[-1].strip()
     return request.META.get('REMOTE_ADDR', '')
@@ -220,10 +220,10 @@ def get_request_params(request):
     #         'Request method error, please apply GET or POST request.', replace=True)
     # "GET"方法
     if request.method == 'GET':
-        request_params = dict(request.GET.items())
+        request_params = dict(list(request.GET.items()))
     else:
         # "POST"方法
-        if request.body and request.body.strip().startswith('{'):
+        if request.body and request.body.decode().strip().startswith('{'):
             try:
                 request_params = json.loads(request.body)
             except Exception:
@@ -231,7 +231,7 @@ def get_request_params(request):
                 raise error_codes.COMMON_ERROR.format_prompt(
                     'Request JSON string is wrong in format, which cannot be analyzed.', replace=True)
         else:
-            request_params = dict(request.POST.items())
+            request_params = dict(list(request.POST.items()))
     return request_params
 
 

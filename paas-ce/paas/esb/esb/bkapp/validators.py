@@ -38,7 +38,7 @@ class AppAuthValidator(BaseValidator):
 
         elif self.verified_type == 'signature_or_app_secret':
             signature = request.GET.get('bk_signature') or request.GET.get('signature')
-            app_secret = request.g.kwargs.get('bk_app_secret') or request.g.kwargs.get('app_secret')
+            app_secret = request.kwargs.get('bk_app_secret') or request.kwargs.get('app_secret')
             if signature:
                 validator = SignatureValidator()
                 validator.validate(request)
@@ -61,8 +61,8 @@ class AppSecretValidator(BaseValidator):
         super(AppSecretValidator, self).__init__(*args, **kwargs)
 
     def validate(self, request):
-        kwargs = request.g.kwargs
-        app_code = request.g.app_code
+        kwargs = request.kwargs
+        app_code = request.app_code
         app_secret = kwargs.get('bk_app_secret') or kwargs.get('app_secret')
 
         if not app_code:
@@ -91,7 +91,7 @@ class SignatureValidator(BaseValidator):
         """
         为了应对使用proxy_pass拿不到完整path的情况，先尝试获取自定义头信息，再尝试 path_info
         """
-        path = request.META.get('HTTP_X_REQUEST_URI', '').split('?')[0]
+        path = request.headers.get('x-request-uri', '').split('?')[0]
         if not path:
             path = request.META['PATH_INFO']
         return path
@@ -101,14 +101,14 @@ class SignatureValidator(BaseValidator):
         if getattr(request, '__esb_skip_signature__', False):
             return
 
-        req_get_params = dict(request.GET.items())
+        req_get_params = dict(list(request.GET.items()))
 
         # 将 signature 参数从参数字典中拿掉
         signature = req_get_params.pop('bk_signature', None) or req_get_params.pop('signature', None)
         if not signature:
             raise ValidationError('Signature [bk_signature] cannot be empty')
 
-        app_code = request.g.app_code
+        app_code = request.app_code
 
         app_info = self.check_app_code(app_code)
         self.check_nonce(req_get_params.get('bk_nonce'))
@@ -129,7 +129,7 @@ class SignatureValidator(BaseValidator):
         """
         # 校验signature
         req_params = '&'.join(['%s=%s' % (k, v) for k, v in
-                               sorted(params.iteritems(), key=lambda x: x[0])])
+                               sorted(iter(params.items()), key=lambda x: x[0])])
         message = '%s%s?%s' % (method, path, req_params)
         for valid_app_secret in valid_app_secret_list:
             sign = base64.b64encode(hmac.new(str(valid_app_secret), message, hashlib.sha1).digest())
@@ -187,6 +187,6 @@ class AppCodeWhiteListValidator(BaseValidator):
         super(AppCodeWhiteListValidator, self).__init__(*args, **kwargs)
 
     def validate(self, request):
-        app_code = request.g.app_code
+        app_code = request.app_code
         if app_code not in self.white_list:
             raise error_codes.APP_PERMISSION_DENIED.format_prompt('APP [bk_app_code=%s] is forbidden to access this component' % app_code)  # noqa

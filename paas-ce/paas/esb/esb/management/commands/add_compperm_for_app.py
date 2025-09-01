@@ -27,7 +27,7 @@ class Command(BaseCommand):
         component_name = options['component_name']
 
         if not app_code:
-            raise CommandError(u'应用编码 app_code 不能为空')
+            raise CommandError('应用编码 app_code 不能为空')
 
         components = ESBChannel.objects.all()
         if system_name:
@@ -51,6 +51,6 @@ class Command(BaseCommand):
                 tip=tip, app_code=app_code, system_name=component['component_system__name'],
                 component_name=component['component_name'],
             )
-            print tip
+            print(tip)
 
-        print 'Done, count: {count}'.format(count=len(components))
+        print('Done, count: {count}'.format(count=len(components)))

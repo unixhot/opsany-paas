@@ -104,14 +104,13 @@ class UpdateAgentState(Component):
         params['operator'] = self.current_user.username
 
         # 请求系统接口
-        print(self.request.wsgi_request.g.headers)
         response = self.outgoing.http_client.post(
             host=configs.host,
             path='{}updata-agent/'.format(base_api_url),
             params=None,
             data=json.dumps(params),
             cookies=self.request.wsgi_request.COOKIES,
-            headers=self.request.wsgi_request.g.headers
+            headers=self.request.wsgi_request.g.headers if hasattr(self.request.wsgi_request, "g") else self.request.wsgi_request.headers
         )
 
         # 对结果进行解析

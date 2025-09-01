@@ -6,13 +6,13 @@ Licensed under the MIT License (the "License"); you may not use this file except
 http://opensource.org/licenses/MIT
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 """ # noqa
-from __future__ import unicode_literals
-import StringIO
+
+import io
 
 import xlrd
 import xlwt
 from django.conf import settings
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from common.log import logger
 from bkaccount.accounts import Account
@@ -41,13 +41,13 @@ def is_request_from_esb(request):
     """
     请求是否来自ESB
     """
-    x_app_token = request.META.get('HTTP_X_APP_TOKEN')
-    x_app_code = request.META.get('HTTP_X_APP_CODE')
+    x_app_token = request.headers.get('x-app-token')
+    x_app_code = request.headers.get('x-app-code')
     return x_app_code == 'esb' and x_app_token == settings.ESB_TOKEN
 
 
 def read_user_import_xls(xls_file):
-    str_file = StringIO.StringIO(xls_file.read())
+    str_file = io.StringIO(xls_file.read())
     wbk = xlrd.open_workbook(file_contents=str_file.read())
     sheet = wbk.sheets()[0]
 
@@ -120,7 +120,7 @@ def get_role_code_by_role_name(role_name):
     """
     role_name_code_dict = dict([(_(i[1]), i[0]) for i in ROLECODE_CHOICES])
     try:
-        role_name = u"%s" % role_name
+        role_name = "%s" % role_name
         role_code = role_name_code_dict.get(role_name)
     except Exception as error:
         logger.exception("role name conversion role code error: {}".format(error))

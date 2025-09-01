@@ -9,9 +9,9 @@ Unless required by applicable law or agreed to in writing, software distributed 
 
 from __future__ import unicode_literals
 
-from functools import wraps
+from functools import WRAPPER_ASSIGNMENTS, wraps
 
-from django.utils.decorators import available_attrs
+#from django.utils.decorators import available_attrs
 
 
 def login_exempt(view_func):
@@ -21,7 +21,8 @@ def login_exempt(view_func):
         return view_func(*args, **kwargs)
 
     wrapped_view.login_exempt = True
-    return wraps(view_func, assigned=available_attrs(view_func))(wrapped_view)
+    #return wraps(view_func, assigned=available_attrs(view_func))(wrapped_view)
+    return wraps(view_func, assigned=WRAPPER_ASSIGNMENTS)(wrapped_view)
 
 
 def developer_limit_exempt(view_func):
@@ -31,4 +32,5 @@ def developer_limit_exempt(view_func):
         return view_func(*args, **kwargs)
 
     wrapped_view.developer_limit_exempt = True
-    return wraps(view_func, assigned=available_attrs(view_func))(wrapped_view)
+    #return wraps(view_func, assigned=available_attrs(view_func))(wrapped_view)
+    return wraps(view_func, assigned=WRAPPER_ASSIGNMENTS)(wrapped_view)
