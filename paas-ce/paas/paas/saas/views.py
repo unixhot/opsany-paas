@@ -231,7 +231,7 @@ class UploadAndRegisterView(SuperuserRequiredMixin, View):
                 message = "saas_app_secret_key必须是UUID生成的数值！"
         app = App.objects.filter(code=app_code).first()
         app_by_name = App.objects.filter(name=app_name).first()
-        if app != app_by_name:
+        if app and app_by_name and (app != app_by_name):
             result = False
             message = "该应用 <{}> 应用名称 <{}> 已被 <{}> 使用".format(app_code, app_name, app_by_name.name)
         if not all([saas_file_name, app_code, app_name, version, secret_key]):

@@ -13,7 +13,7 @@ class GrafanaBasicApi:
         self.username = username
         self.password = password
         self.grafana_token = grafana_token
-        self.grafana_url = str(grafana_url)
+        self.grafana_url = str(grafana_url) + ("/" if str(grafana_url)[-1] != "/" else "")
 
     def create_or_update_dashboard(self, dashboard):
         # 需要使用requests去做
@@ -52,10 +52,10 @@ class GrafanaBasicApi:
                 return dashboard_json_list
             else:
                 print("Not find valid file.")
-                # sys.exit(0)
+                return []
         except Exception as e:
             print("Get target file error, error info: {}".format(str(e)))
-            # sys.exit(1)
+            return []
 
 
 def run(grafana_url, grafana_token, grafana_username=None, grafana_password=None, target_path="./dashboard-init", overwrite=True):
@@ -88,6 +88,7 @@ def add_parameter():
     parameter.add_argument("--grafana_username", help="Grafana Username.", required=False)
     parameter.add_argument("--grafana_password", help="Grafana Password.", required=False)
     parameter.add_argument("--dashboard_path", help="Grafana Dashboard Path.", required=False)
+    parameter.add_argument("--overwrite", help="Grafana Dashboard overwrite.", required=False)
     parameter.parse_args()
     return parameter
 
@@ -96,6 +97,7 @@ if __name__ == "__main__":
     parameter = add_parameter()
     options = parameter.parse_args()
     dashboard_path = options.dashboard_path
+    overwrite = True if options.overwrite=="true" else False
     if not dashboard_path:
         dashboard_path = "./dashboard-init"
     run(
@@ -104,12 +106,18 @@ if __name__ == "__main__":
         options.grafana_username,
         options.grafana_password,
         target_path=dashboard_path,
-        overwrite=True,
+        overwrite=overwrite,
     )
     # target_path:脚本路径 overwrite:覆盖原数据(更新-标识依据 id,uid,title )
     # 1. 传入id时当id不存在报错导入失败, id存在直接覆盖更新
     # 2. 不传入id判断uid,title不存在创建，存在更新
-    # 使用token操作 dashboard_path 默认路径./dashboard-init
-    # python3 init_dashboard.py  --grafana_url https://domain/grafana/ --grafana_token grafana_token --dashboard_path ./dashboard-init
-    # 使用用户名密码操作  dashboard_path 默认路径./dashboard-init
-    # python3 init_dashboard.py  --grafana_url https://domain/grafana/ --grafana_username admin --grafana_password grafana_password --dashboard_path ./dashboard-init
+    # 使用token操作 dashboard_path 默认路径./dashboard-init  overwrite 是否覆盖
+    # 使用用户名密码操作  dashboard_path 默认路径./dashboard-init  overwrite 是否覆盖
+
+    # 社区版大屏
+    # 使用密码: python3 init_dashboard.py  --grafana_url https://domain/grafana/ --grafana_username admin --grafana_password grafana_password --overwrite true --dashboard_path ./dashboard-init
+    # 使用Token: python3 init_dashboard.py  --grafana_url https://domain/grafana --grafana_token grafana_token --overwrite true --dashboard_path ../opsany-ee/init/dashboard-init
+
+    # 企业版大屏
+    # 使用密码: python3 init_dashboard.py  --grafana_url https://domain/grafana/ --grafana_username admin --grafana_password grafana_password --overwrite true --dashboard_path ../opsany-ee/init/dashboard-init
+    # 使用Token: python3 init_dashboard.py  --grafana_url https://domain/grafana/ --grafana_token grafana_token --overwrite true  --dashboard_path ../opsany-ee/init/dashboard-init

@@ -28,7 +28,7 @@ base_save(){
 	docker save -o mysql-8.0.30-x86.tar registry.cn-beijing.aliyuncs.com/opsany/mysql:8.0.30
 	docker save -o zabbix-web-nginx-mysql.tar registry.cn-beijing.aliyuncs.com/opsany/zabbix-web-nginx-mysql:7.0.3-ubuntu
 	docker save -o zabbix-server-mysql.tar registry.cn-beijing.aliyuncs.com/opsany/zabbix-server-mysql:7.0.3-ubuntu
-	docker save -o redis-6.0.9-x86.tar registry.cn-beijing.aliyuncs.com/opsany/redis:6.2.19-alpine
+	docker save -o redis-6.2.19-x86.tar registry.cn-beijing.aliyuncs.com/opsany/redis:6.2.19-alpine
 	docker save -o mongo-4.4.1-x86.tar registry.cn-beijing.aliyuncs.com/opsany/mongo:4.4.1-bionic
 	docker save -o openresty-1.17.8.2-x86.tar  registry.cn-beijing.aliyuncs.com/opsany/openresty:1.17.8.2-alpine
 	docker save -o guacd-1.2.0-x86.tar registry.cn-beijing.aliyuncs.com/opsany/guacd:1.2.0

@@ -16,7 +16,7 @@ DATABASES = {
         'NAME': "opsany_proxy",
         'USER': "opsany",
         'HOST': os.getenv("MYSQL_HOST", "MYSQL_SERVER_IP"),
-        'PORT': os.getenv("MYSQL_PORT", "3306"),
+        'PORT': os.getenv("MYSQL_PORT", "MYSQL_SERVER_PORT"),
         'PASSWORD': os.getenv("MYSQL_PASSWORD", "MYSQL_OPSANY_PASSWORD"),
         'OPTIONS': {
                 "init_command": "SET default_storage_engine=INNODB",
@@ -26,7 +26,7 @@ DATABASES = {
 
 # Redis缓存设置
 REDIS_HOST = os.getenv("REDIS_HOST", "REDIS_SERVER_IP")
-REDIS_PORT = os.getenv("REDIS_PORT", "6379")
+REDIS_PORT = os.getenv("REDIS_PORT", "REDIS_SERVER_PORT")
 REDIS_PASSWORD = os.getenv("REDIS_PASSWORD", "REDIS_SERVER_PASSWORD")
 
 BROKER_URL = "redis://:{PASSWORD}@{HOST}:{PORT}/8".format(PASSWORD=REDIS_PASSWORD, HOST=REDIS_HOST, PORT=REDIS_PORT)

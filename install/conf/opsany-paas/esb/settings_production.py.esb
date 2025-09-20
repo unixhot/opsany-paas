@@ -18,7 +18,7 @@ DATABASES = {
         'USER': 'opsany',
         'PASSWORD': 'MYSQL_OPSANY_PASSWORD',
         'HOST': 'MYSQL_SERVER_IP',
-        'PORT': '3306',
+        'PORT': 'MYSQL_SERVER_PORT',
     }
 }
 
