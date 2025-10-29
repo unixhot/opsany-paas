@@ -13,7 +13,7 @@ import argparse
 from Crypto.Cipher import AES
 
 DB_HOST = "LOCALHOST"
-DB_PORT = 3306
+DB_PORT = MYSQL_SERVER_PORT
 DB_NAME = "opsany_proxy"
 DB_PASSWORD = "PROXY_PASSWORD"
 DB_USERNAME = "opsany"
