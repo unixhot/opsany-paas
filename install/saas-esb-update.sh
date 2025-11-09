@@ -106,10 +106,10 @@ esb_update(){
 }
 
 esb_restart(){
-    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" opsany_paas < ./init/esb-init/esb_api_doc.sql
-    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" opsany_paas < ./init/esb-init/esb_channel.sql
-    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" opsany_paas < ./init/esb-init/esb_component_system.sql
-    mysql -h "${MYSQL_SERVER_IP}" -u root -p"${MYSQL_ROOT_PASSWORD}" opsany_paas < ./init/esb-init/esb_function_controller.sql
+    mysql -h "${MYSQL_SERVER_IP}" -P "${MYSQL_SERVER_PORT}" -u root -p"${MYSQL_ROOT_PASSWORD}" opsany_paas < ./init/esb-init/esb_api_doc.sql
+    mysql -h "${MYSQL_SERVER_IP}" -P "${MYSQL_SERVER_PORT}" -u root -p"${MYSQL_ROOT_PASSWORD}" opsany_paas < ./init/esb-init/esb_channel.sql
+    mysql -h "${MYSQL_SERVER_IP}" -P "${MYSQL_SERVER_PORT}" -u root -p"${MYSQL_ROOT_PASSWORD}" opsany_paas < ./init/esb-init/esb_component_system.sql
+    mysql -h "${MYSQL_SERVER_IP}" -P "${MYSQL_SERVER_PORT}" -u root -p"${MYSQL_ROOT_PASSWORD}" opsany_paas < ./init/esb-init/esb_function_controller.sql
     docker restart opsany-paas-esb
 }
 
