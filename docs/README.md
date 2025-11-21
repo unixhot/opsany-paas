@@ -1,97 +1,80 @@
-# 本地开发环境部署文档
+# PaaS开发环境部署文档
 
-本文档适合开发者在本地开发主机部署开发环境，有一些共享服务需要部署在专用的开发环境主机。
+提示：本文档适合开发者在本地开发主机部署PaaS开发环境，大部分情况下是不需要进行PaaS开发的。如果仅仅是开发SaaS平台，不需要参考此文档，可以使用容器化部署OpsAny，然后查看官方文档-开发手册-SaaS平台开发手册即可。
 
 ## 系统要求
 
-- 数据库: MySQL、MongoDB、Redis
+- 操作系统：Ubunut 20.04、22.04、24.04
+- 数据库: MySQL、MongoDB、Redis、Elasticsearch
 - 消息队列：RabbitMQ、Redis
-- Python版本: python2.7 (务必使用python2.7, 推荐2.7.15，目前PaaS采用Python2.7编写)
+- Python版本: Python 3.12.4、Python 3.7.17
 
 1. 部署说明
 
-- `paas-ce` web侧一共4个项目: paas/appengine/login/esb; 均是基于Django开发的
-- 4个项目共用一个数据库
+- `paas-ce` web侧一共5个项目: paas/appengine/login/esb/websocket; 均是基于Django开发的
 - 项目部署过程一致; 过程中需要注意每个项目的配置文件及拉起的端口号(每个项目需要使用不同的端口号)
-- 可以部署在同一台机器上, 使用不同端口号即可
+- 可以部署在同一台机器上, 使用不同端口号即可。
+- 后续所有操作均以Ubuntu操作系统为准，其它操作系统请自行调整。
 
 2. 预分配端口号
 
-预先分配每个服务的端口号, 假设部署机器IP为`192.168.0.101`
+预先分配每个服务的端口号, 假设部署机器IP为`192.168.0.111`
 
-- appengine: 192.168.0.101:8000 Python2
-- paas: 192.168.0.101:8001 Python2
-- esb: 192.168.0.101:8002 Python2
-- login: 192.168.0.101:8003 Python2
+- appengine: 192.168.0.111:8000 
+- paas: 192.168.0.111:8001
+- esb: 192.168.0.111:8002
+- login: 192.168.0.111:8003 
+- websocket: 192.168.0.111:8004
 
 服务间是相互依赖的, 所以部署配置文件中需要将预先分配的服务地址填写到对应变量中。
 
-## 开发环境准备
+## 开发环境准备（Ubuntu）
 
-1. 系统初始化
-
-```
-[root@linux-node1 ~]# cat /etc/redhat-release 
-CentOS Linux release 7.9.2009 (Core) 
-```
-关闭SELinux、Iptables、可参考文档：http://k8s.unixhot.com/example-manual.html
-
-2. 安装依赖软件包
+1. 基础软件包安装和Redis、RabbitMQ、Nginx、Mariadb等安装。
 
 ```
-[root@linux-node1 ~]# yum install -y git mariadb mariadb-server nginx supervisor openssl-devel \
- python-pip pycrypto gcc glibc python-devel rabbitmq-server python3 python3-devel redis
-[root@linux-node1 ~]# mkdir -p /opt/opsany/{logs,uploads}
+apt-get update
+apt install -y make build-essential libssl-dev zlib1g-dev \
+libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev \
+libncursesw5-dev xz-utils tk-dev libffi-dev liblzma-dev \
+libgdbm-dev libnss3-dev libedit-dev libc6-dev screen wget uuid unzip \
+redis-server mariadb-server rabbitmq-server nginx supervisor tcl-dev \
+libmariadb-dev-compat libmariadb-dev libsasl2-dev libldap2-dev libssl-dev \
+gcc
 ```
 
-3. 初始化MySQL数据库
+2. 初始化MySQL数据库。
 
 ```
-[root@linux-node1 ~]# vim /etc/my.cnf
+# 修改配置文件
+[root@linux-node1 ~]# vim vim /etc/mysql/mariadb.conf.d/50-server.cnf 
+bind-address            = 192.168.0.111
 default-storage-engine = innodb
 innodb_file_per_table
 collation-server = utf8_general_ci
 init-connect = 'SET NAMES utf8'
 character-set-server = utf8
 
+# 启动MySQL并进行初始化
 [root@linux-node1 ~]# systemctl enable mariadb && systemctl start mariadb
 [root@linux-node1 ~]# mysql_secure_installation 
+
+# 创建数据库
 [root@linux-node1 ~]# mysql -u root -p
 MariaDB [(none)]> CREATE DATABASE IF NOT EXISTS opsany_paas DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
-MariaDB [(none)]> grant all on opsany_paas.* to opsany@localhost identified by '123456.coM';
+MariaDB [(none)]> CREATE DATABASE IF NOT EXISTS opsany_proxy DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
+MariaDB [(none)]> CREATE USER opsany@'%' identified by "\"${MYSQL_OPSANY_PASSWORD}\"";
+MariaDB [(none)]> grant all on opsany_paas.* to opsany@'%';
+MariaDB [(none)]> grant all on opsany_proxy.* to opsany@'%';
 MariaDB [(none)]> exit;
 ```
 
-4. 初始化MongoDB数据库
-
-- 配置MongoDB
-
-```
-cat > /etc/yum.repos.d/mongodb.repo <<"EOF"
-[mongodb-org]
-name=MongoDB Repository
-#baseurl=https://mirrors.tuna.tsinghua.edu.cn/mongodb/yum/el$releasever/
-baseurl=http://mirrors.cloud.tencent.com/mongodb/yum/el$releasever/
-gpgcheck=0
-enabled=1
-EOF
-```
-
-- 安装MongoDB
-
-```
-[root@linux-node1 ~]# yum install -y mongodb-org-shell mongodb-org-tools mongodb-org mongodb-org-server
-[root@linux-node1 ~]# systemctl enable mongod && systemctl start mongod
-[root@linux-node1 ~]# netstat -ntlp | grep 27017
-tcp        0      0 127.0.0.1:27017         0.0.0.0:*               LISTEN      28513/mongod
-```
-
-5. 部署Redis数据库
+3. 部署Redis数据库
 
 - 配置Redis
 
 ```
-[root@linux-node1 ~]# vim /etc/redis.conf
+[root@linux-node1 ~]# vim /etc/redis/redis.conf
 bind 0.0.0.0
 daemonize yes
 requirepass 123456.coM
@@ -100,16 +83,10 @@ requirepass 123456.coM
 - 启动Redis
 
 ```
-[root@linux-node1 ~]# systemctl enable --now redis
+[root@linux-node1 ~]# systemctl enable --now redis-server
 ```
 
-6. 部署RabbitMQ消息队列
-
-- 安装RabbitMQ
-
-```
-[root@linux-node1 ~]# yum install -y rabbitmq-server
-```
+4. 部署RabbitMQ消息队列
 
 - 设置开启启动，并启动RabbitMQ
 
@@ -124,6 +101,7 @@ requirepass 123456.coM
 ```
 [root@linux-node1 ~]# rabbitmqctl add_user opsany 123456.coM
 Creating user "opsany" ...
+[root@linux-node1 ~]# rabbitmqctl set_user_tags opsany administrator
 ```
 
 - 给刚才创建的openstack用户，创建权限。
@@ -152,16 +130,52 @@ beam    2620 rabbitmq   15u  IPv4  16805      0t0  TCP *:15672 (LISTEN)
 > RabbitMQ默认的用户名和密码均为guest。之前创建的openstack的用户是无法通过Web界面登录的。
 
 
-7. 克隆代码
+5. 克隆代码并准备Python环境
+
+已知CentOS 7由于GCC版本比较低，无法成功编译Python3.12，推荐使用Ubuntu 22.04。
+
+- 5.1 准备Python3环境
+
+```
+# 编译安装Python 3.12.4
+[root@linux-node1 ~]# yum install -y abc abc-devel
+[root@linux-node1 ~]# cd /usr/local/src
+[root@linux-node1 src]# wget https://www.python.org/ftp/python/3.12.4/Python-3.12.4.tgz
+[root@linux-node1 src]# tar zxf Python-3.12.4.tgz
+[root@linux-node1 src]# cd Python-3.12.4/
+[root@linux-node1 Python-3.6.8]# ./configure --prefix=/usr/local/Python-3.12.4 --enable-ipv6 --enable-optimizations
+[root@linux-node1 Python-3.6.8]# make && make install
+
+# 编译安装Python 3.7.17
+[root@linux-node1 ~]# yum install -y abc abc-devel
+[root@linux-node1 ~]# cd /usr/local/src
+[root@linux-node1 src]# wget https://www.python.org/ftp/python/3.7.17/Python-3.7.17.tgz
+[root@linux-node1 src]# tar zxf Python-3.7.17.tgz
+[root@linux-node1 src]# cd Python-3.7.17/
+[root@linux-node1 Python-3.6.8]# ./configure --prefix=/usr/local/Python-3.7.17 --enable-ipv6 --enable-optimizations
+[root@linux-node1 Python-3.6.8]# make && make install
+```
+
+- 5.2 确认Python版本
+
+```
+[root@ops ~]# ln -s /usr/local/Python-3.12.4 /opt/py312
+[root@ops ~]# /opt/py312/bin/python3 --version
+Python 3.12.4
+[root@ops ~]# ln -s /usr/local/Python-3.7.17 /opt/py37
+[root@ops ~]# /opt/py37/bin/python3 --version
+Python 3.7.17
+```
+
+- 5.3 克隆项目代码
 
 ```
 [root@linux-node1 ~]# cd /opt
-[root@linux-node1 opt]# git clone https://github.com/unixhot/opsany-paas.git
-[root@linux-node1 opt]# pip install pip==9.0.3
-[root@linux-node1 opt]# pip install virtualenv
-[root@linux-node1 opt]# mkdir -p /opt/opsany/.runtime
+[root@linux-node1 opt]# git clone https://gitee.com/unixhot/opsany-paas.git
+[root@linux-node1 opt]# cd /opt/opsany-paas/
+[root@linux-node1 opt]# /opt/py312/bin/pip3 install virtualenv -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
+[root@linux-node1 opt]# mkdir -p /opt/opsany-paas/.runtime
 ```
-> 注意：其它版本的PIP有兼容性问题，请根据文档操作。
 
 ## 部署paas服务
 
@@ -169,22 +183,22 @@ beam    2620 rabbitmq   15u  IPv4  16805      0t0  TCP *:15672 (LISTEN)
 ```
 # 创建Python虚拟环境
 [root@linux-node1 opt]# screen -S paas
-[root@linux-node1 opt]# cd /opt/opsany/.runtime/
-[root@linux-node1 .runtime]# virtualenv paas
+[root@linux-node1 opt]# cd /opt/opsany-paas/.runtime/
+[root@linux-node1 .runtime]# /usr/local/Python-3.12.4/bin/python3 -m venv paas
 
 # 使用Python虚拟环境
-
-[root@linux-node1 .runtime]# source /opt/opsany/.runtime/paas/bin/activate
+[root@linux-node1 .runtime]# source /opt/opsany-paas/.runtime/paas/bin/activate
 
 # 安装依赖软件包
 (paas) [root@linux-node1 .runtime]# cd /opt/opsany-paas/paas-ce/paas/paas/
-(paas) [root@linux-node1 .runtime]# pip install -r requirements.txt 
+(paas) [root@linux-node1 .runtime]# pip3 install -r requirements.txt -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
 ```
 
 ### 2.配置paas
 
 - 修改数据库配置，可以根据需求修改域名和端口，这里保持默认。
 ```
+(paas) [root@linux-node1 paas]# cp conf/settings_development.py.sample
 (paas) [root@linux-node1 paas]# vim conf/settings_development.py
 DATABASES = {
     'default': {
@@ -192,24 +206,23 @@ DATABASES = {
         'NAME': 'opsany_paas',
         'USER': 'opsany',
         'PASSWORD': '123456.coM',
-        'HOST': '192.168.0.101',
+        'HOST': '192.168.0.111',
         'PORT': '3306',
     }
 }
 
-PAAS_DOMAIN = '192.168.0.101'
-BK_COOKIE_DOMAIN = '192.168.0.101'
+PAAS_DOMAIN = '192.168.0.111'
+BK_COOKIE_DOMAIN = '192.168.0.111'
 ```
 
 - 进行数据库初始化（如果遇到权限问题请检查数据库授权）
 
 ```
 (paas) [root@linux-node1 paas]# python manage.py migrate
-(paas) [root@linux-node1 paas]# python manage.py runserver 0.0.0.0:8001
+(paas) [root@linux-node1 paas]# python manage.py runserver --skip-checks 0.0.0.0:8001
 ```
 
 - 退出Screen(Ctrl + A + D)
-
 
 ## 部署login服务
 
@@ -217,15 +230,15 @@ BK_COOKIE_DOMAIN = '192.168.0.101'
 ```
 # 创建Python虚拟环境
 [root@linux-node1 ~]# screen -S login
-[root@linux-node1 ~]# cd /opt/opsany/.runtime/
-[root@linux-node1 .runtime]# virtualenv login
+[root@linux-node1 ~]# cd /opt/opsany-paas/.runtime/
+[root@linux-node1 .runtime]# /usr/local/Python-3.12.4/bin/python3 -m venv login
 
 # 使用Python虚拟环境
-[root@linux-node1 .runtime]# source /opt/opsany/.runtime/login/bin/activate
-(login) [root@linux-node1 .runtime]# cd /opt/opsany-paas/paas-ce/paas/login
+[root@linux-node1 .runtime]# source /opt/opsany-paas/.runtime/login/bin/activate
+(login) [root@linux-node1 .runtime]# cd /opt/opsany-paas/paas-ce/paas/login/
 
 # 安装依赖软件包
-(login) [root@linux-node1 login]# pip install -r requirements.txt 
+(login) [root@linux-node1 login]# pip3 install -r requirements.txt -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
 ```
 
 ### 2.配置login
@@ -233,6 +246,7 @@ BK_COOKIE_DOMAIN = '192.168.0.101'
 - 修改数据库配置，可以根据需求修改域名和端口，这里保持默认。
 
 ```
+(login) [root@linux-node1 login]# cp conf/settings_development.py.sample conf/settings_development.py
 (login) [root@linux-node1 login]# vim conf/settings_development.py
 DATABASES = {
     'default': {
@@ -240,19 +254,19 @@ DATABASES = {
         'NAME': 'opsany_paas',
         'USER': 'paas',
         'PASSWORD': '123456.coM',
-        'HOST': '127.0.0.1',
+        'HOST': '192.168.0.111',
         'PORT': '3306',
     }
 }
 # cookie访问域
-BK_COOKIE_DOMAIN = '192.168.0.101'
+BK_COOKIE_DOMAIN = '192.168.0.111'
 ```
 
 - 进行数据库初始化（如果遇到权限问题请检查数据库授权）
 
 ```
-(login) [root@linux-node1 login]# python manage.py migrate
-(login) [root@linux-node1 login]# python manage.py runserver 0.0.0.0:8003
+(login) [root@linux-node1 login]# python3 manage.py migrate
+(login) [root@linux-node1 login]# python3 manage.py runserver 0.0.0.0:8003
 ```
 
 - 退出Screen(Ctrl + A + D)
@@ -264,22 +278,23 @@ BK_COOKIE_DOMAIN = '192.168.0.101'
 ```
 # 创建Python虚拟环境
 [root@linux-node1 conf]# screen -S appengine
-[root@linux-node1 conf]# cd /opt/opsany/.runtime/
-[root@linux-node1 .runtime]# virtualenv appengine
+[root@linux-node1 conf]# cd /opt/bk-paas/.runtime/
+[root@linux-node1 .runtime]# /usr/local/Python-3.12.4/bin/python3 -m venv appengine
 
 # 使用Python虚拟环境
-[root@linux-node1 opt]# source /opt/opsany/.runtime/appengine/bin/activate
+[root@linux-node1 opt]# source /opt/bk-paas/.runtime/appengine/bin/activate
 
 # 安装依赖软件包
 (appengine) [root@linux-node1 paas-runtime]# cd /opt/opsany-paas/paas-ce/paas/appengine/
-(appengine) [root@linux-node1 appengine]# pip install -r requirements.txt 
+(appengine) [root@linux-node1 appengine]# pip3 install -r requirements.txt -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
 ```
 
 ### 2.配置appengine
 
 - 修改数据库配置，可以根据需求修改域名和端口，这里保持默认。
 ```
-(appengine) [root@linux-node1 appengine]# vim conf/settings_development.py
+ (appengine) [root@linux-node1 appengine]# cp controller/settings_sample.py controller/settings.py
+(appengine) [root@linux-node1 appengine]# vim controller/settings_development.py
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
@@ -292,7 +307,8 @@ DATABASES = {
 }
 ```
 
-- 退出python虚拟环境
+- 进行数据库初始化（如果遇到权限问题请检查数据库授权）
+
 ```
 (appengine) [root@linux-node1 appengine]# python manage.py migrate
 (appengine) [root@linux-node1 appengine]# python manage.py runserver 0.0.0.0:8000
@@ -306,24 +322,23 @@ DATABASES = {
 ```
 # 创建Python虚拟环境
 [root@linux-node1 ~]# screen -S esb
-[root@linux-node1 ~]# cd /opt/opsany/.runtime/
-[root@linux-node1 .runtime]# virtualenv esb
+[root@linux-node1 ~]# cd /opt/opsany-paas/.runtime/
+[root@linux-node1 .runtime]# /usr/local/Python-3.12.4/bin/python3 -m venv esb
 
 # 使用Python虚拟环境
-[root@linux-node1 .runtime]# source /opt/opsany/.runtime/esb/bin/activate
+[root@linux-node1 .runtime]# source /opt/opsany-paas/.runtime/esb/bin/activate
 
 # 安装依赖软件包
-(esb) [root@linux-node1 .runtime]# cd /opt/opsany-paas/paas-ce/paas/esb/
-(esb) [root@linux-node1 esb]# pip install -r requirements.txt 
+(esb) [root@linux-node1 esb]# cd /opt/opsany-paas/paas-ce/paas/esb/
+(esb) [root@linux-node1 esb]# pip3 install -r requirements.txt -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com
 ```
 
 ### 2.配置esb
 
 - 修改数据库配置，可以根据需求修改域名和端口，这里保持默认。
 ```
-(esb) [root@linux-node1 esb]# cd configs/
-(esb) [root@linux-node1 configs]# cp default_template.py default.py
-(runtime-esb) [root@paas-node-1 configs]# vim default.py 
+(esb) [root@linux-node1 esb]# cp configs/default_template.py configs/default.py
+(esb) [root@linux-node1 esb]# vim configs/default.py 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
@@ -344,20 +359,6 @@ DATABASES = {
 ```
 
 - 退出Screen(Ctrl + A + D)
-
-## 生成环境使用supervisor进行启动
-
-```
-[root@opsany-paas ~]# cd /opt/opsany-paas/paas-ce/paas/examples/supervisord.d/
-[root@ops supervisord.d]# cp *.ini /etc/supervisord.d/
-[root@ops ~]# mkdir /opt/dev-paas/paas-runtime/logs
-[root@ops ~]# systemctl start supervisord
-[root@ops ~]# supervisorctl status
-appengine                        RUNNING   pid 4170, uptime 0:00:13
-esb                              RUNNING   pid 4169, uptime 0:00:13
-login                            RUNNING   pid 4168, uptime 0:00:13
-paas                             RUNNING   pid 4167, uptime 0:00:13
-```
 
 ### 配置Nginx访问
 
@@ -385,5 +386,5 @@ nginx: configuration file /etc/nginx/nginx.conf test is successful
 
 ### 访问PAAS
  - 设置本地Hosts绑定
- - http://dev.example.com/
+ - http://192.168.0.111/
  - 默认用户名密码：admin admin
