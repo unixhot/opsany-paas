@@ -1025,8 +1025,8 @@ saas_base_init(){
 
     shell_log "======Init: Download Agent Package======"
     cd $INSTALL_PATH/uploads/
-    wget https://opsany.oss-cn-beijing.aliyuncs.com/opsany-agent-2.3.0.tar.gz
-    tar zxf opsany-agent-2.3.0.tar.gz
+    wget https://opsany.oss-cn-beijing.aliyuncs.com/opsany-agent-v2.3.1.tar.gz
+    tar zxf opsany-agent-v2.3.1.tar.gz
 }
 
 admin_password_init(){
