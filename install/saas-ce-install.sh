@@ -6,35 +6,32 @@
 # Description:  OpsAny SAAS Community Edition Install Script
 #******************************************
 
-# Data/Time Variables
-CTIME=$(date "+%Y-%m-%d-%H-%M")
-
 # Shell Envionment Variables
 CDIR=$(pwd)
 SHELL_NAME="saas-ce-install.sh"
 SHELL_LOG="${SHELL_NAME}.log"
-SAAS_VERSION=2.3.0
+SAAS_VERSION=2.3.1
 
 # Shell Log Record
 shell_log(){
     # Show green
     LOG_INFO=$1
-    echo -e "\033[32m---------------- $CTIME ${SHELL_NAME} : ${LOG_INFO} ----------------\033[0m"
-    echo "$CTIME ${SHELL_NAME} : ${LOG_INFO}" >> ${SHELL_LOG}
+    echo -e "\033[32m---------------- $(date "+%Y-%m-%d-%H-%M") ${SHELL_NAME} : ${LOG_INFO} ----------------\033[0m"
+    echo "$(date "+%Y-%m-%d-%H-%M") ${SHELL_NAME} : ${LOG_INFO}" >> ${SHELL_LOG}
 }
 
 shell_warning_log(){
     # Show yellow
     LOG_INFO=$1
-    echo -e "\033[33m---------------- $CTIME ${SHELL_NAME} : ${LOG_INFO} ----------------\033[0m"
-    echo "$CTIME ${SHELL_NAME} : ${LOG_INFO}" >> ${SHELL_LOG}
+    echo -e "\033[33m---------------- $(date "+%Y-%m-%d-%H-%M") ${SHELL_NAME} : ${LOG_INFO} ----------------\033[0m"
+    echo "$(date "+%Y-%m-%d-%H-%M") ${SHELL_NAME} : ${LOG_INFO}" >> ${SHELL_LOG}
 }
 
 shell_error_log(){
     # Show red
     LOG_INFO=$1
-    echo -e "\033[31m---------------- $CTIME ${SHELL_NAME} : ${LOG_INFO} ----------------\033[0m"
-    echo "$CTIME ${SHELL_NAME} : ${LOG_INFO}" >> ${SHELL_LOG}
+    echo -e "\033[31m---------------- $(date "+%Y-%m-%d-%H-%M") ${SHELL_NAME} : ${LOG_INFO} ----------------\033[0m"
+    echo "$(date "+%Y-%m-%d-%H-%M") ${SHELL_NAME} : ${LOG_INFO}" >> ${SHELL_LOG}
 }
 
 # Install Inspection
@@ -90,7 +87,6 @@ proxy_install(){
     chmod +x ${INSTALL_PATH}/conf/proxy/invscript_proxy.py
 
     shell_log "======Proxy: Start Proxy======"
-    docker pull ${PAAS_DOCKER_REG}/opsany-paas-proxy:${SAAS_VERSION}
     docker run --restart=always --name opsany-paas-proxy -d \
         -p 4505:4505 -p 4506:4506 -p 8010:8010 \
         -v ${INSTALL_PATH}/logs/proxy:/opt/opsany/logs/proxy \
@@ -159,6 +155,7 @@ saas_rbac_deploy(){
 
     # Modify configuration
     sed -i "s/DOMAIN_NAME/${DOMAIN_NAME}/g" ${INSTALL_PATH}/conf/opsany-saas/rbac/rbac-init.py
+    sed -i "s/LOCAL_IP/${LOCAL_IP}/g" ${INSTALL_PATH}/conf/opsany-saas/rbac/rbac-init.py
     sed -i "s/RBAC_SECRET_KEY/${RBAC_SECRET_KEY}/g" ${INSTALL_PATH}/conf/opsany-saas/rbac/rbac-init.py
     sed -i "s/MYSQL_SERVER_IP/${MYSQL_SERVER_IP}/g" ${INSTALL_PATH}/conf/opsany-saas/rbac/rbac-prod.py
     sed -i "s/MYSQL_SERVER_PORT/${MYSQL_SERVER_PORT}/g" ${INSTALL_PATH}/conf/opsany-saas/rbac/rbac-prod.py
@@ -168,12 +165,8 @@ saas_rbac_deploy(){
     sed -i "s/REDIS_SERVER_USER/${REDIS_SERVER_USER}/g" ${INSTALL_PATH}/conf/opsany-saas/rbac/rbac-prod.py
     sed -i "s/REDIS_SERVER_PASSWORD/${REDIS_SERVER_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-saas/rbac/rbac-prod.py
 
-    # rbac ESB
-    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/rbac/toolkit/configs.py
-    sed -i "s#/t/rbac#/o/rbac#g" ${INSTALL_PATH}/esb/apis/rbac/toolkit/configs.py
-
-    # Starter container
     docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-rbac:${SAAS_VERSION}
+    # Starter container
     docker run -d --restart=always --name opsany-saas-ce-rbac \
        -p 7001:80 \
        -v ${INSTALL_PATH}/conf/opsany-saas/rbac/rbac-supervisor.ini:/etc/supervisord.d/rbac.ini \
@@ -185,7 +178,7 @@ saas_rbac_deploy(){
        -v ${INSTALL_PATH}/uploads:/opt/opsany/uploads \
        -v /etc/localtime:/etc/localtime:ro \
        ${PAAS_DOCKER_REG}/opsany-saas-ce-rbac:${SAAS_VERSION}
-    
+
     # Django migrate
     docker exec -e BK_ENV="production" opsany-saas-ce-rbac /bin/sh -c \
     "python /opt/opsany/rbac/manage.py migrate --noinput && python /opt/opsany/rbac/manage.py createcachetable django_cache > /dev/null" >> ${SHELL_LOG}
@@ -212,6 +205,7 @@ saas_workbench_deploy(){
     # Modify configuration
     WORKBENCH_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.workbench_secret_key)
     sed -i "s/DOMAIN_NAME/${DOMAIN_NAME}/g" ${INSTALL_PATH}/conf/opsany-saas/workbench/workbench-init.py
+    sed -i "s/LOCAL_IP/${LOCAL_IP}/g" ${INSTALL_PATH}/conf/opsany-saas/workbench/workbench-init.py
     sed -i "s/WORKBENCH_SECRET_KEY/${WORKBENCH_SECRET_KEY}/g" ${INSTALL_PATH}/conf/opsany-saas/workbench/workbench-init.py
     sed -i "s/MYSQL_SERVER_IP/${MYSQL_SERVER_IP}/g" ${INSTALL_PATH}/conf/opsany-saas/workbench/workbench-prod.py
     sed -i "s/MYSQL_SERVER_PORT/${MYSQL_SERVER_PORT}/g" ${INSTALL_PATH}/conf/opsany-saas/workbench/workbench-prod.py
@@ -224,12 +218,8 @@ saas_workbench_deploy(){
     sed -i "s/REDIS_SERVER_USER/${REDIS_SERVER_USER}/g" ${INSTALL_PATH}/conf/opsany-saas/workbench/workbench-prod.py
     sed -i "s/REDIS_SERVER_PASSWORD/${REDIS_SERVER_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-saas/workbench/workbench-prod.py
 
-    #workbench
-    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/workbench/toolkit/configs.py
-    sed -i "s#/t/workbench#/o/workbench#g" ${INSTALL_PATH}/esb/apis/workbench/toolkit/tools.py
-
-    # Starter container
     docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-workbench:${SAAS_VERSION}
+    # Starter container
     docker run -d --restart=always --name opsany-saas-ce-workbench \
        -p 7002:80 \
        -v ${INSTALL_PATH}/conf/opsany-saas/workbench/workbench-supervisor.ini:/etc/supervisord.d/workbench.ini \
@@ -267,6 +257,7 @@ saas_cmdb_deploy(){
     # Modify configuration
     CMDB_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.cmdb_secret_key)
     sed -i "s/DOMAIN_NAME/${DOMAIN_NAME}/g" ${INSTALL_PATH}/conf/opsany-saas/cmdb/cmdb-init.py
+    sed -i "s/LOCAL_IP/${LOCAL_IP}/g" ${INSTALL_PATH}/conf/opsany-saas/cmdb/cmdb-init.py
     sed -i "s/CMDB_SECRET_KEY/${CMDB_SECRET_KEY}/g" ${INSTALL_PATH}/conf/opsany-saas/cmdb/cmdb-init.py
     sed -i "s/MYSQL_SERVER_IP/${MYSQL_SERVER_IP}/g" ${INSTALL_PATH}/conf/opsany-saas/cmdb/cmdb-prod.py
     sed -i "s/MYSQL_SERVER_PORT/${MYSQL_SERVER_PORT}/g" ${INSTALL_PATH}/conf/opsany-saas/cmdb/cmdb-prod.py
@@ -278,14 +269,9 @@ saas_cmdb_deploy(){
     sed -i "s/REDIS_SERVER_PORT/${REDIS_SERVER_PORT}/g" ${INSTALL_PATH}/conf/opsany-saas/cmdb/cmdb-prod.py
     sed -i "s/REDIS_SERVER_USER/${REDIS_SERVER_USER}/g" ${INSTALL_PATH}/conf/opsany-saas/cmdb/cmdb-prod.py
     sed -i "s/REDIS_SERVER_PASSWORD/${REDIS_SERVER_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-saas/cmdb/cmdb-prod.py
-    
-    
-    #cmdb
-    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/cmdb/toolkit/configs.py
-    sed -i "s#/t/cmdb#/o/cmdb#g" ${INSTALL_PATH}/esb/apis/cmdb/toolkit/tools.py
 
-    # Starter container
     docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-cmdb:${SAAS_VERSION}
+    # Starter container
     docker run -d --restart=always --name opsany-saas-ce-cmdb \
        -p 7003:80 \
        -v ${INSTALL_PATH}/conf/opsany-saas/cmdb/cmdb-supervisor.ini:/etc/supervisord.d/cmdb.ini \
@@ -324,6 +310,7 @@ saas_control_deploy(){
     # Modify configuration
     CONTROL_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.control_secret_key)
     sed -i "s/DOMAIN_NAME/${DOMAIN_NAME}/g" ${INSTALL_PATH}/conf/opsany-saas/control/control-init.py
+    sed -i "s/LOCAL_IP/${LOCAL_IP}/g" ${INSTALL_PATH}/conf/opsany-saas/control/control-init.py
     sed -i "s/CONTROL_SECRET_KEY/${CONTROL_SECRET_KEY}/g" ${INSTALL_PATH}/conf/opsany-saas/control/control-init.py
     sed -i "s/MYSQL_SERVER_IP/${MYSQL_SERVER_IP}/g" ${INSTALL_PATH}/conf/opsany-saas/control/control-prod.py
     sed -i "s/MYSQL_SERVER_PORT/${MYSQL_SERVER_PORT}/g" ${INSTALL_PATH}/conf/opsany-saas/control/control-prod.py
@@ -333,12 +320,8 @@ saas_control_deploy(){
     sed -i "s/REDIS_SERVER_USER/${REDIS_SERVER_USER}/g" ${INSTALL_PATH}/conf/opsany-saas/control/control-prod.py
     sed -i "s/REDIS_SERVER_PASSWORD/${REDIS_SERVER_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-saas/control/control-prod.py
 
-    #control
-    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/control/toolkit/configs.py
-    sed -i "s#/t/control#/o/control#g" ${INSTALL_PATH}/esb/apis/control/toolkit/tools.py
-
-    # Starter container
     docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-control:${SAAS_VERSION}
+    # Starter container
     docker run -d --restart=always --name opsany-saas-ce-control \
        -p 7004:80 \
        -v ${INSTALL_PATH}/conf/opsany-saas/control/control-supervisor.ini:/etc/supervisord.d/control.ini \
@@ -377,6 +360,7 @@ saas_job_deploy(){
     # Modify configuration
     JOB_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.job_secret_key)
     sed -i "s/DOMAIN_NAME/${DOMAIN_NAME}/g" ${INSTALL_PATH}/conf/opsany-saas/job/job-init.py
+    sed -i "s/LOCAL_IP/${LOCAL_IP}/g" ${INSTALL_PATH}/conf/opsany-saas/job/job-init.py
     sed -i "s/JOB_SECRET_KEY/${JOB_SECRET_KEY}/g" ${INSTALL_PATH}/conf/opsany-saas/job/job-init.py
     sed -i "s/MYSQL_SERVER_IP/${MYSQL_SERVER_IP}/g" ${INSTALL_PATH}/conf/opsany-saas/job/job-prod.py
     sed -i "s/MYSQL_SERVER_PORT/${MYSQL_SERVER_PORT}/g" ${INSTALL_PATH}/conf/opsany-saas/job/job-prod.py
@@ -388,15 +372,9 @@ saas_job_deploy(){
     sed -i "s/REDIS_SERVER_PORT/${REDIS_SERVER_PORT}/g" ${INSTALL_PATH}/conf/opsany-saas/job/job-prod.py
     sed -i "s/REDIS_SERVER_USER/${REDIS_SERVER_USER}/g" ${INSTALL_PATH}/conf/opsany-saas/job/job-prod.py
     sed -i "s/REDIS_SERVER_PASSWORD/${REDIS_SERVER_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-saas/job/job-prod.py
-    
-    #job
-    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/task/toolkit/configs.py
-    sed -i "s#/t/job#/o/job#g" ${INSTALL_PATH}/esb/apis/task/toolkit/tools.py
-    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/job/toolkit/configs.py
-    sed -i "s#/t/job#/o/job#g" ${INSTALL_PATH}/esb/apis/job/toolkit/tools.py
 
-    # Starter container
     docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-job:${SAAS_VERSION}
+    # Starter container
     docker run -d --restart=always --name opsany-saas-ce-job \
        -p 7005:80 \
        -v ${INSTALL_PATH}/conf/opsany-saas/job/job-supervisor.ini:/etc/supervisord.d/job.ini \
@@ -434,10 +412,6 @@ saas_monitor_deploy(){
     mysql -h "${MYSQL_SERVER_IP}" -P ${MYSQL_SERVER_PORT} -u root -e "CREATE USER 'monitor'@'%' identified by "\"${MYSQL_OPSANY_MONITOR_PASSWORD}\"";"
     mysql -h "${MYSQL_SERVER_IP}" -P ${MYSQL_SERVER_PORT} -u root -e "grant all on monitor.* to monitor@'%';" 
 
-    #monitor
-    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/monitor/toolkit/configs.py
-    sed -i "s#/t/monitor#/o/monitor#g" ${INSTALL_PATH}/esb/apis/monitor/toolkit/tools.py
- 
     # Register monitor
     if [ -f ${INSTALL_PATH}/conf/.passwd_env ];then
         source ${INSTALL_PATH}/conf/.passwd_env
@@ -453,6 +427,7 @@ saas_monitor_deploy(){
     # Modify configuration
     MONITOR_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.monitor_secret_key)
     sed -i "s/DOMAIN_NAME/${DOMAIN_NAME}/g" ${INSTALL_PATH}/conf/opsany-saas/monitor/monitor-init.py
+    sed -i "s/LOCAL_IP/${LOCAL_IP}/g" ${INSTALL_PATH}/conf/opsany-saas/monitor/monitor-init.py
     sed -i "s/MONITOR_SECRET_KEY/${MONITOR_SECRET_KEY}/g" ${INSTALL_PATH}/conf/opsany-saas/monitor/monitor-init.py
     sed -i "s/MYSQL_SERVER_IP/${MYSQL_SERVER_IP}/g" ${INSTALL_PATH}/conf/opsany-saas/monitor/monitor-prod.py
     sed -i "s/MYSQL_SERVER_PORT/${MYSQL_SERVER_PORT}/g" ${INSTALL_PATH}/conf/opsany-saas/monitor/monitor-prod.py
@@ -464,9 +439,9 @@ saas_monitor_deploy(){
     sed -i "s/REDIS_SERVER_PORT/${REDIS_SERVER_PORT}/g" ${INSTALL_PATH}/conf/opsany-saas/monitor/monitor-prod.py
     sed -i "s/REDIS_SERVER_USER/${REDIS_SERVER_USER}/g" ${INSTALL_PATH}/conf/opsany-saas/monitor/monitor-prod.py
     sed -i "s/REDIS_SERVER_PASSWORD/${REDIS_SERVER_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-saas/monitor/monitor-prod.py
-    
-    # Starter container
+
     docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-monitor:${SAAS_VERSION}
+    # Starter container
     docker run -d --restart=always --name opsany-saas-ce-monitor \
        -p 7006:80 \
        -v ${INSTALL_PATH}/conf/opsany-saas/monitor/monitor-supervisor.ini:/etc/supervisord.d/monitor.ini \
@@ -509,10 +484,6 @@ saas_cmp_deploy(){
     mysql -h "${MYSQL_SERVER_IP}" -P ${MYSQL_SERVER_PORT} -u root -e "create database cmp DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
     mysql -h "${MYSQL_SERVER_IP}" -P ${MYSQL_SERVER_PORT} -u root -e "CREATE USER 'cmp'@'%' identified by "\"${MYSQL_OPSANY_CMP_PASSWORD}\"";"
     mysql -h "${MYSQL_SERVER_IP}" -P ${MYSQL_SERVER_PORT} -u root -e "grant all on cmp.* to cmp@'%';" 
-    
-    #cmp
-    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/cmp/toolkit/configs.py
-    sed -i "s#/t/cmp#/o/cmp#g" ${INSTALL_PATH}/esb/apis/cmp/toolkit/tools.py
 
     # Register cmp
     if [ -f ${INSTALL_PATH}/conf/.cmp_secret_key ];then
@@ -526,6 +497,7 @@ saas_cmp_deploy(){
     #CMP Configure
     CMP_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.cmp_secret_key)
     sed -i "s/DOMAIN_NAME/${DOMAIN_NAME}/g" ${INSTALL_PATH}/conf/opsany-saas/cmp/cmp-init.py
+    sed -i "s/LOCAL_IP/${LOCAL_IP}/g" ${INSTALL_PATH}/conf/opsany-saas/cmp/cmp-init.py
     sed -i "s/CMP_SECRET_KEY/${CMP_SECRET_KEY}/g" ${INSTALL_PATH}/conf/opsany-saas/cmp/cmp-init.py
     sed -i "s/MYSQL_SERVER_IP/${MYSQL_SERVER_IP}/g" ${INSTALL_PATH}/conf/opsany-saas/cmp/cmp-prod.py
     sed -i "s/MYSQL_SERVER_PORT/${MYSQL_SERVER_PORT}/g" ${INSTALL_PATH}/conf/opsany-saas/cmp/cmp-prod.py
@@ -537,9 +509,9 @@ saas_cmp_deploy(){
     sed -i "s/REDIS_SERVER_PORT/${REDIS_SERVER_PORT}/g" ${INSTALL_PATH}/conf/opsany-saas/cmp/cmp-prod.py
     sed -i "s/REDIS_SERVER_USER/${REDIS_SERVER_USER}/g" ${INSTALL_PATH}/conf/opsany-saas/cmp/cmp-prod.py
     sed -i "s/REDIS_SERVER_PASSWORD/${REDIS_SERVER_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-saas/cmp/cmp-prod.py
-    
-    # Starter container
+
     docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-cmp:${SAAS_VERSION}
+    # Starter container
     docker run -d --restart=always --name opsany-saas-ce-cmp \
        -p 7007:80 \
        -v ${INSTALL_PATH}/conf/opsany-saas/cmp/cmp-supervisor.ini:/etc/supervisord.d/cmp.ini \
@@ -566,10 +538,6 @@ saas_bastion_deploy(){
     mysql -h "${MYSQL_SERVER_IP}" -P ${MYSQL_SERVER_PORT} -u root -e "CREATE USER 'bastion'@'%' identified by "\"${MYSQL_OPSANY_BASTION_PASSWORD}\"";"
     mysql -h "${MYSQL_SERVER_IP}" -P ${MYSQL_SERVER_PORT} -u root -e "grant all on bastion.* to bastion@'%';" 
 
-    #bastion
-    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/bastion/toolkit/configs.py
-    sed -i "s#/t/bastion#/o/bastion#g" ${INSTALL_PATH}/esb/apis/bastion/toolkit/configs.py
-
     # Register bastion
     if [ -f ${INSTALL_PATH}/conf/.bastion_secret_key ];then
         BASTION_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.bastion_secret_key)
@@ -581,6 +549,7 @@ saas_bastion_deploy(){
 
     # Bastion Configure
     sed -i "s/DOMAIN_NAME/${DOMAIN_NAME}/g" ${INSTALL_PATH}/conf/opsany-saas/bastion/bastion-init.py
+    sed -i "s/LOCAL_IP/${LOCAL_IP}/g" ${INSTALL_PATH}/conf/opsany-saas/bastion/bastion-init.py
     sed -i "s/BASTION_SECRET_KEY/${BASTION_SECRET_KEY}/g" ${INSTALL_PATH}/conf/opsany-saas/bastion/bastion-init.py
     sed -i "s/MYSQL_SERVER_IP/${MYSQL_SERVER_IP}/g" ${INSTALL_PATH}/conf/opsany-saas/bastion/bastion-prod.py
     sed -i "s/MYSQL_SERVER_PORT/${MYSQL_SERVER_PORT}/g" ${INSTALL_PATH}/conf/opsany-saas/bastion/bastion-prod.py
@@ -592,8 +561,8 @@ saas_bastion_deploy(){
     sed -i "s/BASTION_FOOT_CLIENT_IP/${DOMAIN_NAME}/g" ${INSTALL_PATH}/conf/opsany-saas/bastion/bastion-prod.py
     sed -i "s/BASTION_FOOT_CLIENT_PORT/8013/g" ${INSTALL_PATH}/conf/opsany-saas/bastion/bastion-prod.py
 
-    # Starter container
     docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-bastion:${SAAS_VERSION}
+    # Starter container
     docker run -d --restart=always --name opsany-saas-ce-bastion \
        -p 7008:80 \
        -v ${INSTALL_PATH}/conf/opsany-saas/bastion/bastion-supervisor.ini:/etc/supervisord.d/bastion.ini \
@@ -619,10 +588,6 @@ saas_devops_deploy(){
     mysql -h "${MYSQL_SERVER_IP}" -P ${MYSQL_SERVER_PORT} -u root -e "create database devops DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
     mysql -h "${MYSQL_SERVER_IP}" -P ${MYSQL_SERVER_PORT} -u root -e "CREATE USER 'devops'@'%' identified by "\"${MYSQL_OPSANY_DEVOPS_PASSWORD}\"";"
     mysql -h "${MYSQL_SERVER_IP}" -P ${MYSQL_SERVER_PORT} -u root -e "grant all on devops.* to devops@'%';" 
-    
-    #devops
-    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/devops/toolkit/configs.py
-    sed -i "s#/t/devops#/o/devops#g" ${INSTALL_PATH}/esb/apis/devops/toolkit/tools.py
 
     # Register devops
     if [ -f ${INSTALL_PATH}/conf/.passwd_env ];then
@@ -640,6 +605,7 @@ saas_devops_deploy(){
     DEVOPS_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.devops_secret_key)
     /bin/cp conf/opsany-saas/devops/* ${INSTALL_PATH}/conf/opsany-saas/devops/
     sed -i "s/DOMAIN_NAME/${DOMAIN_NAME}/g" ${INSTALL_PATH}/conf/opsany-saas/devops/devops-init.py
+    sed -i "s/LOCAL_IP/${LOCAL_IP}/g" ${INSTALL_PATH}/conf/opsany-saas/devops/devops-init.py
     sed -i "s/DEVOPS_SECRET_KEY/${DEVOPS_SECRET_KEY}/g" ${INSTALL_PATH}/conf/opsany-saas/devops/devops-init.py
     sed -i "s/MYSQL_SERVER_IP/${MYSQL_SERVER_IP}/g" ${INSTALL_PATH}/conf/opsany-saas/devops/devops-prod.py
     sed -i "s/MYSQL_SERVER_PORT/${MYSQL_SERVER_PORT}/g" ${INSTALL_PATH}/conf/opsany-saas/devops/devops-prod.py
@@ -651,9 +617,9 @@ saas_devops_deploy(){
     sed -i "s/REDIS_SERVER_PORT/${REDIS_SERVER_PORT}/g" ${INSTALL_PATH}/conf/opsany-saas/devops/devops-prod.py
     sed -i "s/REDIS_SERVER_USER/${REDIS_SERVER_USER}/g" ${INSTALL_PATH}/conf/opsany-saas/devops/devops-prod.py
     sed -i "s/REDIS_SERVER_PASSWORD/${REDIS_SERVER_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-saas/devops/devops-prod.py
-    
-    # Starter container   
+
     docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-devops:${SAAS_VERSION}
+    # Starter container   
     docker run -d --restart=always --name opsany-saas-ce-devops \
        -p 7009:80 \
        -v ${INSTALL_PATH}/conf/opsany-saas/devops/devops-supervisor.ini:/etc/supervisord.d/devops.ini \
@@ -685,10 +651,6 @@ saas_repo_deploy(){
     mysql -h "${MYSQL_SERVER_IP}" -P ${MYSQL_SERVER_PORT} -u root -e "CREATE USER 'repo'@'%' identified by "\"${MYSQL_OPSANY_REPO_PASSWORD}\"";"
     mysql -h "${MYSQL_SERVER_IP}" -P ${MYSQL_SERVER_PORT} -u root -e "grant all on repo.* to repo@'%';" 
 
-    #repo esb
-    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/repo/toolkit/configs.py
-    sed -i "s#/t/repo#/o/repo#g" ${INSTALL_PATH}/esb/apis/repo/toolkit/configs.py
-
     # Register repo
     if [ -f ${INSTALL_PATH}/conf/.repo_secret_key ];then
         REPO_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.repo_secret_key)
@@ -709,6 +671,7 @@ saas_repo_deploy(){
         /bin/cp -r ./conf/opsany-saas/repo ${INSTALL_PATH}/conf/opsany-saas/
     fi
     sed -i "s/DOMAIN_NAME/${DOMAIN_NAME}/g" ${INSTALL_PATH}/conf/opsany-saas/repo/repo-init.py
+    sed -i "s/LOCAL_IP/${LOCAL_IP}/g" ${INSTALL_PATH}/conf/opsany-saas/repo/repo-init.py
     sed -i "s/REPO_SECRET_KEY/${REPO_SECRET_KEY}/g" ${INSTALL_PATH}/conf/opsany-saas/repo/repo-init.py
     sed -i "s/MYSQL_SERVER_IP/${MYSQL_SERVER_IP}/g" ${INSTALL_PATH}/conf/opsany-saas/repo/repo-prod.py
     sed -i "s/MYSQL_SERVER_PORT/${MYSQL_SERVER_PORT}/g" ${INSTALL_PATH}/conf/opsany-saas/repo/repo-prod.py
@@ -723,9 +686,9 @@ saas_repo_deploy(){
     sed -i "s#REPO_HARBOR_URL#${REPO_HARBOR_URL}#g" ${INSTALL_PATH}/conf/opsany-saas/repo/repo-prod.py
     sed -i "s/REPO_HARBOR_USERNAME/${REPO_HARBOR_USERNAME}/g" ${INSTALL_PATH}/conf/opsany-saas/repo/repo-prod.py
     sed -i "s/REPO_HARBOR_PASSWORD/${REPO_HARBOR_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-saas/repo/repo-prod.py
-    
-    # Starter container
+
     docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-repo:${SAAS_VERSION}
+    # Starter container
     docker run -d --restart=always --name opsany-saas-ce-repo \
        -p 7020:80 \
        -v ${INSTALL_PATH}/conf/opsany-saas/repo/repo-supervisor.ini:/etc/supervisord.d/repo.ini \
@@ -773,6 +736,7 @@ saas_pipeline_deploy(){
     fi
     PIPELINE_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.pipeline_secret_key)
     sed -i "s/DOMAIN_NAME/${DOMAIN_NAME}/g" ${INSTALL_PATH}/conf/opsany-saas/pipeline/pipeline-init.py
+    sed -i "s/LOCAL_IP/${LOCAL_IP}/g" ${INSTALL_PATH}/conf/opsany-saas/pipeline/pipeline-init.py
     sed -i "s/PIPELINE_SECRET_KEY/${PIPELINE_SECRET_KEY}/g" ${INSTALL_PATH}/conf/opsany-saas/pipeline/pipeline-init.py
     sed -i "s/MYSQL_SERVER_IP/${MYSQL_SERVER_IP}/g" ${INSTALL_PATH}/conf/opsany-saas/pipeline/pipeline-prod.py
     sed -i "s/MYSQL_SERVER_PORT/${MYSQL_SERVER_PORT}/g" ${INSTALL_PATH}/conf/opsany-saas/pipeline/pipeline-prod.py
@@ -785,8 +749,8 @@ saas_pipeline_deploy(){
     sed -i "s/REDIS_SERVER_USER/${REDIS_SERVER_USER}/g" ${INSTALL_PATH}/conf/opsany-saas/pipeline/pipeline-prod.py
     sed -i "s/REDIS_SERVER_PASSWORD/${REDIS_SERVER_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-saas/pipeline/pipeline-prod.py
 
-    # Starter container
     docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-pipeline:${SAAS_VERSION}
+    # Starter container
     docker run -d --restart=always --name opsany-saas-ce-pipeline \
        -p 7017:80 \
        -v ${INSTALL_PATH}/conf/opsany-saas/pipeline/pipeline-supervisor.ini:/etc/supervisord.d/pipeline.ini \
@@ -834,6 +798,7 @@ saas_deploy_deploy(){
     fi
     DEPLOY_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.deploy_secret_key)
     sed -i "s/DOMAIN_NAME/${DOMAIN_NAME}/g" ${INSTALL_PATH}/conf/opsany-saas/deploy/deploy-init.py
+    sed -i "s/LOCAL_IP/${LOCAL_IP}/g" ${INSTALL_PATH}/conf/opsany-saas/deploy/deploy-init.py
     sed -i "s/DEPLOY_SECRET_KEY/${DEPLOY_SECRET_KEY}/g" ${INSTALL_PATH}/conf/opsany-saas/deploy/deploy-init.py
     sed -i "s/MYSQL_SERVER_IP/${MYSQL_SERVER_IP}/g" ${INSTALL_PATH}/conf/opsany-saas/deploy/deploy-prod.py
     sed -i "s/MYSQL_SERVER_PORT/${MYSQL_SERVER_PORT}/g" ${INSTALL_PATH}/conf/opsany-saas/deploy/deploy-prod.py
@@ -846,8 +811,8 @@ saas_deploy_deploy(){
     sed -i "s/REDIS_SERVER_USER/${REDIS_SERVER_USER}/g" ${INSTALL_PATH}/conf/opsany-saas/deploy/deploy-prod.py
     sed -i "s/REDIS_SERVER_PASSWORD/${REDIS_SERVER_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-saas/deploy/deploy-prod.py
 
-    # Starter container
     docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-deploy:${SAAS_VERSION}
+    # Starter container
     docker run -d --restart=always --name opsany-saas-ce-deploy \
        -p 7018:80 \
        -v ${INSTALL_PATH}/conf/opsany-saas/deploy/deploy-supervisor.ini:/etc/supervisord.d/deploy.ini \
@@ -874,10 +839,6 @@ saas_code_deploy(){
     mysql -h "${MYSQL_SERVER_IP}" -P ${MYSQL_SERVER_PORT} -u root -e "CREATE USER 'code'@'%' identified by "\"${MYSQL_OPSANY_CODE_PASSWORD}\"";"
     mysql -h "${MYSQL_SERVER_IP}" -P ${MYSQL_SERVER_PORT} -u root -e "grant all on code.* to code@'%';" 
 
-     #Code
-    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/code/toolkit/configs.py
-    sed -i "s#/t/code#/o/code#g" ${INSTALL_PATH}/esb/apis/code/toolkit/tools.py
-
     # Register Code
     if [ -f ${INSTALL_PATH}/conf/.passwd_env ];then
         source ${INSTALL_PATH}/conf/.passwd_env
@@ -894,13 +855,14 @@ saas_code_deploy(){
     # Code Configure
     CODE_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.code_secret_key)
     sed -i "s/DOMAIN_NAME/${DOMAIN_NAME}/g" ${INSTALL_PATH}/conf/opsany-saas/code/code-init.py
+    sed -i "s/LOCAL_IP/${LOCAL_IP}/g" ${INSTALL_PATH}/conf/opsany-saas/code/code-init.py
     sed -i "s/CODE_SECRET_KEY/${CODE_SECRET_KEY}/g" ${INSTALL_PATH}/conf/opsany-saas/code/code-init.py
     sed -i "s/MYSQL_SERVER_IP/${MYSQL_SERVER_IP}/g" ${INSTALL_PATH}/conf/opsany-saas/code/code-prod.py
     sed -i "s/MYSQL_SERVER_PORT/${MYSQL_SERVER_PORT}/g" ${INSTALL_PATH}/conf/opsany-saas/code/code-prod.py
     sed -i "s/MYSQL_OPSANY_CODE_PASSWORD/${MYSQL_OPSANY_CODE_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-saas/code/code-prod.py
 
-    # Starter container
     docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-code:${SAAS_VERSION}
+    # Starter container
     docker run -d --restart=always --name opsany-saas-ce-code \
        -p 7010:80 \
        -v ${INSTALL_PATH}/conf/opsany-saas/code/code-supervisor.ini:/etc/supervisord.d/code.ini \
@@ -928,9 +890,6 @@ saas_llmops_deploy(){
     mysql -h "${MYSQL_SERVER_IP}" -P ${MYSQL_SERVER_PORT} -u root -e "CREATE USER 'llmops'@'%' identified by "\"${MYSQL_OPSANY_LLMOPS_PASSWORD}\"";"
     mysql -h "${MYSQL_SERVER_IP}" -P ${MYSQL_SERVER_PORT} -u root -e "grant all on llmops.* to llmops@'%';" 
 
-     #llmops
-    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/llmops/toolkit/configs.py
-    sed -i "s#/t/llmops#/o/llmops#g" ${INSTALL_PATH}/esb/apis/llmops/toolkit/tools.py
     if [ -d ${INSTALL_PATH}/conf/opsany-saas/llmops ];then
         /bin/cp -r ./conf/opsany-saas/llmops/* ${INSTALL_PATH}/conf/opsany-saas/llmops/
     else
@@ -955,6 +914,7 @@ saas_llmops_deploy(){
     # llmops Configure
     LLMOPS_SECRET_KEY=$(cat ${INSTALL_PATH}/conf/.llmops_secret_key)
     sed -i "s/DOMAIN_NAME/${DOMAIN_NAME}/g" ${INSTALL_PATH}/conf/opsany-saas/llmops/llmops-init.py
+    sed -i "s/LOCAL_IP/${LOCAL_IP}/g" ${INSTALL_PATH}/conf/opsany-saas/llmops/llmops-init.py
     sed -i "s/LLMOPS_SECRET_KEY/${LLMOPS_SECRET_KEY}/g" ${INSTALL_PATH}/conf/opsany-saas/llmops/llmops-init.py
     sed -i "s/MYSQL_SERVER_IP/${MYSQL_SERVER_IP}/g" ${INSTALL_PATH}/conf/opsany-saas/llmops/llmops-prod.py
     sed -i "s/MYSQL_SERVER_PORT/${MYSQL_SERVER_PORT}/g" ${INSTALL_PATH}/conf/opsany-saas/llmops/llmops-prod.py
@@ -963,8 +923,8 @@ saas_llmops_deploy(){
     sed -i "s/MONGO_SERVER_PORT/${MONGO_SERVER_PORT}/g" ${INSTALL_PATH}/conf/opsany-saas/llmops/llmops-prod.py
     sed -i "s/MONGO_LLMOPS_PASSWORD/${MONGO_LLMOPS_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-saas/llmops/llmops-prod.py
 
-    # Starter container
     docker pull ${PAAS_DOCKER_REG}/opsany-saas-ce-llmops:${SAAS_VERSION}
+    # Starter container
     docker run -d --restart=always --name opsany-saas-ce-llmops \
        -p 7000:80 \
        -v ${INSTALL_PATH}/conf/opsany-saas/llmops/llmops-supervisor.ini:/etc/supervisord.d/llmops.ini \
@@ -1110,9 +1070,9 @@ main(){
         saas_cmdb_deploy
         saas_control_deploy
         saas_job_deploy
-	saas_cmp_deploy
+	    saas_cmp_deploy
         saas_monitor_deploy
-	saas_bastion_deploy
+	    saas_bastion_deploy
         saas_llmops_deploy
         saas_base_init
         zabbix_auto

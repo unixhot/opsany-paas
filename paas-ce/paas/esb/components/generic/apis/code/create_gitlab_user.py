@@ -6,7 +6,6 @@ from django import forms
 from common.forms import BaseComponentForm
 from components.component import Component
 from .toolkit import configs
-from .toolkit.tools import base_api_url
 
 
 class CreateGitlabUser(Component):
@@ -39,7 +38,7 @@ class CreateGitlabUser(Component):
         "message": "信息创建成功"
     }
     ```
-    """  #
+    """
 
     # 组件所属系统的系统名
     sys_name = configs.SYSTEM_NAME
@@ -66,7 +65,7 @@ class CreateGitlabUser(Component):
         # 请求系统接口
         response = self.outgoing.http_client.post(
             host=configs.host,
-            path='{}create-gitlab-user/'.format(base_api_url),
+            path='{}create-gitlab-user/'.format(configs.base_api_url),
             params=None,
             data=json.dumps(params),
             cookies=self.request.wsgi_request.COOKIES,

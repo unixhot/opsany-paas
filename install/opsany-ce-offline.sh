@@ -8,7 +8,7 @@
 
 # Data/Time Variables
 CTIME=$(date "+%Y-%m-%d-%H-%M")
-SAAS_VERSION="2.3.0"
+SAAS_VERSION="2.3.1"
 mkdir -p /opt/opsany-v${SAAS_VERSION}-x86_64/images
 
 base_save(){
@@ -24,7 +24,7 @@ base_save(){
 	docker pull  registry.cn-beijing.aliyuncs.com/opsany/openresty:1.17.8.2-alpine
 	docker pull registry.cn-beijing.aliyuncs.com/opsany/guacd:1.2.0
 	docker pull registry.cn-beijing.aliyuncs.com/opsany/opsany-grafana:9.0.3
-	cd /opt/opsany-v2.3.0-x86_64/images
+	cd /opt/opsany-v${SAAS_VERSION}-x86_64/images
 	docker save -o mysql-8.0.30-x86.tar registry.cn-beijing.aliyuncs.com/opsany/mysql:8.0.30
 	docker save -o zabbix-web-nginx-mysql.tar registry.cn-beijing.aliyuncs.com/opsany/zabbix-web-nginx-mysql:7.0.3-ubuntu
 	docker save -o zabbix-server-mysql.tar registry.cn-beijing.aliyuncs.com/opsany/zabbix-server-mysql:7.0.3-ubuntu
@@ -42,17 +42,17 @@ base_save(){
 
 paas_save(){
 	# 导出PaaS镜像
-	docker pull registry.cn-beijing.aliyuncs.com/opsany/opsany-paas-proxy:2.3.0
+	docker pull registry.cn-beijing.aliyuncs.com/opsany/opsany-paas-proxy:2.3.1
 	docker pull registry.cn-beijing.aliyuncs.com/opsany/opsany-paas-websocket:4.0.0
 	docker pull registry.cn-beijing.aliyuncs.com/opsany/opsany-paas-appengine:4.0.0
-	docker pull registry.cn-beijing.aliyuncs.com/opsany/opsany-paas-login:4.0.0
+	docker pull registry.cn-beijing.aliyuncs.com/opsany/opsany-paas-login:4.0.3
 	docker pull registry.cn-beijing.aliyuncs.com/opsany/opsany-paas-esb:4.0.0
 	docker pull registry.cn-beijing.aliyuncs.com/opsany/opsany-paas-paas:4.0.0
-	cd /opt/opsany-v2.3.0-x86_64/images
-	docker save -o opsany-paas-proxy-2.3.0-x86.tar registry.cn-beijing.aliyuncs.com/opsany/opsany-paas-proxy:2.3.0
+	cd /opt/opsany-v${SAAS_VERSION}-x86_64/images
+	docker save -o opsany-paas-proxy-2.3.1-x86.tar registry.cn-beijing.aliyuncs.com/opsany/opsany-paas-proxy:2.3.1
 	docker save -o opsany-paas-websocket-4.0.0-x86.tar registry.cn-beijing.aliyuncs.com/opsany/opsany-paas-websocket:4.0.0
 	docker save -o opsany-paas-appengine-4.0.0-x86.tar registry.cn-beijing.aliyuncs.com/opsany/opsany-paas-appengine:4.0.0
-	docker save -o opsany-paas-login-4.0.0-x86.tar registry.cn-beijing.aliyuncs.com/opsany/opsany-paas-login:4.0.0
+	docker save -o opsany-paas-login-4.0.3-x86.tar registry.cn-beijing.aliyuncs.com/opsany/opsany-paas-login:4.0.3
 	docker save -o opsany-paas-esb-4.0.0-x86.tar registry.cn-beijing.aliyuncs.com/opsany/opsany-paas-esb:4.0.0
 	docker save -o opsany-paas-paas-4.0.0-x86.tar registry.cn-beijing.aliyuncs.com/opsany/opsany-paas-paas:4.0.0
 }

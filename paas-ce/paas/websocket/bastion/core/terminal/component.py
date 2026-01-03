@@ -268,11 +268,28 @@ class SshTerminalThread(threading.Thread):
 
     def check_timeout_close(self):
         # 空闲超时退出
-        current_time = time.time()
-        if int(current_time - self.websocket.wait_time) > settings.TERMINAL_TIMEOUT:
-            self.websocket.send("\r\nTimeout...\r\nconnection closed...")
-            self.websocket.disconnect(1001)
-
+        try:
+            current_time = time.time()
+            idle_duration = current_time - getattr(self.websocket, 'wait_time', current_time)
+            
+            if int(idle_duration) > settings.TERMINAL_TIMEOUT:
+                # 尝试发送超时提示
+                try:
+                    self.websocket.send("\r\nTimeout...\r\nconnection closed...")
+                except Exception as e:
+                    # 客户端已断开，无需处理
+                    pass
+                
+                # 尝试主动断开连接
+                try:
+                    self.websocket.disconnect(1001)  # 1001 = going away
+                except Exception as e:
+                    # 已断开或对象无效，忽略
+                    pass
+        
+        except Exception as e:
+            app_logger.warning(f"Error in check_timeout_close: {e}")
+    
     def get_block_info(self, block: dict):
         block_info = ""
         for key, value in block.items():
@@ -427,6 +444,7 @@ class SshTerminalThread(threading.Thread):
                                             intercept_command=record_command.strip(),
                                             hostname=self.websocket.host.host_address,
                                             user=self.websocket.user.username,
+                                            login_type=1,
                                             opt_user=self.websocket.user.username
                                     )
                                     command = list()

@@ -12,6 +12,8 @@ from requests.status_codes import codes
 from django.conf import settings
 from .exceptions import BadResponse
 
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
+requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 def http_request(method, url, desired_code=codes.ok, **kwargs):
     if "timeout" not in kwargs:

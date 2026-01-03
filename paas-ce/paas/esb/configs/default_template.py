@@ -14,10 +14,10 @@ DEBUG = False
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'open_paas',
-        'USER': 'root',
-        'PASSWORD': '',
-        'HOST': '127.0.0.1',
+        'NAME': 'opsany_paas',
+        'USER': 'opsany',
+        'PASSWORD': '123456.coM',
+        'HOST': '192.168.0.111',
         'PORT': '3306',
     }
 }
@@ -32,11 +32,11 @@ ESB_TOKEN = '41f076b7-afce-46eb-9e85-dab245eb0931'
 # Third party system host
 
 # paas host
-PAAS_HOST = 'http://127.0.0.1:8001'
+PAAS_HOST = 'http://192.168.0.111:8001'
 
 # Third party system host
 # host for bk login
-HOST_BK_LOGIN = 'http://127.0.0.1:8003'
+HOST_BK_LOGIN = 'http://192.168.0.111:8003'
 
 # host for cc
 HOST_CC = ''

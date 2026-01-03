@@ -162,6 +162,8 @@ input[type=number]::-webkit-outer-spin-button {
         color: #ff5656;
         top: 25px;
         left: 55px;
+        padding-right: 55px;
+        padding-bottom: 5px;
         font-size: 12px; }
         .page-content .login-from .from-detail .is-danger-tip .icon-exclamation-circle-shape {
           margin-right: 10px; }

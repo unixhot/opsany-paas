@@ -19,6 +19,10 @@ from common.http import _gen_header, http_delete, http_get, http_post
 from common.utils import file_size_bytes_to_m, get_app_logo, should_update_logo
 
 
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
+requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+
+
 class CommonUtilsTestCase(TestCase):
     def test_file_size_bytes_to_m(self):
 

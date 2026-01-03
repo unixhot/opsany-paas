@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
-__all__ = ['celery_app', 'RUN_VER', 'APP_CODE', 'SECRET_KEY', 'BK_URL', 'BASE_DIR', 'ESB_BASE_URL']
+__all__ = ['celery_app', 'RUN_VER', 'APP_CODE', 'SECRET_KEY', 'BK_URL', 'PAAS_ESB_URL', 'PAAS_LOGIN_URL', 'BASE_DIR', 'ESB_BASE_URL']
 
 import os
 
@@ -14,15 +14,16 @@ RUN_VER = 'open'
 # SaaS应用ID
 APP_CODE = 'rbac'
 # SaaS安全密钥，注意请勿泄露该密钥
-SECRET_KEY = os.getenv("APP_TOKEN", "RBAC_SECRET_KEY")
+SECRET_KEY = "RBAC_SECRET_KEY"
 # SaaS平台URL
-BK_URL = os.getenv("BK_PAAS_HOST", "https://DOMAIN_NAME")
+BK_URL = "https://DOMAIN_NAME"
+PAAS_ESB_URL = "http://LOCAL_IP:8002"
+PAAS_LOGIN_URL = 'http://LOCAL_IP:8003'
 BK_PAAS_URL = BK_URL
 ESB_BASE_URL = BK_URL
-UPLOAD_PATH = os.getenv("UPLOAD_PATH", "/opt/opsany/")
+UPLOAD_PATH = "/opt/opsany/"
 # 工作台首页默认用户图标路径
-DEFAULT_USER_ICON = os.getenv("DEFAULT_USER_ICON",
-                              "uploads/workbench/user_icon/edfb99ee-08d6-41b8-ac5f-117fb86b0912.png")
+DEFAULT_USER_ICON = "uploads/workbench/user_icon/edfb99ee-08d6-41b8-ac5f-117fb86b0912.png"
 
 # 默认语言和默认主题
 DEFAULT_LANGUAGE = "chinese_simplified"

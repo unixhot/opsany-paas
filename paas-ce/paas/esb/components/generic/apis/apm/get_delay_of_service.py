@@ -6,7 +6,6 @@ from django import forms
 from common.forms import BaseComponentForm
 from components.component import Component
 from .toolkit import configs
-from .toolkit.tools import base_api_url
 
 
 class GetDelayOfService(Component):
@@ -52,7 +51,7 @@ class GetDelayOfService(Component):
         }
     }
     ```
-    """#
+    """
 
     # 组件所属系统的系统名
     sys_name = configs.SYSTEM_NAME
@@ -78,7 +77,7 @@ class GetDelayOfService(Component):
         # 请求系统接口
         response = self.outgoing.http_client.get(
             host=configs.host,
-            path='{}get-delay-of-service/'.format(base_api_url),
+            path='{}get-delay-of-service/'.format(configs.base_api_url),
             params=params,
             data=None,
             cookies=self.request.wsgi_request.COOKIES,

@@ -7,22 +7,38 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 import argparse
 
 
-class BkApi:
-    def __init__(self, bk_token, paas_domain):
-        self.token = bk_token
+class OpsAnyApi:
+    def __init__(self, paas_domain, username, password):
+        self.paas_domain = paas_domain
         self.session = requests.Session()
-        self.url = paas_domain
-        # self.url = "http://demo.opsany.com"
         self.session.headers.update({'referer': paas_domain})
-        self.csrfmiddlewaretoken = self.get_csrftoken()
+        self.session.verify = False
+        self.username = username
+        self.password = password
+        self.login_url = self.paas_domain + "/login/api/v3/login/"
+        self.status, self.token, self.csrfmiddlewaretoken = self.login()
 
-    def get_csrftoken(self):
-        API = "/login/"
-        URL = self.url + API
-        resp = self.session.get(URL, verify=False)
-        if resp.status_code in [200, 400]:
-            return resp.cookies["bklogin_csrftoken"]
-        return None
+    def login(self, verify_code=""):
+        try:
+            json_data = {"username": self.username, "password": self.password, "verify_code": verify_code, "auth_type": "1"}
+            resp = self.session.post(self.login_url, data=json.dumps(json_data), verify=False)
+            try:
+                res_json = resp.json()
+                if resp.status_code != 200:
+                    return False, res_json, ""
+                bk_token = (res_json.get("data") or {}).get("bk_token")
+                code = res_json.get("code")
+                message = res_json.get("message")
+                if bk_token:
+                    return True, bk_token, resp.cookies.get("bklogin_csrftoken")
+                elif code != 200:
+                    return False, message, ""
+                else:
+                    return False, res_json, ""
+            except Exception as e:
+                return False, str(resp.content.decode()), ""
+        except Exception as e:
+            return False, str(e), ""
 
     def update_user_info(self, user_id, user_info):
         API = "/login/accounts/user/{}/".format(user_id)
@@ -30,50 +46,13 @@ class BkApi:
         headers = {
             "X-CSRFToken": self.csrfmiddlewaretoken
         }
-        URL = self.url + API
+        URL = self.paas_domain + API
         resp = self.session.put(URL, data=user_info, verify=False, headers=headers)
         if resp.status_code == 200:
             if resp.json().get("result"):
                 return "更新成功", True
             return resp.json().get("message"), False
         return "服务器错误", False
-
-
-class OpsAnyApi:
-    def __init__(self, paas_domain, username, password):
-        self.paas_domain = paas_domain
-        self.session = requests.Session()
-        self.session.headers.update({'referer': paas_domain})
-        self.session.verify = False
-        self.login_url = self.paas_domain + "/login/"
-        self.csrfmiddlewaretoken = self.get_csrftoken()
-        # TEST DATA  guoyuchen -> admin
-        self.username = username
-        # TEST DATA  123456.coM -> admin
-        self.password = password
-        self.token = self.login()
-
-    def get_csrftoken(self):
-        try:
-            resp = self.session.get(self.login_url, verify=False)
-            if resp.status_code in [200, 400]:
-                return resp.cookies["bklogin_csrftoken"]
-            else:
-                return ""
-        except:
-            return ""
-
-    def login(self):
-        try:
-            login_form = {
-                'csrfmiddlewaretoken': self.csrfmiddlewaretoken,
-                'username': self.username,
-                'password': self.password
-            }
-            resp = self.session.post(self.login_url, data=login_form, verify=False)
-            return self.session.cookies.get("bk_token")
-        except:
-            return False
 
     def create_controller_salt(self, create_data):
         # TEST DATA  /t/ -> /o/
@@ -197,7 +176,7 @@ class Run:
             "email": "123456@qq.com",
             "role": 1
         }
-        message, status = BkApi(bk_token, "https://" + self.paas_domain).update_user_info(user_id_or_error_message, user_info)
+        message, status = self.opsany_api_obj.update_user_info(user_id_or_error_message, user_info)
         return status, message
 
     def init_celery_queue(self):
@@ -241,7 +220,7 @@ def start(paas_domain, private_ip, paas_username, paas_password, proxy_url, prox
     init_queue_status, init_queue_info_message = run_obj.init_celery_queue()
     print("[SUCCESS] Init Control Celery Queue info success") if init_queue_status else \
         print("[ERROR] Init Control Celery Queue info error, error info: {}".format(init_queue_info_message))
-    print("[SUCCESS] ALL success")
+    print("[SUCCESS] ALL complete")
 
 
 def add_parameter():
@@ -272,12 +251,10 @@ if __name__ == '__main__':
         options.proxy_token,
     )
 
-# python3 init-ce-base.py
-# --domain 192.168.56.11
-# --private_ip 192.168.56.11
-# --proxy_url https://192.168.56.11:8011
-# --proxy_public_url https://192.168.56.11:8011
-# --proxy_token fa4b47fb-4f0f-4140-be69-171e00ca4831
-# --paas_username admin
-# --paas_password 123456.coM
+
+"""
+# 初始化 用户 控制器 任务队列
+python3 init-ce-base.py --domain 192.168.56.11 --private_ip 192.168.56.11 --paas_username admin --paas_password Ops525df452 --proxy_url https://192.168.56.11:8011 --proxy_public_url https://192.168.56.11:8011 --proxy_token ed4158dfd-85df-956d-985d-58d98er41fr5
+
+"""
 

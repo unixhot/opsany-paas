@@ -1,12 +1,12 @@
 #-*- coding: utf-8 -*-
 
 from esb.utils import SmartHost
-
+import settings
 
 # 系统名的小写形式要与系统包名保持一致
 SYSTEM_NAME = 'devops'
 
 host = SmartHost(
     # 需要填入系统正式环境的域名地址
-    host_prod='DOMAIN_NAME',
+    host_prod=settings.PAAS_DOMAIN,
 )

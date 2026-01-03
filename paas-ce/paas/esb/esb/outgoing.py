@@ -34,6 +34,9 @@ REQUEST_TIMEOUT_SECS = settings.REQUEST_TIMEOUT_SECS
 STATUS_CODE_OK = 200
 RESP_LIMIT_SIZE = 4096
 
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
+requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+
 
 class RequestsWrapper(object):
     """

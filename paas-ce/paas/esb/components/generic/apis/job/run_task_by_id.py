@@ -8,7 +8,6 @@ from django import forms
 from common.forms import BaseComponentForm
 from components.component import Component
 from .toolkit import configs
-from .toolkit.tools import base_api_url
 
 
 class RunTaskById(Component):
@@ -72,7 +71,7 @@ class RunTaskById(Component):
         # 请求系统接口
         response = self.outgoing.http_client.post(
             host=configs.host,
-            path='{}run-task-by-id/'.format(base_api_url),
+            path='{}run-task-by-id/'.format(configs.base_api_url),
             data = data,
             params = params,
             cookies=self.request.wsgi_request.COOKIES,

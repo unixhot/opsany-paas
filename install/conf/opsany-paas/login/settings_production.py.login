@@ -1,29 +1,47 @@
 # -*- coding: utf-8 -*-
-"""
-Tencent is pleased to support the open source community by making 蓝鲸智云PaaS平台社区版 (BlueKing PaaS Community Edition) available.
-Copyright (C) 2017-2018 THL A29 Limited, a Tencent company. All rights reserved.
-Licensed under the MIT License (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
-http://opensource.org/licenses/MIT
-Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 
-生产环境配置
-""" # noqa
+from conf.default import LOGGING
 
+# Debug
 DEBUG = False
 
 # Log settings
 LOG_LEVEL = 'ERROR'
 
+LOGGING.update(**{
+    'loggers': {
+        'django': {
+            'handlers': ['null'],
+            'level': LOG_LEVEL,
+            'propagate': True,
+        },
+        'django.request': {
+            'handlers': ['console'],
+            'level': LOG_LEVEL,
+            'propagate': True,
+        },
+        'root': {
+            'handlers': ['root'],
+            'level': LOG_LEVEL,
+            'propagate': True,
+        },
+        'django.db.backends': {
+            'handlers': ['wb_mysql'],
+            'level': LOG_LEVEL,
+            'propagate': True,
+        },
+    },
+})
+
 # use the static root 'static' in production envs
 if not DEBUG:
     STATIC_ROOT = 'static'
 
-# 生产环境, 使用nginx反向代理 /login/static/
+# For Nginx
 SITE_URL = "/login/"
-
 STATIC_URL = "/static/"
 
-# 数据库配置信息
+# Database
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',   # 默认用mysql
@@ -35,22 +53,25 @@ DATABASES = {
     }
 }
 
-# 初始化用户名、密码
+# Init User
 USERNAME = 'admin'
 PASSWORD = 'admin'
 
-# inner domain, use consul domain,  for api
+# Inner domain
 PAAS_INNER_DOMAIN = 'LOCAL_IP'
 HTTP_SCHEMA = 'https'
 
-
-# cookie访问域
-BK_COOKIE_DOMAIN = 'DOMAIN_NAME'
+# Cookie
+BK_COOKIE_DOMAIN = ''
+CSRF_COOKIE_HTTPONLY = True
 CSRF_TRUSTED_ORIGINS = [
     'https://DOMAIN_NAME',
+    'https://LOCAL_IP',
     'http://DOMAIN_NAME',
+    'http://LOCAL_IP',
 ]
 
+# Secret Key
 SECRET_KEY = 'jO149njrTj4kEx6ZbUH8Zc53bfQJctINWaEzTWIsOoxSDNwK2I'
 
 # ESB Token

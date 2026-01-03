@@ -26,7 +26,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 SECRET_KEY = 'o7(025idh*fj@)ohujum-ilfxl^n=@d&$xz!_$$7s$8jopd5r#'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -44,9 +43,11 @@ INSTALLED_APPS = (
     'rest_framework_simplejwt',
     'bkaccount',
     'bk_i18n',
+    # 'corsheaders'
 )
 
 MIDDLEWARE = (
+    # 'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -67,7 +68,12 @@ REST_FRAMEWORK = {
     ],
 }
 
+# JWT认证配置
 from datetime import timedelta
+# 认证方式配置
+# 'jwt' - 使用JWT认证
+# 'cookie' - 使用传统token+cookie认证
+AUTHENTICATION_MODE = 'cookie'
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
@@ -232,9 +238,9 @@ HISTORY_EVENT_STATE_EXPIRE_SECONDS = 1800
 ##################
 USERNAME = 'admin'
 PASSWORD = 'blueking'
-
+DEBUG = False
 # logging config
-LOGGER_LEVEL = 'DEBUG'
+LOG_LEVEL = 'ERROR'
 
 LOGGING_DIR = os.environ.get('PAAS_LOGGING_DIR') or os.path.join(PROJECT_ROOT, 'logs')
 if not os.path.exists(LOGGING_DIR):
@@ -266,7 +272,7 @@ LOGGING = {
             'level': 'ERROR', 'class': 'django.utils.log.AdminEmailHandler'
         },
         'console': {
-            'level': 'DEBUG', 'class': 'logging.StreamHandler', 'formatter':
+            'level': 'INFO', 'class': 'logging.StreamHandler', 'formatter':
             'simple'
         },
         'root': {
@@ -286,24 +292,69 @@ LOGGING = {
     },
     'loggers': {
         'django': {
-            'handlers': ['null'],
-            'level': 'ERROR',
+            'handlers': ['console'],
+            'level': LOG_LEVEL,
             'propagate': True,
         },
         'django.request': {
             'handlers': ['console'],
-            'level': 'DEBUG',
+            'level': LOG_LEVEL,
             'propagate': True,
         },
         'root': {
-            'handlers': ['root'],
-            'level': LOGGER_LEVEL,
+            'handlers': ['console'],
+            'level': LOG_LEVEL,
             'propagate': True,
         },
         'django.db.backends': {
             'handlers': ['wb_mysql'],
-            'level': 'ERROR',
+            'level': LOG_LEVEL,
             'propagate': True,
         },
     }
 }
+
+"""
+# 本地开发解决跨域问题
+打开注释： 
+INSTALLED_APPS = (
+    "corsheaders"
+)
+打开注释： 
+MIDDLEWARE = (
+    'corsheaders.middleware.CorsMiddleware',
+)
+
+# 添加本地服务地址
+CORS_ALLOWED_ORIGINS = [
+    "http://192.168.0.9:8000"
+]
+"""
+
+
+
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOWED_ORIGINS = [
+    "http://192.168.0.9:8000"
+]
+CORS_ALLOW_METHODS = (
+        'DELETE',
+        'GET',
+        'OPTIONS',
+        'PATCH',
+        'POST',
+        'PUT',
+        'VIEW',
+    )
+
+CORS_ALLOW_HEADERS = (
+        'accept',
+        'accept-encoding',
+        'authorization',
+        'content-type',
+        'dnt',
+        'origin',
+        'user-agent',
+        'x-csrftoken',
+        'x-requested-with',
+    )

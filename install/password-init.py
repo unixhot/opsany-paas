@@ -2,7 +2,7 @@
 执行说明：python password-init.py --username [Username] --password [Password] --new_password [New Password]
         --verify_code [Verify_code]
 参数说明：
-username         必填      当前面用户名
+username         必填      当前用户名
 passowrd         必填      当前密码
 new_password     必填      新的密码
 verify_code      非必填    如果您开启了MFA则该参数为必填
@@ -18,39 +18,41 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
 class BkApi:
-    def __init__(self, paas_domain, username, password):
+    def __init__(self, paas_domain, username, password, verify_code=""):
+        self.paas_domain = paas_domain
         self.username = username
         self.password = password
         self.session = requests.Session()
-        self.url = paas_domain
-        self.session.headers.update({'referer': self.url})
-        self.csrfmiddlewaretoken = self.get_csrftoken()
-
-    def get_csrftoken(self):
-        API = "/login/"
-        URL = self.url + API
-        resp = self.session.get(URL, verify=False)
-        if resp.status_code in [200, 400]:
-            return resp.cookies["bklogin_csrftoken"]
-        return None
+        self.session.headers.update({'referer': self.paas_domain})
+        self.login_url = self.paas_domain + "/login/api/v3/login/"
+        self.status, self.token, self.csrfmiddlewaretoken = self.login(verify_code)
 
     def login(self, verify_code=""):
-        API = "/login/api/login/"
-        URL = self.url + API
-        login_form = {
-            'csrfmiddlewaretoken': self.csrfmiddlewaretoken,
-            'username': self.username,
-            'password': self.password,
-            'verify_code': verify_code,
-        }
-        resp = self.session.post(URL, data=login_form, verify=False)
-        if resp.status_code == 200 and resp.json().get("code") == 200:
-            return True, ""
-        return False, resp.json().get("message")
+        try:
+            json_data = {"username": self.username, "password": self.password, "verify_code": verify_code,
+                         "auth_type": "1"}
+            resp = self.session.post(self.login_url, data=json.dumps(json_data), verify=False)
+            try:
+                res_json = resp.json()
+                if resp.status_code != 200:
+                    return False, res_json, ""
+                bk_token = (res_json.get("data") or {}).get("bk_token")
+                code = res_json.get("code")
+                message = res_json.get("message")
+                if bk_token:
+                    return True, bk_token, resp.cookies.get("bklogin_csrftoken")
+                elif code != 200:
+                    return False, message, ""
+                else:
+                    return False, res_json, ""
+            except Exception as e:
+                return False, str(resp.content.decode()), ""
+        except Exception as e:
+            return False, str(e), ""
 
     def set_new_password(self, password):
         API = "/login/accounts/user/password/"
-        URL = self.url + API
+        URL = self.paas_domain + API
         req = {
             "new_password": password,
         }
@@ -87,7 +89,7 @@ if __name__ == '__main__':
     new_password = options.new_password
     verify_code = options.verify_code if options.verify_code else ""
     bk_api = BkApi(paas_domain, username, password)
-    status, res = bk_api.login(verify_code)
+    status, res =bk_api.status, bk_api.token
     # print(status, res)
     if status:
         res, status = bk_api.set_new_password(new_password)

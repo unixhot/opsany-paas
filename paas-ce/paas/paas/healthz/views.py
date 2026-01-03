@@ -18,6 +18,9 @@ from django.views.generic import View
 from common.mixins.base import LoginExemptMixin
 import requests
 
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
+requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+
 
 class HealthzView(LoginExemptMixin, View):
     """health check for paas

@@ -7,7 +7,7 @@
 - 操作系统：Ubunut 20.04、22.04、24.04
 - 数据库: MySQL、MongoDB、Redis、Elasticsearch
 - 消息队列：RabbitMQ、Redis
-- Python版本: Python 3.12.4、Python 3.7.17
+- Python版本: Python 3.12.4(PaaS使用)、Python 3.7.17（部分SaaS使用）
 
 1. 部署说明
 
@@ -40,7 +40,7 @@ libncursesw5-dev xz-utils tk-dev libffi-dev liblzma-dev \
 libgdbm-dev libnss3-dev libedit-dev libc6-dev screen wget uuid unzip \
 redis-server mariadb-server rabbitmq-server nginx supervisor tcl-dev \
 libmariadb-dev-compat libmariadb-dev libsasl2-dev libldap2-dev libssl-dev \
-gcc
+gcc libjpeg-dev libtiff5-dev libpng-dev libfreetype6-dev
 ```
 
 2. 初始化MySQL数据库。
@@ -294,7 +294,7 @@ BK_COOKIE_DOMAIN = '192.168.0.111'
 - 修改数据库配置，可以根据需求修改域名和端口，这里保持默认。
 ```
  (appengine) [root@linux-node1 appengine]# cp controller/settings_sample.py controller/settings.py
-(appengine) [root@linux-node1 appengine]# vim controller/settings_development.py
+(appengine) [root@linux-node1 appengine]# vim controller/settings.py
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
@@ -366,25 +366,15 @@ DATABASES = {
 [root@ops ~]# cd /opt/opsany-paas/paas-ce/paas/examples/
 [root@ops examples]# cp nginx_paas.conf /etc/nginx/conf.d/
 [root@ops examples]# vim /etc/nginx/conf.d/nginx_paas.conf
-
-#在location / 下面增加
-location /static {
-        proxy_pass http://OPEN_PAAS_LOGIN;
-        proxy_pass_header Server;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Scheme $scheme;
-        proxy_set_header Host $http_host;
-        proxy_redirect off;
-        proxy_read_timeout 600;
-    }
 [root@paas-node-1 ~]# nginx -t
 nginx: the configuration file /etc/nginx/nginx.conf syntax is ok
 nginx: configuration file /etc/nginx/nginx.conf test is successful
 [root@paas-node-1 ~]# systemctl start nginx
+
+# 登录页面的图片需要放置在uploads下面，不然打开登录页图片无法展示。
+[root@paas-node-1 ~]# cp -r /opt/opsany-paas/install/uploads/login /opt/opsany/uploads/
 ```
 
-### 访问PAAS
- - 设置本地Hosts绑定
+### 访问PAAS平台。
  - http://192.168.0.111/
  - 默认用户名密码：admin admin

@@ -17,9 +17,9 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': "opsany_proxy",
         'USER': "opsany",
-        'HOST': os.getenv("MYSQL_HOST", "MYSQL_SERVER_IP"),
-        'PORT': os.getenv("MYSQL_PORT", "MYSQL_SERVER_PORT"),
-        'PASSWORD': os.getenv("MYSQL_PASSWORD", "MYSQL_OPSANY_PASSWORD"),
+        'HOST': "MYSQL_SERVER_IP",
+        'PORT': "MYSQL_SERVER_PORT",
+        'PASSWORD': "MYSQL_OPSANY_PASSWORD",
         'OPTIONS': {
                 "init_command": "SET default_storage_engine=INNODB;\
                                  SET sql_mode='STRICT_TRANS_TABLES';",
@@ -28,11 +28,11 @@ DATABASES = {
 }
 
 # Redis缓存设置
-REDIS_HOST = os.getenv("REDIS_HOST", "REDIS_SERVER_IP")
-REDIS_PORT = os.getenv("REDIS_PORT", "REDIS_SERVER_PORT")
-REDIS_USERNAME = parse.quote(os.getenv("REDIS_USERNAME", "REDIS_USERNAME"))  # 用户名编译，防止出现@登封特殊符号，设置为空，防止没有配置用户名出现None情况
-REDIS_PASSWORD = parse.quote(os.getenv("REDIS_PASSWORD", "REDIS_SERVER_PASSWORD"))  # 密码URL编译，防止出现@等符号
-if REDIS_USERNAME == "REDIS_USERNAME":  # 当该变量没有被替换时设置为空，防止与密码直接拼入
+REDIS_HOST = "REDIS_SERVER_IP"
+REDIS_PORT = "REDIS_SERVER_PORT"
+REDIS_USERNAME = parse.quote("REDIS_SERVER_USER")
+REDIS_PASSWORD = parse.quote("REDIS_SERVER_PASSWORD")
+if REDIS_USERNAME == "REDIS_SERVER_USER":  # 当该变量没有被替换时设置为空，防止与密码直接拼入
     REDIS_USERNAME = ""
 
 BROKER_URL = "redis://{USER}:{PASSWORD}@{HOST}:{PORT}/0".format(USER=REDIS_USERNAME, PASSWORD=REDIS_PASSWORD, HOST=REDIS_HOST, PORT=REDIS_PORT)
@@ -54,10 +54,10 @@ CACHES = {
 }
 
 # RabbitMQ 消息队列设置
-#MQ_USER = os.getenv("MQ_USER", "RABBITMQ_DEFAULT_USER")
-#MQ_PASSWORD = os.getenv("MQ_PASSWORD", "RABBITMQ_DEFAULT_PASS")
-#MQ_HOST = os.getenv("MQ_HOST", "RABBIT_SERVER_IP")
-#MQ_PORT = os.getenv("MQ_PORT", "5672")
+#MQ_USER = "RABBITMQ_DEFAULT_USER"
+#MQ_PASSWORD = "RABBITMQ_DEFAULT_PASS"
+#MQ_HOST = "RABBIT_SERVER_IP"
+#MQ_PORT = "5672"
 
 #BROKER_URL = 'amqp://{MQ_USER}:{MQ_PASSWORD}@{MQ_HOST}:{MQ_PORT}//'.format(MQ_USER=MQ_USER, MQ_PASSWORD=MQ_PASSWORD,MQ_HOST=MQ_HOST, MQ_PORT=MQ_PORT)
 
@@ -67,21 +67,21 @@ INVSCRIPT_FILE =  "/opt/opsany-proxy/invscript_proxy.py"
 
 # Ansible config
 INVENTORY_FILE = "/etc/ansible/hosts"
-PLAYBOOK_ROOT = os.getenv("PLAYBOOK_ROOT", "/srv/playbook/")
+PLAYBOOK_ROOT = "/srv/playbook/"
 # ansible test_ping_v2脚本
 TEST_PING_SCRIPT_PATH = os.path.join(BASE_DIR, "proxy/utils/test_ping_v2.py")
 
 # Saltstack config
-CONTROL_KEY = os.getenv("CONTROL_KEY", "CONTROL_SECRET_KEY_PROXY")
-FILE_ROOT = os.getenv("FILE_ROOT", "/srv/salt/")
-PILLAR_ROOT = os.getenv("PILLAR_ROOT", "/srv/pillar/")
+CONTROL_KEY = "CONTROL_SECRET_KEY_PROXY"
+FILE_ROOT = "/srv/salt/"
+PILLAR_ROOT = "/srv/pillar/"
 
 # 用于Agent从Proxy获取文件
 PROXY_URL = "http://local-proxy.opsany.com:8012"
 PROXY_PUBLIC_URL = "http://public-proxy.opsany.com:8012"
 
 # 告警规则路径---该路径需要挂载到与Prometheus配置文件规则挂载路径一致，通过在Proxy目录写入规则方式使Prometheus能读取到该告警目录
-PROM_ALERT_RULE_PATH = os.getenv("PROM_ALERT_RULE_PATH" ,"/opt/opsany/uploads/prometheus-config/rules")
-PROM_SERVER_CHECK_PATH = os.getenv("PROM_SERVER_CHECK_PATH" ,"/opt/opsany/uploads/monitor/heartbeat-monitors.d/")
-PROM_ALERT_MANAGER_YML = os.getenv("PROM_ALERT_MANAGER_YML" ,"/opt/opsany/alertmanager.yml")
+PROM_ALERT_RULE_PATH = "/opt/opsany/uploads/prometheus-config/rules"
+PROM_SERVER_CHECK_PATH = "/opt/opsany/uploads/monitor/heartbeat-monitors.d/"
+PROM_ALERT_MANAGER_YML = "/opt/opsany/alertmanager.yml"
 

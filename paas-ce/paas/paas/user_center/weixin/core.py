@@ -30,6 +30,9 @@ from user_center.constants import (WEIXIN_MP_API_URL,
 from user_center.weixin.utils import (bind_user_wx_info, get_smart_paas_domain,
                                       get_wx_config)
 
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
+requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+
 # Use connection pool
 rpool = requests.Session()
 

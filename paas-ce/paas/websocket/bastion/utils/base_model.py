@@ -3,8 +3,8 @@ import datetime
 
 
 class BaseModel(models.Model):
-    create_time = models.DateTimeField(auto_now_add=datetime.datetime.now())
-    update_time = models.DateTimeField(auto_now_add=datetime.datetime.now())
+    create_time = models.DateTimeField(auto_now_add=True)  # 修改为 auto_now_add=True
+    update_time = models.DateTimeField(auto_now=True)  # 修改为 auto_now=True
 
     class Meta:
         abstract = True

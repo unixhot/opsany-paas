@@ -6,7 +6,6 @@ from django import forms
 from common.forms import BaseComponentForm
 from components.component import Component
 from .toolkit import configs
-from .toolkit.tools import base_api_url
 
 
 
@@ -66,7 +65,7 @@ class KeepStrategyProm(Component):
         # 请求系统接口
         response = self.outgoing.http_client.post(
             host=configs.host,
-            path='{}keep-strategy/'.format(base_api_url),
+            path='{}keep-strategy/'.format(configs.base_api_url),
 
             data=json.dumps(params),
             cookies=self.request.wsgi_request.COOKIES,

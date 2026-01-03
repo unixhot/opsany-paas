@@ -11,6 +11,7 @@
 账号说明：必须使用权限为管理员的账号，普通账号不能使用
 第三方依赖：requests==2.25.0
 """
+import json
 import os
 import sys
 import time
@@ -27,38 +28,39 @@ HTTP_SCHEMA = os.environ.get("HTTP_SCHEMA", "https")
 
 
 class Deploy(object):
-    def __init__(self, paas_domain, file_name=[]):
+    def __init__(self, paas_domain, username, password, file_name=[]):
         self.paas_domain = paas_domain
+        self.username = username
+        self.password = password
         self.session = requests.Session()
         self.session.headers.update({'referer': "%s://%s" % (HTTP_SCHEMA, paas_domain)})
         self.session.verify = False
         self.file_list = self.get_upload_file(file_name)
-        self.login_url = "{}://{}/login/".format(HTTP_SCHEMA, self.paas_domain)
-        self.csrfmiddlewaretoken = self.get_csrftoken()
+        self.login_url = "{}://{}/login/api/v3/login/".format(HTTP_SCHEMA, self.paas_domain)
+        self.status, self.token, self.csrfmiddlewaretoken = self.login()
 
-    # 获取登陆用csrftoken
-    def get_csrftoken(self):
-        resp = self.session.get(self.login_url, verify=False)
-        if resp.status_code in [200, 400]:
-            return resp.cookies["bklogin_csrftoken"]
-
-    # 登陆
-    def login(self, username, password):
-        login_form = {
-            'csrfmiddlewaretoken': self.csrfmiddlewaretoken,
-            'username': username,
-            'password': password,
-            "geetest_challenge": "opsany",
-            "geetest_validate": "opsany",
-            "geetest_seccode": "opsany"
-        }
-        resp = self.session.post(self.login_url, data=login_form, verify=False)
-        bk_token = self.session.cookies.get("bk_token", None) # 判断token 是否生成
-        if resp.status_code == 200 and bk_token:
-            print("登录认证成功")
-        else:
-            print("登录认证失败")
-            sys.exit(1)
+    def login(self, verify_code=""):
+        try:
+            json_data = {"username": self.username, "password": self.password, "verify_code": verify_code,
+                         "auth_type": "1"}
+            resp = self.session.post(self.login_url, data=json.dumps(json_data), verify=False)
+            try:
+                res_json = resp.json()
+                if resp.status_code != 200:
+                    return False, res_json, ""
+                bk_token = (res_json.get("data") or {}).get("bk_token")
+                code = res_json.get("code")
+                message = res_json.get("message")
+                if bk_token:
+                    return True, bk_token, resp.cookies.get("bklogin_csrftoken")
+                elif code != 200:
+                    return False, message, ""
+                else:
+                    return False, res_json, ""
+            except Exception as e:
+                return False, str(resp.content.decode()), ""
+        except Exception as e:
+            return False, str(e), ""
 
     # 获取上传文件
     def get_upload_file(self, file_name_list):
@@ -176,6 +178,5 @@ if __name__ == '__main__':
     username = options.username
     password = options.password
     file_name = options.file_name
-    dep = Deploy(domain, file_name)
-    dep.login(username, password)
+    dep = Deploy(domain, username, password, file_name)
     dep.deploy()

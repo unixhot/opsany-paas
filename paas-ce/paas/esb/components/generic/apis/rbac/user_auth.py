@@ -47,10 +47,11 @@ class UserAuth(Component):
         sso_code = forms.CharField(required=False)
         sso_sign = forms.CharField(required=False)
         auth_type = forms.CharField(required=False)
+        params = forms.Field(required=False)
 
         # clean方法返回的数据可通过组件的form_data属性获取
         def clean(self):
-            return self.get_cleaned_data_when_exist(keys=["username", "password", "appid", "code", "domain", "ad_domain", "sso_code", "sso_sign", "auth_type"])
+            return self.get_cleaned_data_when_exist(keys=["username", "password", "appid", "code", "domain", "ad_domain", "sso_code", "sso_sign", "auth_type", "params"])
 
     # 组件处理入口
     def handle(self):

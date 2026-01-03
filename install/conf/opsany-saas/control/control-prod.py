@@ -30,9 +30,9 @@ DATABASES.update(
             'ENGINE': 'django.db.backends.mysql',
             'NAME': APP_CODE,  # 数据库名
             'USER': APP_CODE,  # 数据库用户
-            'PASSWORD': os.getenv("MYSQL_PASSWORD", "MYSQL_OPSANY_CONTROL_PASSWORD"),  # 数据库密码
-            'HOST': os.getenv("MYSQL_HOST", "MYSQL_SERVER_IP"),  # 数据库主机
-            'PORT': int(os.getenv("MYSQL_PORT", "MYSQL_SERVER_PORT")),  # 数据库端口
+            'PASSWORD': "MYSQL_OPSANY_CONTROL_PASSWORD",  # 数据库密码
+            'HOST': "MYSQL_SERVER_IP",  # 数据库主机
+            'PORT': int("MYSQL_SERVER_PORT"),  # 数据库端口
             'OPTIONS': {
                 "init_command": "SET default_storage_engine=INNODB;\
                                  SET sql_mode='STRICT_TRANS_TABLES';",
@@ -43,10 +43,10 @@ DATABASES.update(
 )
 
 # Redis Config
-REDIS_HOST = os.getenv("REDIS_HOST", "REDIS_SERVER_IP")
-REDIS_PORT = os.getenv("REDIS_PORT", "REDIS_SERVER_PORT")
-REDIS_USERNAME = parse.quote(os.getenv("REDIS_USERNAME", "REDIS_SERVER_USER") or "")  
-REDIS_PASSWORD = parse.quote(os.getenv("REDIS_PASSWORD", "REDIS_SERVER_PASSWORD")) 
+REDIS_HOST = "REDIS_SERVER_IP"
+REDIS_PORT = "REDIS_SERVER_PORT"
+REDIS_USERNAME = parse.quote("REDIS_SERVER_USER")
+REDIS_PASSWORD = parse.quote("REDIS_SERVER_PASSWORD")
 
 # Redis Celery AMQP
 BROKER_URL = 'redis://{REDIS_USERNAME}:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}/4'.format(REDIS_USERNAME=REDIS_USERNAME, REDIS_PASSWORD=REDIS_PASSWORD, REDIS_HOST=REDIS_HOST, REDIS_PORT=REDIS_PORT)
@@ -116,8 +116,8 @@ GUACD_PATH = "/srv/guacamole"
 TERMINAL_TIMEOUT = 1800
 TERMINAL_PATH = "/opt/opsany/uploads/terminal"
 MEDIA_URL = ''
-UPLOAD_PATH = os.getenv("UPLOAD_PATH", "/opt/opsany/")
-METRIC_PACKAGE_PATH = os.getenv("METRIC_PACKAGE_PATH", "uploads/agent/prom-exporter/")
+UPLOAD_PATH = "/opt/opsany/"
+METRIC_PACKAGE_PATH = "uploads/agent/prom-exporter/"
 METRIC_LOGO_PATH = "uploads/control/metric/logo/"
 MINION_CACHE_FILE = "uploads/control/minion_cache_file/"
 COLLECT_SCRIPT_PATH = "uploads/control/collect/script/"

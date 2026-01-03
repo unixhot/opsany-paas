@@ -92,7 +92,6 @@ conf/settings_production.py
 # gulp
 .jshintrc
 gulpfile.js
-package.json
 
 
 # scss cache

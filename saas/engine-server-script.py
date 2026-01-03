@@ -14,48 +14,36 @@ class OpsAnyApi:
     def __init__(self, paas_domain, username, password, env="prod"):
         self.paas_domain = paas_domain
         self.session = requests.Session()
-        self.headers = {
-            "X-Requested-With": "XMLHttpRequest",
-            "Accept": "application/json, text/javascript, */*; q=0.01",
-        }
         self.session.headers.update({'referer': paas_domain})
         self.session.verify = False
-        self.login_url = self.paas_domain + "/login/"
-        self.csrfmiddlewaretoken = self.get_csrftoken()
         self.username = username
         self.password = password
-        self.cookies = None
-        self.token = self.login()
-
-        self.token = None
-
+        self.login_url = self.paas_domain + "/login/api/v3/login/"
+        self.status, self.token, self.csrfmiddlewaretoken = self.login()
+        self.session.cookies["bk_csrftoken"] = self.csrfmiddlewaretoken
         self.run_env = "o" if env == "prod" else "t"
 
-    def get_csrftoken(self):  # sourcery skip: do-not-use-bare-except
+    def login(self, verify_code=""):
         try:
-            resp = self.session.get(self.login_url, verify=False)
-            if resp.status_code in [200, 400]:
-                return resp.cookies["bklogin_csrftoken"]
-            else:
-                return ""
-        except:
-            return ""
-
-    def login(self):  # sourcery skip: do-not-use-bare-except
-        try:
-            login_form = {
-                'csrfmiddlewaretoken': self.csrfmiddlewaretoken,
-                'username': self.username,
-                'password': self.password
-            }
-            resp = self.session.post(self.login_url, data=login_form, verify=False, headers=self.headers)
-            if resp.status_code == 200:
-                self.headers.update(self.session.headers)
-                self.cookies = dict(self.session.cookies)
-                return self.session.cookies.get("bk_token")
-            return "", ""
-        except:
-            return "", ""
+            json_data = {"username": self.username, "password": self.password, "verify_code": verify_code, "auth_type": "1"}
+            resp = self.session.post(self.login_url, data=json.dumps(json_data), verify=False)
+            try:
+                res_json = resp.json()
+                if resp.status_code != 200:
+                    return False, res_json, ""
+                bk_token = (res_json.get("data") or {}).get("bk_token")
+                code = res_json.get("code")
+                message = res_json.get("message")
+                if bk_token:
+                    return True, bk_token, resp.cookies.get("bklogin_csrftoken")
+                elif code != 200:
+                    return False, message, ""
+                else:
+                    return False, res_json, ""
+            except Exception as e:
+                return False, str(resp.content.decode()), ""
+        except Exception as e:
+            return False, str(e), ""
 
     def add_engine_server(self, server_ip, server_port, app_port, server_cate):
         API = self.paas_domain + "/engine/server/"
@@ -67,14 +55,8 @@ class OpsAnyApi:
                 "app_port": app_port,
                 "server_cate": server_cate
             }
-            self.headers.update({
-                "Origin": self.paas_domain + "/engine/server/",
-                "X-CSRFToken": self.csrfmiddlewaretoken,
-            })
-            self.cookies["bk_csrftoken"] = self.csrfmiddlewaretoken
 
-            res = requests.post(API, data=server_form, headers=self.headers, cookies=self.cookies, verify=False)
-
+            res = self.session.post(API, data=server_form, verify=False)
             if res.status_code == 200 and res.json().get("code") == 200:
                 return True, res.json()
             else:
@@ -90,14 +72,7 @@ class OpsAnyApi:
                 'csrfmiddlewaretoken': self.csrfmiddlewaretoken,
                 "server_id": server_id
             }
-            self.headers.update({
-                "Origin": self.paas_domain + "/engine/server/active/",
-                "X-CSRFToken": self.csrfmiddlewaretoken,
-            })
-            self.cookies["bk_csrftoken"] = self.csrfmiddlewaretoken
-
-            res = requests.post(API, data=server_form, headers=self.headers, cookies=self.cookies, verify=False)
-
+            res = self.session.post(API, data=server_form, verify=False)
             if res.status_code == 200 and res.json().get("code") == 200:
                 return True, res.json()
             else:

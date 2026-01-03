@@ -6,9 +6,6 @@
 # Description:  OpsAny PaaS Install Script
 #******************************************
 
-# Get Data/Time
-CTIME=$(date "+%Y-%m-%d-%H-%M")
-
 # Shell Envionment Variables
 CDIR=$(pwd)
 SHELL_NAME="paas-install.sh"
@@ -17,20 +14,20 @@ SHELL_LOG="${CDIR}/${SHELL_NAME}.log"
 # Shell Log Record
 shell_log(){
     LOG_INFO=$1
-    echo -e "\033[32m---------------- $CTIME ${SHELL_NAME} : ${LOG_INFO} ----------------\033[0m"
-    echo "$CTIME ${SHELL_NAME} : ${LOG_INFO}" >> ${SHELL_LOG}
+    echo -e "\033[32m---------------- $(date "+%Y-%m-%d-%H-%M") ${SHELL_NAME} : ${LOG_INFO} ----------------\033[0m"
+    echo "$(date "+%Y-%m-%d-%H-%M") ${SHELL_NAME} : ${LOG_INFO}" >> ${SHELL_LOG}
 }
 
 shell_warning_log(){
     LOG_INFO=$1
-    echo -e "\033[33m---------------- $CTIME ${SHELL_NAME} : ${LOG_INFO} ----------------\033[0m"
-    echo "$CTIME ${SHELL_NAME} : ${LOG_INFO}" >> ${SHELL_LOG}
+    echo -e "\033[33m---------------- $(date "+%Y-%m-%d-%H-%M") ${SHELL_NAME} : ${LOG_INFO} ----------------\033[0m"
+    echo "$(date "+%Y-%m-%d-%H-%M") ${SHELL_NAME} : ${LOG_INFO}" >> ${SHELL_LOG}
 }
 
 shell_error_log(){
     LOG_INFO=$1
-    echo -e "\033[31m---------------- $CTIME ${SHELL_NAME} : ${LOG_INFO} ----------------\033[0m"
-    echo "$CTIME ${SHELL_NAME} : ${LOG_INFO}" >> ${SHELL_LOG}
+    echo -e "\033[31m---------------- $(date "+%Y-%m-%d-%H-%M") ${SHELL_NAME} : ${LOG_INFO} ----------------\033[0m"
+    echo "$(date "+%Y-%m-%d-%H-%M") ${SHELL_NAME} : ${LOG_INFO}" >> ${SHELL_LOG}
 }
 
 # Install Inspection
@@ -119,55 +116,6 @@ opsany_init(){
     sed -i "s/"REDIS_SERVER_PASSWORD"/"${REDIS_SERVER_PASSWORD}"/g" ${INSTALL_PATH}/redis-volume/redis.conf
 }
 
-esb_init(){
-    shell_log "======Init: ESB Initialize======"
-    #cmdb
-    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/cmdb/toolkit/configs.py
-    sed -i "s#/t/cmdb#/o/cmdb#g" ${INSTALL_PATH}/esb/apis/cmdb/toolkit/tools.py
-    #control
-    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/control/toolkit/configs.py
-    sed -i "s#/t/control#/o/control#g" ${INSTALL_PATH}/esb/apis/control/toolkit/tools.py
-    #rbac
-    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/rbac/toolkit/configs.py
-    sed -i "s#/t/rbac#/o/rbac#g" ${INSTALL_PATH}/esb/apis/rbac/toolkit/configs.py
-    #job
-    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/task/toolkit/configs.py
-    sed -i "s#/t/job#/o/job#g" ${INSTALL_PATH}/esb/apis/task/toolkit/tools.py
-    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/job/toolkit/configs.py
-    sed -i "s#/t/job#/o/job#g" ${INSTALL_PATH}/esb/apis/job/toolkit/tools.py
-    #workbench
-    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/workbench/toolkit/configs.py
-    sed -i "s#/t/workbench#/o/workbench#g" ${INSTALL_PATH}/esb/apis/workbench/toolkit/tools.py
-    #monitor
-    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/monitor/toolkit/configs.py
-    sed -i "s#/t/monitor#/o/monitor#g" ${INSTALL_PATH}/esb/apis/monitor/toolkit/tools.py
-    #cmp
-    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/cmp/toolkit/configs.py
-    sed -i "s#/t/cmp#/o/cmp#g" ${INSTALL_PATH}/esb/apis/cmp/toolkit/tools.py
-    #devops
-    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/devops/toolkit/configs.py
-    sed -i "s#/t/devops#/o/devops#g" ${INSTALL_PATH}/esb/apis/devops/toolkit/tools.py
-    #pipeline
-    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/pipeline/toolkit/configs.py
-    sed -i "s#/t/pipeline#/o/pipeline#g" ${INSTALL_PATH}/esb/apis/pipeline/toolkit/tools.py
-    #deploy
-    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/deploy/toolkit/configs.py
-    sed -i "s#/t/deploy#/o/deploy#g" ${INSTALL_PATH}/esb/apis/deploy/toolkit/tools.py
-    #repo
-    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/repo/toolkit/configs.py
-    sed -i "s#/t/repo#/o/repo#g" ${INSTALL_PATH}/esb/apis/repo/toolkit/tools.py
-    #code
-    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/code/toolkit/configs.py
-    sed -i "s#/t/code#/o/code#g" ${INSTALL_PATH}/esb/apis/code/toolkit/tools.py
-    #bastion
-    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/bastion/toolkit/configs.py
-    sed -i "s#/t/bastion#/o/bastion#g" ${INSTALL_PATH}/esb/apis/bastion/toolkit/configs.py
-    # llmops
-    sed -i "s/DOMAIN_NAME/$DOMAIN_NAME/g" ${INSTALL_PATH}/esb/apis/llmops/toolkit/configs.py
-    sed -i "s#/t/llmops#/o/llmops#g" ${INSTALL_PATH}/esb/apis/llmops/toolkit/configs.py
-}
-
-
 # PaaS Share Service Start
 paas_install(){
     # Redis
@@ -246,6 +194,8 @@ paas_start(){
     # paas service
     shell_log "======PaaS Service: Start paas Service======"
     # PaaS Config
+    PAAS_SECRET_KEY=$(cat /dev/urandom | LC_ALL=C tr -dc 'a-zA-Z0-9' | head -c 50)
+    ESB_TOKEN=$(uuid)
     sed -i "s/PAAS_LOGIN_IP/${PAAS_LOGIN_IP}/g" ${INSTALL_PATH}/conf/opsany-paas/paas/settings_production.py.paas
     sed -i "s/PAAS_APPENGINE_IP/${PAAS_APPENGINE_IP}/g" ${INSTALL_PATH}/conf/opsany-paas/paas/settings_production.py.paas
     sed -i "s/DOMAIN_NAME/${DOMAIN_NAME}/g" ${INSTALL_PATH}/conf/opsany-paas/paas/settings_production.py.paas
@@ -253,14 +203,16 @@ paas_start(){
     sed -i "s/MYSQL_SERVER_IP/${MYSQL_SERVER_IP}/g" ${INSTALL_PATH}/conf/opsany-paas/paas/settings_production.py.paas
     sed -i "s/MYSQL_OPSANY_PASSWORD/${MYSQL_OPSANY_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-paas/paas/settings_production.py.paas
     sed -i "s/MYSQL_SERVER_PORT/${MYSQL_SERVER_PORT}/g" ${INSTALL_PATH}/conf/opsany-paas/paas/settings_production.py.paas
+    sed -i "s/SECRET_KEY = '.*'/SECRET_KEY = '$PAAS_SECRET_KEY'/g" ${INSTALL_PATH}/conf/opsany-paas/paas/settings_production.py.paas
+    sed -i "s/ESB_TOKEN = '.*'/ESB_TOKEN = '$ESB_TOKEN'/g" ${INSTALL_PATH}/conf/opsany-paas/paas/settings_production.py.paas
 
-    docker pull ${PAAS_DOCKER_REG}/opsany-paas-paas:4.0.0
+    docker pull ${PAAS_DOCKER_REG}/opsany-paas-paas:4.0.1
     docker run -d --restart=always --name opsany-paas-paas \
     -p 8001:8001 -v ${INSTALL_PATH}/logs:/opt/opsany/logs \
     -v ${INSTALL_PATH}/conf/opsany-paas/paas/settings_production.py.paas:/opt/opsany/paas/paas/conf/settings_production.py \
     -v ${INSTALL_PATH}/conf/opsany-paas/paas/paas.ini:/etc/supervisord.d/paas.ini \
     -v /etc/localtime:/etc/localtime:ro \
-    ${PAAS_DOCKER_REG}/opsany-paas-paas:4.0.0
+    ${PAAS_DOCKER_REG}/opsany-paas-paas:4.0.1
     
     #login service
     shell_log "======PaaS Service: Start login Service======"
@@ -268,6 +220,7 @@ paas_start(){
     # RBAC secret key for login
     RBAC_SECRET_KEY=$(uuid -v4)
     echo $RBAC_SECRET_KEY > ${INSTALL_PATH}/conf/.rbac_secret_key
+    LOGIN_SECRET_KEY=$(cat /dev/urandom | LC_ALL=C tr -dc 'a-zA-Z0-9' | head -c 50)
 
     #Login Config
     sed -i "s/RBAC_SECRET_KEY/${RBAC_SECRET_KEY}/g" ${INSTALL_PATH}/conf/opsany-paas/login/settings_production.py.login
@@ -276,18 +229,21 @@ paas_start(){
     sed -i "s/MYSQL_SERVER_IP/${MYSQL_SERVER_IP}/g" ${INSTALL_PATH}/conf/opsany-paas/login/settings_production.py.login
     sed -i "s/MYSQL_OPSANY_PASSWORD/${MYSQL_OPSANY_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-paas/login/settings_production.py.login
     sed -i "s/MYSQL_SERVER_PORT/${MYSQL_SERVER_PORT}/g" ${INSTALL_PATH}/conf/opsany-paas/login/settings_production.py.login
+    sed -i "s/SECRET_KEY = '.*'/SECRET_KEY = '$LOGIN_SECRET_KEY'/g" ${INSTALL_PATH}/conf/opsany-paas/login/settings_production.py.login
+    sed -i "s/ESB_TOKEN = '.*'/ESB_TOKEN = '$ESB_TOKEN'/g" ${INSTALL_PATH}/conf/opsany-paas/login/settings_production.py.login
 
-    docker pull ${PAAS_DOCKER_REG}/opsany-paas-login:4.0.0
+    docker pull ${PAAS_DOCKER_REG}/opsany-paas-login:4.0.1
     docker run -d --restart=always --name opsany-paas-login \
     -p 8003:8003 -v ${INSTALL_PATH}/logs:/opt/opsany/logs \
     -v ${INSTALL_PATH}/conf/opsany-paas/login/settings_production.py.login:/opt/opsany/paas/login/conf/settings_production.py \
     -v ${INSTALL_PATH}/conf/opsany-paas/login/login.ini:/etc/supervisord.d/login.ini \
     -v /etc/localtime:/etc/localtime:ro \
-    ${PAAS_DOCKER_REG}/opsany-paas-login:4.0.0
+    ${PAAS_DOCKER_REG}/opsany-paas-login:4.0.1
     
     # esb service
     shell_log "======PaaS Service: Start esb Service======"
     # ESB Config
+    ESB_SECRET_KEY=$(cat /dev/urandom | LC_ALL=C tr -dc 'a-zA-Z0-9' | head -c 50)
     sed -i "s/PAAS_LOGIN_IP/${PAAS_LOGIN_IP}/g" ${INSTALL_PATH}/conf/opsany-paas/esb/settings_production.py.esb
     sed -i "s/PAAS_PAAS_IP/${PAAS_PAAS_IP}/g" ${INSTALL_PATH}/conf/opsany-paas/esb/settings_production.py.esb
     sed -i "s/REDIS_SERVER_IP/${REDIS_SERVER_IP}/g" ${INSTALL_PATH}/conf/opsany-paas/esb/settings_production.py.esb
@@ -295,29 +251,32 @@ paas_start(){
     sed -i "s/MYSQL_SERVER_IP/${MYSQL_SERVER_IP}/g" ${INSTALL_PATH}/conf/opsany-paas/esb/settings_production.py.esb
     sed -i "s/MYSQL_OPSANY_PASSWORD/${MYSQL_OPSANY_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-paas/esb/settings_production.py.esb
     sed -i "s/MYSQL_SERVER_PORT/${MYSQL_SERVER_PORT}/g" ${INSTALL_PATH}/conf/opsany-paas/esb/settings_production.py.esb
+    sed -i "s/SECRET_KEY = '.*'/SECRET_KEY = '$ESB_SECRET_KEY'/g" ${INSTALL_PATH}/conf/opsany-paas/esb/settings_production.py.esb
+    sed -i "s/ESB_TOKEN = '.*'/ESB_TOKEN = '$ESB_TOKEN'/g" ${INSTALL_PATH}/conf/opsany-paas/esb/settings_production.py.esb
 
-    docker pull ${PAAS_DOCKER_REG}/opsany-paas-esb:4.0.0
+    docker pull ${PAAS_DOCKER_REG}/opsany-paas-esb:4.0.1
     docker run -d --restart=always --name opsany-paas-esb \
     -p 8002:8002 -v ${INSTALL_PATH}/logs:/opt/opsany/logs \
     -v ${INSTALL_PATH}/esb/apis:/opt/opsany/paas/esb/components/generic/apis \
     -v ${INSTALL_PATH}/conf/opsany-paas/esb/settings_production.py.esb:/opt/opsany/paas/esb/configs/default.py \
     -v ${INSTALL_PATH}/conf/opsany-paas/esb/esb.ini:/etc/supervisord.d/esb.ini \
     -v /etc/localtime:/etc/localtime:ro \
-    ${PAAS_DOCKER_REG}/opsany-paas-esb:4.0.0
+    ${PAAS_DOCKER_REG}/opsany-paas-esb:4.0.1
     
     # appengine service
     shell_log "======PaaS Service: Start appengine Service======"
     # App Engine Config
+    APPENGINE_SECRET_KEY=$(cat /dev/urandom | LC_ALL=C tr -dc 'a-zA-Z0-9' | head -c 50)
     sed -i "s/MYSQL_SERVER_IP/${MYSQL_SERVER_IP}/g" ${INSTALL_PATH}/conf/opsany-paas/appengine/settings_production.py.appengine
     sed -i "s/MYSQL_OPSANY_PASSWORD/${MYSQL_OPSANY_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-paas/appengine/settings_production.py.appengine
     sed -i "s/MYSQL_SERVER_PORT/${MYSQL_SERVER_PORT}/g" ${INSTALL_PATH}/conf/opsany-paas/appengine/settings_production.py.appengine
-    docker pull ${PAAS_DOCKER_REG}/opsany-paas-appengine:4.0.0
+    sed -i "s/SECRET_KEY = '.*'/SECRET_KEY = '$APPENGINE_SECRET_KEY'/g" ${INSTALL_PATH}/conf/opsany-paas/appengine/settings_production.py.appengine
     docker run -d --restart=always --name opsany-paas-appengine \
     -p 8000:8000 -v ${INSTALL_PATH}/logs:/opt/opsany/logs \
     -v ${INSTALL_PATH}/conf/opsany-paas/appengine/settings_production.py.appengine:/opt/opsany/paas/appengine/controller/settings.py \
     -v ${INSTALL_PATH}/conf/opsany-paas/appengine/appengine.ini:/etc/supervisord.d/appengine.ini \
     -v /etc/localtime:/etc/localtime:ro \
-    ${PAAS_DOCKER_REG}/opsany-paas-appengine:4.0.0
+    ${PAAS_DOCKER_REG}/opsany-paas-appengine:4.0.1
     
     # websocket service
     shell_log "======PaaS Service: Start websocket Service======"
@@ -334,7 +293,8 @@ paas_start(){
     sed -i "s/MYSQL_SERVER_PORT/${MYSQL_SERVER_PORT}/g" ${INSTALL_PATH}/conf/opsany-paas/websocket/settings_production.py.websocket
     sed -i "s/MYSQL_OPSANY_PASSWORD/${MYSQL_OPSANY_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-paas/websocket/settings_production.py.websocket
     sed -i "s/PAAS_PAAS_IP/${PAAS_PAAS_IP}/g" ${INSTALL_PATH}/conf/opsany-paas/websocket/settings_production.py.websocket.init
-    docker pull ${PAAS_DOCKER_REG}/opsany-paas-websocket:4.0.0
+    
+    docker pull ${PAAS_DOCKER_REG}/opsany-paas-websocket:4.0.1
     docker run -d --restart=always --name opsany-paas-websocket \
     -p 8004:8004 -v ${INSTALL_PATH}/logs:/opt/opsany/logs \
     -v ${INSTALL_PATH}/uploads:/opt/opsany/uploads \
@@ -343,7 +303,7 @@ paas_start(){
     -v ${INSTALL_PATH}/conf/opsany-paas/websocket/websocket.ini:/etc/supervisord.d/websocket.ini \
     -v /usr/share/zoneinfo:/usr/share/zoneinfo \
     -v /etc/localtime:/etc/localtime:ro \
-    ${PAAS_DOCKER_REG}/opsany-paas-websocket:4.0.0
+    ${PAAS_DOCKER_REG}/opsany-paas-websocket:4.0.1
     
     #openresty
     shell_log "======PaaS Service: Start openresty Service======"
@@ -374,7 +334,6 @@ main(){
           install_check
           ssl_make
           opsany_init
-          esb_init
           paas_install
           sleep 10
           mysql_init

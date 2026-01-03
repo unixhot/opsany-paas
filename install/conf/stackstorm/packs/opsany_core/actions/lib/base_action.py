@@ -4,6 +4,9 @@ import time
 import requests
 from st2common.runners.base_action import Action
 
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
+requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+
 
 class OpsAnyCoreRestAPI(Action):
     def __init__(self, *args, **kwargs):

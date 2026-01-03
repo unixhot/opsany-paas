@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
-__all__ = ['celery_app', 'RUN_VER', 'APP_CODE', 'SECRET_KEY', 'BK_URL', 'BASE_DIR']
+__all__ = ['celery_app', 'RUN_VER', 'APP_CODE', 'SECRET_KEY', 'BK_URL', 'PAAS_ESB_URL', 'PAAS_LOGIN_URL', 'BASE_DIR']
 
 import os
 
@@ -16,9 +16,11 @@ RUN_VER = 'open'
 # SaaS应用ID
 APP_CODE = 'monitor'
 # SaaS安全密钥，注意请勿泄露该密钥
-SECRET_KEY = os.getenv("APP_TOKEN", "MONITOR_SECRET_KEY")
+SECRET_KEY = "MONITOR_SECRET_KEY"
 # SaaS平台URL
-BK_URL = os.getenv("BK_PAAS_HOST", "https://DOMAIN_NAME")
+BK_URL = "https://DOMAIN_NAME"
+PAAS_ESB_URL = "http://LOCAL_IP:8002"
+PAAS_LOGIN_URL = "http://LOCAL_IP:8003"
 
 if 'BKPAAS_ENVIRONMENT' in os.environ:
     ENVIRONMENT = os.getenv('BKPAAS_ENVIRONMENT', 'dev')
@@ -32,8 +34,7 @@ else:
     }.get(PAAS_V2_ENVIRONMENT)
 
 # 默认头像
-DEFAULT_USER_ICON = os.getenv("DEFAULT_USER_ICON",
-                              "uploads/workbench/user_icon/edfb99ee-08d6-41b8-ac5f-117fb86b0912.png")
+DEFAULT_USER_ICON = "uploads/workbench/user_icon/edfb99ee-08d6-41b8-ac5f-117fb86b0912.png"
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(

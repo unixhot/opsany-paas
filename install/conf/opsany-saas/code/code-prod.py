@@ -12,7 +12,7 @@ RUN_MODE = 'PRODUCT'
 # 只对正式环境日志级别进行配置，可以在这里修改
 LOG_LEVEL = 'ERROR'
 
-UPLOAD_PATH = os.getenv("UPLOAD_PATH", "/opt/opsany/")
+UPLOAD_PATH = "/opt/opsany/"
 # V2
 # import logging
 # logging.getLogger('root').setLevel('INFO')
@@ -28,9 +28,9 @@ DATABASES.update(
             'ENGINE': 'django.db.backends.mysql',
             'NAME': APP_CODE,  # 数据库名
             'USER': APP_CODE,  # 数据库用户
-            'PASSWORD': os.getenv("MYSQL_PASSWORD", "MYSQL_OPSANY_CODE_PASSWORD"),  # 数据库密码
-            'HOST': os.getenv("MYSQL_HOST", "MYSQL_SERVER_IP"),  # 数据库主机
-            'PORT': int(os.getenv("MYSQL_PORT", "MYSQL_SERVER_PORT")),  # 数据库端口
+            'PASSWORD': "MYSQL_OPSANY_CODE_PASSWORD",  # 数据库密码
+            'HOST': "MYSQL_SERVER_IP",  # 数据库主机
+            'PORT': int("MYSQL_SERVER_PORT"),  # 数据库端口
             'OPTIONS': {
                 "init_command": "SET default_storage_engine=INNODB;\
                                  SET sql_mode='STRICT_TRANS_TABLES';",

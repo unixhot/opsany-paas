@@ -82,37 +82,35 @@ class OpsAnyApi:
         self.session = requests.Session()
         self.session.headers.update({"referer": paas_domain})
         self.session.verify = False
-        self.login_url = self.paas_domain + "/login/"
-        self.csrfmiddlewaretoken = self.get_csrftoken()
         self.username = username
         self.password = password
         self.st2_url = st2_url
         self.st2_api = StackStormApi(st2_url, st2_username, st2_password)
-        self.token = self.login()
+        self.login_url = self.paas_domain + "/login/api/v3/login/"
+        self.status, self.token, self.csrfmiddlewaretoken = self.login()
 
-    def get_csrftoken(self):
+    def login(self, verify_code=""):
         try:
-            resp = self.session.get(self.login_url, verify=False)
-            if resp.status_code in [200, 400]:
-                return resp.cookies["bklogin_csrftoken"]
-            else:
-                return ""
-        except Exception:
-            return ""
-
-    def login(self):
-        try:
-            login_form = {
-                "csrfmiddlewaretoken": self.csrfmiddlewaretoken,
-                "username": self.username,
-                "password": self.password
-            }
-            resp = self.session.post(self.login_url, data=login_form, verify=False)
-            if resp.status_code == 200:
-                return self.session.cookies.get("bk_token")
-            return ""
-        except Exception:
-            return False
+            json_data = {"username": self.username, "password": self.password, "verify_code": verify_code,
+                         "auth_type": "1"}
+            resp = self.session.post(self.login_url, data=json.dumps(json_data), verify=False)
+            try:
+                res_json = resp.json()
+                if resp.status_code != 200:
+                    return False, res_json, ""
+                bk_token = (res_json.get("data") or {}).get("bk_token")
+                code = res_json.get("code")
+                message = res_json.get("message")
+                if bk_token:
+                    return True, bk_token, resp.cookies.get("bklogin_csrftoken")
+                elif code != 200:
+                    return False, message, ""
+                else:
+                    return False, res_json, ""
+            except Exception as e:
+                return False, str(resp.content.decode()), ""
+        except Exception as e:
+            return False, str(e), ""
 
     def init_control_st2(self):
         """init devops st2 server"""

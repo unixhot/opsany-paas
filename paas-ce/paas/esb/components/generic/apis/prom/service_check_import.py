@@ -6,7 +6,6 @@ from django import forms
 from common.forms import BaseComponentForm
 from components.component import Component
 from .toolkit import configs
-from .toolkit.tools import base_api_url
 
 
 class ServiceCheckImport(Component):
@@ -62,7 +61,7 @@ class ServiceCheckImport(Component):
         # 请求系统接口
         response = self.outgoing.http_client.post(
             host=configs.host,
-            path='{}service-check-app/import/'.format(base_api_url),
+            path='{}service-check-app/import/'.format(configs.base_api_url),
             data=json.dumps(params),
             cookies=self.request.wsgi_request.COOKIES,
         )

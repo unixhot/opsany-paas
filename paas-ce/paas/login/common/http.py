@@ -11,7 +11,8 @@ Unless required by applicable law or agreed to in writing, software distributed 
 import requests
 
 from common.log import logger
-
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
+requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 def _gen_header():
     headers = {

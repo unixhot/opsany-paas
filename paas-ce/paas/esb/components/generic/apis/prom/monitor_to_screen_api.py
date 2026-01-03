@@ -6,7 +6,7 @@ from django import forms
 from common.forms import BaseComponentForm
 from components.component import Component
 from .toolkit import configs
-from .toolkit.tools import base_api_url
+
 
 class MonitorToScreenApi(Component):
     """
@@ -78,7 +78,7 @@ class MonitorToScreenApi(Component):
         # 请求系统接口
         response = self.outgoing.http_client.post(
             host=configs.host,
-            path='{}monitor_to_screen_api/'.format(base_api_url),
+            path='{}monitor_to_screen_api/'.format(configs.base_api_url),
             params=None,
             data=json.dumps(params),
             cookies=self.request.wsgi_request.COOKIES,

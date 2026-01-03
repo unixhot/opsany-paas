@@ -159,20 +159,29 @@ class ImportUserForm(forms.Form):
         try:
             file_name = self.cleaned_data['file_name']
             file_type = file_name.split(".")[-1]
+            if file_type not in ['xls', 'xlsx']:
+                self.add_error("file_name", _("文件格式错误，只支持：.xls 和 .xlsx 文件"))
+                return file_name
         except Exception:
             self.add_error("file_name", _("批量导入用户，解析文件名出错"))
-        if file_type not in ['xls', 'xlsx']:
-            self.add_error("file_name", _("文件格式错误，只支持：.xls 和 .xlsx 文件"))
-        return file_name
+
 
 
 class AuthenticationAndRegisterForm(AuthenticationForm):
-    geetest_challenge = forms.CharField(error_messages={
-        "required": "必须通过验证"
-    })
-    geetest_validate = forms.CharField(error_messages={
-        "required": "必须通过验证"
-    })
-    geetest_seccode = forms.CharField(error_messages={
-        "required": "必须通过验证"
-    })
+    # geetest_challenge = forms.CharField(error_messages={
+    #     "required": "必须通过验证"
+    # })
+    # geetest_validate = forms.CharField(error_messages={
+    #     "required": "必须通过验证"
+    # })
+    # geetest_seccode = forms.CharField(error_messages={
+    #     "required": "必须通过验证"
+    # })
+
+    error_messages = {
+        'invalid_login': _(
+            "请输入正确的用户名或密码!"
+            ""
+        ),
+        'inactive': _("该账号已禁用."),
+    }

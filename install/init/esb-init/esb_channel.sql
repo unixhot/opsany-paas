@@ -1,8 +1,8 @@
--- MariaDB dump 10.19  Distrib 10.11.11-MariaDB, for debian-linux-gnu (x86_64)
+-- MariaDB dump 10.19  Distrib 10.11.13-MariaDB, for debian-linux-gnu (x86_64)
 --
 -- Host: localhost    Database: opsany_paas
 -- ------------------------------------------------------
--- Server version	10.11.11-MariaDB-0ubuntu0.24.04.2
+-- Server version	10.11.13-MariaDB-0ubuntu0.24.04.1
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -45,7 +45,7 @@ CREATE TABLE `esb_channel` (
   UNIQUE KEY `path` (`path`) USING BTREE,
   KEY `component_system_id_75db1515b99d21dc_fk_esb_component_system_id` (`component_system_id`) USING BTREE,
   CONSTRAINT `component_system_id_75db1515b99d21dc_fk_esb_component_system_id` FOREIGN KEY (`component_system_id`) REFERENCES `esb_component_system` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=359 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci ROW_FORMAT=COMPACT;
+) ENGINE=InnoDB AUTO_INCREMENT=364 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci ROW_FORMAT=COMPACT;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -105,7 +105,7 @@ INSERT INTO `esb_channel` VALUES
 (54,'获取告警排名','/control/get_alarm_rank/','','generic.control.get_alarm_rank',1,'2020-12-23 14:55:29','2020-12-23 14:55:29',8,NULL,2,'','get_alarm_rank',0,0,'',0,''),
 (55,'接收动作日志信息','/control/receive_action_info/','','generic.control.receive_action_info',1,'2020-12-28 17:12:51','2020-12-28 17:12:51',8,NULL,1,'','receive_action_info',0,0,'',0,''),
 (58,'测试ESB','/devops/get_test/','','generic.devops.get_test',1,'2021-01-11 15:17:37','2021-01-11 15:17:37',14,NULL,2,'','get_test',0,0,'',0,''),
-(60,'获取所有云主机','/cmp/get_all_cloud_host/','','generic.cmp.get_all_cloud_host',1,'2021-01-12 11:37:18','2021-01-12 11:37:18',13,NULL,2,'','get_all_cloud_host',0,0,'',0,''),
+(60,'获取所有云主机','/cmp/get_all_cloud_host/','','generic.cmp.get_all_cloud_host',1,'2025-08-27 18:33:42','2021-01-12 11:37:18',13,600,2,'','get_all_cloud_host',0,0,'',0,''),
 (61,'更新所有云主机','/cmdb/update_all_cloud_host/','','generic.cmdb.update_all_cloud_host',1,'2021-01-12 12:02:46','2021-01-12 11:37:46',7,NULL,1,'','update_all_cloud_host',0,0,'',0,''),
 (62,'获取模型字段','/cmdb/get_model_field/','','generic.cmdb.get_model_field',1,'2021-01-12 17:02:55','2021-01-12 17:02:55',7,NULL,2,'','get_model_field',0,0,'',0,''),
 (63,'更新所有业务信息','/cmdb/update_all_business/','','generic.cmdb.update_all_business',1,'2021-01-18 11:52:32','2021-01-15 23:36:47',7,NULL,1,'','update_all_business',0,0,'',0,''),
@@ -121,7 +121,7 @@ INSERT INTO `esb_channel` VALUES
 (73,'大屏所需数据','/devops/data_for_screen/','','generic.devops.data_for_screen',1,'2024-11-26 09:47:57','2021-03-10 15:55:23',14,200,2,'','data_for_screen',0,0,'',0,''),
 (74,'获取统一权限部门信息和用户信息','/rbac/get_workorder_sync/','','generic.rbac.get_workorder_sync',1,'2021-03-16 10:23:11','2021-03-16 10:08:27',11,NULL,2,'','get_workorder_sync',0,0,'',0,''),
 (75,'同步用户信息和组织架构信息','/workbench/get_sync_data/','','generic.workbench.get_sync_data',1,'2021-03-17 11:40:18','2021-03-17 11:37:25',9,NULL,2,'','get_sync_data',0,0,'',0,''),
-(76,'同步工单用户信息','/workbench/sync_order_user_message/','','generic.workbench.sync_order_user_message',1,'2024-09-24 17:09:11','2021-04-14 18:53:32',9,240,2,'','sync_order_user_message',0,0,'',0,''),
+(76,'同步工单用户信息','/workbench/sync_order_user_message/','','generic.workbench.sync_order_user_message',1,'2025-08-27 18:34:06','2021-04-14 18:53:32',9,600,2,'','sync_order_user_message',0,0,'',0,''),
 (77,'获取主机分组','/control/get_agent_group_list/','','generic.control.get_agent_group_list',1,'2021-04-22 11:34:30','2021-04-21 18:20:41',8,NULL,2,'','get_agent_group_list',0,0,'',0,''),
 (78,'修改主机模板标记变量','/control/update_host_sign_variable_template/','','generic.control.update_host_sign_variable_template',1,'2021-04-22 15:40:45','2021-04-22 15:01:42',8,NULL,1,'','update_host_sign_variable_template',0,0,'',0,''),
 (79,'获取Zabbix监控模板','/control/get_zabbix_template/','','generic.control.get_zabbix_template',1,'2021-04-22 19:08:32','2021-04-22 19:07:31',8,NULL,2,'','get_zabbix_template',0,0,'',0,''),
@@ -209,7 +209,7 @@ INSERT INTO `esb_channel` VALUES
 (164,'同步应用平台用户信息','/devops/sync_user_info/','','generic.devops.sync_user_info',1,'2024-09-24 17:07:07','2022-11-10 10:34:38',14,240,2,'','sync_user_info',0,0,'',0,''),
 (165,'同步容器平台用户信息','/k8s/sync_user_info/','','generic.k8s.sync_user_info',1,'2024-09-24 17:07:46','2022-11-12 17:17:01',18,240,2,'','sync_user_info',0,0,'',0,''),
 (166,'同步基础监控用户信息','/monitor/sync_user_info/','','generic.monitor.sync_user_info',1,'2024-09-24 17:08:14','2022-11-12 17:17:57',12,240,2,'','sync_user_info',0,0,'',0,''),
-(167,'同步资源平台用户信息','/cmdb/sync_user_info/','','generic.cmdb.sync_user_info',1,'2024-09-24 17:05:57','2022-11-12 17:18:23',7,240,2,'','sync_user_info',0,0,'',0,''),
+(167,'同步资源平台用户信息','/cmdb/sync_user_info/','','generic.cmdb.sync_user_info',1,'2025-08-27 18:32:55','2022-11-12 17:18:23',7,600,2,'','sync_user_info',0,0,'',0,''),
 (168,'同步管控平台用户信息','/control/sync_user_info/','','generic.control.sync_user_info',1,'2024-09-24 17:06:38','2022-11-12 17:18:48',8,240,2,'','sync_user_info',0,0,'',0,''),
 (169,'同步云管平台用户信息','/cmp/sync_user_info/','','generic.cmp.sync_user_info',1,'2024-09-24 17:06:14','2022-11-12 17:19:17',13,240,2,'','sync_user_info',0,0,'',0,''),
 (170,'同步事件中心用户信息','/event/sync_user_info/','','generic.event.sync_user_info',1,'2024-09-24 17:07:16','2022-11-14 11:50:33',19,240,2,'','sync_user_info',0,0,'',0,''),
@@ -244,7 +244,7 @@ INSERT INTO `esb_channel` VALUES
 (200,'获取当前模型目录树','/cmdb/get_import_model_tree/','','generic.cmdb.get_import_model_tree',1,'2023-04-25 14:53:01','2023-04-25 14:53:01',7,120,2,'','get_import_model_tree',0,0,'',0,''),
 (201,'获取网络代理','/bastion/get_network_proxy/','','generic.bastion.get_network_proxy',1,'2023-05-04 11:02:01','2023-05-04 11:02:01',15,NULL,2,'','get_network_proxy',0,0,'',0,''),
 (202,'同步云管数据至资源平台','/cmp/get_cmp_resource/','','generic.cmp.get_cmp_resource',1,'2023-05-29 20:18:34','2023-05-29 19:11:32',13,NULL,2,'','get_cmp_resource',0,0,'',0,''),
-(203,'同步云管资源','/cmdb/update_cmp_resource/','','generic.cmdb.update_cmp_resource',1,'2023-05-30 10:10:17','2023-05-30 10:10:17',7,NULL,2,'','update_cmp_resource',0,0,'',0,''),
+(203,'同步云管资源','/cmdb/update_cmp_resource/','','generic.cmdb.update_cmp_resource',1,'2025-08-27 18:33:13','2023-05-30 10:10:17',7,600,2,'','update_cmp_resource',0,0,'',0,''),
 (204,'同步管控网络设备数据到资源平台','/cmdb/import_network_from_control/','','generic.cmdb.import_network_from_control',1,'2023-07-01 14:44:40','2023-07-01 14:44:40',7,120,1,'','import_network_from_control',0,0,'',0,''),
 (205,'管控添加资源同步至堡垒机','/bastion/resource_from_control/','','generic.bastion.resource_from_control',1,'2023-07-11 11:53:30','2023-07-11 11:53:30',15,NULL,1,'','resource_from_control',0,0,'',0,''),
 (206,'更新Prometheus告警规则','/control/prom_rules_create_or_update/','','generic.control.prom_rules_create_or_update',1,'2023-07-25 20:23:48','2023-07-25 18:57:35',8,120,1,'','prom_rules_create_or_update',0,0,'',0,''),
@@ -398,7 +398,12 @@ INSERT INTO `esb_channel` VALUES
 (355,'同步Es数据','/k8s/sync_es_from_control/','','generic.k8s.sync_es_from_control',1,'2025-06-05 17:20:23','2025-06-05 17:20:23',18,NULL,1,'','sync_es_from_control',0,0,'',0,''),
 (356,'校验用户所属部门配额','/cmp/check_user_resource_quota/','','generic.cmp.check_user_resource_quota',1,'2025-06-22 18:50:22','2025-06-22 18:50:22',13,NULL,1,'','check_user_resource_quota',0,0,'',0,''),
 (357,'创建应用','/devops/create_application/','','generic.devops.create_application',1,'2025-07-31 10:40:19','2025-07-31 10:40:19',14,NULL,1,'','create_application',0,0,'',0,''),
-(358,'获取资源数据和字段-工单使用','/cmdb/get_cmdb_data_for_work_order/','','generic.cmdb.get_cmdb_data_for_work_order',1,'2025-08-12 17:17:41','2025-08-12 17:17:41',7,300,2,'','get_cmdb_data_for_work_order',0,0,'',0,'');
+(358,'获取资源数据和字段-工单使用','/cmdb/get_cmdb_data_for_work_order/','','generic.cmdb.get_cmdb_data_for_work_order',1,'2025-08-12 17:17:41','2025-08-12 17:17:41',7,300,2,'','get_cmdb_data_for_work_order',0,0,'',0,''),
+(359,'获取已经监控纳管的主机等实例（云管平台）','/control/get_monitor_resource_info/','','generic.control.get_monitor_resource_info',1,'2025-10-24 11:17:04','2025-10-24 11:17:04',8,60,2,'','get_monitor_resource_info',0,0,'',0,''),
+(360,'根据Prom执行指标查询语句并获取到数据','/control/prom_run_query/','','generic.control.prom_run_query',1,'2025-10-25 16:47:47','2025-10-25 16:47:47',8,120,2,'','prom_run_query',0,0,'',0,''),
+(361,'Zabbix告警事件的操作','/control/monitor_event_acknowledge/','','generic.control.monitor_event_acknowledge',1,'2025-12-01 16:39:43','2025-12-01 16:39:43',8,NULL,1,'','monitor_event_acknowledge',0,0,'',0,''),
+(362,'获取主机告警事件操作详情','/control/monitor_event_info/','','generic.control.monitor_event_info',1,'2025-12-01 19:46:24','2025-12-01 19:46:24',8,NULL,2,'','monitor_event_info',0,0,'',0,''),
+(363,'根据指标表达式获取相关数据','/control/post_metric_expr_get_value/','','generic.control.post_metric_expr_get_value',1,'2025-12-09 11:01:37','2025-12-09 11:01:37',8,120,1,'','post_metric_expr_get_value',0,0,'',0,'');
 /*!40000 ALTER TABLE `esb_channel` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -411,4 +416,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-08-12 18:44:13
+-- Dump completed on 2025-12-10 12:25:34

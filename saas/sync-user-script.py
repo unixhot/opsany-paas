@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 # coding:utf8
-'''
+"""
 python update_director.py
 --domain https://domain
 --paas_username guoyuchen
 --paas_password ******
 --run_env prod/dev  is not required, if not prod, use /t/, or not use /o/
 --app_code cmdb cmp
-'''
+"""
+import json
 
 import requests
 import sys
@@ -21,38 +22,35 @@ class OpsAnyApi:
     def __init__(self, paas_domain, username, password, env="prod"):
         self.paas_domain = paas_domain
         self.session = requests.Session()
-        self.session.headers.update({'referer': paas_domain})
+        self.session.headers.update({"referer": paas_domain})
         self.session.verify = False
-        self.login_url = self.paas_domain + "/login/"
-        self.csrfmiddlewaretoken = self.get_csrftoken()
+        self.run_env = "o" if env == "prod" else "t"
         self.username = username
         self.password = password
-        self.token = self.login()
-        self.run_env = "o" if env == "prod" else "t"
+        self.login_url = self.paas_domain + "/login/api/v3/login/"
+        self.status, self.token, self.csrfmiddlewaretoken = self.login()
 
-    def get_csrftoken(self):  # sourcery skip: do-not-use-bare-except
+    def login(self, verify_code=""):
         try:
-            resp = self.session.get(self.login_url, verify=False)
-            if resp.status_code in [200, 400]:
-                return resp.cookies["bklogin_csrftoken"]
-            else:
-                return ""
-        except:
-            return ""
-
-    def login(self):  # sourcery skip: do-not-use-bare-except
-        try:
-            login_form = {
-                'csrfmiddlewaretoken': self.csrfmiddlewaretoken,
-                'username': self.username,
-                'password': self.password
-            }
-            resp = self.session.post(self.login_url, data=login_form, verify=False)
-            if resp.status_code == 200:
-                return self.session.cookies.get("bk_token")
-            return ""
-        except:
-            return False
+            json_data = {"username": self.username, "password": self.password, "verify_code": verify_code, "auth_type": "1"}
+            resp = self.session.post(self.login_url, data=json.dumps(json_data), verify=False)
+            try:
+                res_json = resp.json()
+                if resp.status_code != 200:
+                    return False, res_json, ""
+                bk_token = (res_json.get("data") or {}).get("bk_token")
+                code = res_json.get("code")
+                message = res_json.get("message")
+                if bk_token:
+                    return True, bk_token, resp.cookies.get("bklogin_csrftoken")
+                elif code != 200:
+                    return False, message, ""
+                else:
+                    return False, res_json, ""
+            except Exception as e:
+                return False, str(resp.content.decode()), ""
+        except Exception as e:
+            return False, str(e), ""
 
     def update_director(self, app_code):
         if app_code == "bastion":
@@ -104,7 +102,7 @@ def add_parameter():
     return parameter
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     parameter = add_parameter()
     options = parameter.parse_args()
     run(options)

@@ -6,7 +6,7 @@ Licensed under the MIT License (the "License"); you may not use this file except
 http://opensource.org/licenses/MIT
 Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
 """ # noqa
-
+from datetime import datetime
 
 from django.conf import settings
 from django.contrib.auth.models import (AbstractBaseUser, PermissionsMixin)
@@ -189,3 +189,49 @@ class UserInfo(models.Model):
         verbose_name = "用户信息"
         verbose_name_plural = "用户信息"
         db_table = 'login_userinfo'
+
+
+class UserAuthToken(models.Model):
+    """AuthToken 内置表-用来记录登录失败次数
+    """
+    d = {
+        "app_code": "login",  # login 时间
+        "username": "huxingqi",  # 用户名
+        "auth_token": "1",  # 失败次数
+        "last_accessed_time": "2025-11-10 11:22:33",  # 最后失败时间
+        "created_time": "2025-11-10 11:22:33",  # 首次时间
+    }
+    app_code = models.CharField(_('蓝鲸智云应用编码'), max_length=128)
+    username = models.CharField(_('用户名'), max_length=64)
+    auth_token = models.CharField(_('token内容'), max_length=255)
+    expires = models.DateTimeField(_('token过期时间'))
+    last_accessed_time = models.DateTimeField(_('最后访问时间'), auto_now_add=True)
+    created_time = models.DateTimeField(_('创建时间'), auto_now_add=True)
+
+    def __unicode__(self):
+        return self.auth_token
+
+    def __str__(self):
+        return self.auth_token
+
+    class Meta:
+        db_table = 'esb_user_auth_token'
+    
+    def time_to_str(self, time_pro):
+        if not time_pro:
+            return "-"
+        if isinstance(time_pro, datetime):
+            return timezone.localtime(time_pro).strftime("%Y-%m-%d %H:%M:%S")
+        return str(time_pro)
+    
+    def to_rbac_unlock_dict(self):
+        dt = {
+            "app_code": self.app_code,
+            "username": self.username,
+            "auth_token": self.auth_token,
+            "created_time": self.time_to_str(self.created_time),
+            "last_accessed_time": self.time_to_str(self.last_accessed_time)
+        }
+        return dt
+        
+        

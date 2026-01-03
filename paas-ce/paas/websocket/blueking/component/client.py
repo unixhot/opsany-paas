@@ -14,7 +14,8 @@ from .utils import get_signature
 
 # shutdown urllib3's warning
 try:
-    requests.packages.urllib3.disable_warnings()
+    from requests.packages.urllib3.exceptions import InsecureRequestWarning
+    requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 except Exception:
     pass
 

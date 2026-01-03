@@ -6,9 +6,6 @@
 # Description:  OpsAny Proxy Install Script
 #******************************************
 
-# Get Data/Time
-CTIME=$(date "+%Y-%m-%d-%H-%M")
-
 # Shell Envionment Variables
 CDIR=$(pwd)
 SHELL_NAME="proxy-install.sh"
@@ -17,20 +14,20 @@ SHELL_LOG="${CDIR}/${SHELL_NAME}.log"
 # Shell Log Record
 shell_log(){
     LOG_INFO=$1
-    echo -e "\033[32m---------------- $CTIME ${SHELL_NAME} : ${LOG_INFO} ----------------\033[0m"
-    echo "$CTIME ${SHELL_NAME} : ${LOG_INFO}" >> ${SHELL_LOG}
+    echo -e "\033[32m---------------- $(date "+%Y-%m-%d-%H-%M") ${SHELL_NAME} : ${LOG_INFO} ----------------\033[0m"
+    echo "$(date "+%Y-%m-%d-%H-%M") ${SHELL_NAME} : ${LOG_INFO}" >> ${SHELL_LOG}
 }
 
 shell_warning_log(){
     LOG_INFO=$1
-    echo -e "\033[33m---------------- $CTIME ${SHELL_NAME} : ${LOG_INFO} ----------------\033[0m"
-    echo "$CTIME ${SHELL_NAME} : ${LOG_INFO}" >> ${SHELL_LOG}
+    echo -e "\033[33m---------------- $(date "+%Y-%m-%d-%H-%M") ${SHELL_NAME} : ${LOG_INFO} ----------------\033[0m"
+    echo "$(date "+%Y-%m-%d-%H-%M") ${SHELL_NAME} : ${LOG_INFO}" >> ${SHELL_LOG}
 }
 
 shell_error_log(){
     LOG_INFO=$1
-    echo -e "\031[32m---------------- $CTIME ${SHELL_NAME} : ${LOG_INFO} ----------------\033[0m"
-    echo "$CTIME ${SHELL_NAME} : ${LOG_INFO}" >> ${SHELL_LOG}
+    echo -e "\031[32m---------------- $(date "+%Y-%m-%d-%H-%M") ${SHELL_NAME} : ${LOG_INFO} ----------------\033[0m"
+    echo "$(date "+%Y-%m-%d-%H-%M") ${SHELL_NAME} : ${LOG_INFO}" >> ${SHELL_LOG}
 }
 
 # Install Inspection
@@ -45,15 +42,6 @@ else
     fi
 
 fi
-
-# Check Install requirement
-install_check(){
-  DOCKER_PID=$(ps aux | grep '/usr/bin/containerd' | grep -v 'grep' | wc -l)
-  if [ ${DOCKER_PID} -lt 1 ];then
-      shell_error_log "Please install and start docker first!!!"
-      exit
-  fi
-}
 
 # Install Initialize
 install_init(){
@@ -80,7 +68,7 @@ base_install(){
     -p 6379:6379 -v ${INSTALL_PATH}/redis-volume:/data \
     -v ${INSTALL_PATH}/redis-volume/redis.conf:/data/redis.conf \
     -v /etc/localtime:/etc/localtime:ro \
-    ${PAAS_DOCKER_REG}/redis:6.0.9-alpine redis-server /data/redis.conf
+    ${PAAS_DOCKER_REG}/redis:6.2.19-alpine redis-server /data/redis.conf
     
     # MySQL
     shell_log "======Start MySQL======"
@@ -90,7 +78,7 @@ base_install(){
     -v ${INSTALL_PATH}/conf/mysqld.cnf:/etc/mysql/mysql.conf.d/mysqld.cnf \
     -v ${INSTALL_PATH}/logs:/var/log/mysql \
     -v /etc/localtime:/etc/localtime:ro \
-    ${PAAS_DOCKER_REG}/mysql:5.6.50 --character-set-server=utf8 --collation-server=utf8_general_ci
+    ${PAAS_DOCKER_REG}/mysql:8.0.30 --character-set-server=utf8 --collation-server=utf8_general_ci
     
     # Guacd
     shell_log "======Start Guacd======"
@@ -106,16 +94,18 @@ proxy_config(){
     sleep 10
     cd ${CDIR}/../install/
     export MYSQL_PWD=${MYSQL_ROOT_PASSWORD}
-    mysql -h "${MYSQL_SERVER_IP}" -u root  -e "CREATE DATABASE IF NOT EXISTS opsany_proxy DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
-    mysql -h "${MYSQL_SERVER_IP}" -u root  -e "grant all on opsany_proxy.* to opsany@'%' identified by "\"${MYSQL_OPSANY_PASSWORD}\"";" 
-    #mysql -h "${MYSQL_SERVER_IP}" -u root  opsany_paas < init/opsany-proxy.sql
+    mysql -h "${MYSQL_SERVER_IP}" -P ${MYSQL_SERVER_PORT} -u root  -e "CREATE DATABASE IF NOT EXISTS opsany_proxy DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;"
+    mysql -h "${MYSQL_SERVER_IP}" -P ${MYSQL_SERVER_PORT} -u root  -e "CREATE USER opsany@'%' identified by "\"${MYSQL_OPSANY_PASSWORD}\"";" 
+    mysql -h "${MYSQL_SERVER_IP}" -P ${MYSQL_SERVER_PORT} -u root  -e "grant all on opsany_proxy.* to opsany@'%';"
 
     shell_log "======Proxy Configure======"
     # Proxy
     sed -i "s/REDIS_SERVER_IP/${REDIS_SERVER_IP}/g" ${INSTALL_PATH}/conf/proxy/settings_production.py.proxy-standalone
+    sed -i "s/REDIS_SERVER_PORT/${REDIS_SERVER_PORT}/g" ${INSTALL_PATH}/conf/proxy/settings_production.py.proxy-standalone
     sed -i "s/REDIS_SERVER_PASSWORD/${REDIS_SERVER_PASSWORD}/g" ${INSTALL_PATH}/conf/proxy/settings_production.py.proxy-standalone
     sed -i "s/MYSQL_SERVER_IP/${MYSQL_SERVER_IP}/g" ${INSTALL_PATH}/conf/proxy/settings_production.py.proxy-standalone
     sed -i "s/MYSQL_OPSANY_PASSWORD/${MYSQL_OPSANY_PASSWORD}/g" ${INSTALL_PATH}/conf/proxy/settings_production.py.proxy-standalone
+    sed -i "s/MYSQL_SERVER_PORT/${MYSQL_SERVER_PORT}/g" ${INSTALL_PATH}/conf/proxy/settings_production.py.proxy-standalone
     sed -i "s/local-proxy.opsany.com/${PROXY_LOCAL_IP}/g" ${INSTALL_PATH}/conf/proxy/settings_production.py.proxy-standalone
     sed -i "s/public-proxy.opsany.com/${PROXY_PUBLIC_IP}/g" ${INSTALL_PATH}/conf/proxy/settings_production.py.proxy-standalone
     sed -i "s/CONTROL_SECRET_KEY_PROXY/${CONTROL_SECRET_KEY}/g" ${INSTALL_PATH}/conf/proxy/settings_production.py.proxy-standalone
@@ -129,13 +119,13 @@ proxy_config(){
     sed -i "s/LOCALHOST/${MYSQL_SERVER_IP}/g" ${INSTALL_PATH}/conf/proxy/invscript_proxy.py
     sed -i "s/PROXY_PASSWORD/${MYSQL_OPSANY_PASSWORD}/g" ${INSTALL_PATH}/conf/proxy/invscript_proxy.py
     sed -i "s/CONTROL_SECRET_KEY/${CONTROL_SECRET_KEY}/g" ${INSTALL_PATH}/conf/proxy/invscript_proxy.py
+    sed -i "s/MYSQL_SERVER_PORT/${MYSQL_SERVER_PORT}/g" ${INSTALL_PATH}/conf/proxy/invscript_proxy.py
     chmod +x ${INSTALL_PATH}/conf/proxy/invscript_proxy.py
 }
 
 proxy_start(){
     # Proxy
     shell_log "======Start Proxy======"
-    docker pull ${PAAS_DOCKER_REG}/opsany-paas-proxy:2.3.0
     docker run --restart=always --name opsany-paas-proxy -d \
         -p 4505:4505 -p 4506:4506 -p 8010:8010 \
         -v ${INSTALL_PATH}/logs/proxy:/opt/opsany/logs/proxy \
@@ -145,15 +135,15 @@ proxy_start(){
         -v ${INSTALL_PATH}/proxy-volume/srv/salt:/srv/salt/ \
         -v ${INSTALL_PATH}/proxy-volume/srv/pillar:/srv/pillar/ \
         -v ${INSTALL_PATH}/proxy-volume/srv/playbook:/srv/playbook/ \
+        -v ${INSTALL_PATH}/proxy-volume/pki:/opt/opsany/pki \
         -v ${INSTALL_PATH}/uploads:/opt/opsany/uploads \
         -v ${INSTALL_PATH}/conf/proxy/settings_production.py.proxy-standalone:/opt/opsany-proxy/config/prod.py \
         -v ${INSTALL_PATH}/conf/proxy/invscript_proxy.py:/opt/opsany-proxy/invscript_proxy.py \
         -v ${INSTALL_PATH}/conf/proxy/proxy.ini:/etc/supervisord.d/proxy.ini \
-        -v ${INSTALL_PATH}/conf/proxy/saltapi.ini:/etc/supervisord.d/saltapi.ini \
         -v ${INSTALL_PATH}/conf/proxy/saltmaster.ini:/etc/supervisord.d/saltmaster.ini \
-        -v ${INSTALL_PATH}/proxy-volume/pki:/opt/opsany/pki \
+        -v ${INSTALL_PATH}/prometheus-volume/conf/alertmanager.yml:/opt/opsany/alertmanager.yml \
         -v /etc/localtime:/etc/localtime:ro \
-        ${PAAS_DOCKER_REG}/opsany-paas-proxy:2.3.0
+        ${PAAS_DOCKER_REG}/opsany-paas-proxy:2.3.1
 
     #openresty
     shell_log "======Start openresty Service======"
@@ -173,7 +163,7 @@ proxy_start(){
     # Create Proxy Token
     PROXY_TOKEN=$(docker exec -e OPS_ANY_ENV=production \
             opsany-paas-proxy /bin/sh -c " /usr/local/bin/python3 /opt/opsany-proxy/manage.py create_access" | grep 'Access' | awk -F ': ' '{print $2}' | awk -F '.' '{print $1}')
-    shell_warning_log "Proxy Token: ${PROXY_TOKEN}"
+    shell_error_log "Proxy Token: ${PROXY_TOKEN}"
 }
 uninstall_proxy(){
     # Stop Proxy
@@ -200,7 +190,6 @@ uninstall_proxy(){
 main(){
     case "$1" in
 	install)
-        install_check
         install_init
         base_install
         proxy_config
@@ -210,7 +199,7 @@ main(){
         uninstall_proxy
         ;;
 	help|*)
-		echo $"Usage: $0 {install|help}"
+		echo $"Usage: $0 {install|uninstall|help}"
 	        ;;
     esac
 }

@@ -10,6 +10,9 @@ from django.utils.six.moves.urllib.parse import urlparse, urlunparse
 
 from blueapps.core.exceptions.base import ApiResultError, ApiNetworkError
 
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
+requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+
 logger = logging.getLogger('component')
 
 

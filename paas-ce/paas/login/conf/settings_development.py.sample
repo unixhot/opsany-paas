@@ -12,7 +12,7 @@ Unless required by applicable law or agreed to in writing, software distributed 
 DEBUG = True
 
 # 设置验证类型
-LOGIN_TYPE = 'jwt_login'
+#LOGIN_TYPE = 'jwt_login'
 
 # use the static root 'static' in production envs
 if not DEBUG:
@@ -29,8 +29,8 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',   # 默认用mysql
         'NAME': 'opsany_paas',
         'USER': 'opsany',
-        'PASSWORD': 'OpsAny2025.Dev',
-        'HOST': '127.0.0.1',
+        'PASSWORD': '123456.coM',
+        'HOST': '192.168.0.111',
         'PORT': '3306',
     }
 }
@@ -40,15 +40,24 @@ USERNAME = 'admin'
 PASSWORD = 'admin'
 
 # inner domain, use consul domain,  for api
-PAAS_INNER_DOMAIN = '10.0.0.188'
+PAAS_INNER_DOMAIN = '192.168.0.111'
 HTTP_SCHEMA = 'https'
 
 
 # cookie访问域
-BK_COOKIE_DOMAIN ='dev.opsany.cn'
+BK_COOKIE_DOMAIN ='192.168.0.111'
 
 SECRET_KEY = 'jO149njrTj4kEx6ZbUH8Zc53bfQJctINWaEzTWIsOoxSDNwK2I'
 
 # ESB Token
 ESB_TOKEN = '41f076b7-afce-46eb-9e85-dab245eb0931'
+
+# RBAC
 RBAC_APP_SECRET = "RBAC_SECRET_KEY"
+
+# CSRF
+CSRF_TRUSTED_ORIGINS = [
+    'https://192.168.0.111',
+    'http://192.168.0.111',
+]
+

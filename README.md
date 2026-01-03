@@ -19,6 +19,8 @@ OpsAny-PaaS是基于腾讯开源[bk-PaaS](https://github.com/Tencent/bk-PaaS) �
 - 增加了容器化部署支持和一键部署脚本。
 - 增加了OpsAny前后端开发框架，前端基于Vue3.0。
 
+由于OpsAny使用的RBAC，而bk-paas后期采用的是ABAC，所以在权限控制方便需要进行改造后即可完全兼容腾讯蓝鲸。
+
 ## 我们提供的产品和服务
 
 1. 【产品】OpsAny数字化运维平台，你可以理解OpsAny是：轻量级腾讯蓝鲸平台。
@@ -41,7 +43,7 @@ paas-ce
 
 ## Docker容器在线部署
 
-> 仅部署PaaS平台需要2C、4G内存的主机，部署OpsAny SaaS需要4C、8G内存的干净主机。生产使用推荐8C、16G内存。请检查是否关闭了SELinux和防火墙！
+> 仅部署PaaS平台需要2C、4G内存的主机，部署OpsAny SaaS基础功能需要4C、8G内存的干净主机。生产使用推荐8C、16G内存。
 
 1. 安装Docker和初始化使用的软件包
 
@@ -135,9 +137,13 @@ cd /opt/opsany-paas/install/
 - 访问平台：查看【开发中心】-【第三方服务】 查看状态
 
 
-## 下载OpsAny社区版本
+## 部署OpsAny社区版本
 
 安装完毕OpsAny PaaS之后，就可以进行运维开发工作了，不过PaaS仅仅是一个开发平台，并没有任何运维功能。你也可以继续部署OpsAny社区版本，进行日常运维工作，OpsAny社区版是OpsAny产品团队，自主研发的智能运维平台：支持自定义插件，支持用户使用Python、Shell、Powershell编写例如工具脚本、资产采集插件、智能巡检插件、指标采集插件等。
 
-> OpsAny社区版本v2.2.1正式发布 >> [免费下载](https://opsany.com/#/download)
+> OpsAny社区版本v2.3.0正式发布 >> [免费安装使用](https://docs.opsany.com/deploy/base-install/)
+
+## 寻求商业化合作
+
+在OpsAny官网首页的右侧浮窗，可以点击【微信咨询】，联系我们。
 

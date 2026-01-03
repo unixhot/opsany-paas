@@ -23,7 +23,7 @@ DATABASES = {
         'NAME': 'open_paas',
         'USER': 'root',
         'PASSWORD': '',
-        'HOST': '127.0.0.1',
+        'HOST': '192.168.0.111',
         'PORT': '3306',
     }
 }
@@ -42,12 +42,12 @@ BK_COOKIE_NAME = 'bk_token'
 # cookie有效期
 BK_COOKIE_AGE = 60 * 60 * 24
 # cookie访问域
-BK_COOKIE_DOMAIN = '.bking.com'
+BK_COOKIE_DOMAIN = '192.168.0.111'
 
 # 控制台地址
-ENGINE_HOST = "http://127.0.0.1:8000"
+ENGINE_HOST = "http://192.168.0.111:8000"
 # 登陆服务地址
-LOGIN_HOST = "http://127.0.0.1:8003"
+LOGIN_HOST = "http://192.168.0.111:8003"
 
 # host for cc
 HOST_CC = ''

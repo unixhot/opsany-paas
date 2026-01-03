@@ -17,6 +17,12 @@ LOG_LEVEL = 'ERROR'
 # 工单外部连接是否认证 True 免认证 False 强认证
 WORK_ORDER_URL_APPROVE_NO_AUTH = True
 
+# 签到提前时间
+DUTY_SIGN_IN_START_HOUR = 1
+
+# 签退截止时间
+DUTY_SIGN_OUT_END_HOUR = 2
+
 # V2
 # import logging
 # logging.getLogger('root').setLevel('INFO')
@@ -33,9 +39,9 @@ DATABASES.update(
             'ENGINE': 'django.db.backends.mysql',
             'NAME': APP_CODE,  # 数据库名
             'USER': APP_CODE,  # 数据库用户
-            'PASSWORD': os.getenv("MYSQL_PASSWORD", "MYSQL_OPSANY_WORKBENCH_PASSWORD"),  # 数据库密码
-            'HOST': os.getenv("MYSQL_HOST", "MYSQL_SERVER_IP"),  # 数据库主机
-            'PORT': int(os.getenv("MYSQL_PORT", "MYSQL_SERVER_PORT")),  # 数据库端口
+            'PASSWORD': "MYSQL_OPSANY_WORKBENCH_PASSWORD",  # 数据库密码
+            'HOST': "MYSQL_SERVER_IP",  # 数据库主机
+            'PORT': int("MYSQL_SERVER_PORT"),  # 数据库端口
             'OPTIONS': {
                 "init_command": "SET default_storage_engine=INNODB;\
                                  SET sql_mode='STRICT_TRANS_TABLES';",
@@ -49,10 +55,10 @@ DATABASES.update(
 MONGO_CONN = mongoengine.connect(
         db=APP_CODE,                                 # 需要进行操作的数据库名称
         alias='default',                          # 必须定义一个default数据库
-        host=os.getenv("MONGO_HOST", "MONGO_SERVER_IP"),
-        port=int(os.getenv("MONGO_PORT", "MONGO_SERVER_PORT")),
+        host="MONGO_SERVER_IP",
+        port=int("MONGO_SERVER_PORT"),
         username=APP_CODE,
-        password=os.getenv("MONGO_PASSWORD", "MONGO_WORKBENCH_PASSWORD"),
+        password="MONGO_WORKBENCH_PASSWORD",
         connect=False
         # authentication_source="admin",           # 进行身份认证的数据库，通常这个数据库为admin
 )
@@ -61,10 +67,10 @@ MONGO_CONN = mongoengine.connect(
 AUTH_API_CACHE_EXPIRATION = 60 * 5
 
 # Redis Config
-REDIS_HOST = os.getenv("REDIS_HOST", "REDIS_SERVER_IP")
-REDIS_PORT = os.getenv("REDIS_PORT", "REDIS_SERVER_PORT")
-REDIS_USERNAME = parse.quote(os.getenv("REDIS_USERNAME", "REDIS_SERVER_USER") or "")  
-REDIS_PASSWORD = parse.quote(os.getenv("REDIS_PASSWORD", "REDIS_SERVER_PASSWORD")) 
+REDIS_HOST = "REDIS_SERVER_IP"
+REDIS_PORT = "REDIS_SERVER_PORT"
+REDIS_USERNAME = parse.quote("REDIS_SERVER_USER")
+REDIS_PASSWORD = parse.quote("REDIS_SERVER_PASSWORD")
 
 # Redis Celery AMQP
 BROKER_URL = 'redis://{REDIS_USERNAME}:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}/2'.format(REDIS_USERNAME=REDIS_USERNAME, REDIS_PASSWORD=REDIS_PASSWORD, REDIS_HOST=REDIS_HOST, REDIS_PORT=REDIS_PORT)
@@ -103,11 +109,11 @@ FRONTEND_ELASTIC_APM = {
     'FRONTEND_ENVIRONMENT': 'prod',
 }
 
-YUN_PIAN_URL = os.getenv("YUN_PIAN_URL", "YUN_PIAN_URL")
-YUN_PIAN_APIKEY = os.getenv("YUN_PIAN_APIKEY", "YUN_PIAN_APIKEY")
-YUN_PIAN_HS_CODE = os.getenv("YUN_PIAN_HS_CODE", "YUN_PIAN_HS_CODE")
-YUN_PIAN_ALERT_TPL_ID = os.getenv("YUN_PIAN_ALERT_TPL_ID", "YUN_PIAN_ALERT_TPL_ID")
-YUN_PIAN_SERVER_CHECK_TPL_ID = os.getenv("YUN_PIAN_SERVER_CHECK_TPL_ID", "YUN_PIAN_SERVER_CHECK_TPL_ID")
+YUN_PIAN_URL = "YUN_PIAN_URL"
+YUN_PIAN_APIKEY = "YUN_PIAN_APIKEY"
+YUN_PIAN_HS_CODE = "YUN_PIAN_HS_CODE"
+YUN_PIAN_ALERT_TPL_ID = "YUN_PIAN_ALERT_TPL_ID"
+YUN_PIAN_SERVER_CHECK_TPL_ID = "YUN_PIAN_SERVER_CHECK_TPL_ID"
 
 # 内网环境映射时可修改为映射IP
 DING_TALK_API_DOMAIN = "https://api.dingtalk.com"

@@ -6,7 +6,6 @@ from django import forms
 from common.forms import BaseComponentForm
 from components.component import Component
 from .toolkit import configs
-from .toolkit.tools import base_api_url
 
 
 class GetAppServiceGroup(Component):
@@ -74,7 +73,7 @@ class GetAppServiceGroup(Component):
         # 请求系统接口
         response = self.outgoing.http_client.get(
             host=configs.host,
-            path='{}app-service-group/'.format(base_api_url),
+            path='{}app-service-group/'.format(configs.base_api_url),
             params=params,
             data=None,
             cookies=self.request.wsgi_request.COOKIES,

@@ -115,6 +115,7 @@ class GuacamoleNetWorkWebsocket(AsyncWebsocketConsumer):
 
     def connect(self):  # sourcery skip: raise-specific-error
         self.accept('guacamole')
+        # py3.7老版本修复bug
         self.recording_name = str(uuid.uuid4())
         self.wait_time = time.time()
         status, code, data = self.check_token()

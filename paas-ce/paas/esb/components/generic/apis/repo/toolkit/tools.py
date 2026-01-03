@@ -1,3 +1,3 @@
 # -*- coding: utf-8 -*-
-
-base_api_url = "/t/repo/api/repo/v0_1/"
+import settings
+base_api_url = "/{}/repo/api/repo/v0_1/".format(getattr(settings, "BK_ENV", "o"))

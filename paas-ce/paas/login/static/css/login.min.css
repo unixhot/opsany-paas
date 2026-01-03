@@ -302,6 +302,8 @@ input[type="number"]::-webkit-outer-spin-button {
 	color: #ff5656;
 	bottom: 35px;
 	left: 55px;
+    padding-right: 55px;
+    padding-bottom: 5px;
 	font-size: 12px;
 	margin-left: 60px;
 }

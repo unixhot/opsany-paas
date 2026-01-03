@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.ico" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>登录 | 数字化运维平台</title>
+	</head>
+	<body>
+		<div id="app"></div>
+		<script>
+			window.OPS_AUTH_TYPE = "{{auth_type}}";
+			window.OPS_ERROR = "{{error}}";
+		</script>
+		<script src="https://rescdn.qqmail.com/node/ww/wwopenmng/js/sso/wwLogin-1.0.0.js" type="text/javascript" charset="utf-8" defer></script>
+		<script type="module" src="/src/main.js"></script>
+	</body>
+</html>

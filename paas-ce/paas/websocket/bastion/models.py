@@ -2167,6 +2167,7 @@ class CommandLogModel(BaseModel):
     hostname = models.CharField(max_length=255, verbose_name="服务器IP")
     user = models.CharField(max_length=128, null=True, verbose_name="用户名")
     opt_user = models.CharField(max_length=128, null=True, verbose_name="操作用户")
+    login_type = models.IntegerField(default=1, null=True)
 
     class Meta:
         db_table = "command_log"

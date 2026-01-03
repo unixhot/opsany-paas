@@ -20,8 +20,8 @@ LOG_LEVEL = 'ERROR'
 # import logging
 # logging.getLogger('app').setLevel('INFO')
 
-GUACD_HOST = '127.0.0.1'
-GUACD_PORT = '4822'
+#GUACD_HOST = '127.0.0.1'
+#GUACD_PORT = '4822'
 FOOT_CLIENT_IP = "BASTION_FOOT_CLIENT_IP"
 FOOT_CLIENT_PORT = "BASTION_FOOT_CLIENT_PORT"
 
@@ -29,10 +29,10 @@ FOOT_CLIENT_PORT = "BASTION_FOOT_CLIENT_PORT"
 GUACD_PATH = "/srv/guacamole"
 
 MEDIA_URL = ''
-UPLOAD_PATH = os.getenv("UPLOAD_PATH", "/opt/opsany/")
-TERMINAL_PATH = os.path.join(os.getenv("UPLOAD_PATH", "/opt/opsany/"), "uploads/terminal")
-ORI_GUACD_PATH = os.path.join(os.getenv("UPLOAD_PATH", "/opt/opsany/"), "uploads/guacamole")
-TERMINAL_TIMEOUT = int(os.getenv("TERMINAL_TIMEOUT", 1800))
+UPLOAD_PATH = "/opt/opsany/"
+TERMINAL_PATH = "/opt/opsany/uploads/terminal"
+ORI_GUACD_PATH = os.path.join("/opt/opsany/uploads/guacamole")
+TERMINAL_TIMEOUT = 1800
 
 DATABASES.update(
     {
@@ -40,9 +40,9 @@ DATABASES.update(
             'ENGINE': 'django.db.backends.mysql',
             'NAME': 'bastion',  # 数据库名
             'USER': 'bastion',  # 数据库用户
-            'PASSWORD': os.getenv("MYSQL_PASSWORD", "MYSQL_OPSANY_BASTION_PASSWORD"),  # 数据库密码
-            'HOST': os.getenv("MYSQL_HOST", "MYSQL_SERVER_IP"),  # 数据库主机
-            'PORT': int(os.getenv("MYSQL_PORT", "MYSQL_SERVER_PORT")),  # 数据库端口
+            'PASSWORD': "MYSQL_OPSANY_BASTION_PASSWORD",  # 数据库密码
+            'HOST': "MYSQL_SERVER_IP",  # 数据库主机
+            'PORT': int("MYSQL_SERVER_PORT"),  # 数据库端口
             'OPTIONS': {
                 "init_command": "SET default_storage_engine=INNODB;\
                                  SET sql_mode='STRICT_TRANS_TABLES';",
@@ -53,10 +53,10 @@ DATABASES.update(
 )
 
 # Redis Config
-REDIS_HOST = os.getenv("REDIS_HOST", "REDIS_SERVER_IP")
-REDIS_PORT = os.getenv("REDIS_PORT", "REDIS_SERVER_PORT")
-REDIS_USERNAME = parse.quote(os.getenv("REDIS_USERNAME", "REDIS_SERVER_USER") or "")  
-REDIS_PASSWORD = parse.quote(os.getenv("REDIS_PASSWORD", "REDIS_SERVER_PASSWORD")) 
+REDIS_HOST = "REDIS_SERVER_IP"
+REDIS_PORT = "REDIS_SERVER_PORT"
+REDIS_USERNAME = parse.quote("REDIS_SERVER_USER")
+REDIS_PASSWORD = parse.quote("REDIS_SERVER_PASSWORD")
 
 # Redis Celery AMQP
 # BROKER_URL = 'redis://{REDIS_USERNAME}:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}/8'.format(REDIS_USERNAME=REDIS_USERNAME, REDIS_PASSWORD=REDIS_PASSWORD, REDIS_HOST=REDIS_HOST, REDIS_PORT=REDIS_PORT)

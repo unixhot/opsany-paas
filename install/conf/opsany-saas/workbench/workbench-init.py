@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
-__all__ = ['celery_app', 'RUN_VER', 'APP_CODE', 'SECRET_KEY', 'BK_URL', 'BASE_DIR', 'UPLOAD_PATH', 'ENV_URL']
+__all__ = ['celery_app', 'RUN_VER', 'APP_CODE', 'SECRET_KEY', 'BK_URL', 'PAAS_ESB_URL', 'PAAS_LOGIN_URL', 'BASE_DIR', 'UPLOAD_PATH', 'ENV_URL']
 
 import os
 
@@ -16,11 +16,13 @@ RUN_VER = 'open'
 # SaaS应用ID
 APP_CODE = 'workbench'
 # SaaS安全密钥，注意请勿泄露该密钥
-SECRET_KEY = os.getenv("APP_TOKEN", "WORKBENCH_SECRET_KEY")
+SECRET_KEY = "WORKBENCH_SECRET_KEY"
 # SaaS平台URL
-BK_URL = os.getenv("BK_PAAS_HOST", "https://DOMAIN_NAME")
+BK_URL = "https://DOMAIN_NAME"
+PAAS_ESB_URL = "http://LOCAL_IP:8002"
+PAAS_LOGIN_URL = 'http://LOCAL_IP:8003'
 # Upload路径
-UPLOAD_PATH = os.getenv("UPLOAD_PATH", "/opt/opsany/")
+UPLOAD_PATH = "/opt/opsany/"
 # 运行环境URL
 url = {"development": "", "production": "o", "testing": "t"}
 ENV_URL = url.get(os.getenv("BK_ENV", "testing"))

@@ -18,8 +18,7 @@ import json
 from django.conf import settings
 from django.utils.translation import gettext as _
 # Avoid shadowing the login() and logout() views below.
-from django.contrib.auth import (login as auth_login,
-                                 logout as auth_logout)
+from django.contrib.auth import (login as auth_login, logout as auth_logout)
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.views import redirect_to_login
 from django.contrib.sites.shortcuts import get_current_site
@@ -126,7 +125,7 @@ class Account(AccountSingleton):
         return bk_token, datetime.datetime.fromtimestamp(expire_time, timezone.get_current_timezone())
 
     def _decrypt_token(self, bk_token):
-        logger.info(f"Received bk_token in _decrypt_token: {bk_token}, type: {type(bk_token)}")
+        # logger.info(f"Received bk_token in _decrypt_token: {bk_token}, type: {type(bk_token)}")
         if bk_token == 'None' or bk_token is None or not bk_token:
             logger.info("Invalid bk_token detected, returning without decrypt")
             return False, _("参数bk_token非法"), None
@@ -236,7 +235,8 @@ class Account(AccountSingleton):
 
         登录态验证不通过时调用
         """
-        if request.is_ajax():
+        # if request.is_ajax():
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             return HttpResponse(status=401)
 
         path = request.build_absolute_uri()
@@ -259,12 +259,11 @@ class Account(AccountSingleton):
             status, res_data = auth_object.get_auth_config(auth_type="white_list")
             if not status:
                 return True, "Success"
-            if not isinstance(res_data, dict):
-                return True, "Success"
-            enabled = res_data.get("enabled")
-            if enabled is False:
-                return True, "Success"
             white_list = res_data.get("white_list") or ""
+
+            if not isinstance(res_data, dict):  return True, "Success"
+            if res_data.get("enabled") is False: return True, "Success"
+
             x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
             if x_forwarded_for:
                 ip = x_forwarded_for.split(',')[0]  # 第一个IP是原始客户端
@@ -297,13 +296,14 @@ class Account(AccountSingleton):
             return True, str(e)
 
     def login(self, request, template_name='login/login.html',
-              authentication_form=AuthenticationForm,
-              #authentication_form=AuthenticationAndRegisterForm,
+              # authentication_form=AuthenticationForm,
+              authentication_form=AuthenticationAndRegisterForm,
               current_app=None, extra_context=None):
-        """
-        登录页面和登录动作
-        """
+        """登录页面和登录动作"""
         params = request.GET.dict()
+        # if (params.get("c_url") and len(params) == 1) or not params:
+        #     return render(request, "login/login.html", {"login_type": "0", "error": "Success"})
+        
         redirect_field_name = self.REDIRECT_FIELD_NAME
         redirect_to = request.POST.get(redirect_field_name, params.get(redirect_field_name, '/'))
         app_id = request.POST.get('app_id', params.get('app_id', ''))
@@ -314,160 +314,21 @@ class Account(AccountSingleton):
         error_message = ""
         is_qw = params.get("code") and (params.get("auth_type") or params.get("domain") or (params.get("appid")))
         is_sso = params.get("domain") and params.get("auth_type") and params.get("sso_code") and params.get("sso_sign")
+        is_idaas = params.get("domain") and (params.get("auth_type") == "9")
+        is_iam = params.get("domain") and (params.get("auth_type") == "10")
+        # logger.info(f"Received0000_login_get, {params}, {is_qw}, {is_sso}, {is_idaas}, {is_iam}")
         if request.method == 'POST':  # 密码本地登录 LDAP AD登录 第三方密码登录
-            # 改写request中密码内容
-            request.POST = request.POST.copy()
-            request.POST["password"] = request.POST["password"].strip()
-            data = request.POST.dict()
-            next = data.get("next", "")
-            username = data.get("username", "")
-            password = data.get("password", "")
-            google_auth_url = data.pop("google_auth_url", {})
-            google_auth_type = data.pop("google_auth_type", None)
-            secret = data.pop("secret", "")
-            geetest_challenge = data.pop("geetest_challenge", None)
-            geetest_seccode = data.pop("geetest_seccode", None)
-            geetest_validate = data.pop("geetest_validate", None)
-            mfa = data.pop("mfa", None)
-            verify_code = data.pop("verify_code", None)
-            seven_days_free = data.pop("seven_days_free", 0)
-            domain = data.pop("domain", None)
-            form = authentication_form(request, data=request.POST)
-            if domain:
-                username = username + "@" + domain
-
-            return_data = {"app_id": app_id, "next": next, "IMG_URL": settings.IMG_URL, "SITE_URL": settings.SITE_URL, "tab_key": tab_key}
-            if "next" in data and "app_id" in data:
-                if not geetest_challenge or not geetest_seccode or not geetest_validate:
-                    return_data.update(**{"data": "1"})
-                    return render(request, "login/login.html", return_data)
-            auth_object = OpsAnyRbacUserAuth(username, password)
-            google_auth_status = auth_object.get_user_google_auth_status()
-            #print("google_auth_status", google_auth_status, username)
-            status, message = self._check_white_list(username, request, auth_object)
-            if not status:
-                return_data["error_message"] = message
+            status, return_data, form = self._login_post(request, tab_key, c_url, app_id, authentication_form)
+            if status == 1:
                 return render(request, "login/login.html", return_data)
-            if google_auth_status in ["8", "9"]:
-                return_data.update(**{"data": "2"})
-                return render(request, "login/login.html", return_data)
+            elif status == 2:
+                return self.login_success_response(request, form, redirect_to, app_id)
 
-            if ("@" not in username) or ((not domain) and ("@" in username)):  # 密码本地登录 第三方用户本地密码登录
-                if form.is_valid():
-                    # if google_auth_status == "1":
-                    if google_auth_status in ["1", "3", "4", "5", "7"]:
-                        if google_auth_status in ["3"]:
-                            if google_auth_url:
-                                return_data.update(google_auth_url=google_auth_url, secret=secret)
-                            else:
-                                google_auth_pic = auth_object.get_google_auth()
-                                return_data.update(google_auth_url=google_auth_pic.get("url", ""), secret=google_auth_pic.get("secret", ""))
-                        if google_auth_type == "bind_google_auth":
-                            bind_google_auth = auth_object.bind_google_auth(secret=secret, verify_code=verify_code)
-                            return_data.update(bind_google_auth=bind_google_auth.get("data", {}))
-                            if bind_google_auth.get("result"):
-                                return self.login_success_response(request, form, redirect_to, app_id)
-                            else:
-                                return_data.update(username=username, password=password, mfa="start", domain=domain,
-                                    c_url=c_url, verfiy_code=verify_code, seven_days_free=seven_days_free,
-                                    google_auth_status=google_auth_status, geetest_challenge=geetest_challenge,
-                                    geetest_seccode=geetest_seccode, geetest_validate=geetest_validate
-                                )
-                                return render(request, "login/login.html", return_data)
-                        mfa = "start" if not mfa else mfa
-                    if mfa == "start":
-                        check_status = auth_object.check_google_verify_code(verify_code, seven_days_free)
-                        if check_status:
-                            return self.login_success_response(request, form, redirect_to, app_id)
-                        else:
-                            return_data.update(username=username, password=password, mfa="start", domain=domain,
-                                c_url=c_url, verfiy_code="", seven_days_free=seven_days_free,
-                                google_auth_status=google_auth_status, geetest_challenge=geetest_challenge,
-                                geetest_seccode=geetest_seccode, geetest_validate=geetest_validate,
-                                check_status=False if verify_code else None
-                            )
-                            return render(request, "login/login.html", return_data)
-                    else:
-                        return self.login_success_response(request, form, redirect_to, app_id)
-            else:  # ADAP AD登录
-                res, data = auth_object.check_users()
-                user = self.get_user(data, username)
-                #print("get_user", res, data, user)
-                if res:
-                    if google_auth_status in ["1", "3", "4", "5", "7"]:
-                        if google_auth_status in ["3"]:
-                            if google_auth_url:
-                                return_data.update(google_auth_url=google_auth_url, secret=secret)
-                            else:
-                                google_auth_pic = auth_object.get_google_auth()
-                                return_data.update(google_auth_url=google_auth_pic.get("url", ""), secret=google_auth_pic.get("secret", ""))
-                        if google_auth_type == "bind_google_auth":
-                            bind_google_auth = auth_object.bind_google_auth(secret=secret, verify_code=verify_code)
-                            return_data.update(bind_google_auth=bind_google_auth.get("data", {}))
-                            if bind_google_auth.get("result"):
-                                return self.login_success_response(request, user, redirect_to, app_id)
-                            else:
-                                return_data.update(username=username, password=password, mfa="start", domain=domain,
-                                    c_url=c_url, verfiy_code=verify_code, seven_days_free=seven_days_free,
-                                    google_auth_status=google_auth_status, geetest_challenge=geetest_challenge,
-                                    geetest_seccode=geetest_seccode, geetest_validate=geetest_validate
-                                )
-                                return render(request, "login/login.html", return_data)
-                        mfa = "start" if not mfa else mfa
-                    if mfa == "start":
-                        check_status = auth_object.check_google_verify_code(verify_code, seven_days_free)
-                        if check_status:
-                            return self.login_success_response(request, user, redirect_to, app_id)
-                        else:
-                            return_data.update(username=username, password=password, mfa="start", domain=domain,
-                                c_url=c_url, verfiy_code="", seven_days_free=seven_days_free,
-                                google_auth_status=google_auth_status, geetest_challenge=geetest_challenge,
-                                geetest_seccode=geetest_seccode, geetest_validate=geetest_validate,
-                                check_status=False if verify_code else None
-                            )
-                            return render(request, "login/login.html", return_data)
-                    else:
-                        return self.login_success_response(request, user, redirect_to, app_id)
-        elif request.method == 'GET' and (is_qw or is_sso):
-            appid = params.get("appid")
-            code = params.get("code")
-            domain = params.get("domain")
-            ad_domain = params.get("ad_domain")
-            auth_type = params.get("auth_type")
-            sso_code = params.get("sso_code")
-            sso_sign = params.get("sso_sign")
-            return_data = {"tab_key": tab_key, "app_id": "", "next": "", "IMG_URL": settings.IMG_URL, "SITE_URL": settings.SITE_URL}
-            #if auth_type in ["3", "6"]:
-            #    if auth_type == "6":
-            #        auth_obj = OpsAnyRbacUserAuth(code=code, domain=domain)
-            #    else:
-            #        auth_obj = OpsAnyRbacUserAuth(code=code, app_id=appid)
-            auth_obj = None
-            if sso_code and sso_sign and auth_type in ["8"]:
-                auth_obj = OpsAnyRbacUserAuth(domain=domain, auth_type=auth_type, sso_code=sso_code, sso_sign=sso_sign)
-            elif code and domain:
-                auth_obj = OpsAnyRbacUserAuth(code=code, domain=domain, ad_domain=ad_domain)
-            elif auth_type in ["3", "6"]:
-                auth_obj = OpsAnyRbacUserAuth(code=code, app_id=appid, ad_domain=ad_domain)
-            # status, message = self._check_white_list("get_username", request, auth_obj)
-            # if not status:
-            #     return_data["error_message"] = message
-            #     return render(request, "login/login.html", return_data)
-            if auth_obj:
-                status, res = auth_obj.check_users()
-                if status and res.get("auth_status") and res.get("domain_status") and res.get("have_user"):
-                    user_info = res.get("user_info")
-                    user = self.get_user(res, user_info.get("username"))
-                    redirect_to = "/"
-                    return self.login_success_response(request, user, redirect_to, app_id)
-                else:
-                    return_data["message"] = res.get("message")
-                    form = authentication_form(request)
-                    error_message = res.get("message")
-            else:
-                return_data["message"] = "Unsupported auth type."
-                form = authentication_form(request)
-                error_message = "Unsupported auth type."
+        elif request.method == 'GET' and (is_qw or is_sso or is_idaas or is_iam):
+            status, user, form, error_message = self._login_get(request, tab_key, params, authentication_form)
+            if status:
+                redirect_to = "/"
+                return self.login_success_response(request, user, redirect_to, app_id)
         else:
             form = authentication_form(request)
         current_site = get_current_site(request)
@@ -488,6 +349,173 @@ class Account(AccountSingleton):
         response = TemplateResponse(request, template_name, context)
         response = self.set_bk_token_invalid(request, response)
         return response
+
+    def _login_get(self, request, tab_key, params, authentication_form):
+        appid = params.get("appid")
+        code = params.get("code")
+        domain = params.get("domain")
+        ad_domain = params.get("ad_domain")
+        auth_type = params.get("auth_type")
+        sso_code = params.get("sso_code")
+        sso_sign = params.get("sso_sign")
+        return_data = {"tab_key": tab_key, "app_id": "", "next": "", "IMG_URL": settings.IMG_URL,
+                       "SITE_URL": settings.SITE_URL}
+        # if auth_type in ["3", "6"]:
+        #    if auth_type == "6":
+        #        auth_obj = OpsAnyRbacUserAuth(code=code, domain=domain)
+        #    else:
+        #        auth_obj = OpsAnyRbacUserAuth(code=code, app_id=appid)
+        auth_obj = None
+        if sso_code and sso_sign and auth_type in ["8"]:
+            auth_obj = OpsAnyRbacUserAuth(domain=domain, auth_type=auth_type, sso_code=sso_code, sso_sign=sso_sign)
+        elif code and domain:
+            auth_obj = OpsAnyRbacUserAuth(code=code, domain=domain, ad_domain=ad_domain)
+        elif auth_type in ["3", "6"]:
+            auth_obj = OpsAnyRbacUserAuth(code=code, app_id=appid, ad_domain=ad_domain)
+        elif auth_type in ["9", "10"]:
+            auth_obj = OpsAnyRbacUserAuth(auth_type=auth_type, domain=domain, params=params)
+        # status, message = self._check_white_list("get_username", request, auth_obj)
+        # if not status:
+        #     return_data["error_message"] = message
+        #     return render(request, "login/login.html", return_data)
+        user = None
+        if auth_obj:
+            status, res = auth_obj.check_users()
+            if status and res.get("auth_status") and res.get("domain_status") and res.get("have_user"):
+                user_info = res.get("user_info")
+                user = self.get_user(res, user_info.get("username"))
+                return True, user, "", ""
+            else:
+                return_data["message"] = res.get("message")
+                form = authentication_form(request)
+                error_message = res.get("message")
+        else:
+            return_data["message"] = "Unsupported auth type."
+            form = authentication_form(request)
+            error_message = "Unsupported auth type."
+        return False, user, form, error_message
+
+    def _login_post(self, request, tab_key, c_url, app_id, authentication_form):
+        # 改写request中密码内容
+        request.POST = request.POST.copy()
+        request.POST["password"] = request.POST["password"].strip()
+        data = request.POST.dict()
+        next = data.get("next", "")
+        username = data.get("username", "")
+        password = data.get("password", "")
+        google_auth_url = data.pop("google_auth_url", {})
+        google_auth_type = data.pop("google_auth_type", None)
+        secret = data.pop("secret", "")
+        geetest_challenge = data.pop("geetest_challenge", None)
+        geetest_seccode = data.pop("geetest_seccode", None)
+        geetest_validate = data.pop("geetest_validate", None)
+        mfa = data.pop("mfa", None)
+        verify_code = data.pop("verify_code", None)
+        seven_days_free = data.pop("seven_days_free", 0)
+        domain = data.pop("domain", None)
+        form = authentication_form(request, data=request.POST)
+        if domain:
+            username = username + "@" + domain
+
+        return_data = {"app_id": app_id, "next": next, "IMG_URL": settings.IMG_URL, "SITE_URL": settings.SITE_URL,
+                       "tab_key": tab_key}
+        if "next" in data and "app_id" in data:
+            if not geetest_challenge or not geetest_seccode or not geetest_validate:
+                return_data.update(**{"data": "1"})
+                return 1, return_data, form
+        auth_object = OpsAnyRbacUserAuth(username, password)
+        google_auth_status = auth_object.get_user_google_auth_status()
+        # print("google_auth_status", google_auth_status, username)
+        status, message = self._check_white_list(username, request, auth_object)
+        if not status:
+            return_data["error_message"] = message
+            return 1, return_data, form
+        if google_auth_status in ["8", "9"]:
+            return_data.update(**{"data": "2"})
+            return 1, return_data, form
+
+        if ("@" not in username) or ((not domain) and ("@" in username)):  # 密码本地登录 第三方用户本地密码登录
+            if not form.is_valid():
+                return 4, return_data, form
+            # if google_auth_status == "1":
+            if google_auth_status in ["1", "3", "4", "5", "7"]:
+                if google_auth_status in ["3"]:
+                    if google_auth_url:
+                        return_data.update(google_auth_url=google_auth_url, secret=secret)
+                    else:
+                        google_auth_pic = auth_object.get_google_auth()
+                        return_data.update(google_auth_url=google_auth_pic.get("url", ""),
+                                           secret=google_auth_pic.get("secret", ""))
+                if google_auth_type == "bind_google_auth":
+                    bind_google_auth = auth_object.bind_google_auth(secret=secret, verify_code=verify_code)
+                    return_data.update(bind_google_auth=bind_google_auth.get("data", {}))
+                    if bind_google_auth.get("result"):
+                        return 2, return_data, form
+                    else:
+                        return_data.update(username=username, password=password, mfa="start", domain=domain,
+                                           c_url=c_url, verfiy_code=verify_code, seven_days_free=seven_days_free,
+                                           google_auth_status=google_auth_status,
+                                           geetest_challenge=geetest_challenge,
+                                           geetest_seccode=geetest_seccode, geetest_validate=geetest_validate
+                                           )
+                        return 1, return_data, form
+                mfa = "start" if not mfa else mfa
+            if mfa == "start":
+                check_status = auth_object.check_google_verify_code(verify_code, seven_days_free)
+                if check_status:
+                    return 2, return_data, form
+                else:
+                    return_data.update(username=username, password=password, mfa="start", domain=domain,
+                                       c_url=c_url, verfiy_code="", seven_days_free=seven_days_free,
+                                       google_auth_status=google_auth_status, geetest_challenge=geetest_challenge,
+                                       geetest_seccode=geetest_seccode, geetest_validate=geetest_validate,
+                                       check_status=False if verify_code else None
+                                       )
+                    return 1, return_data, form
+            else:
+                return 2, return_data, form
+
+        else:  # ADAP AD登录
+            res, data = auth_object.check_users()
+            # user = self.get_user(data, username)
+            if not res:
+                return 3, return_data, form
+            if google_auth_status in ["1", "3", "4", "5", "7"]:
+                if google_auth_status in ["3"]:
+                    if google_auth_url:
+                        return_data.update(google_auth_url=google_auth_url, secret=secret)
+                    else:
+                        google_auth_pic = auth_object.get_google_auth()
+                        return_data.update(google_auth_url=google_auth_pic.get("url", ""),
+                                           secret=google_auth_pic.get("secret", ""))
+                if google_auth_type == "bind_google_auth":
+                    bind_google_auth = auth_object.bind_google_auth(secret=secret, verify_code=verify_code)
+                    return_data.update(bind_google_auth=bind_google_auth.get("data", {}))
+                    if bind_google_auth.get("result"):
+                        return 2, return_data, form
+                    else:
+                        return_data.update(username=username, password=password, mfa="start", domain=domain,
+                                           c_url=c_url, verfiy_code=verify_code, seven_days_free=seven_days_free,
+                                           google_auth_status=google_auth_status,
+                                           geetest_challenge=geetest_challenge,
+                                           geetest_seccode=geetest_seccode, geetest_validate=geetest_validate
+                                           )
+                        return 1, return_data, form
+                mfa = "start" if not mfa else mfa
+            if mfa == "start":
+                check_status = auth_object.check_google_verify_code(verify_code, seven_days_free)
+                if check_status:
+                    return 2, return_data, form
+                else:
+                    return_data.update(username=username, password=password, mfa="start", domain=domain,
+                                       c_url=c_url, verfiy_code="", seven_days_free=seven_days_free,
+                                       google_auth_status=google_auth_status, geetest_challenge=geetest_challenge,
+                                       geetest_seccode=geetest_seccode, geetest_validate=geetest_validate,
+                                       check_status=False if verify_code else None
+                                       )
+                    return 1, return_data, form
+            else:
+                return 2, return_data, form
 
     def get_user(self, data, username):
         """

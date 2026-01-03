@@ -7,6 +7,7 @@ def init_password():
     characters = string.ascii_letters + string.digits
     password = "Ops" +"".join(random.choices(characters, k=9))
     user = BkUser.objects.filter(username="admin").first()
+    UserAuthToken.objects.filter(username="admin", app_code="login").delete()
     if user:
         user.set_password(password)
         user.save()
@@ -24,7 +25,8 @@ if __name__ == '__main__':
     sys.path.append(parent_path)
     import django
     django.setup()
-    from bkaccount.models import BkUser
+    from bkaccount.models import BkUser, UserAuthToken
+
     init_password()
 
 

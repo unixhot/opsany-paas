@@ -13,6 +13,9 @@ try:
 except Exception as e:
     raise Exception("导包错误：", str(e))
 
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
+requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+
 
 class EsbApi(object):
     def __init__(self, token=None, language=DEFAULT_LANGUAGE):

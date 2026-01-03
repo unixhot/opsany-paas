@@ -44,7 +44,7 @@ class Command(BaseCommand):
             except DocNotChangedException:
                 continue
             except Exception as ex:
-                logger.error('fail to generate apidoc for %s, Exception: %s', channel.component_codename, ex)
+                logger.exception('fail to generate apidoc for %s, Exception: %s', channel.component_codename, ex)
                 continue
 
             if not api_data:

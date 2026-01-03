@@ -73,13 +73,11 @@ main(){
     devops) 
         for i in `ls ${INSTALL_PATH}/logs/devops`;do echo "" > ${INSTALL_PATH}/logs/devops/$i;done
 	;;
-    dashboard) 
-        for i in `ls ${INSTALL_PATH}/logs/dashboard`;do echo "" > ${INSTALL_PATH}/logs/dashboard/$i;done
-	;;
     control) 
         for i in `ls ${INSTALL_PATH}/logs/control`;do echo "" > ${INSTALL_PATH}/logs/control/$i;done
 	;;
     all)
+        for i in `ls ${INSTALL_PATH}/logs/*.log`;do echo "" > $i;done
         for i in `ls ${INSTALL_PATH}/logs/rbac`;do echo "" > ${INSTALL_PATH}/logs/rbac/$i;done
         for i in `ls ${INSTALL_PATH}/logs/workbench`;do echo "" > ${INSTALL_PATH}/logs/workbench/$i;done
         for i in `ls ${INSTALL_PATH}/logs/job`;do echo "" > ${INSTALL_PATH}/logs/job/$i;done
@@ -88,8 +86,12 @@ main(){
         for i in `ls ${INSTALL_PATH}/logs/cmdb`;do echo "" > ${INSTALL_PATH}/logs/cmdb/$i;done
         for i in `ls ${INSTALL_PATH}/logs/bastion`;do echo "" > ${INSTALL_PATH}/logs/bastion/$i;done
         for i in `ls ${INSTALL_PATH}/logs/devops`;do echo "" > ${INSTALL_PATH}/logs/devops/$i;done
-        for i in `ls ${INSTALL_PATH}/logs/dashboard`;do echo "" > ${INSTALL_PATH}/logs/dashboard/$i;done
         for i in `ls ${INSTALL_PATH}/logs/control`;do echo "" > ${INSTALL_PATH}/logs/control/$i;done
+        for i in `ls ${INSTALL_PATH}/logs/llmops`;do echo "" > ${INSTALL_PATH}/logs/llmops/$i;done
+        for i in `ls ${INSTALL_PATH}/logs/devops`;do echo "" > ${INSTALL_PATH}/logs/devops/$i;done
+        for i in `ls ${INSTALL_PATH}/logs/pipeline`;do echo "" > ${INSTALL_PATH}/logs/pipeline/$i;done
+        for i in `ls ${INSTALL_PATH}/logs/repo`;do echo "" > ${INSTALL_PATH}/logs/repo/$i;done
+        for i in `ls ${INSTALL_PATH}/logs/deploy`;do echo "" > ${INSTALL_PATH}/logs/deploy/$i;done
         ;;
 	help|*)
 	    echo $"Usage: $0 {rbac|workbench|cmdb|control|job|monitor|cmp|bastion|devops|dashboard|all|help}"

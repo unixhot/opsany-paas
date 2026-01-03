@@ -29,9 +29,9 @@ DATABASES.update(
             'ENGINE': 'django.db.backends.mysql',
             'NAME': APP_CODE,  # 数据库名
             'USER': APP_CODE,  # 数据库用户
-            'PASSWORD': os.getenv("MYSQL_PASSWORD", "MYSQL_OPSANY_PROM_PASSWORD"),  # 数据库密码
-            'HOST': os.getenv("MYSQL_HOST", "MYSQL_SERVER_IP"),  # 数据库主机
-            'PORT': int(os.getenv("MYSQL_PORT", "MYSQL_SERVER_PORT")),  # 数据库端口
+            'PASSWORD': "MYSQL_OPSANY_PROM_PASSWORD",  # 数据库密码
+            'HOST': "MYSQL_SERVER_IP",  # 数据库主机
+            'PORT': int("MYSQL_SERVER_PORT"),  # 数据库端口
             'OPTIONS': {
                 "init_command": "SET default_storage_engine=INNODB;\
                                  SET sql_mode='STRICT_TRANS_TABLES';",
@@ -45,24 +45,24 @@ DATABASES.update(
 MONGO_CONN = mongoengine.connect(
     db=APP_CODE,  # 需要进行操作的数据库名称
     alias='default',  # 必须定义一个default数据库
-    host=os.getenv("MONGO_HOST", "MONGO_SERVER_IP"),
-    port=int(os.getenv("MONGO_PORT", "MONGO_SERVER_PORT")),
+    host="MONGO_SERVER_IP",
+    port=int("MONGO_SERVER_PORT"),
     username=APP_CODE,
-    password=os.getenv("MONGO_PASSWORD", "MONGO_PROM_PASSWORD"),
+    password="MONGO_PROM_PASSWORD",
     connect=False
     # authentication_source="admin",           # 进行身份认证的数据库，通常这个数据库为admin
 )
 
 
 ELASTIC_SEARCH = {
-    "USER": os.getenv("ELSTIC_USERNAME", "ELASTIC_SEARCH_USERNAME"),
-    "PASSWORD": os.getenv("ELASTIC_PASSWORD", "ES_PASSWORD"),
-    "HOST": os.getenv("ELSTIC_SERVER_IP", "ES_SERVER_IP"),
-    "PORT": os.getenv("ELASTIC_PORT_ENV", "9200"),
-    "SCHEME": os.getenv("ELASTIC_SCHEME", "https"),  # http https
+    "USER": "ELASTIC_SEARCH_USERNAME",
+    "PASSWORD": "ES_PASSWORD",
+    "HOST": "ES_SERVER_IP",
+    "PORT": "9200",
+    "SCHEME": "https",  # http https
 }
 
-HEART_BEAT_INDEX = os.getenv("ELASTIC_INDEX", "ELASTIC_SEARCH_INDEX")
+HEART_BEAT_INDEX = "ELASTIC_SEARCH_INDEX"
 HEART_BEAT_MONITOR_D = "{}/uploads/monitor/heartbeat-monitors.d/".format(default.UPLOAD_PATH)
 
 try:
@@ -75,15 +75,15 @@ setattr(default, "HEART_BEAT_MONITOR_D", HEART_BEAT_MONITOR_D)
 
 
 # Prom Alert Rules Path
-PROM_ALERT_RULE_PATH = os.getenv("PROM_ALERT_RULE_PATH" ,"{}/uploads/prometheus-config/rules/".format(default.UPLOAD_PATH))
+PROM_ALERT_RULE_PATH = "{}/uploads/prometheus-config/rules/".format(default.UPLOAD_PATH)
 if not os.path.exists(PROM_ALERT_RULE_PATH):
     os.makedirs(PROM_ALERT_RULE_PATH)
 
 # Redis Config
-REDIS_HOST = os.getenv("REDIS_HOST", "REDIS_SERVER_IP")
-REDIS_PORT = os.getenv("REDIS_PORT", "REDIS_SERVER_PORT")
-REDIS_USERNAME = parse.quote(os.getenv("REDIS_USERNAME", "REDIS_SERVER_USER") or "")  
-REDIS_PASSWORD = parse.quote(os.getenv("REDIS_PASSWORD", "REDIS_SERVER_PASSWORD")) 
+REDIS_HOST = "REDIS_SERVER_IP"
+REDIS_PORT = "REDIS_SERVER_PORT"
+REDIS_USERNAME = parse.quote("REDIS_SERVER_USER")
+REDIS_PASSWORD = parse.quote("REDIS_SERVER_PASSWORD")
 
 # Redis Celery AMQP
 BROKER_URL = 'redis://{REDIS_USERNAME}:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}/15'.format(REDIS_USERNAME=REDIS_USERNAME, REDIS_PASSWORD=REDIS_PASSWORD, REDIS_HOST=REDIS_HOST, REDIS_PORT=REDIS_PORT)

@@ -17,11 +17,11 @@ RUN_VER = 'open'
 # SaaS应用ID
 APP_CODE = 'bastion'
 # SaaS安全密钥，注意请勿泄露该密钥
-SECRET_KEY = os.getenv("APP_TOKEN", 'BASTION_SECRET_KEY')
+SECRET_KEY = "BASTION_SECRET_KEY"
 # PAAS平台URL
-BK_URL = os.getenv("BK_PAAS_HOST", "https://PAAS_PAAS_IP")
+BK_URL = "https://PAAS_PAAS_IP"
 # UploadPath
-UPLOAD_PATH = os.getenv("UPLOAD_PATH", "/opt/opsany/")
+UPLOAD_PATH = "/opt/opsany/"
 # MFA过期时间，单位：秒
 MFA_TIME_OUT = 1800
 

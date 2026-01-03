@@ -32,5 +32,5 @@
 
 ## 代码协议
 
-[MIT LICENSE](https://github.com/unixhot/opsany-paas/blob/master/LICENSE) 为bk-PaaS的开源协议，您贡献的代码也会受此协议保护。
+[MIT LICENSE](https://github.com/unixhot/opsany-paas/blob/master/LICENSE) 为OpsAny-PaaS的开源协议，您贡献的代码也会受此协议保护。
 

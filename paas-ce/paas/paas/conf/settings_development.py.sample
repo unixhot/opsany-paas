@@ -22,19 +22,19 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'opsany_paas',
         'USER': 'opsany',
-        'PASSWORD': 'OpsAny2025.Dev',
-        'HOST': '127.0.0.1',
+        'PASSWORD': '123456.coM',
+        'HOST': '192.168.0.111',
         'PORT': '3306',
     }
 }
 
 # domain
-PAAS_DOMAIN = '10.0.0.188:8001'
+PAAS_DOMAIN = '192.168.0.111:8001'
 # 跳转到本地开发使用的login服务, 仅本地开发用. 注意生产环境使用nginx反向代理不需要配置LOGIN_DOMAIN变量(删除即可)
-LOGIN_DOMAIN = '10.0.0.188:8003'
+LOGIN_DOMAIN = '192.168.0.111:8003'
 
 # inner domain, use consul domain,  for api
-PAAS_INNER_DOMAIN = '10.0.0.188'
+PAAS_INNER_DOMAIN = '192.168.0.111'
 # http/https
 HTTP_SCHEMA = 'https'
 
@@ -43,14 +43,20 @@ BK_COOKIE_NAME = 'bk_token'
 # cookie有效期
 BK_COOKIE_AGE = 60 * 60 * 24
 # cookie访问域
-BK_COOKIE_DOMAIN = 'dev.opsany.cn'
+BK_COOKIE_DOMAIN = '192.168.0.111'
 
 # 控制台地址
-ENGINE_HOST = "http://10.0.0.188:8000"
+ENGINE_HOST = "http://192.168.0.111:8000"
 # 登陆服务地址
-LOGIN_HOST = "http://10.0.0.188:8003"
+LOGIN_HOST = "http://192.168.0.111:8003"
 
 SECRET_KEY = 'XEz7VLlQNdIq9iFl1t6LtWobQEcG4ayoPa2esHwatkHZxiuDf0'
 
 # ESB Token
 ESB_TOKEN = '41f076b7-afce-46eb-9e85-dab245eb0931'
+
+# CSRF
+CSRF_TRUSTED_ORIGINS = [
+    'https://192.168.0.111',
+    'http://192.168.0.111',
+]

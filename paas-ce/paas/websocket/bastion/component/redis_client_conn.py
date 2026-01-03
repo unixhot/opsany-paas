@@ -19,7 +19,10 @@ async def get_redis_dict_data_async(conn, token):
     try:
         return json.loads(data)
     except json.JSONDecodeError:
-        return data
+        try:
+            return eval(data)
+        except Exception:
+            return data
 
 async def get_redis_str_data_async(conn, token):
     if not isinstance(conn, aioredis.Redis):

@@ -6,7 +6,6 @@ from django import forms
 from common.forms import BaseComponentForm
 from components.component import Component
 from .toolkit import configs
-from .toolkit.tools import base_api_url
 
 
 class GitlabRepositoryUrl(Component):
@@ -51,7 +50,7 @@ class GitlabRepositoryUrl(Component):
         ]
     }
     ```
-    """  #
+    """
 
     # 组件所属系统的系统名
     sys_name = configs.SYSTEM_NAME
@@ -75,7 +74,7 @@ class GitlabRepositoryUrl(Component):
         # 请求系统接口
         response = self.outgoing.http_client.get(
             host=configs.host,
-            path='{}gitlab-repository-url/'.format(base_api_url),
+            path='{}gitlab-repository-url/'.format(configs.base_api_url),
             params=params,
             data=None,
             cookies=self.request.wsgi_request.COOKIES,

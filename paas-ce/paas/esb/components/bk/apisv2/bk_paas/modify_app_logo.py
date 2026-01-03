@@ -15,6 +15,8 @@ from common.forms import BaseComponentForm
 from common.constants import API_TYPE_OP
 
 from .toolkit import tools, configs
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
 class ModifyAppLogo(Component):

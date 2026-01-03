@@ -67,10 +67,11 @@ class PostSendFileV2(Component):
         end_path = forms.Field(required=False)
         owner = forms.Field(required=False)
         group = forms.Field(required=False)
+        timeout = forms.IntegerField(required=False)
 
         # clean方法返回的数据可通过组件的form_data属性获取
         def clean(self):
-            return self.get_cleaned_data_when_exist(keys=["hosts", "file_url_list", "end_path", "owner", "group"])
+            return self.get_cleaned_data_when_exist(keys=["hosts", "file_url_list", "end_path", "owner", "group", "timeout"])
 
     # 组件处理入口
     def handle(self):

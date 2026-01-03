@@ -9,47 +9,47 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
 class BkApi:
-    def __init__(self, paas_domain, username, password):
+    def __init__(self, paas_domain, username, password, verify_code="", env="prod"):
+        self.paas_domain = paas_domain
         self.username = username
         self.password = password
         self.session = requests.Session()
-        self.url = paas_domain
-        self.session.headers.update({'referer': self.url})
-        self.csrfmiddlewaretoken = self.get_csrftoken()
-
-    def get_csrftoken(self):
-        API = "/login/"
-        URL = self.url + API
-        resp = self.session.get(URL, verify=False)
-        if resp.status_code in [200, 400]:
-            return resp.cookies["bklogin_csrftoken"]
-        return None
+        self.session.headers.update({'referer': paas_domain})
+        self.run_env = "o" if env == "prod" else "t"
+        self.login_url = self.paas_domain + "/login/api/v3/login/"
+        self.status, self.token, self.csrfmiddlewaretoken = self.login(verify_code)
 
     def login(self, verify_code=""):
-        API = "/login/api/login/"
-        URL = self.url + API
-        login_form = {
-            'csrfmiddlewaretoken': self.csrfmiddlewaretoken,
-            'username': self.username,
-            'password': self.password,
-            'init': "login.init",
-            'verify_code': verify_code,
-        }
-        resp = self.session.post(URL, data=login_form, verify=False)
-        if resp.status_code == 200 and resp.json().get("code") == 200:
-            return True, ""
-        return False, resp.json().get("message")
+        try:
+            json_data = {"username": self.username, "password": self.password, "verify_code": verify_code, "auth_type": "1"}
+            resp = self.session.post(self.login_url, data=json.dumps(json_data), verify=False)
+            try:
+                res_json = resp.json()
+                if resp.status_code != 200:
+                    return False, res_json, ""
+                bk_token = (res_json.get("data") or {}).get("bk_token")
+                code = res_json.get("code")
+                message = res_json.get("message")
+                if bk_token:
+                    return True, bk_token, resp.cookies.get("bklogin_csrftoken")
+                elif code != 200:
+                    return False, message, ""
+                else:
+                    return False, res_json, ""
+            except Exception as e:
+                return False, str(resp.content.decode()), ""
+        except Exception as e:
+            return False, str(e), ""
 
     def register_online_saas(self, saas_app_code, saas_app_name, saas_app_version, saas_app_secret_key, is_update):
         API = "/saas/register-online-saas-app/"
-        URL = self.url + API
+        URL = self.paas_domain + API
         req = {
             "saas_file_name": "{}-opsany-{}.tar.gz".format(saas_app_code, saas_app_version),
             "saas_app_code": saas_app_code,
             "saas_app_name": saas_app_name,
             "saas_app_version": saas_app_version,
             "saas_app_secret_key": saas_app_secret_key,
-			"csrfmiddlewaretoken": self.csrfmiddlewaretoken
         }
         if is_update in [1, "1", "true", "True"]:
             req["is_update"] = True
@@ -97,10 +97,8 @@ if __name__ == '__main__':
     saas_app_secret_key = options.saas_app_secret_key
     verify_code = options.verify_code if options.verify_code else ""
     is_update = options.is_update
-    bk_api = BkApi(paas_domain, username, password)
-    status, res = bk_api.login(verify_code)
-    if status:
-        # res, status = bk_api.set_new_password(password)
+    bk_api = BkApi(paas_domain, username, password, verify_code)
+    if bk_api.status:
         status, res = bk_api.register_online_saas(saas_app_code, saas_app_name, saas_app_version, saas_app_secret_key, is_update)
         if status:
             message = "{} SUCCESS: {}:{} ".format("Register Online SAAS" if not is_update else "Update SAAS Version", saas_app_code, saas_app_version)
@@ -108,12 +106,12 @@ if __name__ == '__main__':
             message = "{} ERROR, error info: {}".format("Register Online" if not is_update else "Update SAAS Version", res)
         print(message)
     else:
-        print("Login ERROR: {}".format(res))
+        print("Login ERROR: {}".format(bk_api.token))
 
 
     """
     # 注册SAAS
-    python register_online_saas.py --paas_domain https://opsany.com --username admin --password admin --saas_app_code rbac --saas_app_name 统一权限 --saas_app_version 2.2.0 --saas_app_secret_key bf4a54e0-a08a-4449-b3f4-1431ddbe4b31
+    python register_online_saas.py --paas_domain https://opsany.com --username admin --password admin --saas_app_code repo --saas_app_name 统一权限 --saas_app_version 2.3.0 --saas_app_secret_key bf4a54e0-a08a-4449-b3f4-1431ddbe4b31
     # 更新SAAS版本
     python register_online_saas.py --paas_domain https://opsany.com --username admin --password admin --saas_app_code rbac --saas_app_name 统一权限 --saas_app_version 2.2.2 --saas_app_secret_key bf4a54e0-a08a-4449-b3f4-1431ddbe4b31 --is_update true
     """

@@ -6,7 +6,6 @@ from django import forms
 from common.forms import BaseComponentForm
 from components.component import Component
 from .toolkit import configs
-from .toolkit.tools import base_api_url
 
 
 class GetAllCloudHost(Component):
@@ -32,7 +31,7 @@ class GetAllCloudHost(Component):
         "message": "相关信息更新成功"
     }
     ```
-    """#
+    """
 
     # 组件所属系统的系统名
     sys_name = configs.SYSTEM_NAME
@@ -56,7 +55,7 @@ class GetAllCloudHost(Component):
         # 请求系统接口
         response = self.outgoing.http_client.get(
             host=configs.host,
-            path='{}get-all-host/'.format(base_api_url),
+            path='{}get-all-host/'.format(configs.base_api_url),
             params=params,
             cookies=self.request.wsgi_request.COOKIES,
         )

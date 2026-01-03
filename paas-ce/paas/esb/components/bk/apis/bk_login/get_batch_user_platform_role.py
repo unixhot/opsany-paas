@@ -13,6 +13,8 @@ from common.forms import BaseComponentForm, ListField
 from common.constants import API_TYPE_Q
 from components.component import Component
 from .toolkit import configs
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
 class GetBatchUserPlatformRole(Component):

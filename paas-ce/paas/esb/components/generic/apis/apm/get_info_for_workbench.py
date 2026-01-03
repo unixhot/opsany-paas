@@ -6,7 +6,6 @@ from django import forms
 from common.forms import BaseComponentForm
 from components.component import Component
 from .toolkit import configs
-from .toolkit.tools import base_api_url
 
 
 class GetInfoForWorkbench(Component):
@@ -57,7 +56,7 @@ class GetInfoForWorkbench(Component):
         # 请求系统接口
         response = self.outgoing.http_client.get(
             host=configs.host,
-            path=base_api_url + 'get-info-for-workbench/',
+            path=configs.base_api_url + 'get-info-for-workbench/',
             params=params,
             data=None,
             cookies=self.request.wsgi_request.COOKIES,

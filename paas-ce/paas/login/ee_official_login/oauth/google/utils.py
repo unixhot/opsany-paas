@@ -16,6 +16,8 @@ from django.conf import settings as bk_settings
 from common.log import logger
 from . import settings as google_setting
 
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
+requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 def gen_oauth_state_security_token(length=32):
     """

@@ -34,7 +34,7 @@ HTTP_SCHEMA = 'http'
 
 
 # cookie访问域
-BK_COOKIE_DOMAIN = '.bking.com'
+BK_COOKIE_DOMAIN = '192.168.0.111'
 
 SECRET_KEY = 'jO149njrTj4kEx6ZbUH8Zc53bfQJctINWaEzTWIsOoxSDNwK2I'
 

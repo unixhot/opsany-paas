@@ -6,7 +6,6 @@ from django import forms
 from common.forms import BaseComponentForm
 from components.component import Component
 from .toolkit import configs
-from .toolkit.tools import base_api_url
 
 
 class PostCloudVendorResourceParameters(Component):
@@ -63,7 +62,7 @@ class PostCloudVendorResourceParameters(Component):
         # 请求系统接口
         response = self.outgoing.http_client.post(
             host=configs.host,
-            path='{}cloud-vendor-resource-parameters/'.format(base_api_url),
+            path='{}cloud-vendor-resource-parameters/'.format(configs.base_api_url),
             data=json.dumps(params),
             cookies=self.request.wsgi_request.COOKIES,
         )

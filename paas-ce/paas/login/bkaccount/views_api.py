@@ -29,7 +29,7 @@ class CheckLoginView(LoginExemptMixin, View):
         is_valid, user, message = validate_bk_token(request.GET)
         if not is_valid:
             return ApiV1FailJsonResponse(message, code=ApiErrorCodeEnum.PARAM_NOT_VALID)
-        return ApiV1OKJsonResponse(_("用户验证成功"), data={'username': user.username})
+        return ApiV1OKJsonResponse(_("用户验证成功"), data={'username': user.username, 'bk_role': user.role_code})
 
 
 class GetVxWorkConfigView(LoginExemptMixin, View):
