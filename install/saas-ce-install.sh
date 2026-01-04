@@ -1073,7 +1073,7 @@ main(){
 	    saas_cmp_deploy
         saas_monitor_deploy
 	    saas_bastion_deploy
-        saas_llmops_deploy
+        #saas_llmops_deploy
         saas_base_init
         zabbix_auto
         admin_password_init

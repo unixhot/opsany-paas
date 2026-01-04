@@ -940,7 +940,7 @@ main(){
 	    saas_cmp_update $2
 	    saas_bastion_update $2
         saas_monitor_update $2
-        saas_llmops_update $2
+        #saas_llmops_update $2
 		;;
     dev)
         saas_devops_update $2
@@ -962,7 +962,7 @@ main(){
         saas_pipeline_update $2
         saas_deploy_update $2
         saas_repo_update $2
-        saas_llmops_update $2
+        #saas_llmops_update $2
         ;;
 	help|*)
 	    echo $"Usage: $0 {(paas|login|esb|appengine|proxy|websocket|rbac|workbench|cmdb|control|job|cmp|bastion|base|monitor|devops|all|help) version}"
