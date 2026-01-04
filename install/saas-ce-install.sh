@@ -1138,7 +1138,7 @@ main(){
         saas_pipeline_deploy
         saas_deploy_deploy
         saas_repo_deploy
-        saas_llmops_deploy
+        #saas_llmops_deploy
         admin_password_init
         ;;
       help|*)
