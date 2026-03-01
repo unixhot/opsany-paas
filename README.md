@@ -147,3 +147,8 @@ cd /opt/opsany-paas/install/
 
 在OpsAny官网首页的右侧浮窗，可以点击【微信咨询】，联系我们。
 
+
+### Infrastructure model
+![Infrastructure main model](.infragenie/infrastructure_main_model.svg)
+
+---
