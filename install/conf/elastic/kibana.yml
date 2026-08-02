@@ -4,3 +4,8 @@ elasticsearch.username: "ES_USER"
 elasticsearch.password: "ES_PASSWORD"
 i18n.locale: "zh-CN"
 monitoring.ui.container.elasticsearch.enabled: true
+xpack.fleet.packages:
+  - name: apm
+    version: 8.11.1
+xpack.apm.enabled: true
+

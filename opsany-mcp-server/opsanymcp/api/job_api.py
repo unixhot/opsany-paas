@@ -1,4 +1,5 @@
 import inspect
+from datetime import datetime
 
 from opsanymcp.api.base_api import BaseObj
 
@@ -305,3 +306,34 @@ class JobApi(BaseObj):
         else:
             result = {"fields": log_field_list, "data_dict": data_dict}
         return self.to_json(True, msg, result)
+
+    def opsany_job_create_script_library(self, **kwargs):
+        fun_name = inspect.currentframe().f_code.co_name
+        body = {
+            "script_type": kwargs.get("script_type", "sh"),
+            "script_name": kwargs.get("script_name"),
+            "visible": kwargs.get("visible", "1"),
+            "script": kwargs.get("script"),
+            "version_remarks": "MCP创建：{}".format(kwargs.get("version_remarks") or ""),
+            "script_from": "1",
+            "version": "{}-{}2".format(self.username, datetime.now().strftime('%Y%m%d%H%M%S%f')),
+        }
+        result_headers = {
+            "id": "脚本ID",
+            "create_time": "创建时间",
+            "update_time": "更新时间",
+            "script_name": "脚本名称",
+            "file_name": "脚本文件名称",
+            "create_user": "创建用户名",
+            "create_user_ch_name": "创建中文名",
+            "update_user": "更新用户名",
+            "update_user_ch_name": "更新中文名",
+            "version_remarks": "版本备注",
+            "script_from": "脚本来源 手工输入",
+            "version": "版本号",
+            "visible": "可见范围 1: 私有, 2: 公开",
+            "script_type": "脚本类型 sh, py, ps1, bat",
+            "file_url": "脚本地址",
+            "script": "脚本内容",
+        }
+        return self._base_run(fun_name, "POST", {}, body, result_headers, kwargs)

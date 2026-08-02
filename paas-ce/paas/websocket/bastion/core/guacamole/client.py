@@ -216,6 +216,8 @@ class GuacamoleClient(object):
         if not self._client:
             self._client = socket.create_connection(
                 (self.host, self.port), self.timeout)
+            # 设置非阻塞超时，避免 recv() 永久阻塞
+            self._client.settimeout(self.timeout)
 
         return self._client
 
@@ -250,7 +252,12 @@ class GuacamoleClient(object):
             else:
                 start = len(self._buffer)
                 # we are still waiting for instruction termination
-                buf = self.client.recv(BUF_LEN)
+                try:
+                    buf = self.client.recv(BUF_LEN)
+                except socket.error:
+                    # 另一个线程关闭了 socket（比如 disconnect），不打印噪音日志
+                    self.close()
+                    return None
                 if not buf:
                     # No data recieved, connection lost?!
                     self.close()

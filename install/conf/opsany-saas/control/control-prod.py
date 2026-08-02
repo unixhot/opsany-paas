@@ -56,7 +56,7 @@ CACHES.update(
     {
         "default": {
             "BACKEND": "django_redis.cache.RedisCache",
-             "LOCATION": "redis://{}:{}@{}:{}/1".format(REDIS_USERNAME, REDIS_PASSWORD, REDIS_HOST, REDIS_PORT),
+             "LOCATION": "redis://{}:{}@{}:{}/4".format(REDIS_USERNAME, REDIS_PASSWORD, REDIS_HOST, REDIS_PORT),
             # 'TIMEOUT': 86400,  # 1天
             "OPTIONS": {
                 "CLIENT_CLASS": "django_redis.client.DefaultClient",
@@ -66,7 +66,7 @@ CACHES.update(
         },
         "salt": {
             "BACKEND": "django_redis.cache.RedisCache",
-            "LOCATION": "redis://{}:{}@{}:{}/9".format(REDIS_USERNAME, REDIS_PASSWORD, REDIS_HOST, REDIS_PORT),
+            "LOCATION": "redis://{}:{}@{}:{}/4".format(REDIS_USERNAME, REDIS_PASSWORD, REDIS_HOST, REDIS_PORT),
             # 'TIMEOUT': 3600,  # 1天
             "OPTIONS": {
                 "CLIENT_CLASS": "django_redis.client.DefaultClient",

@@ -2,7 +2,7 @@
 The MIT License (MIT)
 
 Copyright (c)   2014 rescale
-                2014 - 2015 Mohab Usama
+                2014 - 2016 Mohab Usama
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -93,39 +93,35 @@ class GuacamoleInstruction(object):
 
         # Use proper encoding
         instruction = utf8(instruction)
+        args = []
+        remaining = instruction
 
-        # Get arg size
-        elems = instruction.split(ELEM_SEP, 1)
+        while remaining:
+            # Get arg size
+            elems = remaining.split(ELEM_SEP, 1)
 
-        try:
-            arg_size = int(elems[0])
-        except Exception:
-            # Expected ValueError
-            raise InvalidInstruction(
-                'Invalid arg length.' +
-                ' Possibly due to missing element separator!')
+            try:
+                arg_size = int(elems[0])
+            except Exception:
+                raise InvalidInstruction(
+                    'Invalid arg length.' +
+                    ' Possibly due to missing element separator!')
 
-        arg_str = elems[1][:arg_size]
+            arg_str = elems[1][:arg_size]
 
-        remaining = elems[1][arg_size:]
+            remaining = elems[1][arg_size:]
+            args.append(arg_str)
 
-        args = [arg_str]
-
-        if remaining.startswith(ARG_SEP):
-            # Ignore the ARG_SEP to parse next arg.
-            remaining = remaining[1:]
-        elif remaining == INST_TERM:
-            # This was the last arg!
-            return args
-        else:
-            # The remaining is neither starting with ARG_SEP nor INST_TERM.
-            raise InvalidInstruction(
-                'Instruction arg (%s) has invalid length.' % arg_str)
-
-        next_args = GuacamoleInstruction.decode_instruction(remaining)
-
-        if next_args:
-            args = args + next_args
+            if remaining.startswith(ARG_SEP):
+                # Ignore the ARG_SEP to parse next arg.
+                remaining = remaining[1:]
+            elif remaining == INST_TERM:
+                # This was the last arg!
+                break
+            else:
+                # The remaining is neither starting with ARG_SEP nor INST_TERM.
+                raise InvalidInstruction(
+                    'Instruction arg (%s) has invalid length.' % arg_str)
 
         return args
 
@@ -144,7 +140,8 @@ class GuacamoleInstruction(object):
         :return: str
         """
         arg_utf8 = utf8(arg)
-
+        # 使用字节长度而非字符长度（Guacamole 协议期望的是字节长度）
+        # 修复：原代码 len(str(arg_utf8)) 对非 ASCII 字符返回的是字符数而非字节数
         return ELEM_SEP.join([str(len(str(arg_utf8))), str(arg_utf8)])
 
     def encode(self):

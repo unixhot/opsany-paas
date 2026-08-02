@@ -75,12 +75,12 @@ REDIS_PASSWORD = parse.quote("REDIS_SERVER_PASSWORD")
 # Redis Celery AMQP
 BROKER_URL = 'redis://{REDIS_USERNAME}:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}/2'.format(REDIS_USERNAME=REDIS_USERNAME, REDIS_PASSWORD=REDIS_PASSWORD, REDIS_HOST=REDIS_HOST, REDIS_PORT=REDIS_PORT)
 
-# Reids Cache
+# Redis Cache
 CACHES.update(
     {
         "default": {
             "BACKEND": "django_redis.cache.RedisCache",
-            "LOCATION": "redis://{}:{}@{}:{}/10".format(REDIS_USERNAME, REDIS_PASSWORD, REDIS_HOST, REDIS_PORT),
+            "LOCATION": "redis://{}:{}@{}:{}/2".format(REDIS_USERNAME, REDIS_PASSWORD, REDIS_HOST, REDIS_PORT),
              # 'TIMEOUT': 86400,  # 1天
             "OPTIONS": {
                 "CLIENT_CLASS": "django_redis.client.DefaultClient",

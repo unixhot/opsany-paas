@@ -9,6 +9,7 @@ uninstall_proxy(){
     docker stop opsany-proxy-guacd
     docker stop opsany-proxy-openresty
     docker stop opsany-proxy
+    docker stop opsany-proxy-proxy
 
     # Remove Proxy
     docker rm -f opsany-proxy-mysql
@@ -16,6 +17,7 @@ uninstall_proxy(){
     docker rm -f opsany-proxy-guacd
     docker rm -f opsany-proxy-openresty
     docker rm -f opsany-proxy
+    docker rm -f opsany-proxy-proxy
 
     # Remove Install Path
     #rm -rf ${INSTALL_PATH}

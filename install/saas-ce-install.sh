@@ -10,7 +10,7 @@
 CDIR=$(pwd)
 SHELL_NAME="saas-ce-install.sh"
 SHELL_LOG="${SHELL_NAME}.log"
-SAAS_VERSION=2.3.3
+SAAS_VERSION=2.3.4
 
 # Shell Log Record
 shell_log(){

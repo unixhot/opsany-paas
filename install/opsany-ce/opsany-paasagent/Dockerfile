@@ -1,14 +1,20 @@
 # Base Image
-FROM centos:7.8.2003
-
-# Install Pkg
-RUN curl -o /etc/yum.repos.d/epel.repo http://mirrors.aliyun.com/repo/epel-7.repo && yum install -y libjpeg-turbo-devel openldap-devel kde-l10n-Chinese glibc-common sshpass nginx supervisor python2-pip python2-devel gcc glibc make zlib-devel openssl-devel curl-devel mysql-devel python36 python36-devel openssh-clients openssl-devel && mkdir -p /opt/opsany/logs && yum clean all && echo -e "LANG=zh_CN.UTF-8" > /etc/locale.conf && echo -e 'export LANG="zh_CN.UTF-8"' >> /etc/profile && localedef -c -f UTF-8 -i zh_CN zh_CN.utf8 && source /etc/profile
+FROM registry.cn-beijing.aliyuncs.com/opsany/python:3.12.11-slim-bullseye
 
 # Add paas-agent
 ADD ./paas-agent /opt/opsany/paas-agent
 
+# Update System
+RUN sed -i 's/deb.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list \
+    && sed -i 's/security.debian.org/mirrors.aliyun.com/g'  /etc/apt/sources.list \
+    && sed -i '2s/main$/main non-free/' /etc/apt/sources.list \
+    && sed -i '4s/main$/main contrib non-free/' /etc/apt/sources.list \
+    && apt-get update && apt-get -y install build-essential procps tree mariadb-client net-tools telnet vim iputils-ping libmariadb-dev supervisor nginx git \
+    && apt-get clean
+    
 # Pip Install
-RUN pip --no-cache-dir install -r /opt/opsany/paas-agent/etc/build/packages/requirements.txt -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com && pip --no-cache-dir install virtualenv virtualenvwrapper supervisor==3.3.3 -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com && mkdir -p /opt/py36/bin && ln -s /usr/bin/python3.6 /opt/py36/bin/python && ln -s /usr/bin/pyvenv-3.6 /opt/py36/bin/pyvenv && ln -s /usr/bin/pip-3.6 /opt/py36/bin/pip
+RUN pip --no-cache-dir install -r /opt/opsany/paas-agent/etc/build/packages/requirements.txt -i http://mirrors.aliyun.com/pypi/simple/ --trusted-host mirrors.aliyun.com \
+    && mkdir -p /opt/py312/bin && ln -s /usr/local/bin/python3.12 /opt/py312/bin/python3  && ln -s /usr/bin/pip3.12 /opt/py312/bin/pip3
 
 #Supervisord config
 ADD nginx.conf /etc/nginx/nginx.conf
@@ -16,7 +22,6 @@ ADD supervisord.conf /etc/supervisord.conf
 ADD paasagent.ini /etc/supervisord.d/paasagent.ini
 ADD nginx.ini /etc/supervisord.d/nginx.ini
 
-ENV LANG "zh_CN.UTF-8"
 # Outside Port
 EXPOSE 4245 8085
 

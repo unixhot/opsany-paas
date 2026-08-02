@@ -118,6 +118,10 @@ const getAuthList = async () => {
 		});
 		authList.value = data;
 		loginTitle.value = data[0] && data[0].title;
+		// 如果配置了企业微信登录(auth_type="3")，动态加载企业微信SDK
+		if (data.some(item => item.auth_type === "3")) {
+			loadWwLoginScript();
+		}
 		const params = useUrlSearchParams("history");
 		const auth_type = params.auth_type;
 		if (authList.value.find(i => i.auth_type == auth_type)) return;
@@ -135,6 +139,19 @@ const switchLoginMode = val => {
 	//verify_google_auth: 验证MFA
 
 	loginFormData.value = val;
+};
+
+/**
+ * 动态加载企业微信SSO SDK
+ * 仅当接口返回 auth_type="3" 时调用
+ */
+const loadWwLoginScript = () => {
+	// 防止重复加载
+	if (window.WwLogin) return;
+	const script = document.createElement("script");
+	script.src = "https://rescdn.qqmail.com/node/ww/wwopenmng/js/sso/wwLogin-1.0.0.js";
+	script.defer = true;
+	document.head.appendChild(script);
 };
 const changeLocale = ({ key }) => {
 	setLocale(key);

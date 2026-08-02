@@ -35,8 +35,7 @@ if [ ! -f ./install.config ];then
       shell_error_log "Please Copy install.config and Change: cp install.config.example install.config"
       exit
 else
-    grep '^[A-Z]' install.config > install.env
-    source ./install.env && rm -f install.env
+    source ./install.config
     if [ -f /etc/redhat-release ];then
       setenforce 0
     fi
@@ -68,7 +67,7 @@ base_install(){
     -p 6379:6379 -v ${INSTALL_PATH}/redis-volume:/data \
     -v ${INSTALL_PATH}/redis-volume/redis.conf:/data/redis.conf \
     -v /etc/localtime:/etc/localtime:ro \
-    ${PAAS_DOCKER_REG}/redis:6.2.19-alpine redis-server /data/redis.conf
+    ${PAAS_DOCKER_REG}/redis:7.2.14-alpine redis-server /data/redis.conf
     
     # MySQL
     shell_log "======Start MySQL======"
@@ -78,7 +77,7 @@ base_install(){
     -v ${INSTALL_PATH}/conf/mysqld.cnf:/etc/mysql/mysql.conf.d/mysqld.cnf \
     -v ${INSTALL_PATH}/logs:/var/log/mysql \
     -v /etc/localtime:/etc/localtime:ro \
-    ${PAAS_DOCKER_REG}/mysql:8.0.30 --character-set-server=utf8 --collation-server=utf8_general_ci
+    ${PAAS_DOCKER_REG}/mysql:8.4.10 --character-set-server=utf8 --collation-server=utf8_general_ci
     
     # Guacd
     shell_log "======Start Guacd======"
@@ -86,7 +85,7 @@ base_install(){
     -p 4822:4822 \
     -v ${INSTALL_PATH}/uploads/guacamole:/srv/guacamole \
     -v /etc/localtime:/etc/localtime:ro \
-    ${PAAS_DOCKER_REG}/guacd:1.2.0
+    ${PAAS_DOCKER_REG}/guacd:1.5.0
 }
 
 proxy_config(){
@@ -126,7 +125,7 @@ proxy_config(){
 proxy_start(){
     # Proxy
     shell_log "======Start Proxy======"
-    docker run --restart=always --name opsany-paas-proxy -d \
+    docker run --restart=always --name opsany-proxy-proxy -d \
         -p 4505:4505 -p 4506:4506 -p 8010:8010 \
         -v ${INSTALL_PATH}/logs/proxy:/opt/opsany/logs/proxy \
         -v ${INSTALL_PATH}/proxy-volume/certs/:/etc/pki/tls/certs/ \
@@ -143,7 +142,7 @@ proxy_start(){
         -v ${INSTALL_PATH}/conf/proxy/saltmaster.ini:/etc/supervisord.d/saltmaster.ini \
         -v ${INSTALL_PATH}/prometheus-volume/conf/alertmanager.yml:/opt/opsany/alertmanager.yml \
         -v /etc/localtime:/etc/localtime:ro \
-        ${PAAS_DOCKER_REG}/opsany-paas-proxy:2.3.1
+        ${PAAS_DOCKER_REG}/opsany-paas-proxy:2.3.4
 
     #openresty
     shell_log "======Start openresty Service======"
@@ -154,15 +153,15 @@ proxy_start(){
     -v ${INSTALL_PATH}/conf/proxy/nginx.conf:/etc/nginx/nginx.conf \
     -v ${INSTALL_PATH}/uploads:/opt/opsany/uploads \
     -v /etc/localtime:/etc/localtime:ro \
-    ${PAAS_DOCKER_REG}/openresty:1.17.8.2-alpine
+    ${PAAS_DOCKER_REG}/openresty:1.31.1.1-alpine
 
     # OpsAny Database Init
     docker exec -e OPS_ANY_ENV=production \
-        opsany-paas-proxy /bin/sh -c "/usr/local/bin/python3 /opt/opsany-proxy/manage.py makemigrations && /usr/local/bin/python3 /opt/opsany-proxy/manage.py migrate"
+        opsany-proxy-proxy /bin/sh -c "/usr/local/bin/python3 /opt/opsany-proxy/manage.py makemigrations && /usr/local/bin/python3 /opt/opsany-proxy/manage.py migrate"
 
     # Create Proxy Token
     PROXY_TOKEN=$(docker exec -e OPS_ANY_ENV=production \
-            opsany-paas-proxy /bin/sh -c " /usr/local/bin/python3 /opt/opsany-proxy/manage.py create_access" | grep 'Access' | awk -F ': ' '{print $2}' | awk -F '.' '{print $1}')
+            opsany-proxy-proxy /bin/sh -c " /usr/local/bin/python3 /opt/opsany-proxy/manage.py create_access" | grep 'Access' | awk -F ': ' '{print $2}' | awk -F '.' '{print $1}')
     shell_error_log "Proxy Token: ${PROXY_TOKEN}"
 }
 uninstall_proxy(){
@@ -171,7 +170,7 @@ uninstall_proxy(){
     docker stop opsany-proxy-redis
     docker stop opsany-proxy-guacd
     docker stop opsany-proxy-openresty
-    docker stop opsany-proxy
+    docker stop opsany-proxy-proxy
     docker stop opsany-paas-proxy
 
     # Remove Proxy
@@ -179,7 +178,7 @@ uninstall_proxy(){
     docker rm -f opsany-proxy-redis
     docker rm -f opsany-proxy-guacd
     docker rm -f opsany-proxy-openresty
-    docker rm -f opsany-proxy
+    docker rm -f opsany-proxy-proxy
     docker rm -f opsany-paas-proxy
     # Remove Install Path
     #rm -rf ${INSTALL_PATH}

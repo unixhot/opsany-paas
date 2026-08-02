@@ -54,7 +54,7 @@ BROKER_URL = 'redis://{REDIS_USERNAME}:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "redis://{}:{}@{}:{}/10".format(REDIS_USERNAME, REDIS_PASSWORD, REDIS_HOST, REDIS_PORT),
+        "LOCATION": "redis://{}:{}@{}:{}/5".format(REDIS_USERNAME, REDIS_PASSWORD, REDIS_HOST, REDIS_PORT),
         'TIMEOUT': 1800,  # 30分钟
         "OPTIONS": {
             "CLIENT_CALSS": "django_redis.client.DefaultClient",

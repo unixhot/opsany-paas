@@ -70,6 +70,22 @@ REDIS_PASSWORD = parse.quote("REDIS_SERVER_PASSWORD")
 # Redis Celery AMQP
 BROKER_URL = 'redis://{REDIS_USERNAME}:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}/3'.format(REDIS_USERNAME=REDIS_USERNAME, REDIS_PASSWORD=REDIS_PASSWORD, REDIS_HOST=REDIS_HOST, REDIS_PORT=REDIS_PORT)
 
+# Redis Cache
+CACHES.update(
+    {
+        "default": {
+            "BACKEND": "django_redis.cache.RedisCache",
+            "LOCATION": "redis://{}:{}@{}:{}/3".format(REDIS_USERNAME, REDIS_PASSWORD, REDIS_HOST, REDIS_PORT),
+             # 'TIMEOUT': 86400,  # 1天
+            "OPTIONS": {
+                "CLIENT_CLASS": "django_redis.client.DefaultClient",
+                # "CONNECTION_POOL_KWARGS": {"max_connections": 1000},
+                # "PASSWORD": REDIS_PASSWORD,
+            }
+        }
+    },
+)
+
 # Elastic APM
 ELASTIC_APM = {
   'ENABLED': 'false',

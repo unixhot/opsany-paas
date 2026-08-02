@@ -83,7 +83,6 @@ paas_update(){
     ${PAAS_DOCKER_REG}/opsany-paas-paas:${UPDATE_VERSION}
 }
 
-
 guacd_update(){
     # Guacd
     shell_log "======Start Guacd======"
@@ -94,6 +93,52 @@ guacd_update(){
     -v ${INSTALL_PATH}/uploads/guacamole:/srv/guacamole \
     -v /etc/localtime:/etc/localtime:ro \
     ${PAAS_DOCKER_REG}/guacd:${UPDATE_VERSION}
+}
+
+mysql_update(){
+    # MySQL
+    shell_log "======Base Service: Update MySQL======"
+    docker pull ${PAAS_DOCKER_REG}/mysql:${UPDATE_VERSION}
+    /bin/cp conf/mysql/mysqld.cnf ${INSTALL_PATH}/conf/mysql/mysqld.cnf
+    docker stop opsany-base-mysql && docker rm opsany-base-mysql
+    docker run -d --restart=always --name opsany-base-mysql \
+    -e MYSQL_ROOT_PASSWORD="$MYSQL_ROOT_PASSWORD" \
+    -p 3306:3306 -v ${INSTALL_PATH}/mysql-volume:/var/lib/mysql \
+    -v ${INSTALL_PATH}/conf/mysql/mysqld.cnf:/etc/mysql/conf.d/mysqld.cnf \
+    -v ${INSTALL_PATH}/logs:/var/log/mysql \
+    -v /etc/localtime:/etc/localtime:ro \
+    ${PAAS_DOCKER_REG}/mysql:${UPDATE_VERSION} --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+}
+
+redis_update(){
+    # Redis
+    shell_log "======Base Service: Update Redis======"
+    docker pull ${PAAS_DOCKER_REG}/redis:${UPDATE_VERSION}
+    docker stop opsany-base-redis && docker rm opsany-base-redis
+    docker run -d --restart=always --name opsany-base-redis \
+    -p 6379:6379 -v ${INSTALL_PATH}/redis-volume:/data \
+    -v ${INSTALL_PATH}/redis-volume/redis.conf:/data/redis.conf \
+    -v /etc/localtime:/etc/localtime:ro \
+    ${PAAS_DOCKER_REG}/redis:${UPDATE_VERSION} redis-server /data/redis.conf
+}
+
+openresty_update(){
+    shell_log "======PaaS Service: Update openresty======"
+    # OpenResty
+    sed -i "s/DOMAIN_NAME/${DOMAIN_NAME}/g" ${INSTALL_PATH}/conf/nginx-conf.d/opsany_paas.conf
+    sed -i "s/LOCAL_IP/${LOCAL_IP}/g" ${INSTALL_PATH}/conf/nginx-conf.d/opsany_paas.conf
+    sed -i "s/DOMAIN_NAME/${DOMAIN_NAME}/g" ${INSTALL_PATH}/conf/nginx-conf.d/opsany_proxy.conf
+    sed -i "s/LOCAL_IP/${LOCAL_IP}/g" ${INSTALL_PATH}/conf/nginx-conf.d/opsany_proxy.conf
+    docker pull ${PAAS_DOCKER_REG}/openresty:${UPDATE_VERSION}
+    docker stop opsany-base-openresty && docker rm opsany-base-openresty
+    docker run -d --restart=always --name opsany-base-openresty \
+    -p 80:80 -p 443:443 -p 8011:8011 -p 8012:8012 \
+    -v ${INSTALL_PATH}/logs:/opt/opsany/logs \
+    -v ${INSTALL_PATH}/conf/nginx-conf.d:/etc/nginx/conf.d \
+    -v ${INSTALL_PATH}/conf/nginx.conf:/etc/nginx/nginx.conf \
+    -v ${INSTALL_PATH}/uploads:/opt/opsany/uploads \
+    -v /etc/localtime:/etc/localtime:ro \
+    ${PAAS_DOCKER_REG}/openresty:${UPDATE_VERSION}
 }
 
 mcp_update(){
@@ -310,7 +355,7 @@ websocket_update(){
     # Starter container
     docker pull ${PAAS_DOCKER_REG}/opsany-paas-websocket:${UPDATE_VERSION}
     docker stop opsany-paas-websocket && docker rm opsany-paas-websocket
-    docker run -d --restart=always --name opsany-paas-websocket \
+    docker run -d --ulimit nofile=65535 --restart=always --name opsany-paas-websocket \
     -p 8004:8004 -v ${INSTALL_PATH}/logs:/opt/opsany/logs \
     -v ${INSTALL_PATH}/uploads:/opt/opsany/uploads \
     -v ${INSTALL_PATH}/conf/opsany-paas/websocket/settings_production.py.websocket:/opt/opsany/websocket/config/prod.py \
@@ -917,6 +962,15 @@ main(){
     guacd)
         guacd_update $2
         ;;
+    redis)
+        redis_update $2
+        ;;
+    mysql)
+        mysql_update $2
+        ;;
+    openresty)
+        openresty_update $2
+        ;;
     login)
         login_update $2
         ;;
@@ -1011,7 +1065,7 @@ main(){
         mcp_update $2
         ;;
 	help|*)
-	    echo $"Usage: $0 {(paas|login|esb|appengine|proxy|websocket|rbac|workbench|cmdb|control|job|cmp|bastion|base|monitor|devops|mcp|guacd|all|help) version}"
+	    echo $"Usage: $0 {(paas|login|esb|appengine|proxy|websocket|rbac|workbench|cmdb|control|job|cmp|bastion|base|monitor|devops|mcp|guacd|redis|mysql|all|help) version}"
 	    ;;
     esac
 }

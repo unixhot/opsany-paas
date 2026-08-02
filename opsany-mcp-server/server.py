@@ -13,7 +13,7 @@ from mcp.types import Tool, TextContent
 from opsanymcp import load_yaml_config
 from opsanymcp.api import get_opsany_api
 from opsanymcp.libs import check_auth
-from tool_list import TOOL_LIST
+from tool_list import _get_tool
 
 from starlette.applications import Starlette
 from starlette.routing import Route, Mount
@@ -76,12 +76,13 @@ class OpsAnyMCPServer:
         self.config = config
         self.server = Server("opsany-mcp-server")
         self.opsany_config = config.config
+        self.licence = self.opsany_config.get("apiService", {}).get("licence", "ce")
         self._register_handlers()
 
     def _register_handlers(self):
         @self.server.list_tools()
         async def list_tools() -> List[Tool]:
-            return [Tool(**i) for i in TOOL_LIST]
+            return [Tool(**i) for i in _get_tool(self.licence)]
 
         @self.server.call_tool()
         async def call_tool(name: str, arguments: Dict[str, Any]) -> List[TextContent]:
@@ -114,6 +115,7 @@ async def main():
 
     server_cfg = opsany_config.get("server", {})
     url = opsany_config.get("apiService", {}).get("url")
+    licence = opsany_config.get("apiService", {}).get("licence")
     version = opsany_config.get("apiVersion", "-")
     host = args.host or server_cfg.get("host", "0.0.0.0")
     port =  args.port or server_cfg.get("port", 8020)
@@ -172,7 +174,7 @@ async def main():
         if auth_error:
             return auth_error
         return Response(
-            content=json.dumps({"success": True, "tools": TOOL_LIST}),
+            content=json.dumps({"success": True, "tools": _get_tool(licence)}),
             media_type="application/json"
         )
 

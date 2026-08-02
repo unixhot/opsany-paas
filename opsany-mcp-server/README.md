@@ -4,11 +4,20 @@
 
 ## 功能特性
 
-根据你提供的文档，我为你整理了所有工具的名称（Name）与描述（Description）。为了方便阅读，我已将其按功能平台分类列出：
+OpsAny MCP Server 提供了以下功能平台的 API 工具，按平台分类如下：
 
+### CMDB（配置管理数据库/资源平台）
 - **opsany_cmdb_api_resources**: 资源平台，获取全部资源模型, 包括资源类型名称，资源类型标识，资源分组名称，资源分组标识，资源名称，资源标识，资源简称，资源实例总数，字段总数, 当不要求获取资源实例总数，字段总数时output为空！
 - **opsany_cmdb_get_resource_fields**: 资源平台，获取指定资源的字段信息，获取资源仓库数据，创建修改资源仓库数据时需要拉取字段信息。
 - **opsany_cmdb_get_resource**: 资源平台，获取资源仓库数据。
+- **opsany_cmdb_get_model_group**: 资源平台，获取资源模型分组(创建模型时使用)。
+- **opsany_cmdb_get_model**: 资源平台，获取资源模型列表。
+- **opsany_cmdb_create_model**: 资源平台，创建资源模型，创建资源模型后创建属性(字段)就可以在资源仓库创建该模型数据！
+- **opsany_cmdb_update_model**: 资源平台，修改资源模型，支持修改名称分组和是否内置！
+- **opsany_cmdb_delete_model**: 资源平台，删除资源模型，谨慎删除，当模型没有数据才可以删除！
+- **opsany_cmdb_create_model_fields**: 资源平台，创建资源模型属性(字段)，仅支持创建普通字段。
+- **opsany_cmdb_update_model_field**: 资源平台，修改资源模型属性(字段)，支持修改名称分组和是否内置。
+- **opsany_cmdb_delete_model_field**: 资源平台，删除资源模型字段，谨慎删除，删除后该模型当前字段数据也会被清空！
 - **opsany_cmdb_get_resource_link_inst_count**: 资源平台，获取某一资源的所有关联关系数据字段和实例总数，包括从属关系(is_relationship_field=1)和关联关系(is_relationship_field=2)！
 - **opsany_cmdb_get_resource_link_inst_list**: 资源平台，获取资源仓库某一数据的指定关联关系字段数据列表。
 - **opsany_cmdb_get_can_add_link_inst_list**: 资源平台，添加资源的关联关系数据时，拉取指定关联关系字段的待添加数据列表(拉取关联关系对端模型数据，已过滤添加过的数据)。
@@ -17,21 +26,34 @@
 - **opsany_cmdb_create_resource**: 资源平台，资源仓库新建数据，需要获取该模型字段后整理数据, 创建普通字段需要将字段数据写入data。
 - **opsany_cmdb_update_resource**: 资源平台，资源仓库修改数据，需要获取该模型字段后整理数据，修改普通字段需要将字段数据写入data！
 - **opsany_cmdb_delete_resource**: 资源平台，资源仓库删除数据，需要传入资源ID。
+
+### RBAC（统一权限平台）
 - **opsany_rbac_get_or_search_all_user**: 统一权限平台，获取平台全部用户信息，仅支持管理员用户查看，普通用户可能会返回没有操作权限；支持用户名精准查找，中文名精准查找，用户名模糊搜索，中文名称模糊搜索，中文名或用户名联合模糊搜索，支持扩展字段，包括部门用户认证来源等全部字段，使用 all。
 - **opsany_rbac_get_my_user_info**: 统一权限平台，获取自己的用户信息，当前用户信息，我是谁，支持扩展字段，包括部门用户认证来源等全部字段，使用 all。
 - **opsany_rbac_create_user**: 统一权限平台，批量创建用，仅支持管理员用户操作，普通用户可能会返回没有操作权限；仅支持创建普通用户，创建管理员请前往统一权限平台操作！
 - **opsany_rbac_update_user**: 统一权限平台，批量修改用户，仅支持管理员用户操作，普通用户可能会返回没有操作权限；仅支持修改普通用户信息，暂时仅支持修改启用禁用。
 - **opsany_rbac_delete_user**: 统一权限平台，批量删除用户，仅支持管理员用户操作，普通用户可能会返回没有操作权限；仅支持删除普通用户，和被禁用的用户。
+
+### Monitor（基础监控）
 - **opsany_monitor_alert_info**: 基础监控，获取基础监控平台的实例告警，需要管控平台监控并纳管后，实例包括管控平台主机，网络设备！
+
+### Workbench（工作台/ITSM）
 - **opsany_workbench_work_order_inst**: 工作台，ITSM平台，获取全部工单，待办工单，我的已办工单，我提交的工单！
+- **opsany_workbench_work_order_folder**: 工作台，ITSM平台，获取全部服务分类，用来搜索指定分类下的工单！
 - **opsany_workbench_work_order_temp**: 工作台，ITSM平台，获取全部服务目录，包含全部服务，用来提单使用，会拉取授权的全部服务和服务相关字段！
 - **opsany_workbench_work_order_submit**: 工作台，ITSM平台，提单，根据opsany_workbench_work_order_temp拉取到的服务id和表单字段(field_list)提单！
+
+### Job（作业平台）
 - **opsany_job_get_tool_market_list**: 作业平台 获取作业平台工具市场，包括作业列表和脚本列表！
 - **opsany_job_get_job_list**: 作业平台 获取作业平台作业列表，只需要作业ID就可以执行的作业列表！
 - **opsany_job_get_script_list**: 作业平台 获取作业平台脚本列表，该脚本执行需要脚本ID执行主机等参数！
 - **opsany_job_run_job_by_id**: 作业平台 根据作业ID执行作业， 返回的为任务ID, 可以根据任务ID获取执行结果, 根据返回的字段flag判断是否执行完成 True: 完成 False: 未完成。
 - **opsany_job_run_script_by_id**: 作业平台 根据脚本ID执行脚本， 返回的为任务ID, 可以根据任务ID获取执行结果！
+- **opsany_job_run_script_by_script**: 作业平台 输入脚本内容和主机信息执行脚本，返回任务ID，可根据任务ID获取执行结果！
+- **opsany_job_create_script_library**: 作业平台，创建脚本到脚本仓库，仅支持创建私有脚本！
 - **opsany_job_get_run_result_by_log_id**: 作业平台 获取执行的作业或脚本结果， 根据返回的任务ID获取！
+
+### Control（管控平台）
 - **opsany_control_get_managed_host_list**: 管控平台 获取管控平台纳管的主机列表，该数据来自资源平台主机组内三个模型的数据(SERVER,CLOUD_SERVER,VIRTUAL_SERVER)！
 - **opsany_control_get_controller_list**: 管控平台 获取管控平台控制器(Proxy)列表，纳管主机时使用，将主机纳管在该控制器下。
 - **opsany_control_get_host_group_list**: 管控平台 获取管控平台主机分组列表，纳管主机时使用，将主机添加至该分组，分组支持嵌套。
@@ -41,6 +63,15 @@
 - **opsany_control_get_zabbix_temp_list**: 管控平台 获取管控平台Zabbix监控模板列表，纳管主机添加Zabbix监控插件时使用。
 - **opsany_control_create_host**: 管控平台 添加纳管主机，需要输入主机唯一标识， 主机IP,主机端口，系统用户，需要选择控制器，选择操作系统，管控方式，分组主机类型等，也可以添加Zabbix监控插件或Prometheus监控插件，需要传入指定参数。
 
+### Event（事件中心）
+- **opsany_event_alert_info**: 事件中心，获取事件中心我的告警和全部告警，可获取到待处理、处理中、已关闭告警；包括Prometheus(应用监控)，Zabbix(基础监控)纳管和监控的实例和第三方接入的告警！
+
+### Prometheus（应用监控）
+- **opsany_prom_alert_info**: 应用监控，获取应用监控平台的实例告警，包括管控平台纳管并使用Prometheus的组件监控实例告警和服务拨测告警！
+
+### KBase（知识库）
+- **opsany_kbase_read_kbase_list**: 知识库，获取知识库平台全部知识库，知识库内有各类文章和文档！
+- **opsany_kbase_read_kbase_article**: 知识库，获取知识库平台某一知识库内文章和文档，可获取列表和单条数据！
 
 ## 安装
 
@@ -267,6 +298,126 @@ python server.py --host 0.0.0.0 --port 8020
 
 ---
 
+### 1.12 获取资源模型分组
+**接口名称**：`opsany_cmdb_get_model_group`
+**功能描述**：获取资源模型分组，用于创建模型时选择分组。
+**请求参数**：
+
+| 参数名 | 类型 | 必填 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- | :--- |
+| **model_type** | String | 否 | - | 资源分组类型：`zc`(资产) `yw`(业务) `zz`(组织)。 |
+| **tool_timeout** | Integer | 否 | `30` | 工具请求超时时间（秒）。 |
+
+---
+
+### 1.13 获取资源模型列表
+**接口名称**：`opsany_cmdb_get_model`
+**功能描述**：获取资源模型列表，获取到模型 code 后可以进行模型字段管理。
+**请求参数**：
+
+| 参数名 | 类型 | 必填 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- | :--- |
+| **model_type** | String | 否 | - | 资源分组类型：`zc`(资产) `yw`(业务) `zz`(组织)。 |
+| **tool_timeout** | Integer | 否 | `30` | 工具请求超时时间（秒）。 |
+
+---
+
+### 1.14 创建资源模型
+**接口名称**：`opsany_cmdb_create_model`
+**功能描述**：创建资源模型，创建后需要创建属性(字段)才可以在资源仓库创建该模型数据。
+**请求参数**：
+
+| 参数名 | 类型 | 必填 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- | :--- |
+| **code** | String | **是** | - | 模型 code（模型唯一标识，建议全大写，下划线间隔，如 `CLOUD_SERVER`）。 |
+| **name** | String | **是** | - | 模型名称。 |
+| **model_type** | String | **是** | - | 资源分组类型：`zc`(资产) `yw`(业务) `zz`(组织)。 |
+| **model_group** | String | **是** | - | 模型分组 code（通过 `opsany_cmdb_get_model_group` 获取）。 |
+| **clone_model** | String | 否 | - | 克隆该模型字段信息，传入要克隆的模型 code。 |
+| **built_in** | Boolean | 否 | `false` | 是否为内置模型。 |
+| **tool_timeout** | Integer | 否 | `30` | 工具请求超时时间（秒）。 |
+
+---
+
+### 1.15 修改资源模型
+**接口名称**：`opsany_cmdb_update_model`
+**功能描述**：修改资源模型，支持修改名称、分组和是否内置。
+**请求参数**：
+
+| 参数名 | 类型 | 必填 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- | :--- |
+| **code** | String | **是** | - | 模型 code（模型唯一标识）。 |
+| **name** | String | **是** | - | 模型名称。 |
+| **model_group** | String | **是** | - | 模型分组 code（通过 `opsany_cmdb_get_model_group` 获取）。 |
+| **built_in** | Boolean | 否 | `false` | 是否为内置模型。 |
+| **tool_timeout** | Integer | 否 | `30` | 工具请求超时时间（秒）。 |
+
+---
+
+### 1.16 删除资源模型
+**接口名称**：`opsany_cmdb_delete_model`
+**功能描述**：删除资源模型，谨慎删除，当模型没有数据才可以删除。
+**请求参数**：
+
+| 参数名 | 类型 | 必填 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- | :--- |
+| **code** | String | **是** | - | 模型 code（模型唯一标识）。 |
+| **tool_timeout** | Integer | 否 | `30` | 工具请求超时时间（秒）。 |
+
+---
+
+### 1.17 创建资源模型字段
+**接口名称**：`opsany_cmdb_create_model_fields`
+**功能描述**：创建资源模型属性(字段)，仅支持创建普通字段（`is_relationship_field=''`），不支持创建关联关系字段。字段类型及配置请参考「字段类型与后端请求字段说明」附录。
+**请求参数**：
+
+| 参数名 | 类型 | 必填 | 默认值 | 说明                                                  |
+| :--- | :--- | :--- | :--- |:----------------------------------------------------|
+| **code** | String | **是** | - | 字段 code，格式：`{model_code}_{code}`。                   |
+| **name** | String | **是** | - | 字段名称。                                               |
+| **type_name** | String | **是** | - | 字段类型 code（如 `str`、`int`、`float`、`date` 等）。          |
+| **model_code** | String | **是** | - | 模型 code（通过 `opsany_cmdb_get_model` 获取）。             |
+| **field_group_code** | String | **是** | - | 字段分组 code（通过 `opsany_cmdb_get_resource_fields` 获取）。 |
+| **attribute** | Object | **是** | - | 属性配置（默认值、提示、校验规则、下拉选项等），不同字段类型格式不同，详见 100.1 字段说明。             |
+| **not_null** | Boolean | 否 | `false` | 是否必填。                                               |
+| **built_in** | Boolean | 否 | `false` | 是否为内置属性。                                            |
+| **index** | Number | 否 | - | 排序索引。                                               |
+| **tool_timeout** | Integer | 否 | `30` | 工具请求超时时间（秒）。                                        |
+
+---
+
+### 1.18 修改资源模型字段
+**接口名称**：`opsany_cmdb_update_model_field`
+**功能描述**：修改资源模型属性(字段)，支持修改名称、分组和是否内置。
+**请求参数**：
+
+| 参数名 | 类型 | 必填 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- | :--- |
+| **code** | String | **是** | - | 字段 code。 |
+| **name** | String | **是** | - | 字段名称。 |
+| **type_name** | String | **是** | - | 字段类型 code。 |
+| **model_code** | String | **是** | - | 模型 code。 |
+| **attribute** | Object | **是** | - | 属性配置，固定格式（提示、默认值、校验规则、下拉框数据等）详见 100.1 字段说明。。 |
+| **field_group_code** | String | 否 | - | 字段分组 code。 |
+| **not_null** | Boolean | 否 | - | 是否必填。 |
+| **built_in** | Boolean | 否 | - | 是否为内置属性。 |
+| **index** | Number | 否 | - | 排序索引。 |
+| **tool_timeout** | Integer | 否 | `30` | 工具请求超时时间（秒）。 |
+
+---
+
+### 1.19 删除资源模型字段
+**接口名称**：`opsany_cmdb_delete_model_field`
+**功能描述**：删除资源模型字段，谨慎删除，删除后该模型当前字段数据也会被清空。
+**请求参数**：
+
+| 参数名 | 类型 | 必填 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- | :--- |
+| **code** | String | **是** | - | 字段 code。 |
+| **tool_timeout** | Integer | 否 | `30` | 工具请求超时时间（秒）。 |
+
+---
+
 
 ### 2. RBAC（统一权限）接口
 
@@ -375,6 +526,7 @@ python server.py --host 0.0.0.0 --port 8020
 | **status** | String | 否 | - | 工单状态：`0`(进行中) `1`(已结束)。 |
 | **tool_timeout** | Integer | 否 | `30` | 工具请求超时时间（秒）。 |
 
+
 #### 4.2 获取服务分类
 **接口名称**：`opsany_workbench_work_order_folder`
 **功能描述**：获取全部服务分类，用于搜索指定分类下的工单。
@@ -384,6 +536,7 @@ python server.py --host 0.0.0.0 --port 8020
 | 参数名 | 类型 | 必填 | 默认值 | 说明 |
 | :--- | :--- | :--- | :--- | :--- |
 | **tool_timeout** | Integer | 否 | `30` | 工具请求超时时间（秒）。 |
+
 
 #### 4.3 获取服务目录/模板
 **接口名称**：`opsany_workbench_work_order_temp`
@@ -492,6 +645,41 @@ python server.py --host 0.0.0.0 --port 8020
 | **tool_timeout** | Integer | 否 | `30` | 工具请求超时时间（秒）。 |
 
 ---
+
+#### 5.7 根据脚本内容执行脚本
+**接口名称**：`opsany_job_run_script_by_script`
+**功能描述**：直接输入脚本内容和主机信息执行脚本，返回任务 ID，可根据任务 ID 获取执行结果。
+**请求参数**：
+
+| 参数名 | 类型 | 必填 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- | :--- |
+| **server** | String | **是** | - | 主机唯一标识或主机 IP，多台用逗号隔开。主机需为管控平台纳管的主机。 |
+| **task_name** | String | 否 | - | 任务名称，简短的任务名称，后续执行任务会根据该名称拼接执行记录。 |
+| **server_type** | String | 否 | `host_name` | 主机类型：`host_name`(主机唯一标识)、`ip`(主机IP)。 |
+| **script_type** | String | 否 | `sh` | 脚本类型：`sh`(Shell)、`ps1`(PowerShell)、`py`(Python)、`bat`(Bat)。 |
+| **script** | String | 否 | - | 脚本内容，直接输入脚本内容。 |
+| **parameter** | String | 否 | `""` | 脚本参数。 |
+| **run_describe** | String | 否 | - | 执行原因。 |
+| **timeout** | Integer | 否 | `120` | 超时时间（秒）。 |
+| **tool_timeout** | Integer | 否 | `30` | 工具请求超时时间（秒）。 |
+
+---
+
+#### 5.8 创建脚本到脚本仓库
+**接口名称**：`opsany_job_create_script_library`
+**功能描述**：创建脚本到脚本仓库，仅支持创建私有脚本。
+**请求参数**：
+
+| 参数名 | 类型 | 必填 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- | :--- |
+| **script_type** | Integer | 否 | - | 脚本类型。 |
+| **script_name** | String | 否 | - | 脚本名称。 |
+| **version_remarks** | String | 否 | - | 版本备注。 |
+| **script** | String | 否 | - | 脚本内容。 |
+| **tool_timeout** | Integer | 否 | `30` | 工具请求超时时间（秒）。 |
+
+---
+
 
 ### 6. Control（管控平台）接口
 
@@ -637,6 +825,438 @@ python server.py --host 0.0.0.0 --port 8020
 ---
 
 
+### 7. Event（事件中心）接口
+
+#### 7.1 获取事件中心告警
+**接口名称**：`opsany_event_alert_info`
+**功能描述**：获取事件中心我的告警和全部告警，可获取待处理、处理中、已关闭告警。包括管控平台 Prometheus(应用监控)、Zabbix(基础监控)纳管和监控的实例以及第三方接入的告警。
+**请求参数**：
+
+| 参数名 | 类型 | 必填 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- | :--- |
+| **alert_type** | String | 否 | - | 告警类型：`node`(主机/组件告警)、`blackbox`(服务拨测告警)、`all`(全部告警)。 |
+| **severity** | String | 否 | - | 告警级别：`NotClassified`(未分类)、`Information`(信息)、`Warning`(警告)、`Average`(一般严重)、`High`(严重)、`Disaster`(灾难)。 |
+| **tool_timeout** | Integer | 否 | `60` | 工具请求超时时间，告警过多建议增加。 |
+
+---
+
+### 8. Prometheus（应用监控）接口
+
+#### 8.1 获取应用监控告警
+**接口名称**：`opsany_prom_alert_info`
+**功能描述**：获取应用监控平台的实例告警，包括管控平台纳管并使用 Prometheus 后在组件监控接入的实例告警和服务拨测告警。
+**请求参数**：
+
+| 参数名 | 类型 | 必填 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- | :--- |
+| **alert_type** | String | 否 | - | 告警类型：`node`(主机/组件告警)、`blackbox`(服务拨测告警)、`all`(全部告警)。 |
+| **severity** | String | 否 | - | 告警级别：`NotClassified`(未分类)、`Information`(信息)、`Warning`(警告)、`Average`(一般严重)、`High`(严重)、`Disaster`(灾难)。 |
+| **tool_timeout** | Integer | 否 | `60` | 工具请求超时时间，告警过多建议增加。 |
+
+---
+
+### 9. KBase（知识库）接口
+
+#### 9.1 获取知识库列表
+**接口名称**：`opsany_kbase_read_kbase_list`
+**功能描述**：获取知识库平台全部知识库，知识库内有各类文章和文档。
+**请求参数**：
+
+| 参数名 | 类型 | 必填 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- | :--- |
+| **data_type** | String | 否 | - | 数据类型：`all`(全部)、`public`(公共)、`involved`(我参与的)、`favorite`(我收藏的)、`owner`(我拥有的)。 |
+| **search_type** | String | 否 | - | 搜索字段：`name`(名称)、`description`(描述)。 |
+| **search_data** | String | 否 | - | 搜索数据，与 search_type 同时使用。 |
+| **tool_timeout** | Integer | 否 | `60` | 工具请求超时时间。 |
+
+---
+
+#### 9.2 获取知识库文章
+**接口名称**：`opsany_kbase_read_kbase_article`
+**功能描述**：获取知识库平台某一知识库内的文章和文档，可获取列表和单条数据。
+**请求参数**：
+
+| 参数名 | 类型 | 必填 | 默认值 | 说明 |
+| :--- | :--- | :--- | :--- | :--- |
+| **unique_code** | String | 否 | - | 文章唯一标识，获取单条文章内容。 |
+| **data_type** | String | 否 | - | 数据类型：`all`(全部文章)、`self`(我的文章)、`folder`(按目录筛选)、`favorite`(我收藏的)、`single`(单条)。 |
+| **kbase** | String | 否 | - | 知识库唯一标识（通过 `opsany_kbase_read_kbase_list` 获取的 `unique_code` 字段）。 |
+| **current** | String | 否 | - | 当前页码。 |
+| **pageSize** | String | 否 | - | 每页条数。 |
+| **search_type** | String | 否 | - | 搜索字段：`title`(文章标题)。 |
+| **search_data** | String | 否 | - | 搜索数据，与 search_type 同时使用。 |
+| **tool_timeout** | Integer | 否 | `60` | 工具请求超时时间。 |
+
+---
+
+#### 100.1 字段说明
+
+
+model_fields_attribute_md = """
+字段类型与后端请求字段说明
+
+## 概述
+
+---
+
+## 公共基础字段（所有类型通用）
+
+| 字段 | 来源 | 类型 | 说明 |
+|------|------|------|------|
+| `name` | `form.name` | string | 字段名称 |
+| `code` | `form.code` (新增时拼接: `{model_code}_{code}`) | string | 字段标识 |
+| `type_name` | `form.type_name` | string | 字段类型 code |
+| `not_null` | `form.not_null` | boolean | 是否必填 |
+| `built_in` | `form.built_in` | boolean | 是否内置属性 |
+| `model_code` | `this.model_code` | string | 所属模型 code |
+| `field_group_code` | `form.field_group_code` | string | 所属字段组 code |
+| `index` | `this.fieldLength` | number | 排序索引 |
+| `attribute.rule_id` | `form2.rule_id` | string\|number | 校验规则ID ("empty" 表示无校验) |
+| `attribute.rule` | `form2.rule` | object | 校验规则 `{ re: "正则表达式" }` |
+
+---
+
+## 一、str（单行文本） / textarea（多行文本） / link（链接）
+
+
+| 字段 | 来源 | 类型 | 适用类型 | 说明 |
+|------|------|------|----------|------|
+| `attribute.默认值` | `form2["默认值"]` | string | str/textarea/link | 默认值 |
+| `attribute.maxLen` | `form2.maxLen` | number | str/textarea | 最大长度（link 无此字段） |
+| `attribute.用户提示` | `form2["用户提示"]` | string | 全部 | 占位提示文本 |
+
+**JSON 示例（str）：**
+```json
+{
+  "name": "主机名",
+  "code": "host_name",
+  "type_name": "str",
+  "not_null": true,
+  "built_in": false,
+  "model_code": "host",
+  "field_group_code": "basic",
+  "index": 0,
+  "attribute": {
+    "默认值": "",
+    "maxLen": 100,
+    "用户提示": "请输入主机名",
+    "rule_id": "empty",
+    "rule": {}
+  }
+}
+```
+
+---
+
+## 二、int（整数）
+
+| 字段 | 来源 | 类型 | 说明 |
+|------|------|------|------|
+| `attribute.单位` | `form2["单位"]` | string | 单位（如 "个"、"台"） |
+| `attribute.默认值` | `form2["默认值"]` | number | 默认值 |
+| `attribute.minLen` | `form2.minLen` | number | 最小值 |
+| `attribute.maxLen` | `form2.maxLen` | number | 最大值 |
+| `attribute.用户提示` | `form2["用户提示"]` | string | 占位提示文本 |
+
+**JSON 示例：**
+```json
+{
+  "name": "CPU核数",
+  "code": "cpu_cores",
+  "type_name": "int",
+  "not_null": false,
+  "built_in": false,
+  "model_code": "host",
+  "field_group_code": "basic",
+  "index": 1,
+  "attribute": {
+    "单位": "核",
+    "默认值": 4,
+    "minLen": 1,
+    "maxLen": 128,
+    "用户提示": "请输入CPU核数",
+    "rule_id": "empty",
+    "rule": {}
+  }
+}
+```
+
+---
+
+## 三、float（浮点型）
+
+| 字段 | 来源 | 类型 | 说明 |
+|------|------|------|------|
+| `attribute.rule_id` | `form2.rule_id` | string\|number | 校验规则ID |
+
+**JSON 示例：**
+```json
+{
+  "name": "内存大小",
+  "code": "memory_size",
+  "type_name": "float",
+  "not_null": false,
+  "built_in": false,
+  "model_code": "host",
+  "field_group_code": "basic",
+  "index": 2,
+  "attribute": {
+    "rule_id": 1,
+    "rule": { "re": "[1-9][0-9]*.[0-9]*|0\\.[0-9]*[1-9][0-9]*" }
+  }
+}
+```
+
+---
+
+## 四、date（日期时间）
+
+| 字段 | 来源 | 类型 | 说明 |
+|------|------|------|------|
+| `attribute.默认值` | `form2["默认值"]` | string | 默认值，格式 `YYYY-MM-DD HH:mm:ss` |
+| `attribute.用户提示` | `form2["用户提示"]` | string | 占位提示文本 |
+
+**JSON 示例：**
+```json
+{
+  "name": "采购日期",
+  "code": "purchase_date",
+  "type_name": "date",
+  "not_null": false,
+  "built_in": false,
+  "model_code": "host",
+  "field_group_code": "basic",
+  "index": 3,
+  "attribute": {
+    "默认值": "2024-01-01 00:00:00",
+    "用户提示": "请选择日期",
+    "rule_id": "empty",
+    "rule": {}
+  }
+}
+```
+
+---
+
+## 五、expiredDate（到期时间）
+
+| 字段 | 来源 | 类型 | 说明 |
+|------|------|------|------|
+| `attribute.默认值` | `form2["默认值"]` | string | 默认值，格式 `YYYY-MM-DD HH:mm:ss` |
+| `attribute.expire_day` | `form2.expire_day` | number | 到期天数（选择此类型时自动设为 30） |
+| `attribute.用户提示` | `form2["用户提示"]` | string | 占位提示文本 |
+
+**JSON 示例：**
+```json
+{
+  "name": "维保到期",
+  "code": "warranty_expire",
+  "type_name": "expiredDate",
+  "not_null": false,
+  "built_in": false,
+  "model_code": "host",
+  "field_group_code": "basic",
+  "index": 4,
+  "attribute": {
+    "默认值": "2025-01-01 00:00:00",
+    "expire_day": 30,
+    "用户提示": "请选择到期时间",
+    "rule_id": "empty",
+    "rule": {}
+  }
+}
+```
+
+---
+
+## 六、richText（富文本）
+
+| 字段 | 来源 | 类型 | 说明 |
+|------|------|------|------|
+| `attribute.富文本` | `form2["富文本"]` | string | 富文本 HTML 内容（由 editor 组件回调设置） |
+| `attribute.用户提示` | `form2["用户提示"]` | string | 占位提示文本 |
+
+**JSON 示例：**
+```json
+{
+  "name": "备注",
+  "code": "description",
+  "type_name": "richText",
+  "not_null": false,
+  "built_in": false,
+  "model_code": "host",
+  "field_group_code": "basic",
+  "index": 5,
+  "attribute": {
+    "富文本": "<p>详细说明</p>",
+    "用户提示": "请输入备注",
+    "rule_id": "empty",
+    "rule": {}
+  }
+}
+```
+
+---
+
+## 七、dropDown（下拉菜单）
+
+| 字段 | 来源 | 类型 | 说明 |
+|------|------|------|------|
+| `attribute.选项` | `dropDownList` | `[{name, id}]` | 选项列表（name=选项名(显示名), id=选项值(唯一标识)，id使用变量格式，理论上不可修改） |
+| `attribute.用户提示` | `form2["用户提示"]` | string | 占位提示文本 |
+
+**JSON 示例：**
+```json
+{
+  "name": "状态",
+  "code": "status",
+  "type_name": "dropDown",
+  "not_null": true,
+  "built_in": false,
+  "model_code": "host",
+  "field_group_code": "basic",
+  "index": 6,
+  "attribute": {
+    "选项": [
+      { "name": "运行中", "id": "running" },
+      { "name": "已停止", "id": "stop" },
+      { "name": "故障", "id": "fault" }
+    ],
+    "用户提示": "请选择状态",
+    "rule_id": "empty",
+    "rule": {}
+  }
+}
+```
+
+---
+
+## 八、复合数据（复合数据）
+
+| 字段 | 来源 | 类型 | 说明 |
+|------|------|------|------|
+| `attribute.tableData` | `this.tableData` | `[{name, key, type, uuid}]` | 复合数据结构体子字段列表（name=名称, key=标识, type=类型, uuid=唯一标识） |
+| `attribute.用户提示` | `form2["用户提示"]` | string | 占位提示文本 |
+
+注意：`composite_type`（1=手动新建, 2=从模型导入）仅用于 UI 交互，**不会**发送到后端。
+
+**JSON 示例：**
+```json
+{
+  "name": "扩展信息",
+  "code": "ext_info",
+  "type_name": "复合数据",
+  "not_null": false,
+  "built_in": false,
+  "model_code": "host",
+  "field_group_code": "basic",
+  "index": 7,
+  "attribute": {
+    "tableData": [
+      { "name": "字段A", "key": "field_a", "type": "str", "uuid": "xxx-xxx" },
+      { "name": "字段B", "key": "field_b", "type": "str", "uuid": "yyy-yyy" }
+    ],
+    "用户提示": "",
+    "rule_id": "empty",
+    "rule": {}
+  }
+}
+```
+
+---
+
+## 九、password（密码）
+
+| 字段 | 来源 | 类型 | 说明 |
+|------|------|------|------|
+| `attribute.minLen` | `form2.minLen` | number | 最小长度 |
+| `attribute.maxLen` | `form2.maxLen` | number | 最大长度 |
+| `attribute.用户提示` | `form2["用户提示"]` | string | 占位提示文本 |
+
+**JSON 示例：**
+```json
+{
+  "name": "密码",
+  "code": "password",
+  "type_name": "password",
+  "not_null": true,
+  "built_in": false,
+  "model_code": "host",
+  "field_group_code": "basic",
+  "index": 8,
+  "attribute": {
+    "minLen": 6,
+    "maxLen": 32,
+    "用户提示": "请输入密码",
+    "rule_id": "empty",
+    "rule": {}
+  }
+}
+```
+
+---
+
+## 十、file（附件）
+
+
+```json
+{
+  "name": "附件",
+  "code": "attachment",
+  "type_name": "file",
+  "not_null": false,
+  "built_in": false,
+  "model_code": "host",
+  "field_group_code": "basic",
+  "index": 9,
+  "attribute": {
+    "rule_id": "empty",
+    "rule": {}
+  }
+}
+```
+
+---
+
+**编辑（PUT）：** 新增参数基础上增加以下顶层字段：
+
+| 字段 | 来源 | 类型 | 说明 |
+|------|------|------|------|
+| `field_name` | `form.name` | string | 字段名称 |
+| `field_code` | `form.code` | string | 字段 code |
+| `is_relationship_field` | `form2["关系类型"]` | string | 固定为 `"1"` |
+| `not_null` | `form.not_null` | boolean | 是否必填 |
+| `built_in` | `form.built_in` | boolean | 是否内置 |
+| `describe` | `form2["用户提示"]` | string | 描述提示 |
+
+---
+
+## 附录：校验规则
+
+
+| 规则名称 | field_type | 正则 |
+|----------|-----------|------|
+| 正浮点数 | float | `[1-9][0-9]*.[0-9]*\|0\.[0-9]*[1-9][0-9]*` |
+| 负浮点数 | float | `-([1-9][0-9]*.[0-9]*\|0\.[0-9]*[1-9][0-9]*)` |
+| 仅小写字母 | str | `^[a-z]*$` |
+| 仅大写字母 | str | `^[A-Z]*$` |
+| 仅包含英文字母和数字 | str | `^[a-zA-Z0-9]*$` |
+| 仅包含英文字母和数字、下划线、中划线、英文小数点 | str | `^[\.a-zA-Z0-9_-]*$` |
+| 仅包含中文 | str | `^[\u4e00-\u9fa5]*$` |
+| 邮件 | str | `\w[-\w.+]*@([A-Za-z0-9][-A-Za-z0-9]+\.)+[A-Za-z]{2,14}` |
+| 手机 | str | `0?(13\|14\|15\|18\|17)[0-9]{9}` |
+| 身份证号 | str | `[0-9]{17}[[0-9]\|x]\|[0-9]{15}` |
+| QQ号码 | str | `[1-9]([0-9]{4,10})` |
+| IP地址 | str | `^((25[0-5]\|2[0-4]\d\|[1]{1}\d{1}\d{1}\|[1-9]{1}\d{1}\|\d{1})($\|(?!\.$)\.)){4}$` |
+| 正整数 | int | `[1-9][0-9]*` |
+| 负整数 | int | `-[1-9][0-9]*` |
+| 整数 | int | `-?[1-9][0-9]*` |
+
+"""
+
+---
+
+
 ## 在 TRAE 中配置使用
 
 ### 1. 启动 MCP Server
@@ -720,9 +1340,14 @@ opsany-mcp-server/
 ├── opsanymcp/               # 核心模块
 │   ├── api/                 # API 接口
 │   │   ├── __init__.py
-│   │   ├── base.py          # API核心组件
+│   │   ├── base_api.py      # API核心组件
 │   │   ├── cmdb_api.py      # 资源平台API
+│   │   ├── control_api.py   # 管控平台API
+│   │   ├── event_api.py     # 事件中心API
+│   │   ├── job_api.py       # 作业平台API
+│   │   ├── kbase_api.py     # 知识库API
 │   │   ├── monitor_api.py   # 基础监控API
+│   │   ├── prom_api.py      # 应用监控(Prometheus)API
 │   │   ├── rbac_api.py      # 统一权限API
 │   │   └── workbench_api.py # 工作台API
 │   ├── __init__.py

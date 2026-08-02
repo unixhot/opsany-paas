@@ -18,7 +18,7 @@ try:
     unicode = str
 except NameError:
     unicode = str
-from channels.generic.websocket import AsyncWebsocketConsumer
+from channels.generic.websocket import WebsocketConsumer
 from django_redis import get_redis_connection
 
 try:
@@ -36,7 +36,7 @@ from bastion.utils.encryption import PasswordEncryption
 app_logging = logging.getLogger("app")
 
 
-class DatabaseMysqlWeb(AsyncWebsocketConsumer):
+class DatabaseMysqlWeb(WebsocketConsumer):
     data_type_dict = {
         "sql": "sql语句查询",
         "sql_run": "心跳：sql正在执行",
@@ -59,6 +59,8 @@ class DatabaseMysqlWeb(AsyncWebsocketConsumer):
     token = ""
     database = None
     session_log = None
+    _connection_closed = False
+    _mysql_thread = None
 
     def connect(self):
         # 连接 Websocket
@@ -68,9 +70,9 @@ class DatabaseMysqlWeb(AsyncWebsocketConsumer):
         status, code, data = self.check_token()
         if not status and status is not None:
             self.close_connect(code)
-        else:
-            # self.session_log = self.create_session_log(data)
-            self.start_ssh(data)
+            return
+        # self.session_log = self.create_session_log(data)
+        self.start_ssh(data)
 
     def check_token(self):
         request_param = self.get_request_param_dict()
@@ -160,22 +162,47 @@ class DatabaseMysqlWeb(AsyncWebsocketConsumer):
             password = ""
         return password
 
-    def close_connect(self, text):
+    def close_connect(self, text=None):
+        if self._connection_closed:
+            return
+        self._connection_closed = True
         if text:
             try:
-                text = json.dumps(text)
-            except:
+                if not isinstance(text, str):
+                    text = json.dumps(text)
+            except Exception:
                 pass
-            self.send(text_data=text)
+            try:
+                self.send(text_data=text)
+            except Exception as e:
+                app_logging.warning("[WARN] Databases web socket, close_connect send error: {}".format(str(e)))
         time.sleep(1)
-        self.close()
-        if self.mysql_cursor:
-            self.mysql_cursor.close()
-        if self.mysql_conn:
-            self.mysql_conn.close()
-        if self.ssh:
-            self.ssh.close()
+        try:
+            self.close()
+        except Exception:
+            pass
+        self._cleanup_resources()
         return
+
+    def _cleanup_resources(self):
+        if self.mysql_cursor:
+            try:
+                self.mysql_cursor.close()
+            except Exception:
+                pass
+            self.mysql_cursor = None
+        if self.mysql_conn:
+            try:
+                self.mysql_conn.close()
+            except Exception:
+                pass
+            self.mysql_conn = None
+        if self.ssh:
+            try:
+                self.ssh.close()
+            except Exception:
+                pass
+            self.ssh = None
 
     def start_ssh(self, data):
         try:
@@ -190,8 +217,10 @@ class DatabaseMysqlWeb(AsyncWebsocketConsumer):
             self.database = HostModel.fetch_one(id=host_id)
             if (not self.database) or (not credential_host):
                 self.close_connect(MySQLWebSocketStatusCode.PARAM_ERROR)
+                return
             if self.database.resource_type != HostModel.RESOURCE_DATABASE:
                 self.close_connect(MySQLWebSocketStatusCode.HOST_TYPE_ERROR)
+                return
             if credential_host.credential.login_type == CredentialModel.LOGIN_AUTO:
                 password = self.get_password(credential_host.credential.login_password)
             network_proxy = self.database.network_proxy
@@ -214,10 +243,13 @@ class DatabaseMysqlWeb(AsyncWebsocketConsumer):
                 try:
                     self.ssh = sshtunnel.SSHTunnelForwarder(**network_dict)
                     self.ssh.start()
+                    # 隧道在本机监听，pymysql 必须连本地端口，不能用 remote_bind 的数据库 IP
+                    dic["host"] = self.ssh.local_bind_host or "127.0.0.1"
                     dic["port"] = self.ssh.local_bind_port
                 except Exception as e:
-                    print("ssh_tunnel_forwarder_error", str(e))
+                    app_logging.error("[ERROR] ssh_tunnel_forwarder_error: {}".format(str(e)))
                     self.close_connect(MySQLWebSocketStatusCode.DATABASE_PROXY_ERROR)
+                    return
             # print("dicdic", dic)
             try:
                 self.mysql_conn = pymysql.connect(**dic)
@@ -226,7 +258,7 @@ class DatabaseMysqlWeb(AsyncWebsocketConsumer):
                     default_data = json.dumps(self._get_default_data())
                     self.send(text_data=(default_data))
                 except Exception as e:
-                    print("default_data_error", e)
+                    app_logging.info("default_data_error: %s", e)
                     self.send(text_data=json.dumps(MySQLWebSocketStatusCode.DATA_CHECK_ERROR))
             except Exception as e:
                 logging.info("pymysql.connect_error" + str(e))
@@ -235,8 +267,9 @@ class DatabaseMysqlWeb(AsyncWebsocketConsumer):
 
         sshterminal = MySQLThread(self, self.mysql_conn, self.mysql_cursor, self.user.username, self.token,
                                   ssh_type=self.database.resource_type)
-        sshterminal.setDaemon = True
+        sshterminal.daemon = True
         sshterminal.start()
+        self._mysql_thread = sshterminal
 
     def _get_default_data(self, database=None):
         default_database = ["mysql", "information_schema", "performance_schema", "sys"]
@@ -307,18 +340,42 @@ class DatabaseMysqlWeb(AsyncWebsocketConsumer):
         return self.mysql_cursor.fetchall()
 
     def disconnect(self, close_code):
-        self.close()
+        if self._connection_closed:
+            return
+        self._connection_closed = True
+        # 停止 MySQLThread
+        if self._mysql_thread:
+            try:
+                self._mysql_thread.stop()
+            except Exception:
+                pass
+        # 发送关闭消息让线程退出
+        try:
+            self.queue.publish(self.channel_name, 'close')
+        except Exception:
+            pass
+        if self._mysql_thread:
+            try:
+                self._mysql_thread.join(timeout=3)
+            except Exception:
+                pass
+        self._mysql_thread = None
+        self._cleanup_resources()
+
+    _queue_instance_class = None
 
     @property
     def queue(self):
-        queue = SSHBaseComponent().get_redis_instance()
-        queue.pubsub()
-        return queue
+        cls = type(self)
+        if cls._queue_instance_class is None:
+            cls._queue_instance_class = SSHBaseComponent().get_redis_instance()
+        return cls._queue_instance_class
 
     def receive(self, text_data=None, bytes_data=None, **kwargs):
         status, code, data = self.check_token()
         if not status and status is not None:
             self.close_connect(code)
+            return
         try:
             self.queue.publish(self.channel_name, text_data)
         except socket.error:
@@ -382,28 +439,26 @@ class MySQLThread(threading.Thread):
         return str(uuid.uuid4())
 
     def _handler_command(self, text):
-        # print("从前端Web取出命令(原生)：", text)
         self.websocket.wait_time = time.time()
         if isinstance(text['data'], (str, basestring, unicode, bytes)):
-            if isinstance(text['data'], bytes):
+            try:
+                raw = text['data']
+                if isinstance(raw, bytes):
+                    raw = raw.decode('utf8')
+                # 先尝试安全的 ast.literal_eval（处理 Python 字面量）
                 try:
-                    data = ast.literal_eval(text['data'].decode('utf8'))
-                except Exception as e:
-                    data = text['data']
-            else:
-                try:
-                    data = ast.literal_eval(text['data'])
-                except Exception as e:
-                    data = text['data']
+                    data = ast.literal_eval(raw)
+                except (ValueError, SyntaxError, MemoryError):
+                    data = json.loads(raw)
+            except (json.JSONDecodeError, TypeError):
+                data = text['data']
         else:
             data = text['data']
-        # print("从前端Web取出命令处理成字符串：", data, type(data))
         try:
             if not isinstance(data, (dict, list)):
                 data = json.loads(data)
         except Exception as e:
-            print("_handler_command_error", text, e)
-            # self.websocket.send(str(e))
+            app_logging.warning("_handler_command_error: %s", e)
         return data
 
     def _handler_sql_result(self, res_list):
@@ -430,7 +485,7 @@ class MySQLThread(threading.Thread):
         offset = data.get("offset")
         try:
             limit = int(limit)
-        except:
+        except Exception:
             limit = 20
         # sql_list = [str(s.replace("\n", "").strip()) + ";" for s in sql_str.split(";") if s.replace("\n", "").strip()]
         sql_list = [str(sql).replace("\n", "").replace("\r", "").strip() for sql in parsestream(sql_str)]
@@ -455,7 +510,12 @@ class MySQLThread(threading.Thread):
                     res_list = self._handler_sql_result(res_list)
                     if res_list:
                         result_id = self.sql_queryset_id()
-                        self.result_dict[result_id] = res_list
+                        # 限制缓存结果集行数，防止 OOM
+                        MAX_CACHED_ROWS = 5000
+                        if len(res_list) > MAX_CACHED_ROWS:
+                            self.result_dict[result_id] = res_list[:MAX_CACHED_ROWS]
+                        else:
+                            self.result_dict[result_id] = res_list
                         limit_data = res_list[:limit]
                         data_list.append({"rowcount": rowcount, "result_data": limit_data, "result_id": result_id})
                     t2 = time.time()
@@ -470,7 +530,7 @@ class MySQLThread(threading.Thread):
                             error_str = " - ".join([str(i) for i in args])
                         else:
                             error_str = str(args)
-                    except:
+                    except Exception:
                         error_str = str(e)
                     t2 = time.time()
                     message.append(
@@ -484,11 +544,11 @@ class MySQLThread(threading.Thread):
         result_id = data.get("result_id")
         try:
             limit = int(data.get("limit"))
-        except:
+        except Exception:
             limit = 20
         try:
             offset = int(data.get("offset"))
-        except:
+        except Exception:
             offset = 0
         # res = self.mysql_cursor.fetchmany(size)
         if self.result_dict.get(result_id):
@@ -517,7 +577,7 @@ class MySQLThread(threading.Thread):
                 else:
                     self.run_sql = False
                     self.websocket.send(json.dumps({"data_type": "sql_run", "status": 0}))
-                text = self.queue.get_message()
+                text = self.queue.get_message(timeout=1.0)
                 if text:
                     try:
                         data = self._handler_command(text)
@@ -578,7 +638,6 @@ class MySQLThread(threading.Thread):
                         dic["message"] = dic["message"].format(str(e))
                         self.websocket.send(json.dumps(dic))
 
-                time.sleep(0.001)
         except Exception as e:
             app_logging.warning("MySQLThread_run_mysql_error" + str(e))
             dic = MySQLWebSocketStatusCode.SERVER_ERROR
@@ -587,10 +646,16 @@ class MySQLThread(threading.Thread):
         finally:
             try:
                 self.websocket.send(json.dumps(MySQLWebSocketStatusCode.CHANNEL_CREATE_ERROR))
-            except:
+            except Exception:
                 pass
             try:
                 self.websocket.close_connect()
-            except:
+            except Exception:
+                pass
+            # 清理 Redis pub/sub 订阅
+            try:
+                self.queue.unsubscribe()
+                self.queue.close()
+            except Exception:
                 pass
             time.sleep(2)

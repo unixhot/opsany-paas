@@ -5,6 +5,7 @@ Copyright © 2012-2020 OpsAny. All Rights Reserved.
 
 import requests
 import json
+import logging
 
 import settings
 try:
@@ -15,6 +16,8 @@ except Exception as e:
 
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+
+app_logging = logging.getLogger("app")
 
 
 class EsbApi(object):
@@ -35,7 +38,15 @@ class EsbApi(object):
             "bk_token": self.token
         }
         URL = self.url + API
-        response = requests.get(url=URL, params=req, headers=self.headers, verify=False)
+        try:
+            # 添加超时防止请求一直挂起（原代码无 timeout 可能导致 ASGI worker 线程阻塞）
+            response = requests.get(url=URL, params=req, headers=self.headers, verify=False, timeout=10)
+        except requests.Timeout:
+            app_logging.error("[ESB] get_user_info timeout for token: %s", str(self.token)[:8])
+            return {}
+        except requests.RequestException as e:
+            app_logging.error("[ESB] get_user_info request failed: %s", e)
+            return {}
         end_data = json.loads(response.text)
         dt = {}
         if end_data.get("result"):

@@ -5,9 +5,13 @@ from opsanymcp.api.job_api import JobApi
 from opsanymcp.api.rbac_api import RbacApi
 from opsanymcp.api.monitor_api import MonitorApi
 from opsanymcp.api.workbench_api import WorkbenchApi
+from opsanymcp.api.event_api import EventApi
+from opsanymcp.api.prom_api import PromApi
+from opsanymcp.api.kbase_api import KbaseApi
 
 
-__all__ = ["BaseObj", "CMDBApi", "RbacApi", "MonitorApi", "WorkbenchApi", "JobApi", "ControlApi"]
+__all__ = ["BaseObj", "CMDBApi", "RbacApi", "MonitorApi", "WorkbenchApi", "JobApi", "ControlApi",
+           "EventApi", "PromApi", "KbaseApi"]
 
 
 API_CLASS_DICT = {
@@ -17,6 +21,9 @@ API_CLASS_DICT = {
     "opsany_workbench": WorkbenchApi,
     "opsany_job": JobApi,
     "opsany_control": ControlApi,
+    "opsany_event": EventApi,
+    "opsany_prom": PromApi,
+    "opsany_kbase": KbaseApi,
 }
 
 _SORTED_PREFIXES = sorted(API_CLASS_DICT.keys(), key=len, reverse=True)
@@ -42,7 +49,7 @@ if __name__ == '__main__':
     print(config_status, config)
     if not config_status:
         pass
-    username, user_api_token = "huxingqi", "wmMrlEujTCG2VE-Y_9V_nSqBD0o2qiKePH-PdkvMS2Km4xkFtYuyucFcuiSGQXPg22hT-kfBkyymsftDWMx6rQ"
+    username, user_api_token = "huxingqi", "YKLiPy5Vwm_c_0a-lpc6z4dstA19YRagZdDEh0xtRt41oO3ulNattibKDNrp6jeduiSPnMXuzwTa3lJUdYOdLw"
     # username, user_api_token = "hu29", "wmMrlEujTCG2VE-Y_9V_nfxOyNv8YBjTIwi8Pnulgw80OM3-JWz3HdIJ_B92cQBUVoQvv-OBbh9xuH2Tp6DN3A"
 #     name, arguments = "opsany_cmdb_create_resource", {
 #   "model_code": "REGION",
@@ -60,7 +67,45 @@ if __name__ == '__main__':
     # name, arguments = "opsany_cmdb_get_can_add_link_inst_list", {"field_code": "APPLICATION_IN_SERVER", "code": 3979}
     # name, arguments = "opsany_cmdb_get_resource_link_inst_count", {"field_code": "APPLICATION_IN_SERVER", "code": 3979}
     # name, arguments = "opsany_cmdb_resource_add_link_inst", {"field_code": "APPLICATION_IN_SERVER", "code": 360, "target_code_list": [4194, 4179, 4201]}
-    name, arguments = "opsany_cmdb_resource_remove_link_inst", {"field_code": "APPLICATION_IN_SERVER", "code": 360, "target_code_list": [4194, 4179, 4201]}
+    # name, arguments = "opsany_cmdb_resource_add_link_inst", {"field_code": "APPLICATION_IN_SERVER", "code": 29, "target_code_list": [52]}
+    # name, arguments = "opsany_cmdb_get_model", {"model_type": "yw"}
+    name, arguments = "opsany_cmdb_delete_model", {
+        "code": "HUXINGQI1",
+        "built_in": False,
+        "name": "胡兴起1",
+        "model_type": "zc",
+        "model_group": "HOST",
+        "clone_model": "",
+    }
+    name, arguments = "opsany_cmdb_update_model", {
+        "code": "HUXINGQI1",
+        "built_in": True,
+        "name": "胡兴起11111",
+        "model_type": "zc",
+        "model_group": "HOST",
+        "clone_model": "",
+    }
+    name, arguments = "opsany_job_create_script_library", {
+        "script_type": "sh",
+        "script_name": "自动创建1",
+        "version_remarks": "大模型创建",
+        "script": """#!/bin/bash
+#------内置脚本方法，可以直接调用------
+anynowtime=$(date +'%Y-%m-%d %H:%M:%S')
+NOW="echo [$anynowtime][PID:$$]""",
+    }
+    name, arguments = "opsany_cmdb_get_model_group", {}
+    # name, arguments = "opsany_kbase_read_kbase_article", {
+    #     "kbase": "7072d695cd1f331a83292474345cab79",
+    #     "data_type": "all",
+    #     "unique_code": "6171c642b7bf3b26b4249b27787a18f3"
+    # }
+
+
+    # name, arguments = "opsany_cmdb_delete_model", {
+    #     "code": "HUXINGQI",
+    # }
+    # name, arguments = "opsany_cmdb_update_resource", {"code": "47", "model_code": "IDC", "data":{}, "parent_inst": "46"}
     # name, arguments = "opsany_cmdb_get_resource_link_inst_list", {"field_code": "APPLICATION_IN_SERVER", "code": 3979}
     # name, arguments = "opsany_cmdb_update_resource", {"model_code": "SERVER", "code": "918", "data": {"SERVER_IN_RACK": "4193"}}
     # name, arguments = "opsany_cmdb_get_resource", {"model_code": "SERVER"}

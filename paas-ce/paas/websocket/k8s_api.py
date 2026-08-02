@@ -1,4 +1,6 @@
+import datetime
 import json
+import logging
 from kubernetes.config.kube_config import _get_kube_config_loader
 from kubernetes.client import ApiClient, Configuration
 from kubernetes import client
@@ -29,10 +31,23 @@ class K8sApi:
             self.api_client = None
         io_space.close()
 
-    def pod_exec(self, namespace, name, height, width, container=""):
+    def pod_exec(self, namespace, name, height=80, width=120, container=None):
+        if not namespace or not name:
+            return False, "namespace and name are required"
+        api_instance = client.CoreV1Api(self.api_client)
+        # 如果未指定 container，可尝试读取 Pod 信息自动选择第一个容器
+        if not container:
+            try:
+                pod = api_instance.read_namespaced_pod(name, namespace)
+                if pod.spec.containers:
+                    container = pod.spec.containers[0].name
+                else:
+                    return False, "pod is not in container"
+            except ApiException as e:
+                return False, f"Failed to get pod info: {e}"
+            except Exception as e:  # 增加网络层捕获
+                return False, f"Network/Unknown error getting pod: {str(e)}"
         try:
-            api_instance = client.CoreV1Api(self.api_client)
-            
             exec_command = [
                 "/bin/sh",
                 "-c",
@@ -40,25 +55,32 @@ class K8sApi:
                 '&& ([ -x /usr/bin/script ] '
                 '&& /usr/bin/script -q -c "/bin/bash" /dev/null || exec /bin/bash) '
                 '|| exec /bin/sh'
-                '&& cp -rp /etc/skel/.bash* /root/']
-            
-            cont_stream = stream(api_instance.connect_get_namespaced_pod_exec,
-                                 name=name,
-                                 namespace=namespace,
-                                 container=container,
-                                 command=exec_command,
-                                 stderr=True,
-                                 stdin=True,
-                                 stdout=True,
-                                 tty=True,
-                                 _preload_content=False
-                                 )
-            cont_stream.write_channel(4, json.dumps({"Height": int(height), "Width": int(width)}))
+                '&& cp -rp /etc/skel/.bash* /root/'
+            ]
+            cont_stream = stream(
+                api_instance.connect_get_namespaced_pod_exec,
+                name=name,
+                namespace=namespace,
+                container=container,
+                command=exec_command,
+                stdin=True,
+                stdout=True,
+                stderr=True,
+                tty=True,
+                _preload_content=False,
+            )
+            try:
+                cont_stream.write_channel(4, json.dumps({"Height": int(height), "Width": int(width)}))
+            except Exception as e:
+                # 如果写入失败，关闭流并返回错误
+                cont_stream.close()
+                return False, f"Failed to resize terminal: {str(e)}"
             return True, cont_stream
-        except ApiException as api_e:
-            return False, str(api_e.reason)
+        except ApiException as e:
+            return False, f"Exec failed: {e.status}, {e.reason}"
         except Exception as e:
-            return False, str(e)
-    
+            # 捕获所有其他异常（超时、连接断开、SSL错误等）
+            return False, f"Exec unexpected error: {str(e)}"
+
     def websocket_handler(self, msg):
         print(f"Received message: {msg}")

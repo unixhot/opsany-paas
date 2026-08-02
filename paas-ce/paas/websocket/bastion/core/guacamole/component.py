@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
 import threading
-try:
-    import simplejson as json
-except ImportError:
-    import json
-from bastion.core.terminal.component import SSHBaseComponent
-import ast
-from bastion.core.guacamole.client import guac_logger as logger
+import json
 import time
+import logging
+import ast
+import socket
+from bastion.core.terminal.component import SSHBaseComponent
 try:
     long = int
 except NameError:
@@ -17,6 +15,8 @@ try:
 except NameError:
     unicode = str
 from six import string_types as basestring
+
+logger = logging.getLogger("guacamole")
 
 
 class GuacamoleThread(threading.Thread):
@@ -47,42 +47,66 @@ class GuacamoleThread(threading.Thread):
 
     def run(self):
         with self.read_lock:
-            while True:
+            try:
+                while not self.stopped():
+                    try:
+                        instruction = self.client.receive()
+                    except socket.timeout:
+                        # 超时是正常的，重新检查停止标志
+                        continue
+                    except Exception as e:
+                        logger.warning("[GuacamoleThread] receive error: {}".format(str(e)))
+                        break
+                    if instruction is None:
+                        # 连接已断开
+                        break
+                    if instruction:
+                        try:
+                            self.websocket.send(instruction)
+                        except Exception:
+                            break
+            finally:
+                # 清理 Redis pub/sub
                 try:
-                    instruction = self.client.receive()
-                except:
-                    break
-                if instruction:
-                    self.websocket.send(instruction)
+                    self.queue.unsubscribe()
+                    self.queue.close()
+                except Exception:
+                    pass
 
 
 class GuacamoleThreadWrite(GuacamoleThread):
 
     def run(self):
-        while True:
-            if self.stopped():
-                    break
-            text = self.queue.get_message()
-            if text:
-                logger.debug('******recv info from redis: %s' % text)
-            try:
-                data = ast.literal_eval(text['data'])
-            except Exception:
-                if isinstance(text, dict) and 'data' in text:
-                    data = text['data']
-                elif isinstance(text, (unicode, basestring)):
-                    data = text
-                else:
-                    data = text
+        try:
+            while True:
+                if self.stopped():
+                        break
+                # 使用阻塞式消息获取替代忙等轮询（性能优化：减少 CPU 空转）
+                text = self.queue.get_message(timeout=1.0)
+                if text:
+                    logger.debug('******recv info from redis: %s' % text)
+                    try:
+                        data = json.loads(text['data'])
+                    except (json.JSONDecodeError, TypeError):
+                        try:
+                            data = ast.literal_eval(text['data'])
+                        except (ValueError, SyntaxError, MemoryError):
+                            data = text.get('data', text)
 
-            if data:
-                if isinstance(data, (list, tuple)):
-                    if data[0] == 'close':
-                        self.stop()
-                if isinstance(data, (long, int)) and data == 1:
-                    pass
-                else:
-                    with self.write_lock:
-                        self.client.send(data)
-            else:
-                time.sleep(0.001)
+                    if data:
+                        if isinstance(data, (list, tuple)):
+                            if data[0] == 'close':
+                                self.stop()
+                                continue  # 不继续发送 close 到 guacd
+                        if isinstance(data, (long, int)) and data == 1:
+                            pass
+                        else:
+                            with self.write_lock:
+                                self.client.send(data)
+        finally:
+            # 清理 Redis pub/sub
+            try:
+                self.queue.unsubscribe()
+                self.queue.close()
+            except Exception:
+                pass

@@ -45,7 +45,7 @@ CREATE TABLE `esb_channel` (
   UNIQUE KEY `path` (`path`) USING BTREE,
   KEY `component_system_id_75db1515b99d21dc_fk_esb_component_system_id` (`component_system_id`) USING BTREE,
   CONSTRAINT `component_system_id_75db1515b99d21dc_fk_esb_component_system_id` FOREIGN KEY (`component_system_id`) REFERENCES `esb_component_system` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=405 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci ROW_FORMAT=COMPACT;
+) ENGINE=InnoDB AUTO_INCREMENT=426 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci ROW_FORMAT=COMPACT;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -414,7 +414,27 @@ INSERT INTO `esb_channel` VALUES
 (401,'获取服务拨测概览','/prom/post_service_task_alert/','','generic.prom.post_service_task_alert',1,'2026-04-28 15:06:48','2026-04-28 15:06:48',16,NULL,1,'','post_service_task_alert',0,0,'',0,''),
 (402,'获取实例关联关系字段和汇总数据','/cmdb/get_model_rel_field/','','generic.cmdb.get_model_rel_field',1,'2026-04-28 15:59:40','2026-04-28 15:59:40',7,60,2,'','get_model_rel_field',0,0,'',0,''),
 (403,'获取指定应用关联的所有主机','/cmdb/post_application_link_model_data/','','generic.cmdb.post_application_link_model_data',1,'2026-04-29 13:58:05','2026-04-29 13:58:05',7,60,1,'','post_application_link_model_data',0,0,'',0,''),
-(404,'获取指定应用关联的所有主机','/control/get_host_info_for_devops/','','generic.control.get_host_info_for_devops',1,'2026-04-29 15:18:42','2026-04-29 15:18:42',8,60,1,'','get_host_info_for_devops',0,0,'',0,'');
+(404,'获取指定应用关联的所有主机','/control/get_host_info_for_devops/','','generic.control.get_host_info_for_devops',1,'2026-04-29 15:18:42','2026-04-29 15:18:42',8,60,1,'','get_host_info_for_devops',0,0,'',0,''),
+(405,'获取Zabbix资源监控项','/control/get_zabbix_metric/','','generic.control.get_zabbix_metric',1,'2026-05-14 19:16:39','2026-05-14 19:16:39',8,NULL,2,'','get_zabbix_metric',0,0,'',0,''),
+(406,'获取概览页卡片最新消息','/workbench/get_home_page_user_message/','','generic.workbench.get_home_page_user_message',1,'2026-06-10 19:07:08','2026-06-10 19:07:08',9,NULL,2,'','get_home_page_user_message',0,0,'',0,''),
+(407,'获取概览页卡片值班看板','/workbench/get_home_page_duty/','','generic.workbench.get_home_page_duty',1,'2026-06-10 19:08:19','2026-06-10 19:08:19',9,NULL,2,'','get_home_page_duty',0,0,'',0,''),
+(408,'获取概览页卡片待办事项','/workbench/get_home_page_receipts/','','generic.workbench.get_home_page_receipts',1,'2026-06-10 19:08:54','2026-06-10 19:08:54',9,NULL,2,'','get_home_page_receipts',0,0,'',0,''),
+(409,'获取应用监控告警','/prom/get_alert/','','generic.prom.get_alert',1,'2026-06-24 11:10:33','2026-06-24 11:10:33',16,120,2,'','get_alert',0,0,'',0,''),
+(410,'获取事件中心我的告警','/event/get_event_alert/','','generic.event.get_event_alert',1,'2026-06-24 18:16:26','2026-06-24 18:14:02',19,60,2,'','get_event_alert',0,0,'',0,''),
+(411,'资源模型创建模型','/cmdb/model_create/','','generic.cmdb.model_create',1,'2026-06-25 17:02:09','2026-06-25 17:02:09',7,NULL,1,'','model_create',0,0,'',0,''),
+(412,'资源模型删除模型','/cmdb/model_delete/','','generic.cmdb.model_delete',1,'2026-06-25 17:02:40','2026-06-25 17:02:40',7,NULL,1,'','model_delete',0,0,'',0,''),
+(413,'资源仓库修改数据','/cmdb/model_update/','','generic.cmdb.model_update',1,'2026-06-25 17:06:09','2026-06-25 17:03:05',7,NULL,1,'','model_update',0,0,'',0,''),
+(414,'资源模型获取模型列表','/cmdb/model_get/','','generic.cmdb.model_get',1,'2026-06-25 17:03:28','2026-06-25 17:03:28',7,NULL,2,'','model_get',0,0,'',0,''),
+(416,'脚本仓库创建脚本','/job/script_library_create/','','generic.job.script_library_create',1,'2026-06-26 10:33:32','2026-06-26 10:33:32',4,NULL,1,'','script_library_create',0,0,'',0,''),
+(417,'知识库列表','/kbase/kbase_list/','','generic.kbase.kbase_list',1,'2026-06-29 11:46:24','2026-06-29 11:46:24',21,NULL,2,'','kbase_list',0,0,'',0,''),
+(418,'知识库内文章','/kbase/kbase_article/','','generic.kbase.kbase_article',1,'2026-06-29 11:47:04','2026-06-29 11:47:04',21,NULL,2,'','kbase_article',0,0,'',0,''),
+(419,'资源模型新建属性(字段)','/cmdb/model_field_create/','','generic.cmdb.model_field_create',1,'2026-06-30 17:28:36','2026-06-30 17:28:36',7,NULL,1,'','model_field_create',0,0,'',0,''),
+(420,'资源模型修改属性(字段)','/cmdb/model_field_update/','','generic.cmdb.model_field_update',1,'2026-06-30 18:04:29','2026-06-30 17:29:04',7,NULL,1,'','model_field_update',0,0,'',0,''),
+(421,'资源模型删除属性(字段)','/cmdb/model_field_delete/','','generic.cmdb.model_field_delete',1,'2026-06-30 18:06:46','2026-06-30 17:29:26',7,NULL,1,'','model_field_delete',0,0,'',0,''),
+(422,'获取管控平台所有数据库组(应用监控)','/control/get_all_database_group_prom/','','generic.control.get_all_database_group_prom',1,'2026-07-21 15:21:38','2026-07-21 15:20:05',8,NULL,2,'','get_all_database_group_prom',0,0,'',0,''),
+(423,'获取管控平台所有中间件组(应用监控)','/control/get_all_middleware_group_prom/','','generic.control.get_all_middleware_group_prom',1,'2026-07-21 15:20:57','2026-07-21 15:20:57',8,NULL,2,'','get_all_middleware_group_prom',0,0,'',0,''),
+(424,'获取分组下的数据库(应用监控)','/control/get_database_info_for_prom/','','generic.control.get_database_info_for_prom',1,'2026-07-21 15:22:44','2026-07-21 15:22:44',8,NULL,1,'','get_database_info_for_prom',0,0,'',0,''),
+(425,'获取分组下的中间件(应用监控)','/control/get_middleware_info_for_prom/','','generic.control.get_middleware_info_for_prom',1,'2026-07-21 15:23:16','2026-07-21 15:23:16',8,NULL,1,'','get_middleware_info_for_prom',0,0,'',0,'');
 /*!40000 ALTER TABLE `esb_channel` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -427,4 +447,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-04-30 16:16:15
+-- Dump completed on 2026-07-22 18:07:10

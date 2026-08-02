@@ -281,7 +281,7 @@ class UserInfo(BaseModel):
         # 当有关联策略且状态为开启，时显示列表，否则不显示
         # 当登录时段被限制时登录按钮变灰，否则正常
         """
-        获取当前用户所有可访问的主机，即使该主机并不再可登陆时间段内
+        获取当前用户所有可访问的主机，即使该主机并不再可登录时间段内
         """
         host_credential_queryset = self.get_host_credential_queryset_v3()
         host_queryset = [host_credential_query.host for host_credential_query in host_credential_queryset]
@@ -291,7 +291,7 @@ class UserInfo(BaseModel):
         # 当有关联策略且状态为开启，时显示列表，否则不显示
         # 当登录时段被限制时登录按钮变灰，否则正常
         """
-        获取当前用户所有可访问的主机，即使该主机并不再可登陆时间段内
+        获取当前用户所有可访问的主机，即使该主机并不再可登录时间段内
         """
         if not host_credential_queryset:
             host_credential_queryset = []
@@ -1753,6 +1753,9 @@ class HostModel(BaseModel):
     resource_type = models.CharField(max_length=20, choices=RESOURCE_TYPE, default=RESOURCE_HOST, verbose_name="资源类型")
     network_proxy = models.ForeignKey(NetworkProxyModel, on_delete=models.SET_NULL, null=True, blank=True, related_name="network_proxy")
 
+    session_time = models.IntegerField(default=60, null=True, blank=True, verbose_name="临时会话时间 单位分钟")
+    session_unit = models.CharField(max_length=128, default="m", null=True, blank=True, verbose_name="临时会话单位")
+
     class Meta:
         db_table = "host"
         verbose_name = "主机资源"
@@ -2075,22 +2078,32 @@ class OperationLogModel(BaseModel):
 # 会话日志
 class SessionLogModel(BaseModel):
     host = models.ForeignKey(HostModel, on_delete=models.SET_NULL, blank=True, null=True, verbose_name="主机")
-    channel = models.CharField(max_length=100, verbose_name="通道名", blank=False, unique=True, editable=False)
-    log_name = models.CharField(max_length=100, verbose_name="日志名", blank=False, unique=False, editable=False)
+
+    host_name_code = models.CharField(max_length=100, verbose_name="主机唯一标识", blank=True, null=True)
     host_name = models.CharField(max_length=100, verbose_name="主机名称", blank=True, null=True)
+    database_type = models.CharField(max_length=20, null=True, blank=True, verbose_name="数据库类型")
     system_type = models.CharField(max_length=100, verbose_name="系统类型", default="Linux")
+    network_type = models.CharField(max_length=128, null=True, blank=True, verbose_name="网络设备类型")
+    protocol_type = models.CharField(max_length=20, blank=True, null=True, verbose_name="协议类型")
     host_address = models.CharField(max_length=100, verbose_name="主机地址", blank=True, null=True)
     port = models.IntegerField(default=22, verbose_name="端口")
-    protocol_type = models.CharField(max_length=20, blank=True, null=True, verbose_name="协议类型")
+    # host database network
+    resource_type = models.CharField(max_length=20, default="host", null=True, verbose_name="资源类型")
+
     login_name = models.CharField(max_length=100, verbose_name="系统用户", blank=True, null=True)
-    # 1 正常登陆     2 临时登陆
+    # 1 web: web登录     2 client: 客户端登录
     login_type = models.IntegerField(default=1)
+    channel = models.CharField(max_length=100, verbose_name="通道名", blank=False, unique=True, editable=False)
+    log_name = models.CharField(max_length=100, verbose_name="日志名", blank=False, unique=False, editable=False)
+    width = models.PositiveIntegerField(default=1024, verbose_name="宽度")
+    height = models.PositiveIntegerField(default=768, verbose_name="高度")
+
     start_time = models.DateTimeField(auto_now_add=True, verbose_name="开始时间")
     end_time = models.DateTimeField(auto_created=True, auto_now=True, verbose_name="结束时间")
     is_finished = models.BooleanField(default=False, verbose_name="是否完成")
+
     user = models.CharField(max_length=100, verbose_name="用户名", blank=False, unique=False)
-    width = models.PositiveIntegerField(default=1024, verbose_name="宽度")
-    height = models.PositiveIntegerField(default=768, verbose_name="高度")
+    # ch_name = models.CharField(max_length=200, verbose_name="中文名", blank=False, unique=False, null=True, default="")
     guacamole_client_id = models.CharField(max_length=100, verbose_name="Gucamole通道名称", blank=True, editable=False)
     # TAG CHOICE: [init, connect]
     tag = models.CharField(max_length=100, verbose_name="标签", blank=True, null=True)

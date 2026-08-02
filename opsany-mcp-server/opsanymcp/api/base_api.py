@@ -12,19 +12,41 @@ class APIEndpoints:
     control = url_startswith + "control/"
     workbench = url_startswith + "workbench/"
     job = url_startswith + "job/"
+    prom = url_startswith + "prom/"
+    evnet = url_startswith + "event/"
+    kbase = url_startswith + "kbase/"
 
     check_api_token = "/login/accounts/is_login/"
     opsany_cmdb_api_resources = cmdb + "get_cmdb_model_tree/"
     opsany_cmdb_get_resource_fields = cmdb + "get_model_field/"
+
+    opsany_cmdb_get_model_group = cmdb + "get_model_group/"
+
+    opsany_cmdb_get_model = cmdb + "model_get/"
+    opsany_cmdb_create_model = cmdb + "model_create/"
+    opsany_cmdb_update_model = cmdb + "model_update/"
+    opsany_cmdb_delete_model = cmdb + "model_delete/"
+
     opsany_cmdb_get_resource = cmdb + "model_data_get/"
+    opsany_cmdb_create_model_fields = cmdb + "model_field_create/"
+    opsany_cmdb_update_model_fields = cmdb + "model_field_update/"
+    opsany_cmdb_delete_model_fields = cmdb + "model_field_delete/"
+
+    opsany_cmdb_get_model_field = cmdb + "model_field_get/"
+    opsany_cmdb_create_model_field = cmdb + "model_field_create/"
+    opsany_cmdb_update_model_field = cmdb + "model_field_update/"
+    opsany_cmdb_delete_model_field = cmdb + "model_field_delete/"
+
+    opsany_cmdb_create_resource = cmdb + "model_data_create/"
+    opsany_cmdb_update_resource = cmdb + "model_data_update/"
+    opsany_cmdb_delete_resource = cmdb + "model_data_delete/"
+
     opsany_cmdb_get_can_add_link_inst_list = cmdb + "get_link_inst/"
     opsany_cmdb_get_resource_link_inst_count = cmdb + "get_model_rel_field/"
     opsany_cmdb_get_resource_link_inst_list = cmdb + "get_inst_by_rel_data/"
     opsany_cmdb_resource_add_link_inst = cmdb + "update_link_inst/"
     opsany_cmdb_resource_remove_link_inst = cmdb + "update_link_inst/"
-    opsany_cmdb_create_resource = cmdb + "model_data_create/"
-    opsany_cmdb_update_resource = cmdb + "model_data_update/"
-    opsany_cmdb_delete_resource = cmdb + "model_data_delete/"
+
     opsany_rbac_get_or_search_all_user = opsany_rbac_get_my_user_info = rbac + "get_all_user/"
     opsany_rbac_create_user = rbac + "post_create_user/"
     opsany_rbac_delete_user = rbac + "post_delete_user/"
@@ -39,6 +61,7 @@ class APIEndpoints:
     opsany_job_run_script_by_id = job + "run_script_by_id/"
     opsany_job_run_script_by_script = job + "run_script_by_script/"
     opsany_job_get_run_result_by_log_id = job + "get_run_result_by_log_id/"
+    opsany_job_create_script_library = job + "script_library_create/"
     opsany_control_get_managed_host_list = control + "get_control_agent_info/"
     opsany_control_get_controller_list = control + "get_controller_proxy/"
     opsany_control_get_host_group_list = control + "get_agent_group_list/"
@@ -47,6 +70,11 @@ class APIEndpoints:
     opsany_control_get_dashboard_list = control + "get_grafana_dashboard_list/"
     opsany_control_get_zabbix_temp_list = control + "get_zabbix_template_list/"
     opsany_control_create_host = control + "post_create_host/"
+
+    opsany_prom_alert_info = prom + "get_alert/"
+    opsany_event_alert_info = evnet + "get_event_alert/"
+    opsany_kbase_read_kbase_list = kbase + "kbase_list/"
+    opsany_kbase_read_kbase_article = kbase + "kbase_article/"
 
 
 class BaseObj:
@@ -57,6 +85,7 @@ class BaseObj:
 
         self.api_service = config.get("apiService")
         self.url = self.api_service.get("url")
+        self.licence = self.api_service.get("licence")
         self.super_username = self.api_service.get("super_username")
         self.bk_username = username
         self.is_bk_username = False
@@ -103,6 +132,17 @@ class BaseObj:
         except Exception as e:
             return False, err_title.format(str(e))
 
+    def _base_run(self, fun_name, method, params, body, headers, kwargs):
+        tool_timeout = kwargs.pop("tool_timeout", 60)
+        status, data_list, mess = self.call(fun_name, method, params=params, body=body, timeout=tool_timeout)
+        if not status:
+            return self.to_json(False, mess)
+        if self.real_data_type == "table_header":
+            result = {"columns": headers, "rows": data_list}
+        else:
+            result = []
+        return self.to_json(True, mess, result)
+
     def call(self, url_fun, method, params=None, body=None, headers=None, timeout=None):
         if not timeout:
             timeout = 30
@@ -131,6 +171,7 @@ class BaseObj:
         try:
             res = request(method, url, data=json.dumps(body), params=params, headers=headers, timeout=timeout, verify=False)
             # print("call_url", res.url)
+            # print("body.body", body)
             # print("call_res", res.content.decode())
             try:
                 json_data = res.json()

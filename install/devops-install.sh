@@ -38,6 +38,16 @@ install_init(){
              -i http://mirrors.aliyun.com/pypi/simple/ \
              --trusted-host mirrors.aliyun.com
 }
+gogs_install(){
+    # Step1: Create Jenkins Home
+    mkdir -p ${INSTALL_PATH}/gogs-home 
+    # Step2: Start Jenkins Master
+    docker run --restart=always --name opsany-devops-gogs -t \
+    -v /etc/localtime:/etc/localtime:ro \
+    -v ${INSTALL_PATH}/gogs-home:/data \
+    -p 8016:3000 -p 8017:22 \
+    -d ${PAAS_DOCKER_REG}/gogs:0.14.2
+}
 
 jenkins_install(){
     # Step1: Create Jenkins Home

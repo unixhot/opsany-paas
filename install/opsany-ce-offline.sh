@@ -8,8 +8,8 @@
 
 # Data/Time Variables
 CTIME=$(date "+%Y-%m-%d-%H-%M")
-SAAS_VERSION="2.3.2"
-PAAS_VERSION="4.0.2"
+SAAS_VERSION="2.3.3"
+PAAS_VERSION="4.0.3"
 mkdir -p /opt/opsany-v${SAAS_VERSION}-x86_64/images
 
 base_save(){
@@ -60,7 +60,6 @@ paas_save(){
 
 ce_save(){
     # 导出社区版SaaS镜像
-	docker pull registry.cn-beijing.aliyuncs.com/opsany/opsany-saas-ce-llmops:${SAAS_VERSION}
 	docker pull registry.cn-beijing.aliyuncs.com/opsany/opsany-saas-ce-rbac:${SAAS_VERSION}
 	docker pull registry.cn-beijing.aliyuncs.com/opsany/opsany-saas-ce-workbench:${SAAS_VERSION}
 	docker pull registry.cn-beijing.aliyuncs.com/opsany/opsany-saas-ce-cmdb:${SAAS_VERSION}
@@ -74,7 +73,6 @@ ce_save(){
 	docker pull registry.cn-beijing.aliyuncs.com/opsany/opsany-saas-ce-deploy:${SAAS_VERSION}
 	docker pull registry.cn-beijing.aliyuncs.com/opsany/opsany-saas-ce-repo:${SAAS_VERSION}
 	cd /opt/opsany-v${SAAS_VERSION}-x86_64/images
-	docker save -o opsany-saas-llmops-${SAAS_VERSION}.tar registry.cn-beijing.aliyuncs.com/opsany/opsany-saas-ce-llmops:${SAAS_VERSION}
 	docker save -o opsany-saas-rbac-${SAAS_VERSION}.tar registry.cn-beijing.aliyuncs.com/opsany/opsany-saas-ce-rbac:${SAAS_VERSION}
 	docker save -o opsany-saas-workbench-${SAAS_VERSION}.tar registry.cn-beijing.aliyuncs.com/opsany/opsany-saas-ce-workbench:${SAAS_VERSION}
 	docker save -o opsany-saas-cmdb-${SAAS_VERSION}.tar registry.cn-beijing.aliyuncs.com/opsany/opsany-saas-ce-cmdb:${SAAS_VERSION}
@@ -87,7 +85,6 @@ ce_save(){
 	docker save -o opsany-saas-pipeline-${SAAS_VERSION}.tar registry.cn-beijing.aliyuncs.com/opsany/opsany-saas-ce-pipeline:${SAAS_VERSION}
 	docker save -o opsany-saas-deploy-${SAAS_VERSION}.tar registry.cn-beijing.aliyuncs.com/opsany/opsany-saas-ce-deploy:${SAAS_VERSION}
 	docker save -o opsany-saas-repo-${SAAS_VERSION}.tar registry.cn-beijing.aliyuncs.com/opsany/opsany-saas-ce-repo:${SAAS_VERSION}
-	docker save -o opsany-saas-code-${SAAS_VERSION}.tar registry.cn-beijing.aliyuncs.com/opsany/opsany-saas-ce-code:${SAAS_VERSION}
 }
 
 # Main

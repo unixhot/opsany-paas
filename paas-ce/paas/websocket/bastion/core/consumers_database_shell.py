@@ -6,7 +6,7 @@ import logging
 import uuid
 import datetime
 import socket
-from channels.generic.websocket import AsyncWebsocketConsumer
+from channels.generic.websocket import WebsocketConsumer
 from django_redis import get_redis_connection
 
 from bastion.component.redis_client_conn import get_redis_dict_data
@@ -27,18 +27,26 @@ from bastion.utils.encryption import PasswordEncryption
 app_logging = logging.getLogger("app")
 
 
-class Database(AsyncWebsocketConsumer):
-    ssh = paramiko.SSHClient()
+class Database(WebsocketConsumer):
     http_user = True
     channel_session = True
     channel_session_user = True
-    first_flag = True
-    wait_time = time.time()
-    user = None
     cache = get_redis_connection("cache")
-    token = ""
-    database = None
-    session_log = None
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.ssh = None  # 延迟到 connect() 时创建
+        self.first_flag = True
+        self.wait_time = time.time()
+        self.user = None
+        self.token = ""
+        self.database = None
+        self.session_log = None
+        self._queue = None
+        self._ssh_terminal = None
+        self._interactive_shell = None
+        self.stop_key = ""
+        self.chan = None
 
     def get_request_param_dict(self):
         query_string = self.scope.get("query_string").decode()
@@ -133,6 +141,7 @@ class Database(AsyncWebsocketConsumer):
         创建本地连接或者代理连接
         """
         try:
+            self.ssh = paramiko.SSHClient()
             self.ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             if username:
                 self.ssh.connect(hostname=ip, port=port, username=username, password=password, timeout=timeout)
@@ -145,7 +154,7 @@ class Database(AsyncWebsocketConsumer):
             app_logging.error("[ERROR] Databases web socket, client_proxy_or_local_link error: {}, param: {}".format(
                 str(e), str([ip, port])
             ))
-            return False, WebSocketStatusCode.SSH_CHECK_ERROR
+            return False, WebSocketStatusCode.SSH_AUTH_FAILED_ERROR
 
     def close_connect(self, text):
         self.send(text_data=str(text))
@@ -189,11 +198,7 @@ class Database(AsyncWebsocketConsumer):
             host_address = database.host_address
             database_type = database.database_type
             command_status, command = self.get_login_database_command(
-                database_type,
-                host_address,
-                port,
-                login_name,
-                password
+                database_type, host_address, port, login_name, password
             )
         else:
             login_name = credential.login_name
@@ -201,11 +206,7 @@ class Database(AsyncWebsocketConsumer):
             database_type = database.database_type
             port = database.port
             command_status, command = self.get_login_database_command(
-                database_type,
-                host_address,
-                port,
-                login_name,
-                password
+                database_type, host_address, port, login_name, password
             )
         if not command_status:
             self.close_connect(command)
@@ -265,8 +266,10 @@ class Database(AsyncWebsocketConsumer):
             self.database = HostModel.fetch_one(id=host_id)
             if not self.database or not credential_host:
                 self.close_connect(WebSocketStatusCode.PARAM_ERROR)
+                return ""
             if self.database.resource_type != HostModel.RESOURCE_DATABASE:
                 self.close_connect(WebSocketStatusCode.HOST_TYPE_ERROR)
+                return ""
             command = self._create_databases_link(credential_host.credential, self.database, password, timeout)
         else:
             command = self._create_cache_databases_link(data, timeout)
@@ -278,11 +281,11 @@ class Database(AsyncWebsocketConsumer):
             query_dict = dict([x.split('=', 1) for x in query_string.split('&')])
             width = int(float(query_dict["width"]))
             height = int(float(query_dict["height"]))
-        except:
+        except Exception:
             width = 175
             height = 55
         """
-        根据Token获取的缓存数据记录登陆日志
+        根据Token获取的缓存数据记录登录日志
         """
         log_name = str(uuid.uuid4())
         if not data.get("cache"):
@@ -327,17 +330,21 @@ class Database(AsyncWebsocketConsumer):
     def start_ssh(self, command):
         chan = self.ssh.invoke_shell(width=self.session_log.width, height=self.session_log.height, term='xterm')
         chan.send(command + "\n")
-        res = chan.recv(1024)
+        chan.recv(1024)
         sshterminal = SshTerminalThread(self, chan, self.user.username, self.token,
                                         ssh_type=self.database.resource_type)
-        sshterminal.setDaemon = True
+        sshterminal.daemon = True
         sshterminal.start()
+        self._ssh_terminal = sshterminal
         log_name = self.session_log.log_name + '.log'
+        self.stop_key = str(uuid.uuid4())
         interactivessh = InterActiveShellThread(chan, self, log_name=log_name, width=self.session_log.width,
                                                 height=self.session_log.height,
-                                                database_client=command)
-        interactivessh.setDaemon = True
+                                                database_client=command, stop_key=self.stop_key)
+        interactivessh.daemon = True
         interactivessh.start()
+        self._interactive_shell = interactivessh
+        self.chan = chan
 
     def connect(self):
         self.wait_time = time.time()
@@ -346,18 +353,53 @@ class Database(AsyncWebsocketConsumer):
         status, code, data = self.check_token()
         if not status and status is not None:
             self.close_connect(code)
+            return
         try:
             command = self.create_database_link(data)
         except Exception as e:
             app_logging.error("[ERROR] Create database link error: {}".format(str(e)))
             command = ""
-            self.close_connect(WebSocketStatusCode.SSH_CHECK_ERROR)
+            self.close_connect(WebSocketStatusCode.SSH_AUTH_FAILED_ERROR)
+            return
+        if not command:
+            return
         self.session_log = self.create_session_log(data)
         self.start_ssh(command)
 
     def disconnect(self, close_code):
+        # 1. 设置 stop_key 让 InterActiveShellThread 退出
+        redis_client = get_redis_connection("cache")
+        if self.stop_key:
+            try:
+                redis_client.set(self.stop_key, "true")
+                redis_client.expire(self.stop_key, 10)
+            except Exception:
+                pass
+        # 2. 停止 SshTerminalThread
+        if self._ssh_terminal:
+            try:
+                self._ssh_terminal.stop()
+            except Exception:
+                pass
+        # 3. 发送关闭消息到 Redis 队列
+        try:
+            self.queue.publish(self.channel_name, json.dumps(['close']))
+        except Exception:
+            pass
+        # 4. 关闭 SSH
         self.close_ssh()
         time.sleep(0.5)
+        # 5. 等待线程结束
+        if self._ssh_terminal:
+            try:
+                self._ssh_terminal.join(timeout=3)
+            except Exception:
+                pass
+        if self._interactive_shell:
+            try:
+                self._interactive_shell.join(timeout=3)
+            except Exception:
+                pass
         try:
             self.session_log.update(**{
                 "is_finished": True,
@@ -365,21 +407,41 @@ class Database(AsyncWebsocketConsumer):
             })
         except Exception as e:
             app_logging.error("[ERROR] Update Session Log error: {}, param: {}".format(str(e), str(self.session_log)))
+        self._ssh_terminal = None
+        self._interactive_shell = None
         self.close()
 
     def close_ssh(self):
-        self.queue.publish(self.channel_name, json.dumps(['close']))
+        if self.chan:
+            try:
+                self.chan.close()
+            except Exception:
+                pass
+            self.chan = None
+        if self.ssh:
+            try:
+                transport = self.ssh.get_transport()
+                if transport:
+                    transport.close()
+            except Exception:
+                pass
+            try:
+                self.ssh.close()
+            except Exception:
+                pass
+            self.ssh = None
 
     @property
     def queue(self):
-        queue = SSHBaseComponent().get_redis_instance()
-        queue.pubsub()
-        return queue
+        if self._queue is None:
+            self._queue = SSHBaseComponent().get_redis_instance()
+        return self._queue
 
     def receive(self, text_data=None, bytes_data=None, **kwargs):
         status, code, data = self.check_token()
         if not status and status is not None:
             self.close_connect(code)
+            return
         try:
             if text_data is not None:  # 普通命令执行
                 self.queue.publish(self.channel_name, text_data)

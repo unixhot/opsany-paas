@@ -21,6 +21,7 @@ import codecs
 # from paramiko.py3compat import u
 import errno
 import os
+from collections import deque
 
 from bastion.component.redis_client_conn import get_redis_str_data
 
@@ -52,28 +53,36 @@ app_logger = logging.getLogger("app")
 
 try:
     from channels.layers import get_channel_layer
-    channel_layer = get_channel_layer()
-except:
-    pass
+    _channel_layer = get_channel_layer()
+except Exception:
+    _channel_layer = None
+
+# 为 get_redis_instance 缓存 Redis 连接池，避免每次调用创建新连接
+_redis_pool = None
 
 
 class SSHBaseComponent:
     @staticmethod
     def get_redis_instance():
-        redis_server = channel_layer.hosts[0]["address"]
-        redis_list = redis_server.split('/')
-        db = 0
-        if len(redis_list) == 4:
-            db = redis_list[3]
-        host_str = redis_list[2]
-        if len(host_str.split(":")) < 3:
-            port = host_str.split(":")[1]
-            host = host_str.split(":")[0]
-            return redis.StrictRedis(host=host, port=port, db=db)
-        else:
-            port = host_str.split(":")[2]
-            password, host = host_str.split(":")[1].split('@')
-            return redis.StrictRedis(host=host, port=port, password=password, db=db)
+        if _channel_layer is None:
+            raise RuntimeError("channel_layer not initialized")
+        global _redis_pool
+        if _redis_pool is None:
+            redis_server = _channel_layer.hosts[0]["address"]
+            redis_list = redis_server.split('/')
+            db = 0
+            if len(redis_list) == 4:
+                db = int(redis_list[3])
+            host_str = redis_list[2]
+            if len(host_str.split(":")) < 3:
+                port = int(host_str.split(":")[1])
+                host = host_str.split(":")[0]
+                _redis_pool = redis.ConnectionPool(host=host, port=port, db=db, max_connections=50)
+            else:
+                port = int(host_str.split(":")[2])
+                password, host = host_str.split(":")[1].split('@')
+                _redis_pool = redis.ConnectionPool(host=host, port=port, password=password, db=db, max_connections=50)
+        return redis.StrictRedis(connection_pool=_redis_pool)
 
     @staticmethod
     def remove_obstruct_char(cmd_str):
@@ -139,7 +148,7 @@ class SSHBaseComponent:
         result_command = control_char.sub('', result_command.strip())
         try:
             return result_command.decode('utf8', "ignore")
-        except:
+        except Exception:
             return result_command
 
     def generate_final_command(self, command):
@@ -272,7 +281,7 @@ class SshTerminalThread(threading.Thread):
             current_time = time.time()
             idle_duration = current_time - getattr(self.websocket, 'wait_time', current_time)
             
-            if int(idle_duration) > settings.TERMINAL_TIMEOUT:
+            if int(idle_duration) > getattr(settings, "TERMINAL_TIMEOUT", 1800):
                 # 尝试发送超时提示
                 try:
                     self.websocket.send("\r\nTimeout...\r\nconnection closed...")
@@ -300,20 +309,19 @@ class SshTerminalThread(threading.Thread):
     def _clean_text_data(self, text):
         text_data = text.get("data")
         if isinstance(text_data, (str, basestring, unicode, bytes)):
-            # print("1. 数据类型是字符串字节进入....")
             if isinstance(text_data, bytes):
-                try:
-                    data = ast.literal_eval(text_data.decode('utf8'))
-                except Exception as e:
-                    data = text_data
-            else:
-                try:
-                    data = ast.literal_eval(text_data)
-                except Exception as e:
-                    data = text_data
-        else:
-            data = text_data
-        return data
+                text_data = text_data.decode('utf8')
+            # 先尝试安全的 ast.literal_eval（处理 Python 字面量）
+            try:
+                return ast.literal_eval(text_data)
+            except (ValueError, SyntaxError, MemoryError):
+                pass
+            # 再尝试 json.loads（处理 JSON 格式）
+            try:
+                return json.loads(text_data)
+            except (json.JSONDecodeError, TypeError):
+                return text_data
+        return text_data
 
     def send_large_text_or_bytes(self, text, chunk_size=2048):
         if isinstance(text, bytes):
@@ -338,6 +346,12 @@ class SshTerminalThread(threading.Thread):
             self.websocket.send(WebSocketStatusCode.CHANNEL_CREATE_ERROR)
             self.stop()
             self.websocket.disconnect(1000)
+            # 清理 Redis pub/sub
+            try:
+                self.queue.unsubscribe()
+                self.queue.close()
+            except Exception:
+                pass
             return
         block_flag = True
         block_type = 0
@@ -345,10 +359,9 @@ class SshTerminalThread(threading.Thread):
         command_history_obj = None
         while not self._stop_event.is_set():
             self.check_timeout_close()
-            text = self.queue.get_message()
+            text = self.queue.get_message(timeout=1.0)
             if text:
                 self.websocket.wait_time = time.time()
-                # print("tttttttttttttttttttttttttttt", len(str(text['data'])), type(text['data']), (text['type']), text['data'])
                 data = self._clean_text_data(text)
                 if isinstance(data, (list, tuple)):
                     if data[0] == 'command':
@@ -377,15 +390,12 @@ class SshTerminalThread(threading.Thread):
                     try:
                         try:
                             new_data = str(data, encoding="utf8")
-                        except:
+                        except Exception:
                             new_data = str(data)
-                        # command.append(new_data)
                         app_logger.info("{}".format(new_data))
                         if self.chan.vim_flag:
-                            # in vim or 多行输入
                             pass
                         elif '\r' in new_data and len(command) > 0 and command[len(command)-1] == '\\':
-                            # 多行输入 换行处理
                             command.pop(len(command)-1)
                         else:
                             if not block_flag and block_type == 2:
@@ -406,17 +416,14 @@ class SshTerminalThread(threading.Thread):
                                             '\r\n\033[31m' + self.get_block_info(block_info) + ': [Y/N] \033[0m'
                                     )
                                     continue
-                            # 重置block_flag
                             block_flag = True
                             block_type = 0
                             if new_data == '\r':
-                                # 特殊控制字符处理
                                 record_command = self.ssh_base_component.deal_command(
                                         ''.join(command).strip().replace('\\\r', '\r')
                                 )
                                 if isinstance(record_command, str):
                                     record_command = str(record_command).encode('utf-16', errors='ignore').decode('utf-16')
-                                # 命令拦截匹配策略
                                 block_flag, block_type, block_info = CheckUserHostComponent().check_command(
                                         command=record_command.strip(), token=self.token
                                 )
@@ -434,6 +441,8 @@ class SshTerminalThread(threading.Thread):
                                                 self.chan.close()
                                                 break
                                             except OSError:
+                                                pass
+                                            except Exception:
                                                 pass
                                             self.stop()
                                             break
@@ -466,11 +475,19 @@ class SshTerminalThread(threading.Thread):
                             command = list()
                         else:
                             self.send_large_text_or_bytes(data)
-                            # self.chan.send(str(data))
                     except socket.error:
                         self.websocket.disconnect(1000)
                         self.stop()
-            time.sleep(0.001)
+        # 线程退出时清理 Redis pub/sub 和 SSH channel
+        try:
+            self.queue.unsubscribe()
+            self.queue.close()
+        except Exception:
+            pass
+        try:
+            self.chan.close()
+        except Exception:
+            pass
 
 
 class FloatEncoder(json.JSONEncoder):
@@ -572,8 +589,10 @@ class InterActiveShellThread(threading.Thread):
         session_obj = None
         database_re = "^ERROR \d+ .*?: \S+"
         queue = self.ssh_base_component.get_redis_instance()
-        queue.pubsub()
+        queue_pubsub = queue.pubsub()
         vim_data = ''
+        # 优化：使用列表拼接代替字符串 += 减少 vim_data 的内存副本（性能优化）
+        vim_data_parts = []
         try:
             sshchan.settimeout(0)
             data = None
@@ -582,11 +601,19 @@ class InterActiveShellThread(threading.Thread):
                     break
                 try:
                     try:
-                        r, w, x = select.select([sshchan], [], [])
+                        r, w, x = select.select([sshchan], [], [], 0.2)
                     except Exception as e:
-                        pass
+                        r = None
+                    if not r:
+                        # 超时无数据，继续循环（可以让 stop_key 检查生效）
+                        continue
 
-                    data = sshchan.recv(102400)
+                    try:
+                        data = sshchan.recv(102400)
+                    except (socket.error, paramiko.SSHException) as e:
+                        # socket 已关闭，直接退出
+                        break
+
                     # print("dddddddddddddddddddddddd", data)
                     if self.database_client:
                         # app_logger.info("self.database_client: ||||{}||||".format(self.database_client))
@@ -640,19 +667,20 @@ class InterActiveShellThread(threading.Thread):
                                 try:
                                     channel.send(x)
                                 except Exception as e:
-                                    print("posix_shell /bastion/core/terminal/component.py 784", str(e))
+                                    app_logger.warning("posix_shell send exit error: %s", e)
                                 break
                             else:
                                 re_pro1 = re.compile('\[.*@.*\][\$#]')
                                 re_pro2 = re.compile('\x1b]0;.*@.*\x07')
                                 if sshchan.vim_flag:
                                     # vim_data 持续在Vi中操作数据量会变大
-                                    vim_data += x
-                                    vim_data = vim_data[-500:]
+                                    # 优化：使用列表拼接代替字符串 +=，v += 'x' 每次创建新字符串副本，
+                                    # vim_data_parts.append(x) + join 只创建一次字符串
+                                    vim_data_parts.append(x)
+                                    vim_data = ''.join(vim_data_parts[-50:])  # 只保留最近50段拼接
                                     if re_pro1.search(vim_data):
                                         sshchan.vim_flag = False
-                                        del vim_data
-                                        # global vim_data
+                                        vim_data_parts = []
                                         vim_data = ''
                                 if not sshchan.vim_flag and '\r\n' not in x and not re_pro1.search(x) and not re_pro2.search(x):
                                     # app_logger.debug("Line 690 DEBUG {}".format(str(x)))
@@ -673,11 +701,21 @@ class InterActiveShellThread(threading.Thread):
                                         # CommandLog.objects.create(log=session_obj, command=command_result[0:255])
                                         # 创建命令日志
                                         command = []
-                                # stdout 持续使用列表数量递增
+                                # stdout 持续使用列表数量递增，限制防止 OOM
+                                MAX_MEMORY_FRAMES = 2000
                                 if isinstance(x, unicode):
-                                    stdout.append([delay, x])
+                                    if len(stdout) < MAX_MEMORY_FRAMES:
+                                        stdout.append([delay, x])
+                                    else:
+                                        # 超过内存限制时，丢弃旧帧来防止 OOM
+                                        stdout.pop(0)
+                                        stdout.append([delay, x])
                                 else:
-                                    stdout.append([delay, codecs.getincrementaldecoder('UTF-8')('replace').decode(x)])
+                                    if len(stdout) < MAX_MEMORY_FRAMES:
+                                        stdout.append([delay, codecs.getincrementaldecoder('UTF-8')('replace').decode(x)])
+                                    else:
+                                        stdout.pop(0)
+                                        stdout.append([delay, codecs.getincrementaldecoder('UTF-8')('replace').decode(x)])
                             if isinstance(x, unicode):
                                 if elementid:
                                     channel.send(json.dumps(['stdout', x, elementid.rsplit('_')[0]]))
@@ -688,12 +726,12 @@ class InterActiveShellThread(threading.Thread):
                                         pass
                             else:
                                 if elementid:
-                                    channel_layer.send(channel, {'text_data': json.dumps(
+                                    _channel_layer.send(channel, {'text_data': json.dumps(
                                         ['stdout', smart_unicode(x), elementid.rsplit('_')[0]])})
                                 else:
-                                    channel_layer.send(channel, {'bytes_data': data})
+                                    _channel_layer.send(channel, {'bytes_data': data})
                 except socket.timeout as e:
-                    print("socket.timeout", e)
+                    app_logger.warning("socket.timeout: %s", e)
                     channel.disconnect(1000)
                     break
                 except UnicodeDecodeError:
@@ -713,15 +751,21 @@ class InterActiveShellThread(threading.Thread):
         finally:
             try:
                 channel.send('\r\nconnection closed....')
-            except:
+            except Exception:
                 pass
             try:
                 channel.close()
-            except:
+            except Exception:
                 pass
             sshchan.close()
+            # 清理未使用的 Redis pubsub 连接
+            try:
+                queue_pubsub.close()
+            except Exception:
+                pass
             time.sleep(2)
             self.create_log(width, height, begin_time, stdout, log_name)
 
     def run(self):
         self.posix_shell(self.chan, self.channel, self.log_name, self.width, self.height, elementid=self.elementid)
+

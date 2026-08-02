@@ -1,4 +1,5 @@
 import inspect
+from datetime import datetime
 
 from opsanymcp.api.base_api import BaseObj
 
@@ -438,7 +439,6 @@ class CMDBApi(BaseObj):
 
     def opsany_cmdb_create_resource(self, **kwargs):
         fun_name = inspect.currentframe().f_code.co_name
-        tool_timeout = kwargs.pop("tool_timeout", 60)
         body = {
             "model_code": kwargs.get("model_code"),
             "username": self.username,
@@ -446,26 +446,16 @@ class CMDBApi(BaseObj):
             "import_type": kwargs.get("import_type", "API创建"),
             "data": kwargs.get("data"),
         }
-        status, data_list, mess = self.call(fun_name, "POST", params={}, body=body, timeout=tool_timeout)
-        if not status:
-            return self.to_json(False, mess)
-
         result_headers = {
             "code": "资源ID",
             "model_code": "资源类型",
             "data": "数据Dict",
             "parent_inst": "从属实例",
         }
-
-        if self.real_data_type == "table_header":
-            result = {"columns": result_headers, "rows": data_list}
-        else:
-            result = []
-        return self.to_json(True, mess, result)
+        return self._base_run(fun_name, "POST", {}, body, result_headers, kwargs)
 
     def opsany_cmdb_update_resource(self, **kwargs):
         fun_name = inspect.currentframe().f_code.co_name
-        tool_timeout = kwargs.pop("tool_timeout", 60)
         body = {
             "model_code": kwargs.get("model_code"),
             "username": self.username,
@@ -473,34 +463,21 @@ class CMDBApi(BaseObj):
             "data": kwargs.get("data"),
             "parent_inst": kwargs.get("parent_inst"),
         }
-        status, data_list, mess = self.call(fun_name, "POST", params={}, body=body, timeout=tool_timeout)
-        if not status:
-            return self.to_json(False, mess)
-
         result_headers = {
             "code": "资源ID",
             "model_code": "资源类型",
             "data": "数据Dict",
             "parent_inst": "从属实例",
         }
-
-        if self.real_data_type == "table_header":
-            result = {"columns": result_headers, "rows": data_list}
-        else:
-            result = []
-        return self.to_json(True, mess, result)
+        return self._base_run(fun_name, "POST", {}, body, result_headers, kwargs)
 
     def opsany_cmdb_delete_resource(self, **kwargs):
         fun_name = inspect.currentframe().f_code.co_name
-        tool_timeout = kwargs.pop("tool_timeout", 60)
         body = {
             "model_code": kwargs.get("model_code"),
             "username": self.username,
             "code": kwargs.get("code"),
         }
-        status, data_list, mess = self.call(fun_name, "POST", params={}, body=body, timeout=tool_timeout)
-        if not status:
-            return self.to_json(False, mess)
 
         result_headers = {
             "code": "资源ID",
@@ -508,9 +485,158 @@ class CMDBApi(BaseObj):
             "data": "数据Dict",
             "parent_inst": "从属实例",
         }
+        return self._base_run(fun_name, "POST", {}, body, result_headers, kwargs)
 
-        if self.real_data_type == "table_header":
-            result = {"columns": result_headers, "rows": data_list}
-        else:
-            result = []
-        return self.to_json(True, mess, result)
+    def opsany_cmdb_get_model_group(self, **kwargs):
+        fun_name = inspect.currentframe().f_code.co_name
+        params = {
+            "model_type": kwargs.get("model_type"),
+        }
+        result_headers = {
+            "code": "资源ID",
+            "name": "资源类型",
+            "index": "数据Dict",
+            "built_in": "数据Dict",
+            "model_type": "模型类型(zc:资产 yw:业务 zz:组织 gl:其他)",
+        }
+        return self._base_run(fun_name, "GET", params, {}, result_headers, kwargs)
+
+    def opsany_cmdb_get_model(self, **kwargs):
+        fun_name = inspect.currentframe().f_code.co_name
+        params = {
+            "model_type": kwargs.get("model_type"),
+        }
+        result_headers = {
+            "code": "资源ID",
+            "name": "资源类型",
+            "index": "数据Dict",
+            "built_in": "数据Dict",
+            "model_type": "模型类型(zc:资产 yw:业务 zz:组织 gl:其他)",
+        }
+        return self._base_run(fun_name, "GET", params, {}, result_headers, kwargs)
+
+    def opsany_cmdb_create_model(self, **kwargs):
+        fun_name = inspect.currentframe().f_code.co_name
+        params = {
+            "code": kwargs.get("code"),
+            "name": kwargs.get("name"),
+            "model_type": kwargs.get("model_type"),
+            "model_group": kwargs.get("model_group"),
+            "clone_model": kwargs.get("clone_model"),
+            "built_in": kwargs.get("built_in"),
+        }
+        result_headers = {
+            "code": "模型code",
+            "name": "模型名称",
+            "index": "模型排序",
+            "description": "模型描述",
+            "built_in": "是否内置",
+            "model_group": "模型分组",
+            "is_stop": "是否停用",
+            "is_display": "是否展示",
+            "icon_code": "图标",
+            "model_type": "模型类型(zc:资产 yw:业务 zz:组织 gl:其他)",
+        }
+        return self._base_run(fun_name, "POST", {}, params, result_headers, kwargs)
+
+    def opsany_cmdb_update_model(self, **kwargs):
+        fun_name = inspect.currentframe().f_code.co_name
+        params = {
+            "code": kwargs.get("code"),
+            "built_in": kwargs.get("built_in"),
+            "name": kwargs.get("name"),
+            "model_group": kwargs.get("model_group"),
+        }
+        result_headers = {
+            "code": "模型code",
+            "name": "模型名称",
+            "index": "模型排序",
+            "description": "模型描述",
+            "built_in": "是否内置",
+            "model_group": "模型分组",
+            "is_stop": "是否停用",
+            "is_display": "是否展示",
+            "icon_code": "图标",
+            "model_type": "模型类型(zc:资产 yw:业务 zz:组织 gl:其他)",
+        }
+        return self._base_run(fun_name, "POST", {}, params, result_headers, kwargs)
+
+    def opsany_cmdb_delete_model(self, **kwargs):
+        fun_name = inspect.currentframe().f_code.co_name
+        params = {
+            "code": kwargs.get("code"),
+        }
+        result_headers = {}
+        return self._base_run(fun_name, "POST", {}, params, result_headers, kwargs)
+
+    def opsany_cmdb_create_model_fields(self, **kwargs):
+        fun_name = inspect.currentframe().f_code.co_name
+        data = {
+            "code": kwargs.get("code"),
+            "name": kwargs.get("name"),
+            "type_name": kwargs.get("type_name"),
+            "model_code": kwargs.get("model_code"),
+            "field_group_code": kwargs.get("field_group_code"),
+            "not_null": kwargs.get("not_null"),
+            "built_in": kwargs.get("built_in"),
+            "index": kwargs.get("index"),
+            "attribute": kwargs.get("attribute"),
+        }
+        result_headers = {
+            "code": "字段code",
+            "name": "字段名称",
+            "index": "字段排序",
+            "type_name": "字段类型",
+            "built_in": "是否必填",
+            "model_code": "模型code",
+            "field_group_code": "字段分组",
+            "not_null": "排序",
+            "attribute": "字段属性(包括规则下拉数据等相关配置)",
+            "attribute.关系类型": "关系类型",
+            "attribute.rule_id": "规则类型",
+            "attribute.默认值": "默认值",
+            "attribute.用户提示": "用户提示",
+            "attribute.rule": "规则",
+            "attribute.选项": "下拉框选项",
+        }
+        return self._base_run(fun_name, "POST", {}, data, result_headers, kwargs)
+
+    def opsany_cmdb_update_model_fields(self, **kwargs):
+        fun_name = inspect.currentframe().f_code.co_name
+        data = {
+            "code": kwargs.get("code"),
+            "name": kwargs.get("name"),
+            "type_name": kwargs.get("type_name"),
+            "model_code": kwargs.get("model_code"),
+            "field_group_code": kwargs.get("field_group_code"),
+            "not_null": kwargs.get("not_null"),
+            "built_in": kwargs.get("built_in"),
+            "index": kwargs.get("index"),
+            "attribute": kwargs.get("attribute"),
+        }
+        result_headers = {
+            "code": "字段code",
+            "name": "字段名称",
+            "index": "字段排序",
+            "type_name": "字段类型",
+            "built_in": "是否必填",
+            "model_code": "模型code",
+            "field_group_code": "字段分组",
+            "not_null": "排序",
+            "attribute": "字段属性(包括规则下拉数据等相关配置)",
+            "attribute.关系类型": "关系类型",
+            "attribute.rule_id": "规则类型",
+            "attribute.默认值": "默认值",
+            "attribute.用户提示": "用户提示",
+            "attribute.rule": "规则",
+            "attribute.选项": "下拉框选项",
+        }
+        return self._base_run(fun_name, "POST", {}, data, result_headers, kwargs)
+
+    def opsany_cmdb_delete_model_fields(self, **kwargs):
+        fun_name = inspect.currentframe().f_code.co_name
+        data = {
+            "code": kwargs.get("code"),
+        }
+        result_headers = {}
+        return self._base_run(fun_name, "POST", {}, data, result_headers, kwargs)

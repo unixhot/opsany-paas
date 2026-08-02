@@ -71,7 +71,7 @@ class ParamRequired(ClientBlueException):
 
 class AccessForbidden(ClientBlueException):
 
-    MESSAGE = "登陆失败"
+    MESSAGE = "登录失败"
     ERROR_CODE = "40301"
     STATUS_CODE = 403
 
@@ -99,14 +99,14 @@ class MethodError(ClientBlueException):
 
 class RioVerifyError(ClientBlueException):
 
-    MESSAGE = "登陆请求经智能网关检测失败"
+    MESSAGE = "登录请求经智能网关检测失败"
     ERROR_CODE = "40502"
     STATUS_CODE = 405
 
 
 class BkJwtVerifyError(ClientBlueException):
 
-    MESSAGE = "登陆请求经JWT检测失败"
+    MESSAGE = "登录请求经JWT检测失败"
     ERROR_CODE = "40503"
     STATUS_CODE = 401
 

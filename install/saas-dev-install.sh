@@ -116,7 +116,7 @@ paas_agent_start(){
     -v ${INSTALL_PATH}/paas_agent_test/apps:/opt/opsany/paas-agent/apps \
     -v ${INSTALL_PATH}/paas_agent_test/saasapp:/opt/opsany/paas-agent/saasapp \
     -v /etc/localtime:/etc/localtime:ro \
-    ${PAAS_DOCKER_REG}/opsany-paas-paasagent:v3.2.7
+    ${PAAS_DOCKER_REG}/opsany-paas-paasagent:4.0.3
     
     sleep 10
     
@@ -128,13 +128,64 @@ paas_agent_start(){
         shell_error_log "paasagent test Start Faild，Check (http://$BIND_ADDR:$PAASAGENT_SERVER_PORT/healthz) Error" >&2
         exit 1
     fi
-    
      shell_log "Activate paas-agent"
     # Activate PaasAgent
      cd $CDIR && cd ../saas/
      python3 engine-server-script.py --domain https://${DOMAIN_NAME} --paas_username admin --paas_password ${ADMIN_PASSWORD} --server_id $server_id --type active
 }
+
+paas_agent_prod_add(){
+    shell_log "Register Prod paas-agent Service"
+    cd $CDIR && cd ../saas/
+    resp=$(python3 engine-server-script.py --domain https://${DOMAIN_NAME} --paas_username admin --paas_password ${ADMIN_PASSWORD} --server_ip $LOCAL_IP  --server_port 4245 --app_port 8085 --server_cate tapp --type add)
+    token=$(jq -r .data.token <<<"$resp" 2>/dev/null)
+    sid=$(jq -r .data.s_id <<<"$resp" 2>/dev/null)
+    server_id=$(jq -r .data.server_id <<<"$resp" 2>/dev/null)
+    if [[ -z "$token" || -z "$sid" ]]; then
+        shell_log "Register Faild：$resp"
+    else
+        shell_log "Register Succeed"
+    fi
+}
+
+# Start PaasAgent
+paas_agent_start(){
+    # 修改PaasAgent配置文件
+    cd $CDIR
+    mkdir -p ${INSTALL_PATH}/paas_agent_test
+    /bin/cp -r ../install/conf/paas_agent/paasagent.conf ${INSTALL_PATH}/paas_agent_test/paasagent.conf
+    /bin/cp -r ../install/conf/paas_agent/paas_agent_config.yaml ${INSTALL_PATH}/paas_agent_test/paas_agent_config.yaml
+    sed -i "s/BK_PAASAGENT_SID/$sid/g" ${INSTALL_PATH}/paas_agent_test/paas_agent_config.yaml
+    sed -i "s/BK_PAASAGENT_TOKEN/$token/g" ${INSTALL_PATH}/paas_agent_test/paas_agent_config.yaml
+    sed -i "s/LOCAL_IP/${LOCAL_IP}/g" ${INSTALL_PATH}/paas_agent_test/paas_agent_config.yaml
     
+    shell_log "Start paas-agent Test"
+    docker run -d --restart=always --name opsany-paas-paasagent-test \
+    -p 4245:4245 -p 8085:8085 \
+    -v ${INSTALL_PATH}/logs:/opt/opsany/logs/ \
+    -v ${INSTALL_PATH}/paas_agent_test/paas_agent_config.yaml:/opt/opsany/paas-agent/etc/paas_agent_config.yaml \
+    -v ${INSTALL_PATH}/paas_agent_test/paasagent.conf:/etc/nginx/conf.d/paasagent.conf \
+    -v ${INSTALL_PATH}/uploads:/opt/opsany/uploads \
+    -v ${INSTALL_PATH}/paas_agent_test/apps:/opt/opsany/paas-agent/apps \
+    -v ${INSTALL_PATH}/paas_agent_test/saasapp:/opt/opsany/paas-agent/saasapp \
+    -v /etc/localtime:/etc/localtime:ro \
+    ${PAAS_DOCKER_REG}/opsany-paas-paasagent:4.0.3
+    
+    sleep 10
+    
+    # PaasAgent healthz
+    BIND_ADDR=${LOCAL_IP}
+    PAASAGENT_SERVER_PORT=4245
+    code=$(curl -s -o /dev/null -w "%{http_code}" http://$BIND_ADDR:$PAASAGENT_SERVER_PORT/healthz )
+    if [[ $code != 200 ]]; then
+        shell_error_log "paasagent test Start Faild，Check (http://$BIND_ADDR:$PAASAGENT_SERVER_PORT/healthz) Error" >&2
+        exit 1
+    fi
+     shell_log "Activate paas-agent"
+    # Activate PaasAgent
+     cd $CDIR && cd ../saas/
+     python3 engine-server-script.py --domain https://${DOMAIN_NAME} --paas_username admin --paas_password ${ADMIN_PASSWORD} --server_id $server_id --type active
+}  
 
 # Main
 main(){
@@ -145,6 +196,10 @@ main(){
           paas_agent_start
           rabbitmq_install
 	  ;;
+        prod)
+          paas_agent_prod_add
+          paas_agent_prod_start
+          ;;
 	help|*)
 		echo $"Usage: $0 {install|help}"
 	        ;;

@@ -16,7 +16,7 @@ try:
 except NameError:
     unicode = str
 import socket
-from channels.generic.websocket import AsyncWebsocketConsumer
+from channels.generic.websocket import WebsocketConsumer
 from django_redis import get_redis_connection
 
 from bastion import constant
@@ -36,7 +36,7 @@ from bastion.utils.encryption import PasswordEncryption
 app_logging = logging.getLogger("app")
 
 
-class DatabaseRedisWeb(AsyncWebsocketConsumer):
+class DatabaseRedisWeb(WebsocketConsumer):
     data_type_dict = {
         "command": "输入Redis命令",
         "result": "后获取剩余结果",
@@ -57,6 +57,8 @@ class DatabaseRedisWeb(AsyncWebsocketConsumer):
     token = ""
     database = None
     session_log = None
+    _connection_closed = False
+    _redis_thread = None
 
     def connect(self):
         # 连接 Websocket
@@ -66,9 +68,9 @@ class DatabaseRedisWeb(AsyncWebsocketConsumer):
         status, code, data = self.check_token()
         if not status and status is not None:
             self.close_connect(code)
-        else:
-            # self.session_log = self.create_session_log(data)
-            self.start_ssh(data)
+            return
+        # self.session_log = self.create_session_log(data)
+        self.start_ssh(data)
 
     def check_token(self):
         request_param = self.get_request_param_dict()
@@ -160,19 +162,41 @@ class DatabaseRedisWeb(AsyncWebsocketConsumer):
             password = ""
         return password
 
-    def close_connect(self, text):
+    def close_connect(self, text=None):
+        if self._connection_closed:
+            return
+        self._connection_closed = True
         if text:
             try:
-                text = json.dumps(text)
-            except:
+                if not isinstance(text, str):
+                    text = json.dumps(text)
+            except Exception:
                 pass
-
-            self.send(text_data=text)
+            try:
+                self.send(text_data=text)
+            except Exception as e:
+                app_logging.warning("[WARN] Databases web socket, close_connect send error: {}".format(str(e)))
         time.sleep(1)
-        self.close()
-        if self.ssh:
-            self.ssh.close()
+        try:
+            self.close()
+        except Exception:
+            pass
+        self._cleanup_resources()
         return
+
+    def _cleanup_resources(self):
+        if self.redis_conn:
+            try:
+                self.redis_conn.close()
+            except Exception:
+                pass
+            self.redis_conn = None
+        if self.ssh:
+            try:
+                self.ssh.close()
+            except Exception:
+                pass
+            self.ssh = None
 
     def start_ssh(self, data):
         try:
@@ -187,8 +211,10 @@ class DatabaseRedisWeb(AsyncWebsocketConsumer):
             self.database = HostModel.fetch_one(id=host_id, resource_type=HostModel.RESOURCE_DATABASE, )
             if (not self.database) or (not credential_host):
                 self.close_connect(MySQLWebSocketStatusCode.PARAM_ERROR)
+                return
             if self.database.resource_type != HostModel.RESOURCE_DATABASE:
                 self.close_connect(MySQLWebSocketStatusCode.HOST_TYPE_ERROR)
+                return
             network_proxy = self.database.network_proxy
             dic = {
                 "host": self.database.host_address,
@@ -215,10 +241,13 @@ class DatabaseRedisWeb(AsyncWebsocketConsumer):
                 try:
                     self.ssh = sshtunnel.SSHTunnelForwarder(**network_dict)
                     self.ssh.start()
+                    # 隧道在本机监听，客户端必须连本地端口，不能用 remote_bind 的数据库 IP
+                    dic["host"] = self.ssh.local_bind_host or "127.0.0.1"
                     dic["port"] = self.ssh.local_bind_port
                 except Exception as e:
-                    print("ssh_tunnel_forwarder_error", str(e))
+                    app_logging.error("[ERROR] ssh_tunnel_forwarder_error: {}".format(str(e)))
                     self.close_connect(MySQLWebSocketStatusCode.DATABASE_PROXY_ERROR)
+                    return
             try:
                 self.redis_conn = redis.Redis(**dic)
                 try:
@@ -226,40 +255,44 @@ class DatabaseRedisWeb(AsyncWebsocketConsumer):
                     self.send(text_data=(default_data))
                 except Exception as e:
                     if "this user has no permissions" in str(e):
-                        MySQLWebSocketStatusCode.USER_PERMISSIONS_ERROR["message"] += str(e)
-                        self.close_connect(json.dumps(MySQLWebSocketStatusCode.USER_PERMISSIONS_ERROR))
+                        error_code = dict(MySQLWebSocketStatusCode.USER_PERMISSIONS_ERROR)
+                        error_code["message"] += str(e)
+                        self.close_connect(error_code)
                     else:
-                        MySQLWebSocketStatusCode.LINK_DATA_CHECK_ERROR["message"] += str(e)
-                        self.close_connect(json.dumps(MySQLWebSocketStatusCode.LINK_DATA_CHECK_ERROR))
+                        error_code = dict(MySQLWebSocketStatusCode.LINK_DATA_CHECK_ERROR)
+                        error_code["message"] += str(e)
+                        self.close_connect(error_code)
                     return
             except Exception as e:
-                MySQLWebSocketStatusCode.LINK_DATA_CHECK_ERROR["message"] += str(e)
-                self.close_connect(MySQLWebSocketStatusCode.LINK_DATA_CHECK_ERROR)
+                app_logging.error("[ERROR] redis connect error: {}".format(str(e)))
+                error_code = dict(MySQLWebSocketStatusCode.LINK_DATA_CHECK_ERROR)
+                error_code["message"] += str(e)
+                self.close_connect(error_code)
                 return
+
+        if not self.redis_conn:
+            return
 
         sshterminal = RedisThread(self, self.redis_conn, self.user.username, self.token,
                                   ssh_type=self.database.resource_type)
-        sshterminal.setDaemon = True
+        sshterminal.daemon = True
         sshterminal.start()
+        self._redis_thread = sshterminal
 
     def _get_default_data(self, database=None):
-        try:
-            all_dbs_command = "config get databases"
-            select_dbs_command = "select {}"
-            dic = {"data_type": "default_data"}
-            all_databases = self._clean_databases(self.redis_conn.execute_command(all_dbs_command))
-            dic["databases"] = all_databases
-            if database:
-                db = database
-            else:
-                db = 0
-            res = self.redis_conn.execute_command(select_dbs_command.format(db))
-            dic["select_database"]=db
-            dic["data"]= "Databases {}".format(db) + " " + res
-            return dic
-        except Exception as e:
-            MySQLWebSocketStatusCode.LINK_DATA_CHECK_ERROR["message"] += str(e)
-            self.close_connect(MySQLWebSocketStatusCode.LINK_DATA_CHECK_ERROR)
+        all_dbs_command = "config get databases"
+        select_dbs_command = "select {}"
+        dic = {"data_type": "default_data"}
+        all_databases = self._clean_databases(self.redis_conn.execute_command(all_dbs_command))
+        dic["databases"] = all_databases
+        if database:
+            db = database
+        else:
+            db = 0
+        res = self.redis_conn.execute_command(select_dbs_command.format(db))
+        dic["select_database"] = db
+        dic["data"] = "Databases {}".format(db) + " " + res
+        return dic
 
 
     def _clean_databases(self, all_databases):
@@ -273,18 +306,42 @@ class DatabaseRedisWeb(AsyncWebsocketConsumer):
         return all_databases
 
     def disconnect(self, close_code):
-        self.close()
+        if self._connection_closed:
+            return
+        self._connection_closed = True
+        # 停止 RedisThread
+        if self._redis_thread:
+            try:
+                self._redis_thread.stop()
+            except Exception:
+                pass
+        # 发送关闭消息
+        try:
+            self.queue.publish(self.channel_name, 'close')
+        except Exception:
+            pass
+        if self._redis_thread:
+            try:
+                self._redis_thread.join(timeout=3)
+            except Exception:
+                pass
+        self._redis_thread = None
+        self._cleanup_resources()
+
+    _queue_instance_class = None
 
     @property
     def queue(self):
-        queue = SSHBaseComponent().get_redis_instance()
-        queue.pubsub()
-        return queue
+        cls = type(self)
+        if cls._queue_instance_class is None:
+            cls._queue_instance_class = SSHBaseComponent().get_redis_instance()
+        return cls._queue_instance_class
 
     def receive(self, text_data=None, bytes_data=None, **kwargs):
         status, code, data = self.check_token()
         if not status and status is not None:
             self.close_connect(code)
+            return
         try:
             self.queue.publish(self.channel_name, text_data)
         except socket.error:
@@ -342,7 +399,7 @@ class RedisThread(threading.Thread):
     def check_timeout_close(self):
         # 空闲超时退出
         current_time = time.time()
-        if int(current_time - self.websocket.wait_time) > settings.TERMINAL_TIMEOUT:
+        if int(current_time - self.websocket.wait_time) > getattr(settings, "TERMINAL_TIMEOUT", 1800):
             # self.websocket.send(json.dumps(MySQLWebSocketStatusCode.LEAVE_TIME_OUT))
             # self.websocket.disconnect(1001)
             self.websocket.close_connect(MySQLWebSocketStatusCode.LEAVE_TIME_OUT)
@@ -369,7 +426,7 @@ class RedisThread(threading.Thread):
                     return True
                 return False
         except Exception as e:
-            print("_check_command", str(e))
+            app_logging.warning("_check_command: %s", e)
             return False
 
     def _clean_command(self, command_str: str):
@@ -397,7 +454,7 @@ class RedisThread(threading.Thread):
             command_return.update(
                 {"data": self._clean_command_res(res, command_str), "execute_time": t2 - t1, "message": "OK", "status": 1})
         except Exception as e:
-            print("_run_command_run_command", type(e), e)
+            app_logging.warning("_run_command error: %s", e)
             t2 = time.time()
             command_return.update({"data": "", "execute_time": t2 - t1, "message": str(e), "status": 0})
         self.websocket.send(json.dumps(command_return))
@@ -426,28 +483,26 @@ class RedisThread(threading.Thread):
             return res
 
     def _handler_command(self, text):
-        # print("从前端Web取出命令(原生)：", text)
         self.websocket.wait_time = time.time()
         if isinstance(text['data'], (str, basestring, unicode, bytes)):
-            if isinstance(text['data'], bytes):
+            try:
+                raw = text['data']
+                if isinstance(raw, bytes):
+                    raw = raw.decode('utf8')
+                # 先尝试安全的 ast.literal_eval（处理 Python 字面量）
                 try:
-                    data = ast.literal_eval(text['data'].decode('utf8'))
-                except Exception as e:
-                    data = text['data']
-            else:
-                try:
-                    data = ast.literal_eval(text['data'])
-                except Exception as e:
-                    data = text['data']
+                    data = ast.literal_eval(raw)
+                except (ValueError, SyntaxError, MemoryError):
+                    data = json.loads(raw)
+            except (json.JSONDecodeError, TypeError):
+                data = text['data']
         else:
             data = text['data']
-        # print("从前端Web取出命令处理成字符串：", data, type(data))
         try:
             if not isinstance(data, (dict, list)):
                 data = json.loads(data)
         except Exception as e:
-            print("_handler_command_error", text, e)
-            # self.websocket.send(str(e))
+            app_logging.warning("_handler_command_error: %s", e)
         return data
 
     def _handler_sql_result(self, res_list):
@@ -472,11 +527,11 @@ class RedisThread(threading.Thread):
         result_id = data.get("result_id")
         try:
             limit = int(data.get("limit"))
-        except:
+        except Exception:
             limit = 20
         try:
             offset = int(data.get("offset"))
-        except:
+        except Exception:
             offset = 0
         # res = self.mysql_cursor.fetchmany(size)
         if self.result_dict.get(result_id):
@@ -505,7 +560,7 @@ class RedisThread(threading.Thread):
                 else:
                     self.run_command = False
                     self.websocket.send(json.dumps({"data_type": "sql_run", "status": 0}))
-                text = self.queue.get_message()
+                text = self.queue.get_message(timeout=1.0)
                 if text:
                     try:
                         data = self._handler_command(text)
@@ -569,7 +624,6 @@ class RedisThread(threading.Thread):
                         dic["message"] = dic["message"].format(str(e))
                         self.websocket.send(json.dumps(dic))
 
-                time.sleep(0.001)
         except Exception as e:
             app_logging.warning("RedisThread_run_redis_error" + str(e))
             dic = MySQLWebSocketStatusCode.SERVER_ERROR
@@ -578,10 +632,16 @@ class RedisThread(threading.Thread):
         finally:
             try:
                 self.websocket.send(json.dumps(MySQLWebSocketStatusCode.CHANNEL_CREATE_ERROR))
-            except:
+            except Exception:
                 pass
             try:
                 self.websocket.close_connect()
-            except:
+            except Exception:
+                pass
+            # 清理 Redis pub/sub 订阅
+            try:
+                self.queue.unsubscribe()
+                self.queue.close()
+            except Exception:
                 pass
             time.sleep(2)

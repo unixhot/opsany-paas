@@ -29,7 +29,7 @@ class BkJwtLoginRequiredMiddleware(MiddlewareMixin):
         if not (login_exempt or request.user.is_authenticated):
             user = auth.authenticate(request=request)
             if user:
-                # 登录成功，确认登陆正常后退出
+                # 登录成功，确认登录正常后退出
                 auth.login(request, user)
                 if request.user.is_authenticated:
                     return None

@@ -1,6 +1,6 @@
 <template>
 	<div class="mt-4">
-		<a-alert v-if="loginErrorMsg" class="mt-1! mb-4!" type="warning" show-icon :message="loginErrorMsg" />
+		<ErrorAlert :message="loginErrorMsg" />
 		<a-form name="loginForm" :model="formData" :rules="formDataRules" @finish="onFinish">
 			<a-form-item name="username">
 				<a-input
@@ -38,6 +38,7 @@
 
 <script setup>
 import SlideVerifyModal from "@/components/SlideVerifyModal/index.vue";
+import ErrorAlert from "./ErrorAlert.vue";
 import { onMounted, ref, useTemplateRef } from "vue";
 import { getAuthConfig, doLogin } from "@/api/login.js";
 import config from "@/config/defaultSetting";

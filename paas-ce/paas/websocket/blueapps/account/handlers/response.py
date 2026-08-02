@@ -120,7 +120,7 @@ class ResponseHandler(object):
         context = {
             'result': False,
             'code': RioVerifyError.ERROR_CODE,
-            'message': u'您的登陆请求无法经智能网关正常检测，请与管理人员联系'
+            'message': u'您的登录请求无法经智能网关正常检测，请与管理人员联系'
         }
         return JsonResponse(context, status=401)
 
@@ -131,6 +131,6 @@ class ResponseHandler(object):
         context = {
             "result": False,
             "code": BkJwtVerifyError.ERROR_CODE,
-            "message": u"您的登陆请求无法经BK JWT检测，请与管理人员联系"
+            "message": u"您的登录请求无法经BK JWT检测，请与管理人员联系"
         }
         return JsonResponse(context, status=401)

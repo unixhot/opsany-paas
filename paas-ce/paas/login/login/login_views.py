@@ -413,14 +413,14 @@ class LoginIndexView(BaseLoginView):
         if auth_name and domain_name:
             auth_type = self.AUTH_TYPE_DICT.get(auth_name)
             domain = domain_name
-
         auth_obj = None
         if (auth_type == "8") and sso_code and sso_sign:  # 8 SSO
             auth_obj = OpsAnyRbacUserAuth(domain=domain, auth_type=auth_type, sso_code=sso_code, sso_sign=sso_sign)
         elif auth_type == "3":  # 3 企业微信
             auth_obj = OpsAnyRbacUserAuth(auth_type=auth_type, code=code, app_id=appid, ad_domain=ad_domain)
         elif auth_type in ["6", "11", "12"]:  # 6 Oauth 11 dingtalk  12 feishu
-            auth_obj = OpsAnyRbacUserAuth(auth_type=auth_type, domain=domain, code=code)
+            # oauth access_token
+            auth_obj = OpsAnyRbacUserAuth(auth_type=auth_type, domain=domain, code=code, params=params)
         elif auth_type in ["9", "10"]:  # 9 10 IDAAS IAM
             auth_obj = OpsAnyRbacUserAuth(auth_type=auth_type, domain=domain, params=params)
         elif code and domain:  # AD(auth_by_oauth)

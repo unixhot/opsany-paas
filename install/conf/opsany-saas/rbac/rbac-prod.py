@@ -57,7 +57,7 @@ CACHES.update(
     {
         "default": {
             "BACKEND": "django_redis.cache.RedisCache",
-            "LOCATION": "redis://{}:{}@{}:{}/9".format(REDIS_USERNAME, REDIS_PASSWORD, REDIS_HOST, REDIS_PORT),
+            "LOCATION": "redis://{}:{}@{}:{}/1".format(REDIS_USERNAME, REDIS_PASSWORD, REDIS_HOST, REDIS_PORT),
             'TIMEOUT': 1800,
             "OPTIONS": {
                 "CLIENT_CLASS": "django_redis.client.DefaultClient",

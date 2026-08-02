@@ -4,10 +4,10 @@ import json
 import logging
 import uuid
 import datetime
-import settings
+from django.conf import settings
 import threading
 import os
-from channels.generic.websocket import AsyncWebsocketConsumer
+from channels.generic.websocket import WebsocketConsumer
 from django_redis import get_redis_connection
 
 from bastion.component.redis_client_conn import get_redis_dict_data
@@ -29,7 +29,7 @@ from bastion.core.guacamole.client import GuacamoleClient
 app_logging = logging.getLogger("app")
 
 
-class GuacamoleWebsocket(AsyncWebsocketConsumer):
+class GuacamoleWebsocket(WebsocketConsumer):
     GUACD_CLIENT = None
     width = 1920
     height = 1080
@@ -38,7 +38,7 @@ class GuacamoleWebsocket(AsyncWebsocketConsumer):
     token = ""
     cache = get_redis_connection("cache")
     user = None
-    recording_path = os.path.join(settings.GUACD_PATH, "logfile")
+    recording_path = os.path.join(getattr(settings, "GUACD_PATH", "/srv/guacamole"), "logfile")
     recording_name = "UUID"
 
     def get_request_param_dict(self):
@@ -137,8 +137,8 @@ class GuacamoleWebsocket(AsyncWebsocketConsumer):
         if not data.get("cache"):
             server_ = HostModel.fetch_one(id=data.get("host_id"))
             credential_host = HostCredentialRelationshipModel.fetch_one(id=data.get("credential_host_id"))
-            drive_path = os.path.join(settings.GUACD_PATH, str(server_.id))
-            ori_drive_path = os.path.join(settings.ORI_GUACD_PATH, str(server_.id))
+            drive_path = os.path.join(getattr(settings, "GUACD_PATH", "/srv/guacamole"), str(server_.id))
+            ori_drive_path = os.path.join(getattr(settings, "ORI_GUACD_PATH", "/opt/opsany/uploads/guacamole"), str(server_.id))
             network_proxy = server_.network_proxy
             if network_proxy:
                 guacamole_host = network_proxy.windows_ip
@@ -146,8 +146,8 @@ class GuacamoleWebsocket(AsyncWebsocketConsumer):
         else:
             server_ = None
             credential_host = None
-            drive_path = os.path.join(settings.GUACD_PATH, str(data.get("host_id")))
-            ori_drive_path = os.path.join(settings.ORI_GUACD_PATH, str(data.get("host_id")))
+            drive_path = os.path.join(getattr(settings, "GUACD_PATH", "/srv/guacamole"), str(data.get("host_id")))
+            ori_drive_path = os.path.join(getattr(settings, "ORI_GUACD_PATH", "/opt/opsany/uploads/guacamole"), str(data.get("host_id")))
             network_proxy_id = data.get("host_info", {}).get("network_proxy")
             if network_proxy_id:
                 try: network_proxy_id = int(network_proxy_id)
@@ -158,12 +158,20 @@ class GuacamoleWebsocket(AsyncWebsocketConsumer):
                 guacamole_host = network_proxy.windows_ip
                 guacamole_port = network_proxy.windows_port
         if (not guacamole_host) and (not guacamole_port):
-            guacamole_host = settings.GUACD_HOST
-            guacamole_port = settings.GUACD_PORT
+            guacamole_host = getattr(settings, "GUACD_HOST", "127.0.0.1")
+            guacamole_port = getattr(settings, "GUACD_PORT", "4822")
 
         self.GUACD_CLIENT = GuacamoleClient(guacamole_host, guacamole_port, timeout=timeout)
-        # if not os.path.exists(ori_drive_path + "/Download"):
-        #     os.makedirs(ori_drive_path + "/Download")
+        # 创建驱动目录（guacd 通过 RDP 映射给 Windows 的共享目录）
+        # 使用 ORI_GUACD_PATH 创建（宿主机实际路径），通过 Docker volume 挂载到
+        # GUACD_PATH（容器内路径），guacd 即可读写
+        # 注意：guacd 容器内进程可能以非 root 用户运行，因此给 777 权限
+        if not os.path.exists(ori_drive_path):
+            os.makedirs(ori_drive_path, mode=0o777)
+        else:
+            # 确保已有目录 guacd 也有写入权限
+            os.chmod(ori_drive_path, 0o777)
+        os.chown(ori_drive_path, 1000, 1000)
         if not os.path.exists(self.recording_path):
             os.makedirs(self.recording_path)
         args = {
@@ -224,95 +232,122 @@ class GuacamoleWebsocket(AsyncWebsocketConsumer):
             **args
         )
         self.GUACD_CLIENT.handshake(**handshake_dict)
-        # print("dicdic", dic)
         self.closed = threading.Event()
         guacamolethread = GuacamoleThread(self)
-        guacamolethread.setDaemon = True
+        guacamolethread.daemon = True
         guacamolethread.start()
+        self._guacamole_thread = guacamolethread
         guacamolethreadwrite = GuacamoleThreadWrite(self)
-        guacamolethreadwrite.setDaemon = True
+        guacamolethreadwrite.daemon = True
         guacamolethreadwrite.start()
+        self._guacamole_write_thread = guacamolethreadwrite
+        save_dict = {
+            "user": self.user.username,
+            "channel": self.channel_name,
+            "resource_type": "host",
+            "login_type": 1,
+            "system_type": "Windows",
+            "log_name": self.recording_name,
+            "guacamole_client_id": self.GUACD_CLIENT.id,
+            "width": self.width,
+            "height": self.height
+        }
         if server_:
-            SessionLogModel.objects.create(
-                user=self.user.username,
-                host=server_,
-                channel=self.channel_name,
-                host_name=server_.host_name,
-                system_type=server_.system_type,
-                host_address=server_.host_address,
-                login_name=credential_host.credential.login_name,
-                log_name=self.recording_name,
-                guacamole_client_id=self.GUACD_CLIENT.id,
-                width=self.width,
-                height=self.height
-            )
+            save_dict.update({
+                "host": server_,
+                "host_name": server_.host_name,
+                "host_name_code": server_.host_name_code,
+                "host_address": server_.host_address,
+                "protocol_type": server_.protocol_type,
+                "port": server_.port,
+                "login_name": credential_host.credential.login_name,
+            })
         else:
-            SessionLogModel.objects.create(
-                user=self.user.username,
-                channel=self.channel_name,
-                host_name=data.get("host_info").get("host_name"),
-                system_type="Windows",
-                host_address=data.get("host_info").get("ip"),
-                login_name=data.get("host_info").get("username"),
-                log_name=self.recording_name,
-                guacamole_client_id=self.GUACD_CLIENT.id,
-                width=self.width,
-                height=self.height
-            )
+            host_info = data.get("host_info") or {}
+            save_dict.update({
+                "host_name": host_info.get("host_name"),
+                "host_name_code": host_info.get("host_name_code"),
+                "protocol_type": host_info.get("protocol_type") or "RDP",
+                "host_address": host_info.get("ip"),
+                "port": host_info.get("port"),
+                "login_name": host_info.get("username"),
+
+            })
+        SessionLogModel.objects.create(**save_dict)
 
     def disconnect(self, code):
+        # 1. 发送停止信号给两个 Guacamole 线程
         self.closed.set()
+        self.closeguacamole()
+        # 2. 等待写线程退出（有 1s 超时，最多 2 秒）
+        if self._guacamole_write_thread:
+            try:
+                self._guacamole_write_thread.join(timeout=2)
+            except Exception:
+                pass
+        # 3. 关闭 Guacamole TCP socket → 读线程 recv() 退出
+        if self.GUACD_CLIENT and self.GUACD_CLIENT._client is not None:
+            try:
+                self.GUACD_CLIENT.client.close()
+            except Exception:
+                pass
+        # 4. 等待读线程退出（socket 断开后应快速结束）
+        if self._guacamole_thread:
+            try:
+                self._guacamole_thread.join(timeout=2)
+            except Exception:
+                pass
         audit_log = SessionLogModel.objects.filter(channel=self.channel_name)
         if audit_log:
             audit_log.update(
                 is_finished=True,
                 end_time=datetime.datetime.now()
             )
-            # width = str(audit_log[0].width)
-            # height = str(audit_log[0].height)
-            # full_path = os.path.join(self.recording_path, self.recording_name)
-            # command = '/opt /guacamole-server-1.2.0/src/guacenc/guacenc -s ' \
-            #           + width + "x" + height + ' -r 1000000 -f ' + full_path
-            # os.system(command)
         else:
             app_logging.error(
                 "[ERROR] Windows Terminal Not Find Session Log, Channel name: {}".format(self.channel_name))
         with contextlib.suppress(Exception):
             self.close()
-        self.GUACD_CLIENT.client.close()
-        with contextlib.suppress(Exception):
-            self.close()
-        self.closeguacamole()
+        # 断开引用
+        self._guacamole_thread = None
+        self._guacamole_write_thread = None
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._queue_instance = None
+        self.GUACD_CLIENT = None
+        self._guacamole_thread = None
+        self._guacamole_write_thread = None
+
+    _queue_instance_class = None
 
     def queue(self):
-        queue = SSHBaseComponent().get_redis_instance()
-        queue.pubsub()
-        return queue
+        cls = type(self)
+        if cls._queue_instance_class is None:
+            cls._queue_instance_class = SSHBaseComponent().get_redis_instance()
+        return cls._queue_instance_class
 
     def closeguacamole(self):
-        self.queue().publish(self.channel_name, json.dumps(['close']))
+        try:
+            self.queue().publish(self.channel_name, json.dumps(['close']))
+        except Exception:
+            pass
 
     def check_timeout_close(self):
         # 空闲超时退出
         current_time = time.time()
-        if int(current_time - self.wait_time) > settings.TERMINAL_TIMEOUT:
-            self._extracted_from_receive_5()
+        if int(current_time - self.wait_time) > getattr(settings, "TERMINAL_TIMEOUT", 1800):
+            self.send("10.disconnect;")
+            self.queue().publish(self.channel_name, "10.disconnect;")
+            self.disconnect(1001)
 
     def receive(self, text_data=None, bytes_data=None, **kwargs):
         self.check_timeout_close()
-        # status, _, _ = self.check_token()
-        status = True
-        if status:
+        try:
             self.queue().publish(self.channel_name, text_data)
-            if not text_data.startswith("4.sync,1"):
-                self.wait_time = time.time()
-            if text_data == '10.disconnect;':
-                self.disconnect(1000)
-        else:
-            self._extracted_from_receive_5()
-
-    # TODO Rename this here and in `check_timeout_close` and `receive`
-    def _extracted_from_receive_5(self):
-        self.send("10.disconnect;")
-        self.queue().publish(self.channel_name, "10.disconnect;")
-        self.disconnect(1001)
+        except Exception as e:
+            app_logging.warning("[receive] publish error: %s", e)
+        if not text_data.startswith("4.sync,1"):
+            self.wait_time = time.time()
+        if text_data == '10.disconnect;':
+            self.disconnect(1000)

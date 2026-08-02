@@ -6,7 +6,7 @@ import traceback
 import requests
 from django.shortcuts import resolve_url
 from django.http import QueryDict
-from django.utils.six.moves.urllib.parse import urlparse, urlunparse
+from urllib.parse import urlparse, urlunparse
 
 from blueapps.core.exceptions.base import ApiResultError, ApiNetworkError
 

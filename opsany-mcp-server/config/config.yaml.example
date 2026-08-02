@@ -4,6 +4,7 @@ apiService:
   bk_app_code: cmdb
   bk_app_secret: CMDB_SECRET_KEY
   super_username: admin  # 管理员用户名 用作部分API接口内部调用
+  licence: ce
   api_version: 4.0.3  # esb 2026-04-11 api服务版本 login 4.0.3
 server:
   host: 0.0.0.0

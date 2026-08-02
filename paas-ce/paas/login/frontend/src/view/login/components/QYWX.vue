@@ -1,11 +1,6 @@
 <template>
 	<div class="w-full flex items-center flex-col">
-		<a-alert
-			v-if="async_auth_type == authData.auth_type && async_error_msg"
-			class="mt-1! mb-4! w-full"
-			type="warning"
-			show-icon
-			:message="async_error_msg" />
+		<ErrorAlert v-if="authData.auth_type == async_auth_type" :message="async_error_msg" />
 		<img class="mt-6 w-[50px]!" :src="require('@/assets/qywx.png')" :alt="$t('wecom')" />
 		<div class="text-lg font-bold mt-3">{{ $t("wecom") }}</div>
 		<div class="mt-12 mb-10 w-full">
@@ -20,6 +15,7 @@
 
 <script setup>
 import { nextTick, onMounted, ref, watchEffect } from "vue";
+import ErrorAlert from "./ErrorAlert.vue";
 
 const { authData } = defineProps({
 	authData: {

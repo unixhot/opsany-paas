@@ -5,14 +5,12 @@ import json
 import logging
 import uuid
 import datetime
-import contextlib
 import io
 import socket
-from channels.generic.websocket import AsyncWebsocketConsumer
+from channels.generic.websocket import WebsocketConsumer
 from django_redis import get_redis_connection
-from paramiko.ssh_exception import NoValidConnectionsError
 
-from bastion.component.redis_client_conn import get_redis_dict_data_async
+from bastion.component.redis_client_conn import get_redis_dict_data
 
 try:
     from django.utils.encoding import smart_unicode
@@ -31,20 +29,28 @@ from bastion.utils.encryption import PasswordEncryption
 app_logging = logging.getLogger("app")
 
 
-class WebSSH(AsyncWebsocketConsumer):
-    ssh = None
+class WebSSH(WebsocketConsumer):
     http_user = True
     channel_session = False
     channel_session_user = False
-    first_flag = True
-    wait_time = time.time()
-    user = None
     cache = get_redis_connection("cache")
-    token = ""
-    link_config = {}
-    host = None
-    session_log = None
-    stop_key = ""
+    _redis_instance = None
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.ssh = None
+        self.proxy_ssh = None  # 记录代理SSH连接，用于清理
+        self.first_flag = True
+        self.wait_time = time.time()
+        self.user = None
+        self.token = ""
+        self.link_config = {}
+        self.host = None
+        self.session_log = None
+        self.stop_key = ""
+        self.chan = None  # SSH channel
+        self._ssh_terminal = None  # 持有 SshTerminalThread 引用，disconnect 时显式释放
+        self._interactive_shell = None  # 持有 InterActiveShellThread 引用
 
     # 从ws接口中获取cookies内用户信息
     def get_user_query(self):
@@ -55,7 +61,6 @@ class WebSSH(AsyncWebsocketConsumer):
     def get_cookie(self):
         cookie = {}
         cookies = next((header[1].decode() for header in self.scope['headers'] if header[0] == b'cookie'), None)
-
         if cookies:
             cookie = dict([cookie.split('=', 1) for cookie in cookies.split('&')])
         return cookie
@@ -80,11 +85,10 @@ class WebSSH(AsyncWebsocketConsumer):
         return False
 
     # 获取登录前缓存的登录信息
-    # 异步获取链接配置
     def get_link_config(self, token):
         try:
             if not self.link_config:
-                self.link_config = get_redis_dict_data_async("cache", token)
+                self.link_config = get_redis_dict_data("cache", token)
             return True, self.link_config
         except Exception as e:
             app_logging.error("[ERROR] SSH web socket, get_link_config error: {}, param: {}".format(str(e), str(token)[:5]))
@@ -148,7 +152,7 @@ class WebSSH(AsyncWebsocketConsumer):
             width = 175
             height = 55
         """
-        根据Token获取的缓存数据记录登陆日志
+        根据Token获取的缓存数据记录登录日志
         """
         log_name = str(uuid.uuid4())
         if not data.get("cache"):
@@ -178,7 +182,7 @@ class WebSSH(AsyncWebsocketConsumer):
                 "host_name": data.get("host_info").get("host_name"),
                 "system_type": data.get("host_info").get("system_type"),
                 "host_address": data.get("host_info").get("ip"),
-                "protocol_type": "ssh",
+                "protocol_type": "SSH",
                 "login_type": 1,
                 "port": data.get("host_info").get("port"),
                 "login_name": data.get("host_info").get("username", ""),
@@ -198,17 +202,29 @@ class WebSSH(AsyncWebsocketConsumer):
             return True, ""
         except socket.timeout:
             return False, WebSocketStatusCode.TIME_OUT
-        except NoValidConnectionsError as e:
-            app_logging.error("[ERROR] SSH web socket NoValidConnectionsError, client_ssh_by_password error: {}, param: {}".format(str(e), str([ip, port])))
-            return False, WebSocketStatusCode.SSH_CHECK_ERROR
+        except paramiko.ssh_exception.AuthenticationException as e:
+            return False, WebSocketStatusCode.SSH_AUTH_FAILED_ERROR
+        except paramiko.ssh_exception.NoValidConnectionsError as e:
+            self._tmp_log("client_ssh_by_password", f"{username}@{ip}:{port} NoValidConnectionsError {e}\n")
+            return False, WebSocketStatusCode.TARGET_HOST_RESET_PEER_ERROR
+        except paramiko.ssh_exception.SSHException as e:
+            self._tmp_log("client_ssh_by_password", f"{username}@{ip}:{port} SSHException {e}\n")
+            if "Connection reset by peer" in str(e):
+                return False, WebSocketStatusCode.TARGET_HOST_RESET_PEER_ERROR
+            return False, WebSocketStatusCode.TARGET_HOST_SSH_ERROR
         except Exception as e:
-            app_logging.error("[ERROR] SSH web socket, client_ssh_by_password error: {}, param: {}".format(str(e), str([ip, port])))
-            return False, WebSocketStatusCode.SSH_CHECK_ERROR
+            self._tmp_log("client_ssh_by_password", f"{username}@{ip}:{port} Exception {e}\n")
+            return False, WebSocketStatusCode.TARGET_HOST_SSH_ERROR
+
+    def _tmp_log(self, name, error):
+        tmp = f"/tmp/{name}-{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}"
+        with open(tmp, "a") as f:
+            f.write(f"[SSH-ERROR]: {error}")
 
     # 通过key登录
     def client_ssh_by_ssh_key(self, ip, port, login_name, ssh_key, passphrase, sock=None, timeout=5):
         """
-        创建秘钥登陆SSH连接
+        创建秘钥登录SSH连接
         """
         app_logging.error("[INFO]:{}".format(str([ip, port, login_name, ssh_key, passphrase])))
         try:
@@ -224,15 +240,19 @@ class WebSSH(AsyncWebsocketConsumer):
             return True, ""
         except socket.timeout:
             return False, WebSocketStatusCode.TIME_OUT
-        except NoValidConnectionsError as e:
-            app_logging.error("[ERROR] SSH web socket NoValidConnectionsError, client_ssh_by_password error: {}, param: {}".format(str(e), str([ip, port])))
-            return False, WebSocketStatusCode.SSH_CHECK_ERROR
+        except paramiko.ssh_exception.AuthenticationException as e:
+            return False, WebSocketStatusCode.SSH_AUTH_FAILED_ERROR
+        except paramiko.ssh_exception.NoValidConnectionsError as e:
+            self._tmp_log("client_ssh_by_ssh_key", f"{login_name}@{ip}:{port} NoValidConnectionsError {e}\n")
+            return False, WebSocketStatusCode.TARGET_HOST_RESET_PEER_ERROR
+        except paramiko.ssh_exception.SSHException as e:
+            self._tmp_log("client_ssh_by_ssh_key", f"{login_name}@{ip}:{port} SSHException {e}\n")
+            if "Connection reset by peer" in str(e):
+                return False, WebSocketStatusCode.TARGET_HOST_RESET_PEER_ERROR
+            return False, WebSocketStatusCode.TARGET_HOST_SSH_ERROR
         except Exception as e:
-            app_logging.error("[ERROR] SSH web socket, client_ssh_by_ssh_key error: {}, param: {}".format(
-                    str(e), str([ip, port, login_name, ssh_key, passphrase])
-            ))
-            return False, WebSocketStatusCode.SSH_CHECK_ERROR
-            # return False, str(e)
+            self._tmp_log("client_ssh_by_ssh_key", f"{login_name}@{ip}:{port} Exception {e}\n")
+            return False, WebSocketStatusCode.TARGET_HOST_SSH_ERROR
 
     def get_password(self, password):
         """
@@ -251,14 +271,17 @@ class WebSSH(AsyncWebsocketConsumer):
         通过密码创建代理连接
         """
         try:
-            proxy = paramiko.SSHClient()
-            proxy.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-            proxy.connect(hostname=ip, port=port, username=username, password=self.get_password(password), timeout=timeout)
-            sock = proxy.get_transport().open_channel('direct-tcpip', (host_ip, host_port), (ip, 0))
-            return True, sock
+            self.proxy_ssh = paramiko.SSHClient()
+            self.proxy_ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            self.proxy_ssh.connect(hostname=ip, port=port, username=username, password=self.get_password(password), timeout=timeout)
         except Exception as e:
             app_logging.error("[ERROR] SSH web socket, create_proxy_sock_by_password error: {}, param: {}".format(str(e), str(ip)))
-            return False, None
+            return False, 9
+        try:
+            sock = self.proxy_ssh.get_transport().open_channel('direct-tcpip', (host_ip, host_port), (ip, 0))
+            return True, sock
+        except Exception as e:
+            return False, 10
 
     # 通过代理key连接
     def create_proxy_sock_by_ssh_key(self, ip, port, username, ssh_key, passphrase, host_ip, host_port, timeout=5):
@@ -266,18 +289,19 @@ class WebSSH(AsyncWebsocketConsumer):
         通过key创建代理连接
         """
         try:
-            proxy = paramiko.SSHClient()
-            proxy.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            self.proxy_ssh = paramiko.SSHClient()
+            self.proxy_ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
             io_pri_key = io.StringIO(ssh_key)
             pri_key = paramiko.RSAKey.from_private_key(io_pri_key, password=self.get_password(passphrase))
-            proxy.connect(hostname=ip, port=port, username=username, pkey=pri_key, timeout=timeout)
-            sock = proxy.get_transport().open_channel('direct-tcpip', (host_ip, host_port), (ip, 0))
+            self.proxy_ssh.connect(hostname=ip, port=port, username=username, pkey=pri_key, timeout=timeout)
+        except Exception as e:
+            app_logging.error("[ERROR] SSH web socket, create_proxy_sock_by_ssh_key error: {}".format(str(e)))
+            return False, 9
+        try:
+            sock = self.proxy_ssh.get_transport().open_channel('direct-tcpip', (host_ip, host_port), (ip, 0))
             return True, sock
         except Exception as e:
-            app_logging.error("[ERROR] SSH web socket, create_proxy_sock_by_ssh_key error: {}, param: {}".format(
-                    str(e), str(ip)
-            ))
-            return False, None
+            return False, 10
 
     # 创建本地登录SSH连接
     def _create_ssh_link(self, credential, host, password, timeout=5):
@@ -293,27 +317,22 @@ class WebSSH(AsyncWebsocketConsumer):
                 linux_timeout = 5
             if network_proxy.credential_type == network_proxy.CREDENTIAL_PASSWORD:
                 status, sock = self.create_proxy_sock_by_password(
-                    network_proxy.linux_ip,
-                    network_proxy.linux_port,
-                    network_proxy.linux_login_name,
-                    network_proxy.linux_login_password,
-                    self.host.host_address,
-                    self.host.port,
-                    linux_timeout
+                    network_proxy.linux_ip, network_proxy.linux_port,
+                    network_proxy.linux_login_name, network_proxy.linux_login_password,
+                    self.host.host_address, self.host.port, linux_timeout
                 )
             else:
                 status, sock = self.create_proxy_sock_by_ssh_key(
-                    network_proxy.linux_ip,
-                    network_proxy.linux_port,
-                    network_proxy.linux_login_name,
-                    network_proxy.ssh_key,
-                    network_proxy.passphrase,
-                    self.host.host_address,
-                    self.host.port,
-                    linux_timeout
+                    network_proxy.linux_ip, network_proxy.linux_port,
+                    network_proxy.linux_login_name, network_proxy.ssh_key,
+                    network_proxy.passphrase, self.host.host_address,
+                    self.host.port, linux_timeout
                 )
             if not status:
-                return False, WebSocketStatusCode.PROXY_LINK_ERROR
+                if sock == 9:
+                    return False, WebSocketStatusCode.PROXY_LINK_ERROR
+                else:
+                    return False, WebSocketStatusCode.SSH_LINK_ERROR
         if credential.login_type == CredentialModel.LOGIN_AUTO:
             if credential.credential_type == CredentialModel.CREDENTIAL_PASSWORD:
                 password = self.get_password(credential.login_password)
@@ -337,9 +356,6 @@ class WebSSH(AsyncWebsocketConsumer):
 
     # 创建外部登录SSH连接
     def _create_cache_ssh_link(self, token_data, timeout=5):
-        """
-        创建SSH连接
-        """
         host_info = token_data.get("host_info")
         network_proxy_id = host_info.get("network_proxy")
         ip = host_info.get("ip")
@@ -348,13 +364,12 @@ class WebSSH(AsyncWebsocketConsumer):
         ssh_key = host_info.get("ssh_key")
         password = host_info.get("password")
         sock = None
-        # app_logging.info("network_proxy_id--" + str(network_proxy_id))
         if network_proxy_id:  # 使用代理登录
-            try: network_proxy_id = int(network_proxy_id)
-            except: return False, WebSocketStatusCode.PROXY_LINK_ERROR
+            try:
+                network_proxy_id = int(network_proxy_id)
+            except Exception:
+                return False, WebSocketStatusCode.PROXY_LINK_ERROR
             network_proxy = NetworkProxyModel.fetch_one(id=network_proxy_id)
-            # app_logging.info("network_proxy--" + str(network_proxy))
-
             if not network_proxy:
                 return False, WebSocketStatusCode.PROXY_LINK_ERROR
             try:
@@ -363,31 +378,24 @@ class WebSSH(AsyncWebsocketConsumer):
                 linux_timeout = 5
             if network_proxy.credential_type == network_proxy.CREDENTIAL_PASSWORD:
                 status, sock = self.create_proxy_sock_by_password(
-                        network_proxy.linux_ip,
-                        network_proxy.linux_port,
-                        network_proxy.linux_login_name,
-                        network_proxy.linux_login_password,
-                        ip,
-                        port,
-                        linux_timeout
+                    network_proxy.linux_ip, network_proxy.linux_port,
+                    network_proxy.linux_login_name, network_proxy.linux_login_password,
+                    ip, port, linux_timeout
                 )
             else:
                 status, sock = self.create_proxy_sock_by_ssh_key(
-                        network_proxy.linux_ip,
-                        network_proxy.linux_port,
-                        network_proxy.linux_login_name,
-                        network_proxy.ssh_key,
-                        network_proxy.passphrase,
-                        ip,
-                        port,
-                        linux_timeout
-                    )
+                    network_proxy.linux_ip, network_proxy.linux_port,
+                    network_proxy.linux_login_name, network_proxy.ssh_key,
+                    network_proxy.passphrase, ip, port, linux_timeout
+                )
             if not status:
-                return False, WebSocketStatusCode.PROXY_LINK_ERROR
-        # app_logging.info(sock)
-
+                if sock == 9:
+                    return False, WebSocketStatusCode.PROXY_LINK_ERROR
+                else:
+                    return False, WebSocketStatusCode.SSH_LINK_ERROR
+        # 缓存模式：直接使用 host_info 凭据（修复：原代码引用未定义的 credential_host）
         if token_data.get("login_type") == "password":
-            status, code = self._create_ssh_link(credential_host.credential, self.host, password, timeout=timeout)
+            status, code = self.client_ssh_by_password(ip, port, username, password, sock, timeout=timeout)
         else:
             status, code = self.client_ssh_by_ssh_key(ip, port, username, ssh_key, password, sock, timeout=timeout)
         if not status:
@@ -399,7 +407,6 @@ class WebSSH(AsyncWebsocketConsumer):
         """
         校验数据以及创建SSH连接
         """
-        # app_logging.info(str(data))
         try:
             timeout = int(data.get("timeout", 5))
         except Exception:
@@ -419,7 +426,6 @@ class WebSSH(AsyncWebsocketConsumer):
             status, code = self._create_ssh_link(credential_host.credential, self.host, password, timeout=timeout)
         else:
             status, code = self._create_cache_ssh_link(data, timeout)
-
         if not status:
             return False, code
         return True, ""
@@ -427,21 +433,24 @@ class WebSSH(AsyncWebsocketConsumer):
     def connect(self):
         self.wait_time = time.time()
         self.accept()
+        # print("self.accept()")
         # 验证token
         self.ssh = paramiko.SSHClient()
         status, code, data = self.check_token()
+        # print("3.status=%s, code=%s, data_keys=%s", status, code, list(data.keys()) if data else None)
         if status in [False]:
             self.close_connect(code)
             return
         try:
             status, code = self.create_ssh_link(data)
+            # print("4.status, code", status, code, flush=True)
             if status:
                 self.session_log = self.create_session_log(data)
                 self.start_ssh()
             else:
                 self.close_connect(code)
                 return
-        except Exception as e:
+        except ImportError as e:
             app_logging.error("[ERROR] Create ssh link error: {}".format(str(e)))
             self.close_connect(WebSocketStatusCode.SSH_LINK_ERROR)
             return
@@ -450,22 +459,52 @@ class WebSSH(AsyncWebsocketConsumer):
     # SshTerminalThread
     # InterActiveShellThread
     def start_ssh(self):
-        chan = self.ssh.invoke_shell(width=self.session_log.width, height=self.session_log.height, term='xterm')
-        # chan.setblocking(1)  # 设置为阻塞模式
-        # chan.settimeout(None)  # 设置超时为 None，意味着无超时
-        sshterminal = SshTerminalThread(self, chan, self.user.username, self.token)
-        # sshterminal.setDaemon = True
+        self.chan = self.ssh.invoke_shell(width=self.session_log.width, height=self.session_log.height, term='xterm')
+        sshterminal = SshTerminalThread(self, self.chan, self.user.username, self.token)
         sshterminal.start()
+        self._ssh_terminal = sshterminal  # 保存引用以便 disconnect 时显式清理
         log_name = self.session_log.log_name + '.log'
         self.stop_key = str(uuid.uuid4())
-        interactivessh = InterActiveShellThread(chan, self, log_name=log_name, width=self.session_log.width,
+        interactivessh = InterActiveShellThread(self.chan, self, log_name=log_name, width=self.session_log.width,
                                                     height=self.session_log.height, stop_key=self.stop_key)
-        # interactivessh.setDaemon = True
         interactivessh.start()
+        self._interactive_shell = interactivessh  # 保存引用以便 disconnect 时显式清理
 
     def disconnect(self, close_code):
-        self.close_ssh()
-        time.sleep(0.5)
+        # 1. 设置停止标志（让线程知晓）
+        redis_client = get_redis_connection("cache")
+        if self.stop_key:
+            try:
+                redis_client.set(self.stop_key, "true")
+                redis_client.expire(self.stop_key, 10)
+            except Exception:
+                pass
+        # 2. 停止 SshTerminalThread（设置 event）
+        if self._ssh_terminal:
+            try:
+                self._ssh_terminal.stop()
+            except Exception:
+                pass
+        # 3. 发送 Redis 消息（如果队列可用）
+        try:
+            self.queue.publish(self.channel_name, json.dumps(['close']))
+        except Exception:
+            pass
+        # 4. **强制关闭 SSH 连接（先于线程 join）**
+        self.close_ssh()  # 现在会强制 shutdown socket
+
+        # 5. 等待线程退出（缩短超时，因为 socket 已中断）
+        if self._ssh_terminal:
+            try:
+                self._ssh_terminal.join(timeout=1)  # 原为3秒，可缩短
+            except Exception:
+                pass
+        if self._interactive_shell:
+            try:
+                self._interactive_shell.join(timeout=1)
+            except Exception:
+                pass
+        # 6. 更新会话日志
         try:
             if self.session_log:
                 self.session_log.update(**{
@@ -473,22 +512,78 @@ class WebSSH(AsyncWebsocketConsumer):
                     "end_time": datetime.datetime.now()
                 })
         except Exception as e:
-            app_logging.error("[ERROR] Update Session Log error: {}, param: {}".format(str(e), str(self.session_log)))
+            app_logging.error("[ERROR] Update Session Log error: %s", e)
+        # 7. 释放引用，辅助 GC
+        self._ssh_terminal = None
+        self._interactive_shell = None
+        # 8. 关闭 WebSocket
         with contextlib.suppress(Exception):
             self.close()
 
     def close_ssh(self):
-        self.queue.publish(self.channel_name, json.dumps(['close']))
-        redis_client = get_async_redis_connection("cache")
-        redis_client.set(self.stop_key, "true")
-        redis_client.expire(self.stop_key, 10)
-        asyncio.sleep(2)
+        # ① 关闭 channel（先尝试优雅关闭，但不依赖）
+        if self.chan:
+            try:
+                self.chan.shutdown_write()
+                self.chan.close()
+            except Exception:
+                pass
+            self.chan = None
+        # ② 关闭主 SSH 连接（强制底层 socket）
+        if self.ssh:
+            try:
+                transport = self.ssh.get_transport()
+                if transport:
+                    # 强制关闭 socket，使所有阻塞的 recv/select 立即抛出异常
+                    sock = transport.sock
+                    if sock:
+                        try:
+                            sock.shutdown(socket.SHUT_RDWR)
+                        except Exception:
+                            pass
+                        try:
+                            sock.close()
+                        except Exception:
+                            pass
+                    # 关闭 transport
+                    transport.close()
+            except Exception:
+                pass
+            # 最后再调用 close 确保资源释放
+            try:
+                self.ssh.close()
+            except Exception:
+                pass
+            self.ssh = None
+        # ③ 关闭代理 SSH（同样强制）
+        if self.proxy_ssh:
+            try:
+                transport = self.proxy_ssh.get_transport()
+                if transport:
+                    sock = transport.sock
+                    if sock:
+                        try:
+                            sock.shutdown(socket.SHUT_RDWR)
+                        except Exception:
+                            pass
+                        try:
+                            sock.close()
+                        except Exception:
+                            pass
+                    transport.close()
+            except Exception:
+                pass
+            try:
+                self.proxy_ssh.close()
+            except Exception:
+                pass
+            self.proxy_ssh = None
 
     @property
     def queue(self):
-        queue = SSHBaseComponent().get_redis_instance()
-        queue.pubsub()
-        return queue
+        if self._redis_instance is None:
+            self._redis_instance = SSHBaseComponent().get_redis_instance()
+        return self._redis_instance
 
     def receive(self, text_data=None, bytes_data=None, **kwargs):
         try:
@@ -496,9 +591,9 @@ class WebSSH(AsyncWebsocketConsumer):
             if status in [False]:
                 self.close_connect(code)
                 return
-            if text_data is not None:           # 普通命令执行
+            if text_data is not None:  # 普通命令执行
                 self.queue.publish(self.channel_name, text_data)
-            if bytes_data:                       # RZ SZ
+            if bytes_data:  # RZ SZ
                 self.queue.publish(self.channel_name, bytes_data)
         except socket.error:
             self.disconnect(1000)
@@ -510,4 +605,3 @@ class WebSSH(AsyncWebsocketConsumer):
         except Exception as e:
             self.disconnect(1000)
             return
-

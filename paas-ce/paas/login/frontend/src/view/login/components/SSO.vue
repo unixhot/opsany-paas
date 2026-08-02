@@ -1,11 +1,6 @@
 <template>
 	<div class="w-full flex items-center flex-col max-h-[400px] overflow-auto">
-		<a-alert
-			v-if="async_auth_type == authData.auth_type && async_error_msg"
-			class="mt-1! mb-4! w-full"
-			type="warning"
-			show-icon
-			:message="async_error_msg" />
+		<ErrorAlert v-if="authData.auth_type == async_auth_type" :message="async_error_msg" />
 		<template v-if="authData.account.length == 1">
 			<div class="w-full overflow-hidden">
 				<img class="mt-6 mx-auto w-[50px]!" :src="config.baseUrlOfImg + authData.account[0].auth_icon?.url" alt="" />
@@ -39,6 +34,7 @@
 
 <script setup>
 import config from "@/config/defaultSetting";
+import ErrorAlert from "./ErrorAlert.vue";
 
 const { authData } = defineProps({
 	authData: {

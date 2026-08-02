@@ -14,6 +14,369 @@ object: 对象（嵌套结构）
 null: 空值
 """
 
+model_fields_attribute_md = """
+字段类型与后端请求字段说明
+
+## 概述
+
+---
+
+## 公共基础字段（所有类型通用）
+
+| 字段 | 来源 | 类型 | 说明 |
+|------|------|------|------|
+| `name` | `form.name` | string | 字段名称 |
+| `code` | `form.code` (新增时拼接: `{model_code}_{code}`) | string | 字段标识 |
+| `type_name` | `form.type_name` | string | 字段类型 code |
+| `not_null` | `form.not_null` | boolean | 是否必填 |
+| `built_in` | `form.built_in` | boolean | 是否内置属性 |
+| `model_code` | `this.model_code` | string | 所属模型 code |
+| `field_group_code` | `form.field_group_code` | string | 所属字段组 code |
+| `index` | `this.fieldLength` | number | 排序索引 |
+| `attribute.rule_id` | `form2.rule_id` | string\|number | 校验规则ID ("empty" 表示无校验) |
+| `attribute.rule` | `form2.rule` | object | 校验规则 `{ re: "正则表达式" }` |
+
+---
+
+## 一、str（单行文本） / textarea（多行文本） / link（链接）
+
+
+| 字段 | 来源 | 类型 | 适用类型 | 说明 |
+|------|------|------|----------|------|
+| `attribute.默认值` | `form2["默认值"]` | string | str/textarea/link | 默认值 |
+| `attribute.maxLen` | `form2.maxLen` | number | str/textarea | 最大长度（link 无此字段） |
+| `attribute.用户提示` | `form2["用户提示"]` | string | 全部 | 占位提示文本 |
+
+**JSON 示例（str）：**
+```json
+{
+  "name": "主机名",
+  "code": "host_name",
+  "type_name": "str",
+  "not_null": true,
+  "built_in": false,
+  "model_code": "host",
+  "field_group_code": "basic",
+  "index": 0,
+  "attribute": {
+    "默认值": "",
+    "maxLen": 100,
+    "用户提示": "请输入主机名",
+    "rule_id": "empty",
+    "rule": {}
+  }
+}
+```
+
+---
+
+## 二、int（整数）
+
+| 字段 | 来源 | 类型 | 说明 |
+|------|------|------|------|
+| `attribute.单位` | `form2["单位"]` | string | 单位（如 "个"、"台"） |
+| `attribute.默认值` | `form2["默认值"]` | number | 默认值 |
+| `attribute.minLen` | `form2.minLen` | number | 最小值 |
+| `attribute.maxLen` | `form2.maxLen` | number | 最大值 |
+| `attribute.用户提示` | `form2["用户提示"]` | string | 占位提示文本 |
+
+**JSON 示例：**
+```json
+{
+  "name": "CPU核数",
+  "code": "cpu_cores",
+  "type_name": "int",
+  "not_null": false,
+  "built_in": false,
+  "model_code": "host",
+  "field_group_code": "basic",
+  "index": 1,
+  "attribute": {
+    "单位": "核",
+    "默认值": 4,
+    "minLen": 1,
+    "maxLen": 128,
+    "用户提示": "请输入CPU核数",
+    "rule_id": "empty",
+    "rule": {}
+  }
+}
+```
+
+---
+
+## 三、float（浮点型）
+
+| 字段 | 来源 | 类型 | 说明 |
+|------|------|------|------|
+| `attribute.rule_id` | `form2.rule_id` | string\|number | 校验规则ID |
+
+**JSON 示例：**
+```json
+{
+  "name": "内存大小",
+  "code": "memory_size",
+  "type_name": "float",
+  "not_null": false,
+  "built_in": false,
+  "model_code": "host",
+  "field_group_code": "basic",
+  "index": 2,
+  "attribute": {
+    "rule_id": 1,
+    "rule": { "re": "[1-9][0-9]*.[0-9]*|0\\.[0-9]*[1-9][0-9]*" }
+  }
+}
+```
+
+---
+
+## 四、date（日期时间）
+
+| 字段 | 来源 | 类型 | 说明 |
+|------|------|------|------|
+| `attribute.默认值` | `form2["默认值"]` | string | 默认值，格式 `YYYY-MM-DD HH:mm:ss` |
+| `attribute.用户提示` | `form2["用户提示"]` | string | 占位提示文本 |
+
+**JSON 示例：**
+```json
+{
+  "name": "采购日期",
+  "code": "purchase_date",
+  "type_name": "date",
+  "not_null": false,
+  "built_in": false,
+  "model_code": "host",
+  "field_group_code": "basic",
+  "index": 3,
+  "attribute": {
+    "默认值": "2024-01-01 00:00:00",
+    "用户提示": "请选择日期",
+    "rule_id": "empty",
+    "rule": {}
+  }
+}
+```
+
+---
+
+## 五、expiredDate（到期时间）
+
+| 字段 | 来源 | 类型 | 说明 |
+|------|------|------|------|
+| `attribute.默认值` | `form2["默认值"]` | string | 默认值，格式 `YYYY-MM-DD HH:mm:ss` |
+| `attribute.expire_day` | `form2.expire_day` | number | 到期天数（选择此类型时自动设为 30） |
+| `attribute.用户提示` | `form2["用户提示"]` | string | 占位提示文本 |
+
+**JSON 示例：**
+```json
+{
+  "name": "维保到期",
+  "code": "warranty_expire",
+  "type_name": "expiredDate",
+  "not_null": false,
+  "built_in": false,
+  "model_code": "host",
+  "field_group_code": "basic",
+  "index": 4,
+  "attribute": {
+    "默认值": "2025-01-01 00:00:00",
+    "expire_day": 30,
+    "用户提示": "请选择到期时间",
+    "rule_id": "empty",
+    "rule": {}
+  }
+}
+```
+
+---
+
+## 六、richText（富文本）
+
+| 字段 | 来源 | 类型 | 说明 |
+|------|------|------|------|
+| `attribute.富文本` | `form2["富文本"]` | string | 富文本 HTML 内容（由 editor 组件回调设置） |
+| `attribute.用户提示` | `form2["用户提示"]` | string | 占位提示文本 |
+
+**JSON 示例：**
+```json
+{
+  "name": "备注",
+  "code": "description",
+  "type_name": "richText",
+  "not_null": false,
+  "built_in": false,
+  "model_code": "host",
+  "field_group_code": "basic",
+  "index": 5,
+  "attribute": {
+    "富文本": "<p>详细说明</p>",
+    "用户提示": "请输入备注",
+    "rule_id": "empty",
+    "rule": {}
+  }
+}
+```
+
+---
+
+## 七、dropDown（下拉菜单）
+
+| 字段 | 来源 | 类型 | 说明 |
+|------|------|------|------|
+| `attribute.选项` | `dropDownList` | `[{name, id}]` | 选项列表（name=选项名(显示名), id=选项值(唯一标识)，id使用变量格式，理论上不可修改） |
+| `attribute.用户提示` | `form2["用户提示"]` | string | 占位提示文本 |
+
+**JSON 示例：**
+```json
+{
+  "name": "状态",
+  "code": "status",
+  "type_name": "dropDown",
+  "not_null": true,
+  "built_in": false,
+  "model_code": "host",
+  "field_group_code": "basic",
+  "index": 6,
+  "attribute": {
+    "选项": [
+      { "name": "运行中", "id": "running" },
+      { "name": "已停止", "id": "stop" },
+      { "name": "故障", "id": "fault" }
+    ],
+    "用户提示": "请选择状态",
+    "rule_id": "empty",
+    "rule": {}
+  }
+}
+```
+
+---
+
+## 八、复合数据（复合数据）
+
+| 字段 | 来源 | 类型 | 说明 |
+|------|------|------|------|
+| `attribute.tableData` | `this.tableData` | `[{name, key, type, uuid}]` | 复合数据结构体子字段列表（name=名称, key=标识, type=类型, uuid=唯一标识） |
+| `attribute.用户提示` | `form2["用户提示"]` | string | 占位提示文本 |
+
+注意：`composite_type`（1=手动新建, 2=从模型导入）仅用于 UI 交互，**不会**发送到后端。
+
+**JSON 示例：**
+```json
+{
+  "name": "扩展信息",
+  "code": "ext_info",
+  "type_name": "复合数据",
+  "not_null": false,
+  "built_in": false,
+  "model_code": "host",
+  "field_group_code": "basic",
+  "index": 7,
+  "attribute": {
+    "tableData": [
+      { "name": "字段A", "key": "field_a", "type": "str", "uuid": "xxx-xxx" },
+      { "name": "字段B", "key": "field_b", "type": "str", "uuid": "yyy-yyy" }
+    ],
+    "用户提示": "",
+    "rule_id": "empty",
+    "rule": {}
+  }
+}
+```
+
+---
+
+## 九、password（密码）
+
+| 字段 | 来源 | 类型 | 说明 |
+|------|------|------|------|
+| `attribute.minLen` | `form2.minLen` | number | 最小长度 |
+| `attribute.maxLen` | `form2.maxLen` | number | 最大长度 |
+| `attribute.用户提示` | `form2["用户提示"]` | string | 占位提示文本 |
+
+**JSON 示例：**
+```json
+{
+  "name": "密码",
+  "code": "password",
+  "type_name": "password",
+  "not_null": true,
+  "built_in": false,
+  "model_code": "host",
+  "field_group_code": "basic",
+  "index": 8,
+  "attribute": {
+    "minLen": 6,
+    "maxLen": 32,
+    "用户提示": "请输入密码",
+    "rule_id": "empty",
+    "rule": {}
+  }
+}
+```
+
+---
+
+## 十、file（附件）
+
+
+```json
+{
+  "name": "附件",
+  "code": "attachment",
+  "type_name": "file",
+  "not_null": false,
+  "built_in": false,
+  "model_code": "host",
+  "field_group_code": "basic",
+  "index": 9,
+  "attribute": {
+    "rule_id": "empty",
+    "rule": {}
+  }
+}
+```
+
+---
+
+**编辑（PUT）：** 新增参数基础上增加以下顶层字段：
+
+| 字段 | 来源 | 类型 | 说明 |
+|------|------|------|------|
+| `field_name` | `form.name` | string | 字段名称 |
+| `field_code` | `form.code` | string | 字段 code |
+| `is_relationship_field` | `form2["关系类型"]` | string | 固定为 `"1"` |
+| `not_null` | `form.not_null` | boolean | 是否必填 |
+| `built_in` | `form.built_in` | boolean | 是否内置 |
+| `describe` | `form2["用户提示"]` | string | 描述提示 |
+
+---
+
+## 附录：校验规则
+
+
+| 规则名称 | field_type | 正则 |
+|----------|-----------|------|
+| 正浮点数 | float | `[1-9][0-9]*.[0-9]*\|0\.[0-9]*[1-9][0-9]*` |
+| 负浮点数 | float | `-([1-9][0-9]*.[0-9]*\|0\.[0-9]*[1-9][0-9]*)` |
+| 仅小写字母 | str | `^[a-z]*$` |
+| 仅大写字母 | str | `^[A-Z]*$` |
+| 仅包含英文字母和数字 | str | `^[a-zA-Z0-9]*$` |
+| 仅包含英文字母和数字、下划线、中划线、英文小数点 | str | `^[\.a-zA-Z0-9_-]*$` |
+| 仅包含中文 | str | `^[\u4e00-\u9fa5]*$` |
+| 邮件 | str | `\w[-\w.+]*@([A-Za-z0-9][-A-Za-z0-9]+\.)+[A-Za-z]{2,14}` |
+| 手机 | str | `0?(13\|14\|15\|18\|17)[0-9]{9}` |
+| 身份证号 | str | `[0-9]{17}[[0-9]\|x]\|[0-9]{15}` |
+| QQ号码 | str | `[1-9]([0-9]{4,10})` |
+| IP地址 | str | `^((25[0-5]\|2[0-4]\d\|[1]{1}\d{1}\d{1}\|[1-9]{1}\d{1}\|\d{1})($\|(?!\.$)\.)){4}$` |
+| 正整数 | int | `[1-9][0-9]*` |
+| 负整数 | int | `-[1-9][0-9]*` |
+| 整数 | int | `-?[1-9][0-9]*` |
+
+"""
+
+
 
 TOOL_CMDB_DICT = {
     "opsany_cmdb_api_resources": {
@@ -90,6 +453,126 @@ TOOL_CMDB_DICT = {
                 "tool_timeout": {"type": "integer", "description": "工具请求超时时间", "default": 60},
             },
             "required": ["model_code"]
+        }
+    },
+    "opsany_cmdb_get_model_group": {
+        "name": "opsany_cmdb_get_model_group",
+        "description": "资源平台，获取资源模型分组(创建模型时使用)",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "model_type": {"type": "string", "description": "资源分组类型类型(zc:资产 yw:业务 zz:组织)"},
+                "tool_timeout": {"type": "integer", "description": "工具请求超时时间", "default": 60},
+            },
+            "required": []
+        }
+    },
+    "opsany_cmdb_get_model": {
+        "name": "opsany_cmdb_get_model",
+        "description": "资源平台，获取资源模型列表",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "model_type": {"type": "string", "description": "资源分组类型类型(zc:资产 yw:业务 zz:组织)"},
+                "tool_timeout": {"type": "integer", "description": "工具请求超时时间", "default": 60},
+            },
+            "required": []
+        }
+    },
+    "opsany_cmdb_create_model": {
+        "name": "opsany_cmdb_create_model",
+        "description": "资源平台，创建资源模型，创建资源模型后创建属性(字段)就可以在资源仓库创建该模型数据！",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "code": {"type": "string", "description": "模型code(模型唯一标识，建议使用全大写单词间隔为_ 如：CLOUD_SERVER)"},
+                "name": {"type": "string", "description": "模型名称"},
+                "model_type": {"type": "string", "description": "资源分组类型类型(zc:资产 yw:业务 zz:组织)", "default": "zc"},
+                "model_group": {"type": "string", "description": "模型分组opsany_cmdb_get_model_group中code字段"},
+                "clone_model": {"type": "string", "description": "克隆该模型字段信息，传入的是要克隆的模型code"},
+                "built_in": {"type": "boolean", "description": "是否为内置", "default": False},
+                "tool_timeout": {"type": "integer", "description": "工具请求超时时间", "default": 60},
+            },
+            "required": ["code", "name", "model_type", "model_group"]
+        }
+    },
+    "opsany_cmdb_update_model": {
+        "name": "opsany_cmdb_update_model",
+        "description": "资源平台，修改资源模型，支持修改名称分组和是否内置！",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "code": {"type": "string", "description": "模型code(模型唯一标识，建议使用全大写单词间隔为_ 如：CLOUD_SERVER)"},
+                "name": {"type": "string", "description": "模型名称"},
+                "model_group": {"type": "string", "description": "模型分组opsany_cmdb_get_model_group中code字段"},
+                "built_in": {"type": "boolean", "description": "是否为内置", "default": False},
+                "tool_timeout": {"type": "integer", "description": "工具请求超时时间", "default": 60},
+            },
+            "required": ["code", "name", "model_type", "model_group"]
+        }
+    },
+    "opsany_cmdb_delete_model": {
+        "name": "opsany_cmdb_delete_model",
+        "description": "资源平台，删除资源模型，谨慎删除，当模型没有数据才可以删除！",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "code": {"type": "string", "description": "模型code(模型唯一标识，建议使用全大写单词间隔为_ 如：CLOUD_SERVER)"},
+                "tool_timeout": {"type": "integer", "description": "工具请求超时时间", "default": 60},
+            },
+            "required": ["code", "name", "model_type", "model_group"]
+        }
+    },
+    "opsany_cmdb_create_model_fields": {
+        "name": "opsany_cmdb_create_model_fields",
+        "description": f"资源平台，创建资源模型属性(字段)，仅支持创建普通字段is_relationship_field=''; 不支持创建关联关系字段 is_relationship_field=1 or ; {model_fields_attribute_md}",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "code": {"type": "string", "description": "字段code,与model_code格式一致为大写(字段唯一标识格式为：{model_code}_{code}"},
+                "name": {"type": "string", "description": "字段名称"},
+                "type_name": {"type": "string", "description": "资源分组类型类型(zc:资产 yw:业务 zz:组织)", "default": "zc"},
+                "model_code": {"type": "string", "description": "模型code opsany_cmdb_get_model中model_code"},
+                "field_group_code": {"type": "string", "description": "字段分组opsany_cmdb_get_resource_fields中field_group_code"},
+                "not_null": {"type": "boolean", "description": "是否为空(True为必填)", "default": False},
+                "built_in": {"type": "boolean", "description": "是否为内置", "default": False},
+                "index": {"type": "boolean", "description": "排序"},
+                "attribute": {"type": "object", "description": "属性相关配置，固定格式，如提示 默认值 检验规则 下拉框数据等"},
+                "tool_timeout": {"type": "integer", "description": "工具请求超时时间", "default": 60},
+            },
+            "required": ["code", "name", "type_name", "model_code", "field_group_code", "attribute"]
+        }
+    },
+    "opsany_cmdb_update_model_field": {
+        "name": "opsany_cmdb_update_model_field",
+        "description": f"资源平台，修改资源模型属性(字段)，支持修改名称分组和是否内置: {model_fields_attribute_md}！",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "code": {"type": "string", "description": "字段code,与model_code格式一致为大写(字段唯一标识格式为：{model_code}_{code}"},
+                "name": {"type": "string", "description": "字段名称"},
+                "type_name": {"type": "string", "description": "资源分组类型类型(zc:资产 yw:业务 zz:组织)", "default": "zc"},
+                "model_code": {"type": "string", "description": "模型code opsany_cmdb_get_model中model_code"},
+                "field_group_code": {"type": "string", "description": "字段分组opsany_cmdb_get_resource_fields中field_group_code"},
+                "not_null": {"type": "boolean", "description": "是否为空(True为必填)", "default": False},
+                "built_in": {"type": "boolean", "description": "是否为内置", "default": False},
+                "index": {"type": "boolean", "description": "排序"},
+                "attribute": {"type": "object", "description": "属性相关配置，固定格式，如提示 默认值 检验规则 下拉框数据等"},
+                "tool_timeout": {"type": "integer", "description": "工具请求超时时间", "default": 60},
+            },
+            "required": ["code", "name", "type_name", "model_code", "attribute"]
+        }
+    },
+    "opsany_cmdb_delete_model_field": {
+        "name": "opsany_cmdb_delete_model_field",
+        "description": "资源平台，删除资源模型字段，谨慎删除，删除后该模型当前字段数据也会被清空！",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "code": {"type": "string", "description": "字段code"},
+                "tool_timeout": {"type": "integer", "description": "工具请求超时时间", "default": 60},
+            },
+            "required": ["code"]
         }
     },
     "opsany_cmdb_get_resource_link_inst_count": {
@@ -175,7 +658,6 @@ TOOL_CMDB_DICT = {
             "required": ["code", "model_code", "field_code", "target_code"]
         }
     },
-
     "opsany_cmdb_create_resource": {
         "name": "opsany_cmdb_create_resource",
         "description": "资源平台，资源仓库新建数据，需要获取该模型字段后整理数据, data数据中仅支持普通字段(is_relationship_field="")和从属关系字段(is_relationship_field=1)，创建关联关系请使用opsany_cmdb_resource_add_link_inst工具。",
@@ -460,17 +942,6 @@ TOOL_WORKBENCH_DICT = {
             "required": []
         }
     },
-    "opsany_workbench_work_order_folder": {
-        "name": "opsany_workbench_work_order_folder",
-        "description": "工作台，ITSM平台，获取全部服务分类，用来搜索指定分类下的工单！",
-        "inputSchema": {
-            "type": "object",
-            "properties": {
-                "tool_timeout": {"type": "integer", "description": "工具请求超时时间", "default": 30},
-            },
-            "required": []
-        }
-    },
     "opsany_workbench_work_order_temp": {
         "name": "opsany_workbench_work_order_temp",
         "description": "工作台，ITSM平台，获取全部服务目录，包含全部服务，用来提单使用，会拉取授权的全部服务和服务相关字段！",
@@ -670,40 +1141,6 @@ TOOL_JOB_DICT = {
             "required": ["script_id", "server"]
         }
     },
-    "opsany_job_run_script_by_script": {
-        "name": "opsany_job_run_script_by_script",
-        "description": "作业平台 输入脚本内容和主机信息执行脚本， 返回的为任务ID, 可以根据任务ID获取执行结果！",
-        "inputSchema": {
-            "type": "object",
-            "properties": {
-                "task_name": {
-                    "type": "string",
-                    "description": "任务名称，简短的任务名称，后续执行任务会根据该名称拼接执行记录， 作业平台，执行历史可查看 不输入会自动生成。",
-                    "default": "MCP生成"
-                },
-                "server_type": {
-                    "type": "string",
-                    "description": "字段server数据的主机类型，默认为主机唯一标识(host_name), "
-                                   "host_name: 主机唯一标识"
-                                   "ip: 主机IP 当选择使用主机IP地址执行时。"
-                },
-                "server": {
-                    "type": "string",
-                    "description": "主机唯一标识或主机IP, 当有多条时用逗号隔开，该主机为管控平台纳管的主机, 没有纳管会被忽略，纳管异常会执行失败。"
-                },
-                "script_type": {
-                    "type": "string",
-                    "description": "脚本类型, 生成脚本文件的后缀 默认 sh，如：Shell: sh  PowerShell:ps1 Python:py Bat:bat"
-                },
-                "script": {"type": "string", "description": "脚本内容, 直接输入脚本内容。"},
-                "parameter": {"type": "string", "description": "脚本参数", "default": ""},
-                "run_describe": {"type": "string", "description": "执行原因"},
-                "timeout": {"type": "integer", "description": "超时时间, 默认120s", "default": 120},
-                "tool_timeout": {"type": "integer", "description": "脚本执行超时时间", "default": 30},
-            },
-            "required": ["server"]
-        }
-    },
     "opsany_job_get_run_result_by_log_id": {
         "name": "opsany_job_get_run_result_by_log_id",
         "description": "作业平台 获取执行的作业或脚本结果， 根据返回的任务ID获取！",
@@ -714,6 +1151,21 @@ TOOL_JOB_DICT = {
                     "type": "integer",
                     "description": "执行作业或脚本后返回的任务ID"
                 },
+                "tool_timeout": {"type": "integer", "description": "工具请求超时时间", "default": 30},
+            },
+            "required": ["log_id"]
+        }
+    },
+    "opsany_job_create_script_library": {
+        "name": "opsany_job_create_script_library",
+        "description": "作业平台，创建脚本到脚本仓库，仅支持创建私有脚本！",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "script_type": {"type": "integer", "description": "脚本类型 "},
+                "script_name": {"type": "integer", "description": "执行作业或脚本后返回的任务ID"},
+                "version_remarks": {"type": "integer", "description": "执行作业或脚本后返回的任务ID"},
+                "script": {"type": "integer", "description": "执行作业或脚本后返回的任务ID"},
                 "tool_timeout": {"type": "integer", "description": "工具请求超时时间", "default": 30},
             },
             "required": ["log_id"]
@@ -1023,12 +1475,95 @@ TOOL_CONTROL_DICT = {
     },
 }
 
-# TOOL_DICT = TOOL_CMDB_DICT | TOOL_MONITOR_DICT | TOOL_WORKBENCH_DICT | TOOL_JOB_DICT | TOOL_CONTROL_DICT
-TOOL_DICT = TOOL_CMDB_DICT | TOOL_RBAC_DICT | TOOL_MONITOR_DICT | TOOL_WORKBENCH_DICT | TOOL_JOB_DICT | TOOL_CONTROL_DICT
-TOOL_DICT.pop("opsany_workbench_work_order_folder", None)
-TOOL_DICT.pop("opsany_job_run_script_by_script", None)
-TOOL_LIST = list(TOOL_DICT.values())
+TOOL_PROM_DICT = {
+    "opsany_prom_alert_info": {
+        "name": "opsany_prom_alert_info",
+        "description": "应用监控，获取应用监控平台的实例告警，包括管控平台纳管并使用Prometheus的后，在组件监控接入的实例告警和服务拨测告警！",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "alert_type": {"type": "string", "description": "告警类型 node：主机或组件告警 blackbox：服务拨测告警 all: 全部告警"},
+                "severity": {"type": "string", "description": "根据告警级别搜索，NotClassified: 未分类 Information: 信息 Warning: 警告 Average: 一般严重 High: 严重 Disaster: 灾难。"},
+                "tool_timeout": {"type": "integer", "description": "工具请求超时时间, 告警过多建议增加超时时间。", "default": 30},
+            },
+            "required": []
+        }
+    }
+}
+
+TOOL_EVENT_DICT = {
+    "opsany_event_alert_info": {
+        "name": "opsany_event_alert_info",
+        "description": "事件中心，获取事件中心我的告警和全部告警，可获取到待处理，处理中，已关闭告警；包括管控平台Prometheus(应用监控)，Zabbix(基础监控)纳管和监控的实例和第三方接入的告警, 获取告警优先拉取事件中心告警，包含分派给我的告警和全部告警！",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "alert_type": {"type": "string", "description": "告警类型 node：主机或组件告警 blackbox：服务拨测告警 all: 全部告警"},
+                "severity": {"type": "string", "description": "根据告警级别搜索，NotClassified: 未分类 Information: 信息 Warning: 警告 Average: 一般严重 High: 严重 Disaster: 灾难。"},
+                "tool_timeout": {"type": "integer", "description": "工具请求超时时间, 告警过多建议增加超时时间。", "default": 30},
+            },
+            "required": []
+        }
+    }
+}
+
+TOOL_KBASE_DICT = {
+    "opsany_kbase_read_kbase_list": {
+        "name": "opsany_kbase_read_kbase_list",
+        "description": "知识库，获取知识库平台全部知识库，知识库内有各类文章和文档！",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "data_type": {"type": "string", "description": "数据类型：all:全部知识库, public:公共知识库, involved:我参与的知识库, favorite:我收藏的知识库, owner: 我拥有的知识库"},
+                "search_type": {"type": "string", "description": "根据字段搜索支持：name:名称： description:描述！"},
+                "search_data": {"type": "string", "description": "搜索数据，与search_type同时使用！"},
+                "tool_timeout": {"type": "integer", "description": "工具请求超时时间, 告警过多建议增加超时时间。", "default": 30},
+            },
+            "required": []
+        }
+    },
+    "opsany_kbase_read_kbase_article": {
+        "name": "opsany_kbase_read_kbase_article",
+        "description": "知识库，获取知识库平台某一知识库内文章和文档，可获取列表和单条数据！",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "unique_code": {"type": "string", "description": "文章唯一标识用获取单条文章内容"},
+                "data_type": {"type": "string", "description": "数据类型：all:全部文章, self:我的文章, folder:根据目录筛选文章, favorite:我收藏的文章, single:单条"},
+                "kbase": {"type": "string", "description": "知识库唯一标识：opsany_kbase_read_kbase_list中unique_code字段"},
+                "current": {"type": "string", "description": "当前页码"},
+                "pageSize": {"type": "string", "description": "每页条数"},
+                "search_type": {"type": "string", "description": "根据字段搜索支持：title:文章标题！"},
+                "search_data": {"type": "string", "description": "搜索数据，与search_type同时使用！"},
+                "tool_timeout": {"type": "integer", "description": "工具请求超时时间, 告警过多建议增加超时时间。", "default": 30},
+            },
+            "required": []
+        }
+    }
+}
+
+
+TOOL_K8S_DICT = {}
+TOOL_LLMOPS_DICT = {}
+TOOL_AUTO_DICT = {}
+TOOL_LOG_DICT = {}
+TOOL_APM_DICT = {}
+TOOL_LIST = {}
+
+
+def _get_tool(licence="ce"):
+    print(licence)
+    TOOL_DICT = TOOL_CMDB_DICT | TOOL_RBAC_DICT | TOOL_MONITOR_DICT | TOOL_WORKBENCH_DICT | TOOL_JOB_DICT | TOOL_CONTROL_DICT
+    if licence in ["se", "ee"]:
+        TOOL_DICT |= TOOL_PROM_DICT | TOOL_K8S_DICT | TOOL_KBASE_DICT | TOOL_LLMOPS_DICT
+    if licence in ["ee"]:
+        TOOL_DICT |= TOOL_EVENT_DICT | TOOL_AUTO_DICT | TOOL_LOG_DICT | TOOL_APM_DICT
+
+    TOOL_DICT.pop("opsany_workbench_work_order_folder", None)
+    TOOL_DICT.pop("opsany_job_run_script_by_script", None)
+    TOOL_LIST = list(TOOL_DICT.values())
+    return TOOL_LIST
 
 
 if __name__ == '__main__':
-    print(TOOL_LIST)
+    print(_get_tool("ee"))

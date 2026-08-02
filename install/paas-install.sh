@@ -6,10 +6,11 @@
 # Description:  OpsAny PaaS Install Script
 #******************************************
 
-# Shell Envionment Variables
+# Shell Environment Variables
 CDIR=$(pwd)
 SHELL_NAME="paas-install.sh"
 SHELL_LOG="${CDIR}/${SHELL_NAME}.log"
+PAAS_VERSION=4.0.4
 
 # Shell Log Record
 shell_log(){
@@ -119,7 +120,8 @@ paas_install(){
     -p 6379:6379 -v ${INSTALL_PATH}/redis-volume:/data \
     -v ${INSTALL_PATH}/redis-volume/redis.conf:/data/redis.conf \
     -v /etc/localtime:/etc/localtime:ro \
-    ${PAAS_DOCKER_REG}/redis:6.2.19-alpine redis-server /data/redis.conf
+    ${PAAS_DOCKER_REG}/redis:7.2.14-alpine redis-server /data/redis.conf
+    #${PAAS_DOCKER_REG}/redis:6.2.19-alpine redis-server /data/redis.conf
     
     # MySQL
     shell_log "======Base Service: Start MySQL======"
@@ -129,7 +131,8 @@ paas_install(){
     -v ${INSTALL_PATH}/conf/mysqld.cnf:/etc/mysql/conf.d/mysqld.cnf \
     -v ${INSTALL_PATH}/logs:/var/log/mysql \
     -v /etc/localtime:/etc/localtime:ro \
-    ${PAAS_DOCKER_REG}/mysql:8.0.30 --character-set-server=utf8 --collation-server=utf8_general_ci
+    ${PAAS_DOCKER_REG}/mysql:8.4.10 --character-set-server=utf8 --collation-server=utf8_general_ci
+    #${PAAS_DOCKER_REG}/mysql:8.0.30 --character-set-server=utf8 --collation-server=utf8_general_ci
     #${PAAS_DOCKER_REG}/mysql:5.6.50 --character-set-server=utf8 --collation-server=utf8_general_ci
     
     # MongoDB
@@ -200,13 +203,13 @@ paas_start(){
     sed -i "s/SECRET_KEY = '.*'/SECRET_KEY = '$PAAS_SECRET_KEY'/g" ${INSTALL_PATH}/conf/opsany-paas/paas/settings_production.py.paas
     sed -i "s/ESB_TOKEN = '.*'/ESB_TOKEN = '$ESB_TOKEN'/g" ${INSTALL_PATH}/conf/opsany-paas/paas/settings_production.py.paas
 
-    docker pull ${PAAS_DOCKER_REG}/opsany-paas-paas:4.0.3
+    docker pull ${PAAS_DOCKER_REG}/opsany-paas-paas:${PAAS_VERSION}
     docker run -d --restart=always --name opsany-paas-paas \
     -p 8001:8001 -v ${INSTALL_PATH}/logs:/opt/opsany/logs \
     -v ${INSTALL_PATH}/conf/opsany-paas/paas/settings_production.py.paas:/opt/opsany/paas/paas/conf/settings_production.py \
     -v ${INSTALL_PATH}/conf/opsany-paas/paas/paas.ini:/etc/supervisord.d/paas.ini \
     -v /etc/localtime:/etc/localtime:ro \
-    ${PAAS_DOCKER_REG}/opsany-paas-paas:4.0.3
+    ${PAAS_DOCKER_REG}/opsany-paas-paas:${PAAS_VERSION}
     
     #login service
     shell_log "======PaaS Service: Start login Service======"
@@ -226,13 +229,13 @@ paas_start(){
     sed -i "s/SECRET_KEY = '.*'/SECRET_KEY = '$LOGIN_SECRET_KEY'/g" ${INSTALL_PATH}/conf/opsany-paas/login/settings_production.py.login
     sed -i "s/ESB_TOKEN = '.*'/ESB_TOKEN = '$ESB_TOKEN'/g" ${INSTALL_PATH}/conf/opsany-paas/login/settings_production.py.login
 
-    docker pull ${PAAS_DOCKER_REG}/opsany-paas-login:4.0.3
+    docker pull ${PAAS_DOCKER_REG}/opsany-paas-login:${PAAS_VERSION}
     docker run -d --restart=always --name opsany-paas-login \
     -p 8003:8003 -v ${INSTALL_PATH}/logs:/opt/opsany/logs \
     -v ${INSTALL_PATH}/conf/opsany-paas/login/settings_production.py.login:/opt/opsany/paas/login/conf/settings_production.py \
     -v ${INSTALL_PATH}/conf/opsany-paas/login/login.ini:/etc/supervisord.d/login.ini \
     -v /etc/localtime:/etc/localtime:ro \
-    ${PAAS_DOCKER_REG}/opsany-paas-login:4.0.3
+    ${PAAS_DOCKER_REG}/opsany-paas-login:${PAAS_VERSION}
     # OpsAny Database Init
     docker exec -e DJANGO_SETTINGS_MODULE=settings -e BK_ENV="production" \
         opsany-paas-login /bin/sh -c "python3 /opt/opsany/paas/login/manage.py migrate"
@@ -252,14 +255,14 @@ paas_start(){
     sed -i "s/SECRET_KEY = '.*'/SECRET_KEY = '$ESB_SECRET_KEY'/g" ${INSTALL_PATH}/conf/opsany-paas/esb/settings_production.py.esb
     sed -i "s/ESB_TOKEN = '.*'/ESB_TOKEN = '$ESB_TOKEN'/g" ${INSTALL_PATH}/conf/opsany-paas/esb/settings_production.py.esb
 
-    docker pull ${PAAS_DOCKER_REG}/opsany-paas-esb:4.0.3
+    docker pull ${PAAS_DOCKER_REG}/opsany-paas-esb:${PAAS_VERSION}
     docker run -d --restart=always --name opsany-paas-esb \
     -p 8002:8002 -v ${INSTALL_PATH}/logs:/opt/opsany/logs \
     -v ${INSTALL_PATH}/esb/apis:/opt/opsany/paas/esb/components/generic/apis \
     -v ${INSTALL_PATH}/conf/opsany-paas/esb/settings_production.py.esb:/opt/opsany/paas/esb/configs/default.py \
     -v ${INSTALL_PATH}/conf/opsany-paas/esb/esb.ini:/etc/supervisord.d/esb.ini \
     -v /etc/localtime:/etc/localtime:ro \
-    ${PAAS_DOCKER_REG}/opsany-paas-esb:4.0.3
+    ${PAAS_DOCKER_REG}/opsany-paas-esb:${PAAS_VERSION}
     
     # appengine service
     shell_log "======PaaS Service: Start appengine Service======"
@@ -270,13 +273,13 @@ paas_start(){
     sed -i "s/MYSQL_SERVER_PORT/${MYSQL_SERVER_PORT}/g" ${INSTALL_PATH}/conf/opsany-paas/appengine/settings_production.py.appengine
     sed -i "s/SECRET_KEY = '.*'/SECRET_KEY = '$APPENGINE_SECRET_KEY'/g" ${INSTALL_PATH}/conf/opsany-paas/appengine/settings_production.py.appengine
 
-    docker pull ${PAAS_DOCKER_REG}/opsany-paas-appengine:4.0.3
+    docker pull ${PAAS_DOCKER_REG}/opsany-paas-appengine:${PAAS_VERSION}
     docker run -d --restart=always --name opsany-paas-appengine \
     -p 8000:8000 -v ${INSTALL_PATH}/logs:/opt/opsany/logs \
     -v ${INSTALL_PATH}/conf/opsany-paas/appengine/settings_production.py.appengine:/opt/opsany/paas/appengine/controller/settings.py \
     -v ${INSTALL_PATH}/conf/opsany-paas/appengine/appengine.ini:/etc/supervisord.d/appengine.ini \
     -v /etc/localtime:/etc/localtime:ro \
-    ${PAAS_DOCKER_REG}/opsany-paas-appengine:4.0.3
+    ${PAAS_DOCKER_REG}/opsany-paas-appengine:${PAAS_VERSION}
     
     # websocket service
     shell_log "======PaaS Service: Start websocket Service======"
@@ -294,14 +297,14 @@ paas_start(){
     sed -i "s/MYSQL_OPSANY_PASSWORD/${MYSQL_OPSANY_PASSWORD}/g" ${INSTALL_PATH}/conf/opsany-paas/websocket/settings_production.py.websocket
     sed -i "s/PAAS_PAAS_IP/${PAAS_PAAS_IP}/g" ${INSTALL_PATH}/conf/opsany-paas/websocket/settings_production.py.websocket.init
     
-    docker pull ${PAAS_DOCKER_REG}/opsany-paas-websocket:4.0.3
+    docker pull ${PAAS_DOCKER_REG}/opsany-paas-websocket:${PAAS_VERSION}
     docker run -d --restart=always --name opsany-paas-websocket \
     -p 8004:8004 -e TZ=Asia/Shanghai -v ${INSTALL_PATH}/logs:/opt/opsany/logs \
     -v ${INSTALL_PATH}/uploads:/opt/opsany/uploads \
     -v ${INSTALL_PATH}/conf/opsany-paas/websocket/settings_production.py.websocket:/opt/opsany/websocket/config/prod.py \
     -v ${INSTALL_PATH}/conf/opsany-paas/websocket/settings_production.py.websocket.init:/opt/opsany/websocket/config/__init__.py \
     -v ${INSTALL_PATH}/conf/opsany-paas/websocket/websocket.ini:/etc/supervisord.d/websocket.ini \
-    ${PAAS_DOCKER_REG}/opsany-paas-websocket:4.0.3
+    ${PAAS_DOCKER_REG}/opsany-paas-websocket:${PAAS_VERSION}
     
     #openresty
     shell_log "======PaaS Service: Start openresty Service======"
@@ -317,7 +320,8 @@ paas_start(){
     -v ${INSTALL_PATH}/conf/nginx.conf:/etc/nginx/nginx.conf \
     -v ${INSTALL_PATH}/uploads:/opt/opsany/uploads \
     -v /etc/localtime:/etc/localtime:ro \
-    ${PAAS_DOCKER_REG}/openresty:1.17.8.2-alpine
+    ${PAAS_DOCKER_REG}/openresty:1.31.1.1-alpine
+    #${PAAS_DOCKER_REG}/openresty:1.17.8.2-alpine
 
     # copy init script to websocket
     docker cp ${CDIR}/../saas/ opsany-paas-websocket:/opt/opsany/
